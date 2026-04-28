@@ -20,6 +20,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
+        /* ANIMAÇÃO DE VOO DA GARRAFA */
+        .garrafa-voando {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            object-fit: contain;
+        }
+
         #toast-notificacao {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px;
@@ -65,7 +74,6 @@
             .swiper-produto img { max-height: 260px; max-width: 100%; object-fit: contain; }
         }
 
-        /* SACOLA */
         .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
         .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; }
@@ -76,17 +84,15 @@
         #bloco-retirada a { color: var(--gold-soft); text-decoration: underline; font-weight: bold; }
         #aviso-regiao { color: #ff4444; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; display: none; text-transform: uppercase; }
 
-        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; }
+        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; }
         .btn-adicionar:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333; cursor: not-allowed; }
         .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
         .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
         .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
-        
-        /* BOTÃO CONTINUAR COMPRANDO */
         .btn-continuar { width: 100%; margin-top: 10px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
 
-        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.2) rotate(10deg); } 40%, 80% { transform: scale(1.2) rotate(-10deg); } }
+        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.1) rotate(5deg); } 40%, 80% { transform: scale(1.1) rotate(-5deg); } }
     </style>
 </head>
 <body>
@@ -103,9 +109,7 @@
     <aside class="cart-overlay" id="cart-overlay">
         <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
-        
         <div id="cart-items"></div>
-        
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
             <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
@@ -113,27 +117,18 @@
                 <option value="tele">Tele Entrega (+ R$ 15,00)</option>
                 <option value="retirada">Retirada na Loja</option>
             </select>
-
             <div id="bloco-retirada" style="display:none;">
                 <strong>📍 Endereço para busca:</strong><br>
-                <a href="http://googleusercontent.com/maps.google.com/Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">
-                    Av. Bento Gonçalves, 4321<br>
-                    Partenon, Porto Alegre - RS
-                </a>
+                <a href="http://googleusercontent.com/maps.google.com/Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">Av. Bento Gonçalves, 4321<br>Partenon, Porto Alegre - RS</a>
                 <br><small>(Clique no endereço para abrir o Maps)</small>
             </div>
-
             <div id="bloco-endereco" style="display:none;">
                 <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
                 <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;">
-                    <input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;">
-                </div>
+                <div style="display:flex; gap:10px;"><input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;"><input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;"></div>
             </div>
-
             <select id="metodo-pagamento" class="cart-input">
                 <option value="none" selected disabled>Forma de Pagamento?</option>
                 <option value="Pix">Pix</option>
@@ -141,13 +136,9 @@
                 <option value="Débito">Débito</option>
                 <option value="Crédito">Crédito</option>
             </select>
-
             <div id="aviso-regiao">Ops! Ainda não entregamos nesta cidade. 💔</div>
-
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
-            
             <button id="btn-finalizar" onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
-            
             <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
         </div>
     </aside>
@@ -187,30 +178,25 @@
                 const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                 const d = await res.json();
                 if(!d.erro) { 
-                    document.getElementById('rua').value = d.logradouro; 
-                    document.getElementById('bairro').value = d.bairro;
-                    document.getElementById('cidade').value = d.localidade;
-                    document.getElementById('estado').value = d.uf;
+                    document.getElementById('rua').value = d.logradouro; document.getElementById('bairro').value = d.bairro;
+                    document.getElementById('cidade').value = d.localidade; document.getElementById('estado').value = d.uf;
                     validarCidade(d.localidade);
                 }
             }
         }
 
         function validarCidade(cidade) {
-            const btn = document.getElementById('btn-finalizar');
-            const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
             const entrega = document.getElementById('metodo-entrega').value;
             if (entrega === 'tele') {
                 const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
-                if (!permitida) {
-                    btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block";
-                } else { liberarBotao(); }
+                if (!permitida) { btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block"; } 
+                else { liberarBotao(); }
             } else { liberarBotao(); }
         }
 
         function liberarBotao() {
-            const btn = document.getElementById('btn-finalizar');
-            const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
             btn.disabled = false; btn.style.background = "#25D366"; btn.style.opacity = "1"; aviso.style.display = "none";
         }
 
@@ -225,13 +211,13 @@
                 if(c[3].toLowerCase() !== 'sim') return;
                 const temEstoque = (parseInt(c[4]) || 0) > 0;
                 const card = `
-                    <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}">
+                    <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}" id="card-${c[0]}">
                         <div class="img-wrapper">
                             ${temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}
-                            <div class="desktop-only-images"><img src="${c[0]}.png" class="foto-1"><img src="${c[0]}-2.png" class="foto-2" onerror="this.style.display='none'"></div>
+                            <div class="desktop-only-images"><img src="${c[0]}.png" class="foto-1 prod-img"><img src="${c[0]}-2.png" class="foto-2" onerror="this.style.display='none'"></div>
                             <div class="swiper swiper-produto">
                                 <div class="swiper-wrapper">
-                                    <div class="swiper-slide"><img src="${c[0]}.png"></div>
+                                    <div class="swiper-slide"><img src="${c[0]}.png" class="prod-img"></div>
                                     <div class="swiper-slide"><img src="${c[0]}-2.png" onerror="this.parentElement.remove()"></div>
                                 </div>
                                 <div class="swiper-pagination"></div>
@@ -243,39 +229,59 @@
                 if (temEstoque) htmlDisp += card; else htmlEsg += card;
             });
             document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
-            
             document.querySelectorAll('.swiper-produto').forEach(el => {
-                const tempoAleatorio = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
-                new Swiper(el, {
-                    loop: true, effect: 'fade', fadeEffect: { crossFade: true },
-                    autoplay: { delay: tempoAleatorio, disableOnInteraction: false },
-                    pagination: { el: el.querySelector('.swiper-pagination'), clickable: true }
-                });
+                const tempo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
+                new Swiper(el, { loop: true, effect: 'fade', fadeEffect: { crossFade: true }, autoplay: { delay: tempo, disableOnInteraction: false }, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } });
             });
         }
 
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
+        
         function add(id, name, price) {
-            const item = cart.find(i => i.id === id);
-            if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
-            updateCart();
-            const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
-            const btn = document.getElementById('cart-btn'); btn.style.animation = 'none'; void btn.offsetWidth; btn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
+            // LÓGICA DA ANIMAÇÃO DE VOO
+            const card = document.getElementById(`card-${id}`);
+            const imgOriginal = card.querySelector('.prod-img');
+            const cartBtn = document.getElementById('cart-btn');
+            
+            const clone = imgOriginal.cloneNode(true);
+            const rect = imgOriginal.getBoundingClientRect();
+            const cartRect = cartBtn.getBoundingClientRect();
+
+            clone.classList.add('garrafa-voando');
+            clone.style.width = rect.width + 'px';
+            clone.style.height = rect.height + 'px';
+            clone.style.top = rect.top + 'px';
+            clone.style.left = rect.left + 'px';
+
+            document.body.appendChild(clone);
+
+            setTimeout(() => {
+                clone.style.top = (cartRect.top + 20) + 'px';
+                clone.style.left = (cartRect.left + 20) + 'px';
+                clone.style.width = '20px';
+                clone.style.height = '20px';
+                clone.style.opacity = '0';
+            }, 50);
+
+            setTimeout(() => {
+                clone.remove();
+                const item = cart.find(i => i.id === id);
+                if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
+                updateCart();
+                const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
+                cartBtn.style.animation = 'none'; void cartBtn.offsetWidth; cartBtn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
+            }, 800);
         }
 
         function updateCart() {
             const itemsCont = document.getElementById('cart-items');
-            if (cart.length === 0) { 
-                itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8;"><p>Sua sacola está vazia.</p></div>`; 
-                document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; 
-            }
+            if (cart.length === 0) { itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8;"><p>Sua sacola está vazia.</p></div>`; document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; }
             document.getElementById('checkout-form').style.display = 'block';
             const entrega = document.getElementById('metodo-entrega').value;
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
             document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
-            if (entrega === 'retirada') liberarBotao();
-            else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
-            itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span>${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
+            if (entrega === 'retirada') liberarBotao(); else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+            itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
             document.getElementById('badge').innerText = cart.reduce((acc, i) => acc + i.qtd, 0);
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
             if(entrega === 'tele') total += 15;
@@ -284,14 +290,12 @@
 
         function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
         async function checkout() {
-            const nome = document.getElementById('cliente-nome').value;
-            const entrega = document.getElementById('metodo-entrega').value;
-            const pag = document.getElementById('metodo-pagamento').value;
+            const nome = document.getElementById('cliente-nome').value; const entrega = document.getElementById('metodo-entrega').value; const pag = document.getElementById('metodo-pagamento').value;
             if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos!");
-            let enderecoComp = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja";
-            const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: enderecoComp };
+            let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja";
+            const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: endereco };
             fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+enderecoComp+"\n💰 "+document.getElementById('cart-total-display').innerText)}`);
+            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+document.getElementById('cart-total-display').innerText)}`);
         }
         loadProducts(); updateCart();
     </script>
