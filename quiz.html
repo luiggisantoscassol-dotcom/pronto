@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Consultoria do Tio Nan 🥃</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --bg: #070707; --msg-tio: #1a1a1a; --msg-user: #d4af37; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        body { background-color: var(--bg); color: white; overflow: hidden; }
+        
+        #chat-container { height: 100vh; display: flex; flex-direction: column; padding: 20px; max-width: 500px; margin: 0 auto; }
+        #messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-bottom: 100px; scroll-behavior: smooth; }
+        
+        /* Balões de Chat */
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 0.95rem; line-height: 1.4; position: relative; animation: fadeIn 0.3s ease; }
+        .msg.tio { background: var(--msg-tio); align-self: flex-start; border-bottom-left-radius: 2px; color: #eee; }
+        .msg.user { background: var(--gold); color: #000; align-self: flex-end; border-bottom-right-radius: 2px; font-weight: 600; }
+
+        /* Botões de Opções */
+        #options-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; background: rgba(7,7,7,0.9); backdrop-filter: blur(10px); display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .opt-btn { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; }
+        .opt-btn:hover { background: var(--gold); color: #000; }
+
+        /* Digitando... */
+        .typing { font-size: 0.8rem; color: #666; font-style: italic; margin-bottom: 10px; display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+        <div id="messages">
+            <div class="typing" id="typing">Tio Nan está digitando...</div>
+        </div>
+        <div id="options-container" id="options"></div>
+    </div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const optionsDiv = document.getElementById('options-container');
+        const typingIndicator = document.getElementById('typing');
+        
+        // Link do seu site principal (ajuste se necessário)
+        const SITE_PRINCIPAL = "https://tionan.vercel.app"; 
+
+        const fluxograma = {
+            inicio: {
+                texto: "Opa! Tudo certo por aí? Sou o Tio Nan. 🥃 Antes da gente abrir o alambique, me diz: você prefere algo mais **Docinho e Frutado** ou algo mais **Marcante e Intenso**?",
+                opcoes: [
+                    { texto: "Docinho e Frutado 🍓", proximo: "doce" },
+                    { texto: "Marcante e Intenso 🔥", proximo: "intenso" }
+                ]
+            },
+            doce: {
+                texto: "Boa escolha! Para refrescar a alma. Você curte o sabor clássico do Rio Grande (**Butiá/Jabuticaba**) ou o queridinho **Morango**?",
+                opcoes: [
+                    { texto: "Butiá ou Jabuticaba 🍇", proximo: "sulista" },
+                    { texto: "Morango 🍓", proximo: "final_morango" }
+                ]
+            },
+            sulista: {
+                texto: "Aí sim! Valorizando o que é nosso. Prefere o azedinho exótico do **Butiá** ou o doce suave da **Jabuticaba**?",
+                opcoes: [
+                    { texto: "Butiá 🌴", proximo: "final_butia" },
+                    { texto: "Jabuticaba ✨", proximo: "final_jabuticaba" }
+                ]
+            },
+            intenso: {
+                texto: "Gosto de quem tem coragem! Você quer aquela que aquece o peito e ajuda na saúde (**Gengibre**) ou algo pra surpreender os amigos (**Pimenta ou Café**)?",
+                opcoes: [
+                    { texto: "Gengibre, Guaco e Mel 🍯", proximo: "final_gengibre" },
+                    { texto: "Pimenta ou Café 🌶️☕", proximo: "exotico" }
+                ]
+            },
+            exotico: {
+                texto: "Para paladares exigentes! Prefere o contraste picante do **Morango com Pimenta** ou o aroma despertador do **Café**?",
+                opcoes: [
+                    { texto: "Morango com Pimenta 🌶️", proximo: "final_pimenta" },
+                    { texto: "Café ☕", proximo: "final_cafe" }
+                ]
+            }
+        };
+
+        const resultados = {
+            final_morango: { texto: "Achei sua parceira! O **Morango** é nossa campeã de vendas, doce na medida certa. Vamos garantir a sua?", link: "#morango" },
+            final_butia: { texto: "Sua cara é o **Butiá**! Azedinho, raiz e refrescante. O verdadeiro sabor do Sul. Bora pro balcão?", link: "#butia" },
+            final_jabuticaba: { texto: "A **Jabuticaba** é a escolha certa. Suave, elegante e desce macio demais. Vamos nessa?", link: "#jabuticaba" },
+            final_gengibre: { texto: "Sua pedida é **Gengibre, Guaco e Mel**. Além de deliciosa, é um santo remédio que aquece até a alma!", link: "#gengibre" },
+            final_pimenta: { texto: "Você é dos meus! **Morango com Pimenta** é explosiva e inesquecível. Perfeita para impressionar!", link: "#pimenta-com-morango" },
+            final_cafe: { texto: "Vai de **Café**! Marcante, aromática e dá aquela energia extra pro brinde. Partiu?", link: "#cafe" }
+        };
+
+        function mostrarMensagem(texto, tipo) {
+            const div = document.createElement('div');
+            div.className = `msg ${tipo}`;
+            div.innerHTML = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function botFala(chave) {
+            optionsDiv.innerHTML = "";
+            typingIndicator.style.display = "block";
+            await new Promise(r => setTimeout(r, 1500));
+            typingIndicator.style.display = "none";
+
+            const passo = fluxograma[chave] || resultados[chave];
+            mostrarMensagem(passo.texto, 'tio');
+
+            if (passo.opcoes) {
+                passo.opcoes.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "opt-btn";
+                    btn.innerText = opt.texto;
+                    btn.onclick = () => {
+                        mostrarMensagem(opt.texto, 'user');
+                        botFala(opt.proximo);
+                    };
+                    optionsDiv.appendChild(btn);
+                });
+            } else if (passo.link) {
+                const btn = document.createElement('button');
+                btn.className = "opt-btn";
+                btn.style.background = "var(--gold)";
+                btn.style.color = "#000";
+                btn.innerText = "VER NA VITRINE 🥃";
+                btn.onclick = () => window.location.href = SITE_PRINCIPAL + passo.link;
+                optionsDiv.appendChild(btn);
+            }
+        }
+
+        // Iniciar chat
+        botFala('inicio');
+    </script>
+</body>
+</html>
