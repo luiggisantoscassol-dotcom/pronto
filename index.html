@@ -21,13 +21,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
+        /* TÍTULO INICIAL */
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
         .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
 
+        /* CARROSSEL DE INSTRUÇÕES */
+        .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
+        .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; }
+
+        /* ANIMAÇÃO DOURADA */
         .garrafa-voando { position: fixed; z-index: 9999; pointer-events: none; transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045); object-fit: contain; filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.8)); }
 
         .swiper-pagination-bullet { background: #fff !important; opacity: 0.3; }
         .swiper-pagination-bullet-active { background: var(--gold-soft) !important; opacity: 1 !important; }
+
+        /* PRODUTOS ESGOTADOS */
+        .card-produto.esgotado-card { opacity: 0.5; filter: grayscale(0.5); }
+        .faixa-esgotado-clean {
+            position: absolute; top: 50%; left: 0; width: 100%; 
+            background: rgba(0, 0, 0, 0.7); color: #fff;
+            padding: 12px 0; font-weight: 900; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 2px; z-index: 20; transform: translateY(-50%);
+            border-top: 1px solid var(--gold-soft); border-bottom: 1px solid var(--gold-soft);
+            pointer-events: none; backdrop-filter: blur(4px);
+        }
 
         #toast-notificacao { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: 900; z-index: 5000; transition: 0.5s; text-transform: uppercase; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
@@ -39,9 +56,9 @@
 
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
         .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; }
+        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
 
-        @media (min-width: 1024px) { .swiper-produto { display: none !important; } .desktop-only-images { display: block; width: 100%; height: 100%; position: relative; } .foto-1, .foto-2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); height: 260px; transition: 0.3s; } .foto-2 { opacity: 0; } .card-produto:hover .foto-1 { opacity: 0; } .card-produto:hover .foto-2 { opacity: 1; } }
+        @media (min-width: 1024px) { .swiper-produto { display: none !important; } .desktop-only-images { display: block; width: 100%; height: 100%; position: relative; } .foto-1, .foto-2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); height: 260px; transition: 0.3s; } .foto-2 { opacity: 0; } .card-produto:not(.esgotado-card):hover .foto-1 { opacity: 0; } .card-produto:not(.esgotado-card):hover .foto-2 { opacity: 1; } }
         @media (max-width: 1023px) { .desktop-only-images { display: none; } .swiper-produto { display: block; height: 280px; width: 100%; position: relative; } .swiper-produto img { max-height: 260px; width: auto; object-fit: contain; } }
 
         .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; }
@@ -54,8 +71,8 @@
         #bloco-retirada a { color: var(--gold-soft); text-decoration: underline; font-weight: bold; }
 
         .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; border-radius: 10px; text-transform: uppercase; cursor: pointer; }
-        .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
         .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
         
         @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.15) rotate(5deg); } 40%, 80% { transform: scale(1.15) rotate(-5deg); } }
     </style>
@@ -91,8 +108,8 @@
             </select>
 
             <div id="bloco-retirada" style="display:none;">
-                <strong>📍 Endereço para busca:</strong><br>
-                <a href="https://maps.app.goo.gl/YourLinkHere" target="_blank">
+                📍 <strong>Endereço para busca:</strong><br>
+                <a href="https://maps.google.com/?q=Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">
                     Av. Bento Gonçalves, 4321<br>Partenon, Porto Alegre - RS
                 </a>
             </div>
@@ -119,6 +136,15 @@
     </aside>
 
     <main>
+        <div class="swiper swiper-hero">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide"><img src="passo1.png"></div>
+                <div class="swiper-slide"><img src="passo2.png"></div>
+                <div class="swiper-slide"><img src="passo3.png"></div>
+                <div class="swiper-slide"><img src="passo4.png"></div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
         <section class="hero-section"><h1>Cachaça do Tio Nan</h1></section>
         <div id="vitrine" class="produtos-grid"></div>
     </main>
@@ -127,6 +153,8 @@
     <script>
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
         let cart = [];
+
+        new Swiper('.swiper-hero', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 } });
 
         async function buscaCEP() {
             let cep = document.getElementById('cep').value.replace(/\D/g, '');
@@ -146,15 +174,32 @@
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
                 const text = await res.text();
                 const rows = text.split('\n').slice(1);
-                let dispHTML = '';
+                let dispHTML = ''; let esgHTML = '';
+                
                 rows.forEach(row => {
                     const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                     if(!c || c[3].toLowerCase() !== 'sim') return;
-                    const tem = (parseInt(c[4]) || 0) > 0;
-                    dispHTML += `<div class="card-produto ${tem ? '' : 'esgotado-card'}" id="card-${c[0]}"><div class="img-wrapper"><div class="desktop-only-images"><img src="${c[0]}.png" class="foto-1 prod-img"><img src="${c[0]}-2.png" class="foto-2"></div><div class="swiper swiper-produto"><div class="swiper-wrapper"><div class="swiper-slide"><img src="${c[0]}.png" class="prod-img"></div><div class="swiper-slide"><img src="${c[0]}-2.png"></div></div><div class="swiper-pagination"></div></div></div><div><h3 style="font-size:1.2rem;text-transform:uppercase;">${c[1]}</h3><span style="font-family:var(--font-body);font-size:1.8rem;color:var(--gold-soft);font-weight:900;">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',',')}</span></div>${tem ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}</div>`;
+                    const temEstoque = (parseInt(c[4]) || 0) > 0;
+                    const html = `
+                    <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}" id="card-${c[0]}">
+                        <div class="img-wrapper">
+                            ${temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}
+                            <div class="desktop-only-images"><img src="${c[0]}.png" class="foto-1 prod-img"><img src="${c[0]}-2.png" class="foto-2"></div>
+                            <div class="swiper swiper-produto">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="${c[0]}.png" class="prod-img"></div>
+                                    <div class="swiper-slide"><img src="${c[0]}-2.png"></div>
+                                </div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                        <div><h3 style="font-size:1.2rem;text-transform:uppercase;">${c[1]}</h3><span style="font-family:var(--font-body);font-size:1.8rem;color:var(--gold-soft);font-weight:900;">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',,')}</span></div>
+                        ${temEstoque ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
+                    </div>`;
+                    if(temEstoque) dispHTML += html; else esgHTML += html;
                 });
-                document.getElementById('vitrine').innerHTML = dispHTML;
-                document.querySelectorAll('.swiper-produto').forEach(el => { new Swiper(el, { loop: true, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true }, autoplay: { delay: 4000 } }); });
+                document.getElementById('vitrine').innerHTML = dispHTML + esgHTML;
+                document.querySelectorAll('.swiper-produto').forEach(el => { new Swiper(el, { loop: true, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true }, effect: 'fade', autoplay: { delay: Math.random() * 2000 + 3000 } }); });
             } catch (e) {}
         }
 
@@ -184,7 +229,7 @@
             if(barra && txt) {
                 barra.style.width = Math.min((totalG/3)*100, 100) + "%";
                 if(entrega === 'retirada') {
-                    barra.style.background = "linear-gradient(135deg, #2ecc71, #f1f2b5, #27ae60, #f1f2b5, #1e8449)";
+                    barra.style.background = "var(--green-esmeralda)";
                     if(totalG >= 3) { txt.innerText = "DESCONTO DE R$ 15,00 ATIVADO! 💰"; txt.style.color = "#2ecc71"; }
                     else { txt.innerText = `Faltam ${3-totalG} para R$ 15,00 de desconto`; txt.style.color = "var(--gold-soft)"; }
                 } else {
@@ -194,7 +239,7 @@
                 }
             }
 
-            if(totalG === 0) { itemsCont.innerHTML = "<p>Sacola vazia.</p>"; document.getElementById('checkout-form').style.display = 'none'; return; }
+            if(totalG === 0) { itemsCont.innerHTML = "<p>Sacola vazia. 🥃</p>"; document.getElementById('checkout-form').style.display = 'none'; return; }
             document.getElementById('checkout-form').style.display = 'block';
             document.getElementById('bloco-endereco').style.display = entrega === 'tele' ? 'block' : 'none';
             document.getElementById('bloco-retirada').style.display = entrega === 'retirada' ? 'block' : 'none';
