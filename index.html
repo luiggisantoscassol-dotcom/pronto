@@ -15,7 +15,7 @@
             --gold-metallic: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             --gold-soft: #d4af37; --text-light: #f5f5f5;
             --font-premium: 'Playfair Display', serif; --font-body: 'Montserrat', sans-serif;
-            /* Cor Verde Esmeralda protegida aqui no CSS */
+            /* Cor Verde Esmeralda protegida no CSS */
             --green-esmeralda: linear-gradient(135deg, #2ecc71, #f1f2b5, #27ae60, #f1f2b5, #1e8449);
         }
 
@@ -41,8 +41,8 @@
         .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
         .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out, background 0.3s; }
 
-        /* CLASSE QUE MUDA A COR PARA VERDE SEM TRAVAR O JS */
-        .barra-progresso-fill.modo-desconto { background: var(--green-esmeralda) !important; }
+        /* Classe que muda a cor para Verde sem quebrar o código */
+        .barra-verde { background: var(--green-esmeralda) !important; }
 
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
@@ -53,7 +53,7 @@
         .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
 
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
-        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
 
         .card-produto.esgotado-card .img-wrapper { opacity: 0.7; } 
@@ -246,8 +246,11 @@
         
         function add(id, name, price) {
             const card = document.getElementById(`card-${id}`);
-            let imgOriginal = card.querySelector('.swiper-slide-active img') || card.querySelector('.foto-1');
+            if(!card) return;
+            const imgOriginal = card.querySelector('.prod-img');
             const cartBtn = document.getElementById('cart-btn');
+            if(!imgOriginal || !cartBtn) return;
+            
             const clone = imgOriginal.cloneNode(true);
             const rect = imgOriginal.getBoundingClientRect();
             const cartRect = cartBtn.getBoundingClientRect();
@@ -284,21 +287,22 @@
                 barra.style.width = progresso + "%";
                 
                 if (entrega === 'retirada') {
-                    barra.classList.add('modo-desconto'); // Ativa o verde
+                    barra.classList.add('barra-verde'); // MUDANÇA PARA VERDE PROTEGIDA
                     if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para DESCONTO ESPECIAL";
                     else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para ganhar R$ 15,00 DE DESCONTO!`;
                     else textoFrete.innerText = "PARABÉNS! DESCONTO DE R$ 15,00 ATIVADO! 💰";
                 } else {
-                    barra.classList.remove('modo-desconto'); // Volta pro dourado
-                    if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para FRETE GRÁTIS";
-                    else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para FRETE GRÁTIS`;
+                    barra.classList.remove('barra-verde');
+                    if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para Frete Grátis";
+                    else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para Frete Grátis`;
                     else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
                 }
             }
 
             if (cart.length === 0) { 
-                itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; 
-                document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; 
+                if(itemsCont) itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; 
+                document.getElementById('checkout-form').style.display = 'none'; 
+                document.getElementById('badge').innerText = 0; return; 
             }
             
             document.getElementById('checkout-form').style.display = 'block';
@@ -329,7 +333,8 @@
             fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
             window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + beneficioMsg)}`);
         }
-        loadProducts(); updateCart();
+        window.onload = loadProducts;
+        updateCart();
     </script>
 </body>
 </html>
