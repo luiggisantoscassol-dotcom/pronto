@@ -11,27 +11,22 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { width: 100%; overflow-x: hidden; background: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
         
-        /* AJUSTE TÍTULO MOBILE */
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
-        .hero-section h1 { 
-            font-family: var(--font-premium); 
-            font-size: clamp(2.2rem, 8vw, 3.2rem); 
-            background: var(--gold-metallic); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            font-style: italic; 
-            font-weight: 700;
-            line-height: 1.1;
-            max-width: 90%;
-            margin: 0 auto;
-        }
+        .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; line-height: 1.1; max-width: 90%; margin: 0 auto; }
 
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; }
+        
         .garrafa-voando { position: fixed; z-index: 9999; pointer-events: none; transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045); object-fit: contain; filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.8)); }
         .swiper-pagination-bullet { background: rgba(255, 255, 255, 0.2) !important; opacity: 1 !important; }
         .swiper-pagination-bullet-active { background: var(--gold-soft) !important; }
         
+        /* BARRA DE PROGRESSO FIXADA */
+        #container-frete { background: #1a1a1a; padding: 20px 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #222; }
+        #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; color: var(--gold-soft); letter-spacing: 1px; display: block; min-height: 1.2em; }
+        .barra-progresso-bg { width: 100%; height: 10px; background: #333; border-radius: 10px; overflow: hidden; position: relative; }
+        .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out, background 0.3s; position: absolute; left: 0; top: 0; }
+
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
         .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; display: flex; flex-direction: column; height: 100%; }
         .card-produto.esgotado-card { opacity: 0.5; filter: grayscale(0.8); }
@@ -66,7 +61,12 @@
     <aside class="cart-overlay" id="cart-overlay">
         <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
-        <div id="container-frete"><div id="texto-frete">Adicione 3 garrafas para ganhar um benefício!</div><div class="barra-progresso-bg"><div class="barra-progresso-fill" id="barra-frete"></div></div></div>
+        
+        <div id="container-frete">
+            <div id="texto-frete">Adicione 3 garrafas para ganhar um benefício!</div>
+            <div class="barra-progresso-bg"><div class="barra-progresso-fill" id="barra-frete"></div></div>
+        </div>
+
         <div id="cart-items"></div>
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
             <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
@@ -100,7 +100,7 @@
         async function buscaCEP() { let cep = document.getElementById('cep').value.replace(/\D/g, ''); if (cep.length === 8) { const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`); const d = await res.json(); if(!d.erro) { document.getElementById('rua').value = d.logradouro; document.getElementById('bairro').value = d.bairro; document.getElementById('cidade').value = d.localidade; updateCart(); } } }
         async function loadProducts() {
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx:out:csv&t=${Date.now()}`);
                 const text = await res.text(); const rows = text.split('\n').slice(1); let dispHTML = ''; let esgHTML = '';
                 rows.forEach(row => {
                     const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,'')); if(!c || c[3].toLowerCase() !== 'sim') return; const tem = (parseInt(c[4]) || 0) > 0;
@@ -119,35 +119,31 @@
         
         function add(id, name, price) {
             const card = document.getElementById(`card-${id}`);
-            // Busca a imagem visível no Swiper (mobile) ou na galeria desktop
             let img = card.querySelector('.swiper-slide-active img') || card.querySelector('.desktop-only-images img:not([style*="opacity: 0"])') || card.querySelector('.prod-img');
-            
             const btn = document.getElementById('cart-btn');
             const clone = img.cloneNode();
             const r = img.getBoundingClientRect();
             const cr = btn.getBoundingClientRect();
-            
             Object.assign(clone.style, { position:'fixed', zIndex:9999, width:r.width+'px', height:r.height+'px', top:r.top+'px', left:r.left+'px', transition:'all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045)', filter:'drop-shadow(0 5px 15px rgba(212, 175, 55, 0.8))' }); 
-            clone.classList.add('garrafa-voando'); 
-            document.body.appendChild(clone);
-            
+            clone.classList.add('garrafa-voando'); document.body.appendChild(clone);
             setTimeout(() => { Object.assign(clone.style, { top:cr.top+'px', left:cr.left+'px', width:'20px', height:'20px', opacity:0 }); }, 50);
-            
-            setTimeout(() => { 
-                clone.remove(); 
-                const item = cart.find(i => i.id === id); 
-                if(item) item.qtd++; else cart.push({id, name, price, qtd:1}); 
-                updateCart(); 
-                document.getElementById('toast-notificacao').style.transform = 'translateX(-50%) translateY(0px)'; 
-                setTimeout(() => document.getElementById('toast-notificacao').style.transform = 'translateX(-50%) translateY(-100px)', 2000); 
-                btn.style.animation = 'chacoalharRapido 0.5s'; 
-                setTimeout(() => btn.style.animation='', 500); 
-            }, 800);
+            setTimeout(() => { clone.remove(); const item = cart.find(i => i.id === id); if(item) item.qtd++; else cart.push({id, name, price, qtd:1}); updateCart(); document.getElementById('toast-notificacao').style.transform = 'translateX(-50%) translateY(0px)'; setTimeout(() => document.getElementById('toast-notificacao').style.transform = 'translateX(-50%) translateY(-100px)', 2000); cartBtn.style.animation = 'chacoalharRapido 0.5s'; setTimeout(() => cartBtn.style.animation='', 500); }, 800);
         }
 
         function updateCart() {
             const totalG = cart.reduce((acc, i) => acc + i.qtd, 0); const barra = document.getElementById('barra-frete'); const txt = document.getElementById('texto-frete'); const entrega = document.getElementById('metodo-entrega').value;
-            if(barra && txt) { barra.style.width = Math.min((totalG/3)*100, 100) + "%"; if(entrega === 'retirada') { barra.style.background = "var(--green-esmeralda)"; if(totalG >= 3) { txt.innerText = "DESCONTO DE R$ 15,00 ATIVADO! 💰"; txt.style.color = "#2ecc71"; } else { txt.innerText = `Faltam ${3-totalG} para R$ 15,00 de desconto`; txt.style.color = "var(--gold-soft)"; } } else { barra.style.background = "var(--gold-metallic)"; txt.innerText = totalG >= 3 ? "FRETE GRÁTIS ATIVADO! 🚚" : `Faltam ${3-totalG} para Frete Grátis`; txt.style.color = "var(--gold-soft)"; } }
+            if(barra && txt) { 
+                barra.style.width = Math.min((totalG/3)*100, 100) + "%"; 
+                if(entrega === 'retirada') { 
+                    barra.style.background = "var(--green-esmeralda)"; 
+                    if(totalG >= 3) { txt.innerText = "DESCONTO DE R$ 15,00 ATIVADO! 💰"; txt.style.color = "#2ecc71"; } 
+                    else { txt.innerText = `Faltam ${3-totalG} para R$ 15,00 de desconto`; txt.style.color = "var(--gold-soft)"; } 
+                } else { 
+                    barra.style.background = "var(--gold-metallic)"; 
+                    if(totalG >= 3) { txt.innerText = "FRETE GRÁTIS ATIVADO! 🚚"; txt.style.color = "var(--gold-soft)"; }
+                    else { txt.innerText = `Faltam ${3-totalG} para Frete Grátis`; txt.style.color = "var(--gold-soft)"; }
+                } 
+            }
             document.getElementById('checkout-form').style.display = cart.length > 0 ? 'block' : 'none'; document.getElementById('bloco-endereco').style.display = entrega === 'tele' ? 'block' : 'none'; document.getElementById('bloco-retirada').style.display = entrega === 'retirada' ? 'block' : 'none';
             document.getElementById('cart-items').innerHTML = cart.map((i) => `<div class="cart-item-row"><div><b>${i.name}</b><br>R$ ${(i.price*i.qtd).toFixed(2).replace('.',',')}</div><div style="display:flex;align-items:center;gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}',-1)">-</button><span>${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}',1)">+</button></div></div>`).join('');
             let total = cart.reduce((a,b) => a + (b.price*b.qtd), 0); if(entrega === 'tele' && totalG < 3) total += 15; if(entrega === 'retirada' && totalG >= 3) total -= 15;
