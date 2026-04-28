@@ -14,6 +14,7 @@
             --bg-card: #111111;
             --gold-metallic: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             --gold-soft: #d4af37; --text-light: #f5f5f5;
+            --green-metallic: linear-gradient(135deg, #2ecc71, #f1f2b5, #27ae60, #f1f2b5, #1e8449);
             --font-premium: 'Playfair Display', serif; --font-body: 'Montserrat', sans-serif;
         }
 
@@ -37,9 +38,9 @@
 
         /* BARRA DE PROGRESSO DINÂMICA */
         #container-frete { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #222; }
-        #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; }
+        #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; transition: 0.3s; }
         .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
-        .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out; }
+        .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out, background 0.5s; }
 
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
@@ -251,7 +252,7 @@
                                 <div class="swiper-pagination"></div>
                             </div>
                         </div>
-                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',',')}</span></div>
+                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',,')}</span></div>
                         ${temEstoque ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
                     </div>`;
                 if (temEstoque) htmlDisp += card; else htmlEsg += card;
@@ -311,15 +312,21 @@
             const textoFrete = document.getElementById('texto-frete');
             const entrega = document.getElementById('metodo-entrega').value;
 
-            // Lógica Dinâmica da Barra de Progresso
+            // ATUALIZAÇÃO DA BARRA DE PROGRESSO DINÂMICA
             const progresso = Math.min((totalGarrafas / 3) * 100, 100);
             barra.style.width = progresso + "%";
             
             if (entrega === 'retirada') {
+                // Estilo Verde para Desconto
+                barra.style.background = "var(--green-metallic)";
+                textoFrete.style.color = "#2ecc71";
                 if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para DESCONTO ESPECIAL";
-                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para ganhar R$ 15,00 DE DESCONTO!`;
+                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para DESCONTO DE R$ 15,00!`;
                 else textoFrete.innerText = "PARABÉNS! DESCONTO DE R$ 15,00 ATIVADO! 💰";
             } else {
+                // Estilo Dourado para Frete
+                barra.style.background = "var(--gold-metallic)";
+                textoFrete.style.color = "var(--gold-soft)";
                 if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para FRETE GRÁTIS";
                 else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para FRETE GRÁTIS!`;
                 else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
@@ -331,22 +338,22 @@
             }
             
             document.getElementById('checkout-form').style.display = 'block';
-            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
-            document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
+            const metodo = document.getElementById('metodo-entrega').value;
+            document.getElementById('bloco-endereco').style.display = (metodo === 'tele') ? 'block' : 'none';
+            document.getElementById('bloco-retirada').style.display = (metodo === 'retirada') ? 'block' : 'none';
             
-            if (entrega === 'retirada') liberarBotao(); 
-            else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+            if (metodo === 'retirada') liberarBotao(); 
+            else if (metodo === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
             
             itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
             
             document.getElementById('badge').innerText = totalGarrafas;
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
             
-            // Lógica de Preço (Frete vs Desconto)
-            if (entrega === 'tele') {
-                if (totalGarrafas < 3) total += 15; // Cobra frete se menos de 3
-            } else if (entrega === 'retirada') {
-                if (totalGarrafas >= 3) total -= 15; // Dá desconto se 3 ou mais
+            if (metodo === 'tele') {
+                if (totalGarrafas < 3) total += 15;
+            } else if (metodo === 'retirada') {
+                if (totalGarrafas >= 3) total -= 15;
             }
             
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
