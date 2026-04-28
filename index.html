@@ -42,13 +42,20 @@
         .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
 
-        /* ESGOTADOS */
-        .card-produto.esgotado-card .img-wrapper { filter: grayscale(100%); opacity: 0.3; }
+        /* ESGOTADOS - AJUSTE DE CLAREZA */
+        .card-produto.esgotado-card .img-wrapper { filter: grayscale(80%); opacity: 0.5; } /* Imagem um pouco mais clara */
+        .card-produto.esgotado-card .prod-nome, .card-produto.esgotado-card .preco { opacity: 0.5; }
+        
         .faixa-esgotado-clean {
-            position: absolute; top: 50%; left: 0; width: 100%; background: #000; color: var(--gold-soft);
-            padding: 18px 0; font-family: var(--font-body); font-weight: 900; font-size: 1.1rem;
-            text-transform: uppercase; letter-spacing: 3px; z-index: 20; transform: translateY(-50%);
-            border-top: 2px solid var(--gold-soft); border-bottom: 2px solid var(--gold-soft); pointer-events: none;
+            position: absolute; top: 50%; left: 0; width: 100%; 
+            background: rgba(10, 10, 10, 0.85); /* Fundo suave, não totalmente preto */
+            color: var(--gold-soft);
+            padding: 15px 0; font-family: var(--font-body); font-weight: 900; font-size: 1rem;
+            text-transform: uppercase; letter-spacing: 4px; z-index: 20; transform: translateY(-50%);
+            border-top: 1px solid rgba(212, 175, 55, 0.3); 
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3); 
+            pointer-events: none;
+            backdrop-filter: blur(2px); /* Efeito de vidro para ficar moderno */
         }
 
         @media (min-width: 1024px) {
