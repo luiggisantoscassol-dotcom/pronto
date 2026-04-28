@@ -6,7 +6,7 @@
     <title>Tio Nan Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --bg: #000; --card: #121212; --new: #2ecc71; --pend: #f1c40f; --done: #3498db; --canc: #e74c3c; }
+        :root { --gold: #d4af37; --bg: #000; --card: #121212; --new: #2ecc71; --pend: #f1c40f; --done: #3498db; --canc: #e74c3c; --text-dim: #bbb; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; padding-bottom: 100px; }
         
@@ -19,29 +19,30 @@
         .secao-conteudo { display: none; }
         .secao-conteudo.ativa { display: block; }
 
-        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 15px; display: flex; align-items: stretch; overflow: hidden; }
+        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 15px; display: flex; align-items: stretch; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .pedido-check { width: 45px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; }
         .pedido-info { flex: 1; padding: 15px; }
-        .pedido-info b { font-size: 1.1rem; color: #fff; }
-        .pedido-detalhe { font-size: 0.9rem; color: #888; margin: 5px 0; }
+        .pedido-info b { font-size: 1.15rem; color: #fff; text-transform: uppercase; }
+        .pedido-detalhe { font-size: 0.95rem; color: #999; margin: 4px 0; }
+        .pedido-data { font-size: 0.85rem; color: #eee; font-weight: 600; margin-top: 4px; display: block; }
         
-        .status-area { padding: 15px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 100px; }
-        .status { padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; color: #000; margin-bottom: 5px; }
+        .status-area { padding: 15px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 105px; }
+        .status { padding: 5px 8px; border-radius: 4px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; color: #000; margin-bottom: 6px; }
         .status-NovoPedido { background: var(--new); }
         .status-Pendente { background: var(--pend); }
         .status-Concluído { background: var(--done); color: #fff; }
         .status-Cancelado { background: var(--canc); color: #fff; }
 
         .estoque-item { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #222; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .btn-step { background: #222; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 10px; font-size: 1.4rem; }
-        .estoque-input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-weight: 900; font-size: 1.2rem; }
+        .btn-step { background: #222; color: var(--gold); border: 1px solid var(--gold); width: 48px; height: 48px; font-weight: bold; border-radius: 10px; font-size: 1.5rem; }
+        .estoque-input { background: transparent; border: none; color: #fff; width: 55px; text-align: center; font-weight: 900; font-size: 1.3rem; }
 
         #modal, .overlay { display:none; }
-        #modal { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:92%; z-index:1000; }
-        .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; backdrop-filter: blur(5px); }
+        #modal { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:92%; z-index:1000; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+        .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:999; backdrop-filter: blur(8px); }
         
-        #bulk-bar { display: none; position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 15px 25px; border-radius: 50px; font-weight: 900; z-index: 2000; width: 90%; justify-content: space-between; align-items: center; }
-        #bulk-bar button { background: #000; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; font-weight: 900; font-size: 0.7rem; }
+        #bulk-bar { display: none; position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 15px 25px; border-radius: 50px; font-weight: 900; z-index: 2000; width: 90%; justify-content: space-between; align-items: center; box-shadow: 0 8px 25px #000; }
+        #bulk-bar button { background: #000; color: #fff; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -54,27 +55,27 @@
         <button class="tab-btn" data-aba="estoque" onclick="mudarAba('estoque')">🍯 Estoque</button>
     </div>
     
-    <div id="secao-ativos" class="secao-conteudo ativa"><div id="corpo-ativos">Carregando...</div></div>
-    <div id="secao-arquivados" class="secao-conteudo"><div id="corpo-arquivados">Carregando...</div></div>
-    <div id="secao-estoque" class="secao-conteudo"><div id="corpo-estoque">Carregando...</div></div>
+    <div id="secao-ativos" class="secao-conteudo ativa"><div id="corpo-ativos"></div></div>
+    <div id="secao-arquivados" class="secao-conteudo"><div id="corpo-arquivados"></div></div>
+    <div id="secao-estoque" class="secao-conteudo"><div id="corpo-estoque"></div></div>
 
     <div id="bulk-bar">
-        <span id="bulk-count">0 selecionados</span>
-        <button onclick="mudarVariosStatus()">Alterar Status</button>
+        <span id="bulk-count">0 SELECIONADOS</span>
+        <button onclick="mudarVariosStatus()">ALTERAR STATUS</button>
     </div>
 
     <div class="overlay" id="overlay" onclick="fechar()"></div>
     <div id="modal">
-        <h2 id="m-nome" style="color:var(--gold); margin-bottom:15px; text-transform: uppercase;"></h2>
-        <div id="m-detalhes" style="font-size: 0.9rem; margin-bottom: 20px; color: #ccc; line-height: 1.5;"></div>
+        <h2 id="m-nome" style="color:var(--gold); margin-bottom:15px; text-transform: uppercase; font-size: 1.3rem;"></h2>
+        <div id="m-detalhes" style="font-size: 1rem; margin-bottom: 20px; color: #ddd; line-height: 1.6;"></div>
         <div id="m-controle">
-            <select id="m-status" style="width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900;">
+            <select id="m-status" style="width:100%; padding:18px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; font-size: 1rem;">
                 <option value="Novo Pedido">Novo Pedido</option>
                 <option value="Pendente">Pendente</option>
                 <option value="Concluído">Concluído</option>
                 <option value="Cancelado">Cancelado</option>
             </select>
-            <button onclick="salvarStatus()" style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:900; margin-top:15px; border-radius:12px; text-transform:uppercase;">Atualizar</button>
+            <button onclick="salvarStatus()" style="width:100%; padding:18px; background:var(--gold); border:none; font-weight:900; margin-top:20px; border-radius:12px; text-transform:uppercase; color:#000;">Atualizar Pedido</button>
         </div>
     </div>
 
@@ -122,72 +123,18 @@
                     <div class="pedido-info" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, ${editavel})'>
                         <b>${c[1]}</b>
                         <div class="pedido-detalhe">${c[2].substring(0,40)}...</div>
-                        <small style="color:#444">${c[0]}</small>
+                        <span class="pedido-data">📅 ${c[0]}</span>
                     </div>
                     <div class="status-area">
                         <span class="status status-${statusClasse}">${c[6]}</span>
-                        <b style="color:var(--gold)">R$ ${c[3]}</b>
+                        <b style="color:var(--gold); font-size: 1.1rem;">R$ ${c[3]}</b>
                     </div>
                 </div>`;
             });
-            document.getElementById(containerId).innerHTML = html || '<p style="text-align:center; padding:20px; color:#444">Vazio.</p>';
+            document.getElementById(containerId).innerHTML = html || '<p style="text-align:center; padding:20px; color:#444">Nada encontrado.</p>';
         }
 
         function renderizarEstoque(rows) {
             let html = '';
             rows.forEach(row => {
-                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                if(!c[1]) return;
-                html += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
-            });
-            document.getElementById('corpo-estoque').innerHTML = html;
-        }
-
-        function toggleBulk() {
-            const n = document.querySelectorAll('.check-ped:checked').length;
-            document.getElementById('bulk-bar').style.display = n > 0 ? 'flex' : 'none';
-            document.getElementById('bulk-count').innerText = `${n} selecionados`;
-        }
-
-        async function mudarVariosStatus() {
-            const novo = prompt("Novo Status:");
-            if(!novo) return;
-            const rows = Array.from(document.querySelectorAll('.check-ped:checked')).map(cb => cb.value);
-            await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${encodeURIComponent(novo)}`);
-            location.reload();
-        }
-
-        function abrirPedido(dados, linha, editavel) {
-            sel = { linha, dados };
-            document.getElementById('m-nome').innerText = dados[1];
-            document.getElementById('m-detalhes').innerHTML = `<b>🛒 Itens:</b> ${dados[2]}<br><br><b>📍 Endereço:</b> ${dados[7]}<br><b>💰 Valor:</b> R$ ${dados[3]}`;
-            document.getElementById('m-status').value = dados[6];
-            document.getElementById('m-controle').style.display = editavel ? 'block' : 'none';
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        async function salvarStatus() {
-            const status = document.getElementById('m-status').value;
-            fechar();
-            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(status)}`);
-            location.reload();
-        }
-
-        function stepStock(id, delta) { 
-            const inp = document.getElementById(`st-${id}`); 
-            inp.value = parseInt(inp.value) + delta; 
-            salvarEstoque(id); 
-        }
-        
-        async function salvarEstoque(id) { 
-            const val = document.getElementById(`st-${id}`).value;
-            fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
-        }
-
-        function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
-        
-        carregar();
-    </script>
-</body>
-</html>
+                const c = row.match(/(".*
