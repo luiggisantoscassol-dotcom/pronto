@@ -83,8 +83,6 @@
         async function carregar(currentReqId) {
             try {
                 let html = '';
-                const cacheBuster = `?t=${Date.now()}`;
-                
                 if (abaAtual === 'ativos') {
                     const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&cache=` + Date.now());
                     if (currentReqId !== reqId) return;
@@ -133,7 +131,7 @@
                         html += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${i}', -1)">-</button><input type="number" id="st-${i}" style="background:none; border:none; color:white; width:40px; text-align:center; font-weight:bold; font-size:1.2rem" value="${c[4]}" readonly><button class="btn-step" onclick="stepStock('${i}', 1)">+</button></div></div>`;
                     });
                 }
-                if (currentReqId === reqId) document.getElementById('conteudo-principal').innerHTML = html || '<p style="text-align:center; margin-top:50px;">Vazio.</p>';
+                if (currentReqId === reqId) document.getElementById('conteudo-principal').innerHTML = html || '<p style="text-align:center; margin-top:50px; color:#444;">Vazio.</p>';
             } catch (e) { console.error(e); }
         }
 
@@ -152,15 +150,13 @@
             const sNorm = st.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const isFin = (sNorm === "concluido" || sNorm === "cancelado");
 
-            // Som de Sucesso
             if (sNorm === "concluido") {
                 const som = document.getElementById('som-sucesso');
-                som.volume = 0.2;
+                som.volume = 0.05; // VOLUME BAIXADO PARA 5%
                 som.currentTime = 0;
                 som.play().catch(e => console.log("Áudio bloqueado"));
             }
 
-            // Update Otimista
             if ((!sel.isArquivo && isFin) || (sel.isArquivo && !isFin)) {
                 const cardId = sel.isArquivo ? `card-arq-${sel.linha}` : `card-ativo-${sel.linha}`;
                 const card = document.getElementById(cardId);
