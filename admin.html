@@ -12,46 +12,36 @@
         
         h1 { color: var(--gold); margin-bottom: 25px; font-weight: 900; text-align: center; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; }
         
-        /* ABAS */
-        .tab-container { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .tab-btn { background: none; border: none; color: #555; font-weight: 900; font-size: 0.9rem; text-transform: uppercase; cursor: pointer; padding: 8px 12px; transition: 0.3s; }
+        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; overflow-x: auto; }
+        .tab-btn { background: none; border: none; color: #555; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; padding: 10px; transition: 0.3s; white-space: nowrap; }
         .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
 
         .secao-conteudo { display: none; }
-        .secao-conteudo.ativa { display: block; animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .secao-conteudo.ativa { display: block; }
 
-        /* LISTA DE PEDIDOS */
-        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 15px; display: flex; align-items: stretch; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-        .pedido-check { width: 50px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-right: 1px solid #222; }
+        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 15px; display: flex; align-items: stretch; overflow: hidden; }
+        .pedido-check { width: 45px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; }
         .pedido-info { flex: 1; padding: 15px; }
-        .pedido-info b { font-size: 1.1rem; color: #fff; text-transform: uppercase; }
-        .pedido-detalhe { font-size: 0.9rem; color: #999; margin-top: 5px; line-height: 1.4; }
+        .pedido-info b { font-size: 1.1rem; color: #fff; }
+        .pedido-detalhe { font-size: 0.9rem; color: #888; margin: 5px 0; }
         
-        .pedido-status-area { padding: 15px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 110px; }
-        .valor { font-size: 1.1rem; font-weight: 900; color: var(--gold); margin-top: 5px; }
-        
-        .status { padding: 5px 10px; border-radius: 6px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; color: #000; display: inline-block; }
+        .status-area { padding: 15px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 100px; }
+        .status { padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; color: #000; margin-bottom: 5px; }
         .status-NovoPedido { background: var(--new); }
         .status-Pendente { background: var(--pend); }
         .status-Concluído { background: var(--done); color: #fff; }
         .status-Cancelado { background: var(--canc); color: #fff; }
 
-        .maps-link { color: #3498db; text-decoration: none; font-size: 0.8rem; font-weight: 900; display: inline-block; margin-top: 10px; border: 1px solid #3498db; padding: 4px 10px; border-radius: 5px; }
+        .estoque-item { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #222; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .btn-step { background: #222; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 10px; font-size: 1.4rem; }
+        .estoque-input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-weight: 900; font-size: 1.2rem; }
 
-        /* ESTOQUE */
-        .estoque-item { background: var(--card); padding: 18px; border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .estoque-item b { font-size: 1rem; text-transform: uppercase; }
-        .btn-step { background: #222; color: var(--gold); border: 1px solid var(--gold); width: 50px; height: 50px; font-weight: bold; border-radius: 12px; font-size: 1.6rem; }
-        .estoque-input { background: transparent; border: none; color: #fff; width: 60px; text-align: center; font-weight: 900; font-size: 1.4rem; }
-
-        /* MODAL */
-        #modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:30px; border:1px solid var(--gold); border-radius:20px; width:94%; z-index:1000; box-shadow: 0 0 30px var(--gold); }
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; backdrop-filter: blur(5px); }
-        .btn-status { width:100%; padding:18px; background:var(--gold); border:none; font-weight: 900; margin-top:20px; border-radius:12px; text-transform: uppercase; color: #000; font-size: 1rem; }
-
-        #bulk-bar { display: none; position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 18px 30px; border-radius: 60px; font-weight: 900; z-index: 2000; box-shadow: 0 10px 30px #000; align-items: center; gap: 20px; width: 90%; justify-content: space-between; }
-        #bulk-bar button { background: #000; color: #fff; border: none; padding: 10px 18px; border-radius: 30px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
+        #modal, .overlay { display:none; }
+        #modal { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:92%; z-index:1000; }
+        .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; backdrop-filter: blur(5px); }
+        
+        #bulk-bar { display: none; position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 15px 25px; border-radius: 50px; font-weight: 900; z-index: 2000; width: 90%; justify-content: space-between; align-items: center; }
+        #bulk-bar button { background: #000; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; font-weight: 900; font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -59,22 +49,14 @@
     <h1>Tio Nan Admin</h1>
 
     <div class="tab-container">
-        <button class="tab-btn active" onclick="mudarAba('ativos', this)">📦 Ativos</button>
-        <button class="tab-btn" onclick="mudarAba('arquivados', this)">📁 Histórico</button>
-        <button class="tab-btn" onclick="mudarAba('estoque', this)">🍯 Estoque</button>
+        <button class="tab-btn active" data-aba="ativos" onclick="mudarAba('ativos')">📦 Ativos</button>
+        <button class="tab-btn" data-aba="arquivados" onclick="mudarAba('arquivados')">📁 Histórico</button>
+        <button class="tab-btn" data-aba="estoque" onclick="mudarAba('estoque')">🍯 Estoque</button>
     </div>
     
-    <div id="secao-ativos" class="secao-conteudo ativa">
-        <div id="corpo-ativos"></div>
-    </div>
-
-    <div id="secao-arquivados" class="secao-conteudo">
-        <div id="corpo-arquivados"></div>
-    </div>
-
-    <div id="secao-estoque" class="secao-conteudo">
-        <div id="corpo-estoque"></div>
-    </div>
+    <div id="secao-ativos" class="secao-conteudo ativa"><div id="corpo-ativos">Carregando...</div></div>
+    <div id="secao-arquivados" class="secao-conteudo"><div id="corpo-arquivados">Carregando...</div></div>
+    <div id="secao-estoque" class="secao-conteudo"><div id="corpo-estoque">Carregando...</div></div>
 
     <div id="bulk-bar">
         <span id="bulk-count">0 selecionados</span>
@@ -83,54 +65,49 @@
 
     <div class="overlay" id="overlay" onclick="fechar()"></div>
     <div id="modal">
-        <h2 id="m-nome" style="color:var(--gold); font-size:1.4rem; margin-bottom:15px; text-transform: uppercase;"></h2>
-        <div id="m-detalhes" style="font-size: 1rem; margin-bottom: 25px; color: #ccc; line-height: 1.6;"></div>
+        <h2 id="m-nome" style="color:var(--gold); margin-bottom:15px; text-transform: uppercase;"></h2>
+        <div id="m-detalhes" style="font-size: 0.9rem; margin-bottom: 20px; color: #ccc; line-height: 1.5;"></div>
         <div id="m-controle">
-            <label style="font-size: 0.7rem; color: #666; font-weight: 900; margin-bottom: 5px; display: block;">NOVO STATUS:</label>
-            <select id="m-status" style="width:100%; padding:18px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; font-size: 1rem;">
+            <select id="m-status" style="width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900;">
                 <option value="Novo Pedido">Novo Pedido</option>
                 <option value="Pendente">Pendente</option>
                 <option value="Concluído">Concluído</option>
                 <option value="Cancelado">Cancelado</option>
             </select>
-            <button onclick="salvarStatus()" class="btn-status">Atualizar Pedido</button>
+            <button onclick="salvarStatus()" style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:900; margin-top:15px; border-radius:12px; text-transform:uppercase;">Atualizar</button>
         </div>
     </div>
 
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
+        let abaAtual = 'ativos';
         let sel = null;
 
-        function mudarAba(aba, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.secao-conteudo').forEach(s => s.classList.remove('ativa'));
-            document.getElementById('secao-' + aba).classList.add('ativa');
+        function mudarAba(aba) {
+            abaAtual = aba;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.aba === aba));
+            document.querySelectorAll('.secao-conteudo').forEach(sec => sec.classList.toggle('ativa', sec.id === 'secao-' + aba));
             document.getElementById('bulk-bar').style.display = 'none';
+            carregar();
         }
 
         async function carregar() {
-            // ATIVOS
-            const resA = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
-            const rowsA = (await resA.text()).split('\n').slice(1).reverse();
-            renderizar(rowsA, 'corpo-ativos', true);
-
-            // ARQUIVADOS
-            const resH = await fetch(`${urlWebhook}?action=getArquivados`);
-            const rowsH = await resH.json();
-            renderizar(rowsH.reverse(), 'corpo-arquivados', false);
-
-            // ESTOQUE
-            const resE = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
-            const rowsE = (await resE.text()).split('\n').slice(1);
-            let htmlE = '';
-            rowsE.forEach(row => {
-                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                if(!c[1]) return;
-                htmlE += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:15px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
-            });
-            document.getElementById('corpo-estoque').innerHTML = htmlE;
+            try {
+                if (abaAtual === 'ativos') {
+                    const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&cache=` + Date.now());
+                    const rows = (await res.text()).split('\n').slice(1).reverse();
+                    renderizar(rows, 'corpo-ativos', true);
+                } else if (abaAtual === 'arquivados') {
+                    const res = await fetch(`${urlWebhook}?action=getArquivados&cache=` + Date.now());
+                    const rows = await res.json();
+                    renderizar(rows.reverse(), 'corpo-arquivados', false);
+                } else if (abaAtual === 'estoque') {
+                    const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&cache=` + Date.now());
+                    const rows = (await res.text()).split('\n').slice(1);
+                    renderizarEstoque(rows);
+                }
+            } catch (e) { console.error(e); }
         }
 
         function renderizar(rows, containerId, editavel) {
@@ -139,41 +116,43 @@
                 const c = Array.isArray(row) ? row : row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(!c[1]) return;
                 const statusClasse = c[6].replace(/\s/g, '');
-                const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[7])}`;
-
                 html += `
                 <div class="pedido-card">
-                    ${editavel ? `<div class="pedido-check"><input type="checkbox" class="check-ped" style="width:25px; height:25px; accent-color:var(--gold)" value="${rows.length - i}" onchange="toggleBulk()"></div>` : ''}
+                    ${editavel ? `<div class="pedido-check"><input type="checkbox" class="check-ped" style="width:22px; height:22px" value="${rows.length - i}" onchange="toggleBulk()"></div>` : ''}
                     <div class="pedido-info" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, ${editavel})'>
-                        <b>${c[1]}</b><br>
-                        <div class="pedido-detalhe">
-                            ${c[2]}<br>
-                            <small style="color:#666">${c[0]}</small>
-                        </div>
-                        ${c[7] ? `<a href="${linkMaps}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 GOOGLE MAPS</a>` : ''}
+                        <b>${c[1]}</b>
+                        <div class="pedido-detalhe">${c[2].substring(0,40)}...</div>
+                        <small style="color:#444">${c[0]}</small>
                     </div>
-                    <div class="pedido-status-area" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, ${editavel})'>
+                    <div class="status-area">
                         <span class="status status-${statusClasse}">${c[6]}</span>
-                        <div class="valor">R$ ${c[3]}</div>
-                        <small style="font-size:0.6rem; color:#555">${c[5]}</small>
+                        <b style="color:var(--gold)">R$ ${c[3]}</b>
                     </div>
                 </div>`;
             });
-            document.getElementById(containerId).innerHTML = html || '<p style="text-align:center; padding:50px; color:#444">Nenhum pedido aqui.</p>';
+            document.getElementById(containerId).innerHTML = html || '<p style="text-align:center; padding:20px; color:#444">Vazio.</p>';
+        }
+
+        function renderizarEstoque(rows) {
+            let html = '';
+            rows.forEach(row => {
+                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
+                if(!c[1]) return;
+                html += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
+            });
+            document.getElementById('corpo-estoque').innerHTML = html;
         }
 
         function toggleBulk() {
             const n = document.querySelectorAll('.check-ped:checked').length;
-            const bar = document.getElementById('bulk-bar');
-            bar.style.display = n > 0 ? 'flex' : 'none';
-            document.getElementById('bulk-count').innerText = `${n} SELECIONADOS`;
+            document.getElementById('bulk-bar').style.display = n > 0 ? 'flex' : 'none';
+            document.getElementById('bulk-count').innerText = `${n} selecionados`;
         }
 
         async function mudarVariosStatus() {
-            const novo = prompt("NOVO STATUS (Novo Pedido, Pendente, Concluído, Cancelado):");
+            const novo = prompt("Novo Status:");
             if(!novo) return;
             const rows = Array.from(document.querySelectorAll('.check-ped:checked')).map(cb => cb.value);
-            document.getElementById('bulk-bar').innerText = "ATUALIZANDO...";
             await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${encodeURIComponent(novo)}`);
             location.reload();
         }
@@ -181,12 +160,7 @@
         function abrirPedido(dados, linha, editavel) {
             sel = { linha, dados };
             document.getElementById('m-nome').innerText = dados[1];
-            document.getElementById('m-detalhes').innerHTML = `
-                <b style="color:var(--gold)">🛒 ITENS:</b><br>${dados[2]}<br><br>
-                <b style="color:var(--gold)">💰 PAGAMENTO:</b> ${dados[5]}<br>
-                <b style="color:var(--gold)">📍 ENDEREÇO:</b> ${dados[7]}<br>
-                <b style="color:var(--gold)">💵 VALOR:</b> R$ ${dados[3]}
-            `;
+            document.getElementById('m-detalhes').innerHTML = `<b>🛒 Itens:</b> ${dados[2]}<br><br><b>📍 Endereço:</b> ${dados[7]}<br><b>💰 Valor:</b> R$ ${dados[3]}`;
             document.getElementById('m-status').value = dados[6];
             document.getElementById('m-controle').style.display = editavel ? 'block' : 'none';
             document.getElementById('modal').style.display = 'block';
@@ -194,3 +168,26 @@
         }
 
         async function salvarStatus() {
+            const status = document.getElementById('m-status').value;
+            fechar();
+            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(status)}`);
+            location.reload();
+        }
+
+        function stepStock(id, delta) { 
+            const inp = document.getElementById(`st-${id}`); 
+            inp.value = parseInt(inp.value) + delta; 
+            salvarEstoque(id); 
+        }
+        
+        async function salvarEstoque(id) { 
+            const val = document.getElementById(`st-${id}`).value;
+            fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
+        }
+
+        function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
+        
+        carregar();
+    </script>
+</body>
+</html>
