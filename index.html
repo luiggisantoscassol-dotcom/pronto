@@ -6,7 +6,6 @@
     <title>Cachaça do Tio Nan - Loja Oficial</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://docs.google.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
@@ -21,45 +20,45 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); scroll-behavior: smooth; }
 
-        /* NOTIFICAÇÃO TOAST */
+        /* TOAST */
         #toast-notificacao {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px;
             font-weight: 900; font-size: 0.9rem; z-index: 5000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-transform: uppercase; white-space: nowrap;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-transform: uppercase;
         }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
 
-        /* HERO - OTIMIZADO */
+        /* HERO */
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; min-height: 250px; }
-        .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: #111; }
+        .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; }
 
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
         .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
 
-        /* VITRINE - OTIMIZADA */
+        /* VITRINE */
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
-        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
-        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; background: #0a0a0a; border-radius: 15px; }
-        .img-wrapper img { max-height: 260px; max-width: 100%; object-fit: contain; }
+        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; background: #0a0a0a; border-radius: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .img-wrapper img { max-height: 260px; max-width: 90%; object-fit: contain; }
 
-        /* PIX AREA */
-        #pix-area { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid var(--gold-soft); margin-bottom: 15px; display: none; text-align: center; }
-        .pix-codigo { background: #000; padding: 10px; font-family: monospace; font-size: 0.7rem; color: #0f0; word-break: break-all; border-radius: 5px; margin: 10px 0; border: 1px solid #333; max-height: 60px; overflow: hidden; }
+        .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
+        .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
+        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; }
 
-        /* RESTANTE DO CSS (SACOLA, BOTÕES, ETC) MANTIDOS IGUAIS */
+        /* SACOLA */
         .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
         .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; }
         .cart-overlay.active { right: 0; }
+        
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
         .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
         .cart-input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 1rem; outline: none; }
-        .btn-continuar { width: 100%; margin-top: 10px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
-        #bloco-retirada { background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold-soft); padding: 15px; border-radius: 8px; margin-bottom: 15px; color: var(--gold-soft); font-size: 0.9rem; line-height: 1.4; text-align: left; }
-        .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
-        .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
-        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; }
+
+        /* PIX AREA */
+        #pix-area { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid var(--gold-soft); margin-bottom: 15px; display: none; }
+        .pix-codigo { background: #000; padding: 10px; font-family: monospace; font-size: 0.7rem; color: #0f0; word-break: break-all; border-radius: 5px; margin: 10px 0; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -76,6 +75,7 @@
     <aside class="cart-overlay" id="cart-overlay">
         <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
+        
         <div id="cart-items"></div>
 
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
@@ -87,14 +87,12 @@
                 <option value="retirada">Retirada na Loja</option>
             </select>
 
-            <div id="bloco-retirada" style="display:none;">
-                <strong>📍 Av. Bento Gonçalves, 4321</strong>
-            </div>
-
             <div id="bloco-endereco" style="display:none;">
-                <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
-                <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;">
+                    <input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;">
+                </div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
             </div>
 
@@ -132,30 +130,25 @@
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
-        const MINHA_CHAVE_PIX = "5551989067003"; // Coloque seu Telefone ou CPF aqui
+        const MINHA_CHAVE_PIX = "5551989067003"; 
         
         let cart = [];
         let totalGlobal = 0;
 
-        // PIX COPIA E COLA (SIMPLIFICADO)
         function togglePixArea() {
             const pag = document.getElementById('metodo-pagamento').value;
             const area = document.getElementById('pix-area');
             if (pag === 'Pix') {
                 area.style.display = 'block';
-                const valorParaPix = totalGlobal.toFixed(2).replace('.', '');
-                // Payload padrão Pix estático (ajustado para aceitar valor)
-                const payload = `00020101021226580014br.gov.bcb.pix0114${MINHA_CHAVE_PIX}52040000530398654${valorParaPix.length.toString().padStart(2, '0')}${valorParaPix}5802BR5915TIOnan CACHACA6009SAO PAULO62070503***6304`;
+                const valorFix = totalGlobal.toFixed(2).replace('.', '');
+                const payload = `00020101021226580014br.gov.bcb.pix0114${MINHA_CHAVE_PIX}52040000530398654${valorFix.length.toString().padStart(2, '0')}${valorFix}5802BR5915TIOnan CACHACA6009SAO PAULO62070503***6304`;
                 document.getElementById('pix-string').innerText = payload;
-            } else {
-                area.style.display = 'none';
-            }
+            } else { area.style.display = 'none'; }
         }
 
         function copiarPix() {
-            const texto = document.getElementById('pix-string').innerText;
-            navigator.clipboard.writeText(texto);
-            alert("Código Pix copiado! Agora pague no seu banco.");
+            navigator.clipboard.writeText(document.getElementById('pix-string').innerText);
+            alert("Código Pix copiado!");
         }
 
         async function loadProducts() {
@@ -163,22 +156,29 @@
             const text = await res.text();
             const rows = text.split('\n').slice(1);
             let html = '';
-            
             rows.forEach(row => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(c[3].toLowerCase() !== 'sim') return;
-                
-                // LOADING LAZY PARA IMAGENS DA VITRINE
                 html += `
                 <div class="card-produto">
-                    <div class="img-wrapper">
-                        <img src="${c[0]}.png" loading="lazy" decoding="async">
-                    </div>
+                    <div class="img-wrapper"><img src="${c[0]}.png" loading="lazy" decoding="async"></div>
                     <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${c[2]}</span></div>
                     <button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar</button>
                 </div>`;
             });
             document.getElementById('vitrine').innerHTML = html;
+        }
+
+        function add(id, name, price) {
+            const item = cart.find(i => i.id === id);
+            if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
+            updateCart();
+            const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); }
         }
 
         function updateCart() {
@@ -191,7 +191,6 @@
             document.getElementById('checkout-form').style.display = 'block';
             const entrega = document.getElementById('metodo-entrega').value;
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
-            document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
             
             itemsCont.innerHTML = cart.map(i => `
                 <div class="cart-item-row">
@@ -208,19 +207,7 @@
             totalGlobal = total;
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
             document.getElementById('badge').innerText = cart.reduce((acc, i) => acc + i.qtd, 0);
-            togglePixArea(); // Atualiza o Pix se o valor mudar
-        }
-
-        function add(id, name, price) {
-            const item = cart.find(i => i.id === id);
-            if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
-            updateCart();
-            const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
-        function changeQty(id, delta) {
-            const item = cart.find(i => i.id === id);
-            if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); }
+            togglePixArea();
         }
 
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
