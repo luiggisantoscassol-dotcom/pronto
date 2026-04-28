@@ -17,7 +17,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
+        html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); scroll-behavior: smooth; }
 
         /* NOTIFICAÇÃO TOAST */
         #toast-notificacao {
@@ -28,30 +28,30 @@
         }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
 
+        /* HERO - OTIMIZADO */
+        .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; min-height: 250px; }
+        .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: #111; }
+
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
         .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
 
+        /* VITRINE - OTIMIZADA */
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
         .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
         
-        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
-        .img-wrapper img { max-height: 260px; max-width: 100%; object-fit: contain; }
+        /* Reservar espaço para imagem não pular */
+        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; background: radial-gradient(circle, #1a1a1a 0%, #070707 100%); border-radius: 10px; }
+        .img-wrapper img { max-height: 260px; max-width: 100%; object-fit: contain; transition: opacity 0.5s ease; }
 
+        .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
         .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
-        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; }
+        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; }
 
         /* SACOLA */
-        .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; }
+        .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
-        .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; }
+        .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; }
         .cart-overlay.active { right: 0; }
-        
-        .cart-input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
-
-        /* AREA PIX */
-        #pix-area { background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid var(--gold-soft); margin-top: 20px; display: none; text-align: center; }
-        .pix-code { background: #000; color: #0f0; padding: 10px; font-family: monospace; font-size: 0.7rem; word-break: break-all; border-radius: 5px; margin: 10px 0; border: 1px solid #333; }
-        .btn-pix { background: #fff; color: #000; border: none; padding: 10px; width: 100%; font-weight: 900; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -67,70 +67,52 @@
 
     <aside class="cart-overlay" id="cart-overlay">
         <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
-        <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium); text-align: center;">Sua Sacola</h3>
-        
+        <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
         <div id="cart-items"></div>
-
-        <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
-            <input type="text" id="cliente-nome" class="cart-input" placeholder="Seu Nome">
-            
-            <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
-                <option value="none" selected disabled>Como quer receber?</option>
-                <option value="tele">Tele Entrega (+ R$ 15,00)</option>
-                <option value="retirada">Retirada na Loja</option>
-            </select>
-
-            <div id="bloco-endereco" style="display:none;">
-                <input type="text" id="rua" class="cart-input" placeholder="Rua">
-                <input type="text" id="numero" class="cart-input" placeholder="Nº e Apto">
-            </div>
-
-            <select id="metodo-pagamento" class="cart-input" onchange="checkPix()">
-                <option value="none" selected disabled>Forma de Pagamento?</option>
-                <option value="Pix">Pix (Copia e Cola)</option>
-                <option value="Dinheiro">Dinheiro</option>
-                <option value="Cartão">Cartão (Maquininha)</option>
-            </select>
-
-            <div id="pix-area">
-                <p style="color:var(--gold-soft); font-weight: bold; font-size: 0.8rem;">Pague agora para agilizar o envio:</p>
-                <div class="pix-code" id="pix-display">Gerando código...</div>
-                <button class="btn-pix" onclick="copyPix()">COPIAR CÓDIGO PIX</button>
-                <p style="font-size: 0.7rem; color: #888;">Após copiar, cole no seu banco e finalize no WhatsApp abaixo.</p>
-            </div>
-
-            <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900; text-align: center;">Total: R$ 0,00</h3>
-            
-            <button onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">ENVIAR PEDIDO NO WHATSAPP</button>
-        </div>
-    </aside>
+        </aside>
 
     <main>
+        <div class="swiper swiper-hero">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide"><img src="passo1.png" fetchpriority="high"></div>
+                <div class="swiper-slide"><img src="passo2.png"></div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
         <section class="hero-section"><h1>Cachaça do Tio Nan</h1></section>
         <div id="vitrine" class="produtos-grid"></div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
-        const CHAVE_PIX = "SUA_CHAVE_PIX_AQUI"; // <-- COLOQUE SEU CPF, CELULAR OU EMAIL AQUI
         
+        new Swiper('.swiper-hero', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 } });
         let cart = [];
-        let totalGlobal = 0;
 
         async function loadProducts() {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
             const text = await res.text();
             const rows = text.split('\n').slice(1);
             let html = '';
+            
             rows.forEach(row => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(c[3].toLowerCase() !== 'sim') return;
+
+                // loading="lazy" faz a imagem carregar só quando aparece na tela
+                // decoding="async" impede que a imagem trave o scroll enquanto carrega
                 html += `
                 <div class="card-produto">
-                    <div class="img-wrapper"><img src="${c[0]}.png"></div>
-                    <div><h3>${c[1]}</h3><span class="preco">R$ ${c[2]}</span></div>
-                    <button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar</button>
+                    <div class="img-wrapper">
+                        <img src="${c[0]}.png" loading="lazy" decoding="async" alt="${c[1]}">
+                    </div>
+                    <div>
+                        <h3 class="prod-nome">${c[1]}</h3>
+                        <span class="preco">R$ ${c[2]}</span>
+                    </div>
+                    <button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>
                 </div>`;
             });
             document.getElementById('vitrine').innerHTML = html;
@@ -147,58 +129,11 @@
 
         function updateCart() {
             const itemsCont = document.getElementById('cart-items');
-            if (cart.length === 0) { 
-                itemsCont.innerHTML = '<p style="text-align:center; padding:40px; color:#555;">Sacola vazia.</p>'; 
-                document.getElementById('checkout-form').style.display = 'none'; 
-                document.getElementById('badge').innerText = 0; return; 
-            }
-            document.getElementById('checkout-form').style.display = 'block';
-            const entrega = document.getElementById('metodo-entrega').value;
-            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
-            
-            itemsCont.innerHTML = cart.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>${i.name} (x${i.qtd})</span><b>R$ ${(i.price * i.qtd).toFixed(2)}</b></div>`).join('');
-            
-            let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-            if(entrega === 'tele') total += 15;
-            totalGlobal = total;
-            document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
+            if (cart.length === 0) { itemsCont.innerHTML = '<p>Sacola vazia.</p>'; document.getElementById('badge').innerText = 0; return; }
+            itemsCont.innerHTML = cart.map(i => `<div style="margin-bottom:10px;">${i.name} (x${i.qtd}) - R$ ${(i.price * i.qtd).toFixed(2)}</div>`).join('');
             document.getElementById('badge').innerText = cart.reduce((acc, i) => acc + i.qtd, 0);
-            checkPix();
         }
 
-        function checkPix() {
-            const pag = document.getElementById('metodo-pagamento').value;
-            const pixArea = document.getElementById('pix-area');
-            if (pag === 'Pix') {
-                pixArea.style.display = 'block';
-                // Lógica de geração simplificada para o "Copia e Cola"
-                const valorFormatado = totalGlobal.toFixed(2).replace('.', '');
-                const payload = `00020101021226580014br.gov.bcb.pix0114${CHAVE_PIX}52040000530398654${valorFormatado.length.toString().padStart(2, '0')}${valorFormatado}5802BR5915TIOnan CACHACA6009SAO PAULO62070503***6304`;
-                document.getElementById('pix-display').innerText = payload;
-            } else {
-                pixArea.style.display = 'none';
-            }
-        }
-
-        function copyPix() {
-            const code = document.getElementById('pix-display').innerText;
-            navigator.clipboard.writeText(code);
-            alert("Código Pix copiado! Cole no seu banco.");
-        }
-
-        async function checkout() {
-            const nome = document.getElementById('cliente-nome').value;
-            const entrega = document.getElementById('metodo-entrega').value;
-            const pag = document.getElementById('metodo-pagamento').value;
-            if(!nome || entrega === "none" || pag === "none") return alert("Preencha tudo!");
-            
-            let enderecoComp = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value}` : "Retirada na Loja";
-            const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: enderecoComp };
-            
-            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*NOVO PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+enderecoComp+"\n💰 "+dados.total+"\n💳 Pgto: "+pag)}`);
-        }
-        
         loadProducts();
     </script>
 </body>
