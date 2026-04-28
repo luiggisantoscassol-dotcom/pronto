@@ -12,20 +12,18 @@
         
         h1 { color: var(--gold); margin-bottom: 20px; font-weight: 900; text-align: center; font-size: 1.4rem; text-transform: uppercase; }
         .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; }
-        h2 { color: var(--gold); text-transform: uppercase; font-size: 0.85rem; font-weight: 900; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 8px; }
-
-        /* ESTOQUE */
-        .estoque-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #181818; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; }
-        .btn-step { background: #333; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 8px; font-size: 1.5rem; }
-        .estoque-input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-weight: 900; font-size: 1.2rem; }
+        
+        /* ABAS */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; color: #666; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; padding: 5px 10px; }
+        .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
 
         /* PEDIDOS */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         td { padding: 12px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; vertical-align: middle; }
-        td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; width: 45px; text-align: center; }
+        td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; }
         td:last-child { border-right: 1px solid #222; border-radius: 0 10px 10px 0; text-align: right; }
         
-        /* CORES DE STATUS */
         .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; color: #000; display: inline-block; margin-bottom: 5px; }
         .status-NovoPedido { background: var(--new); }
         .status-Pendente { background: var(--pend); }
@@ -34,14 +32,15 @@
 
         .maps-link { color: #3498db; text-decoration: none; font-size: 0.75rem; font-weight: 700; display: block; margin-top: 6px; }
 
-        /* BARRA MÚLTIPLA */
-        #bulk-bar { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 15px 25px; border-radius: 50px; font-weight: 900; z-index: 2000; box-shadow: 0 5px 20px #000; align-items: center; gap: 15px; }
-        #bulk-bar button { background: #000; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 0.7rem; }
-
         #modal, .overlay { display:none; }
         #modal { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#151515; padding:20px; border:1px solid var(--gold); border-radius:15px; width:92%; z-index:1000; }
         .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999; }
         .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; margin-top:15px; border-radius:8px; text-transform: uppercase; color: #000; }
+
+        /* ESTOQUE */
+        .estoque-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #181818; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; }
+        .btn-step { background: #333; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 8px; font-size: 1.5rem; }
+        .estoque-input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-weight: 900; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -49,67 +48,55 @@
     <h1>Gestão Tio Nan</h1>
 
     <div class="card">
-        <h2>📦 Estoque</h2>
-        <div id="corpo-estoque"></div>
-    </div>
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="mudarAba('ativos', this)">Ativos</button>
+            <button class="tab-btn" onclick="mudarAba('arquivados', this)">Arquivados</button>
+            <button class="tab-btn" onclick="mudarAba('estoque', this)">Estoque</button>
+        </div>
+        
+        <div id="secao-pedidos">
+            <table><tbody id="corpo-pedidos"></tbody></table>
+        </div>
 
-    <div class="card">
-        <h2>🛒 Pedidos Ativos</h2>
-        <table><tbody id="corpo-pedidos"></tbody></table>
-    </div>
-
-    <div id="bulk-bar">
-        <span id="bulk-count">0 selecionados</span>
-        <button onclick="mudarVariosStatus()">Mudar Status</button>
+        <div id="secao-estoque" style="display:none">
+            <div id="corpo-estoque"></div>
+        </div>
     </div>
 
     <div class="overlay" id="overlay" onclick="fechar()"></div>
     <div id="modal">
-        <h2 id="m-nome" style="border:none"></h2>
-        <div id="m-detalhes" style="font-size: 0.85rem; margin-bottom: 20px; color: #ccc;"></div>
-        <select id="m-status" style="width:100%; padding:15px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; font-weight: bold;">
-            <option value="Novo Pedido">Novo Pedido</option>
-            <option value="Pendente">Pendente</option>
-            <option value="Concluído">Concluído</option>
-            <option value="Cancelado">Cancelado</option>
-        </select>
-        <button onclick="salvarStatus()" class="btn-status">Atualizar Agora</button>
+        <h2 id="m-nome" style="border:none; color:var(--gold); font-size:1.2rem"></h2>
+        <div id="m-detalhes" style="font-size: 0.85rem; margin: 15px 0; color: #ccc;"></div>
+        <div id="m-controle-status">
+            <select id="m-status" style="width:100%; padding:15px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; font-weight: bold;">
+                <option value="Novo Pedido">Novo Pedido</option>
+                <option value="Pendente">Pendente</option>
+                <option value="Concluído">Concluído</option>
+                <option value="Cancelado">Cancelado</option>
+            </select>
+            <button onclick="salvarStatus()" class="btn-status">Atualizar Agora</button>
+        </div>
     </div>
 
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
+        let abaAtual = 'ativos';
         let sel = null;
 
+        function mudarAba(aba, btn) {
+            abaAtual = aba;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            document.getElementById('secao-pedidos').style.display = (aba === 'estoque') ? 'none' : 'block';
+            document.getElementById('secao-estoque').style.display = (aba === 'estoque') ? 'block' : 'none';
+            
+            carregar();
+        }
+
         async function carregar() {
-            try {
-                const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
-                const rowsV = (await resV.text()).split('\n').slice(1);
-                let htmlV = '';
-                rowsV.reverse().forEach((row, i) => {
-                    const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                    if(!c[1]) return;
-                    
-                    const status = c[6] || "Novo Pedido";
-                    const statusClasse = status.replace(/\s/g, '');
-                    const endereco = c[7] || "";
-                    const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
-
-                    htmlV += `
-                    <tr>
-                        <td><input type="checkbox" class="check-ped" style="width:20px; height:20px" value="${rowsV.length - i}" onchange="toggleBulk()"></td>
-                        <td onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length - i})'>
-                            <b>${c[1]}</b><br>
-                            <small style="color:#777">${c[2].substring(0,25)}...</small>
-                            ${endereco ? `<a href="${linkMaps}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 Abrir Maps</a>` : ''}
-                        </td>
-                        <td style="text-align:right" onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length - i})'>
-                            <span class="status status-${statusClasse}">${status}</span><br><b>R$ ${c[3]}</b>
-                        </td>
-                    </tr>`;
-                });
-                document.getElementById('corpo-pedidos').innerHTML = htmlV;
-
+            if (abaAtual === 'estoque') {
                 const resP = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
                 const rowsP = (await resP.text()).split('\n').slice(1);
                 let htmlE = '';
@@ -119,24 +106,62 @@
                     htmlE += `<div class="estoque-row"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
                 });
                 document.getElementById('corpo-estoque').innerHTML = htmlE;
-            } catch(e) { console.log(e); }
+                return;
+            }
+
+            let rows = [];
+            if (abaAtual === 'ativos') {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
+                rows = (await res.text()).split('\n').slice(1).reverse();
+            } else {
+                const res = await fetch(`${urlWebhook}?action=getArquivados`);
+                rows = await res.json();
+                rows.reverse();
+            }
+
+            let htmlV = '';
+            rows.forEach((row, i) => {
+                const c = Array.isArray(row) ? row : row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
+                if(!c[1]) return;
+                
+                const status = c[6];
+                const statusClasse = status.replace(/\s/g, '');
+                const endereco = c[7] || "";
+                const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+
+                htmlV += `
+                <tr>
+                    <td onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i})'>
+                        <b>${c[1]}</b><br>
+                        <small style="color:#777">${c[2].substring(0,30)}...</small>
+                        ${endereco ? `<a href="${linkMaps}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 Abrir Maps</a>` : ''}
+                    </td>
+                    <td style="text-align:right" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i})'>
+                        <span class="status status-${statusClasse}">${status}</span><br><b>R$ ${c[3]}</b>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('corpo-pedidos').innerHTML = htmlV || '<p style="text-align:center; padding:20px; color:#666">Nada por aqui.</p>';
         }
 
-        function toggleBulk() {
-            const selecionados = document.querySelectorAll('.check-ped:checked');
-            const bar = document.getElementById('bulk-bar');
-            bar.style.display = selecionados.length > 0 ? 'flex' : 'none';
-            document.getElementById('bulk-count').innerText = `${selecionados.length} selecionados`;
+        function abrirPedido(dados, linha) {
+            sel = { linha, dados };
+            document.getElementById('m-nome').innerText = dados[1];
+            document.getElementById('m-detalhes').innerHTML = `<b>Itens:</b> ${dados[2]}<br><b>Endereço:</b> ${dados[7]}<br><b>Pagamento:</b> ${dados[5]}<br><b>Total:</b> R$ ${dados[3]}`;
+            document.getElementById('m-status').value = dados[6];
+            
+            // Esconde controle de status se já estiver arquivado
+            document.getElementById('m-controle-status').style.display = (abaAtual === 'arquivados') ? 'none' : 'block';
+            
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
         }
 
-        async function mudarVariosStatus() {
-            const novo = prompt("Novo status (Novo Pedido, Pendente, Concluído, Cancelado):");
-            if(!novo) return;
-            const rows = Array.from(document.querySelectorAll('.check-ped:checked')).map(cb => cb.value);
-            document.getElementById('bulk-bar').innerText = "PROCESSANDO...";
-            await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${encodeURIComponent(novo)}`);
+        async function salvarStatus() {
+            const status = document.getElementById('m-status').value;
+            fechar();
+            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(status)}`);
             carregar();
-            document.getElementById('bulk-bar').style.display = 'none';
         }
 
         function stepStock(id, delta) { 
@@ -150,26 +175,9 @@
             fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
         }
 
-        function abrirPedido(dados, linha) {
-            sel = { linha, dados };
-            document.getElementById('m-nome').innerText = dados[1];
-            document.getElementById('m-detalhes').innerHTML = `<b>Itens:</b> ${dados[2]}<br><b>Endereço:</b> ${dados[7]}<br><b>Pagamento:</b> ${dados[5]}`;
-            document.getElementById('m-status').value = dados[6];
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        async function salvarStatus() {
-            const status = document.getElementById('m-status').value;
-            fechar();
-            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(status)}`);
-            carregar();
-        }
-
         function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
         
         carregar();
-        setInterval(carregar, 40000);
     </script>
 </body>
 </html>
