@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box}body{width:100%;overflow-x:hidden;background:var(--bg);color:#f5f5f5;font-family:'Montserrat',sans-serif}
 .hero-section{text-align:center;padding:30px 15px}.hero-section h1{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,8vw,3.2rem);background:var(--gold);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:italic;line-height:1.1;margin:0 auto}
 .swiper-hero{width:100%;max-width:700px;margin:0 auto}.swiper-hero img{width:95%;max-height:350px;border-radius:15px;object-fit:contain;display:block;margin:0 auto}
-.garrafa-voando{position:fixed;z-index:9999;pointer-events:none;transition:all .8s cubic-bezier(0.6,-0.28,0.735,0.045);object-fit:contain;filter:drop-shadow(0 5px 15px rgba(212,175,55,0.8))}
+.garrafa-voando{position:fixed;z-index:9999;pointer-events:none;transition:all .8s cubic-bezier(0.6,-0.28,0.735,0.045);object-fit:contain;filter:drop-shadow(0 5px 15px rgba(212, 175, 55, 0.8))}
 .swiper-pagination-bullet{background:rgba(255,255,255,0.2)!important;opacity:1!important}.swiper-pagination-bullet-active{background:var(--soft)!important}
 #cont-frete{background:#1a1a1a;padding:20px 15px;border-radius:12px;margin:0 15px 20px;text-align:center;border:1px solid #222}
 #txt-frete{font-size:.75rem;font-weight:800;text-transform:uppercase;margin-bottom:12px;color:var(--soft);letter-spacing:1px;display:block}
@@ -30,7 +30,7 @@
 .cart-overlay.active{right:0}.cart-input{width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;padding:15px;margin-bottom:15px;border-radius:8px;font-size:1rem;outline:0}
 .btn-adicionar{background:var(--gold);color:#000;border:0;padding:18px;width:100%;font-weight:900;border-radius:10px;text-transform:uppercase;cursor:pointer}
 .cart-item-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border-bottom:1px solid #222;padding-bottom:10px;text-align:left}
-.qty-btn{background:#222;color:var(--soft);border:1px solid #333;width:35px;height:35px;border-radius:5px;cursor:pointer;font-weight:700}
+.qty-btn{background:#222;color:var(--gold-soft);border:1px solid #333;width:35px;height:35px;border-radius:5px;cursor:pointer;font-weight:700}
 .btn-continuar{width:100%;margin-top:15px;background:0;border:1px solid #444;color:#888;padding:15px;border-radius:10px;font-weight:700;text-transform:uppercase;cursor:pointer;font-size:.8rem}
 @keyframes chacoalharRapido{0%,100%{transform:scale(1)}20%,60%{transform:scale(1.1) rotate(5deg)}40%,80%{transform:scale(1.1) rotate(-5deg)}}
 </style>
@@ -47,10 +47,10 @@
 <div id="checkout-form" style="display:none;margin-top:20px;border-top:1px solid #333;padding-top:20px">
 <input type="text" id="cnome" class="cart-input" placeholder="Nome Completo">
 <select id="mentrega" class="cart-input" onchange="updateCart()"><option value="none" selected disabled>Como quer receber?</option><option value="tele">Tele Entrega (+ R$ 15,00)</option><option value="retirada">Retirada na Loja</option></select>
-<div id="bretirada" style="display:none;margin-bottom:15px;text-align:left;font-size:0.9rem">📍 <strong>Retirada:</strong><br><a href="http://googleusercontent.com/maps.google.com/q=Av.+Bento+Gonçalves,+4321,+Partenon,+Porto+Alegre" target="_blank" style="color:var(--soft);text-decoration:underline">Av. Bento Gonçalves, 4321, POA</a></div>
+<div id="bretirada" style="display:none;margin-bottom:15px;text-align:left;font-size:0.9rem">📍 <strong>Retirada:</strong><br><a href="https://www.google.com/maps/search/?api=1&query=Av.+Bento+Gonçalves,+4321,+Partenon,+Porto+Alegre" target="_blank" style="color:var(--gold-soft);text-decoration:underline">Av. Bento Gonçalves, 4321, POA</a></div>
 <div id="bendereco" style="display:none"><input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9"><input type="text" id="rua" class="cart-input" placeholder="Rua"><div style="display:flex;gap:5px"><input type="text" id="num" class="cart-input" style="width:35%" placeholder="Nº"><input type="text" id="ap" class="cart-input" style="width:65%" placeholder="Apto"></div><input type="text" id="bairro" class="cart-input" placeholder="Bairro"></div>
 <h3 id="ctotal" style="margin:25px 0;color:var(--soft);font-size:1.8rem;font-weight:900">Total: R$ 0,00</h3>
-<button onclick="checkout()" style="background:#25D366;color:#fff;border:0;width:100%;padding:20px;font-weight:900;border-radius:12px;cursor:pointer;text-transform:uppercase">FINALIZAR NO WHATSAPP</button>
+<button onclick="checkout()" style="background:#25D366;color:#fff;border:0;width:100%;padding:20px;font-weight:900;border-radius:12px;cursor:pointer;text-transform:uppercase">Finalizar no WhatsApp</button>
 <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button></div>
 </aside>
 <main>
@@ -67,5 +67,8 @@ function add(id,n,p){const card=document.getElementById(`card-${id}`);let img=ca
 function updateCart(){let tg=cart.reduce((a,b)=>a+b.qtd,0),b=document.getElementById('bar-frete'),t=document.getElementById('txt-frete'),e=document.getElementById('mentrega').value;if(b&&t){b.style.width=Math.min((tg/3)*100,100)+"%";if(e==='retirada'){b.style.background="var(--esm)";if(tg>=3){t.innerText="PARABÉNS! DESCONTO DE R$ 15,00 ATIVADO! 💰";t.style.color="#2ecc71"}else{t.innerText=`Faltam ${3-tg} garrafas para ganhar R$ 15,00 DE DESCONTO!`;t.style.color="var(--gold-soft)"}}else{b.style.background="var(--gold)";if(tg>=3){t.innerText="PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";t.style.color="var(--gold-soft)"}else{t.innerText=`Faltam ${3-tg} garrafas para FRETE GRÁTIS!`;t.style.color="var(--gold-soft)"}}}document.getElementById('checkout-form').style.display=cart.length>0?'block':'none';document.getElementById('bendereco').style.display=e==='tele'?'block':'none';document.getElementById('bretirada').style.display=e==='retirada'?'block':'none';document.getElementById('cart-items').innerHTML=cart.map(i=>`<div class="cart-item-row"><div><b>${i.name}</b><br>R$ ${(i.price*i.qtd).toFixed(2).replace('.',,')}</div><div style="display:flex;align-items:center;gap:10px"><button class="qty-btn" onclick="changeQty('${i.id}',-1)">-</button><span>${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}',1)">+</button></div></div>`).join('');let tot=cart.reduce((a,b)=>a+(b.price*b.qtd),0);if(e==='tele'&&tg<3)tot+=15;if(e==='retirada'&&tg>=3)tot-=15;document.getElementById('ctotal').innerText=`Total: R$ ${tot.toFixed(2).replace('.',',')}`;document.getElementById('badge').innerText=tg}
 function changeQty(id,d){let i=cart.find(x=>x.id===id);if(i){i.qtd+=d;if(i.qtd<=0)cart=cart.filter(x=>x.id!==id);updateCart()}}
 function checkout(){let n=document.getElementById('cnome').value,e=document.getElementById('mentrega').value;if(!n||e==='none')return alert("Preencha tudo!");window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+n+"\n💰 "+document.getElementById('ctotal').innerText)}`)}
-new Swiper('.swiper-hero',{loop:!0,pagination:{el:'.swiper-pagination',clickable:!0},autoplay:{delay:5000}});loadProducts();
+document.addEventListener('DOMContentLoaded', () => {
+    new Swiper('.swiper-hero',{loop:!0,pagination:{el:'.swiper-pagination',clickable:!0},autoplay:{delay:5000}});
+    loadProducts();
+});
 </script></body></html>
