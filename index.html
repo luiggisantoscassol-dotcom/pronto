@@ -21,45 +21,27 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
-        /* TÍTULO CENTRALIZADO E DOURADO */
+        /* TÍTULO INICIAL DOURADO E CENTRALIZADO */
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
-        .hero-section h1 { 
-            font-family: var(--font-premium); 
-            font-size: clamp(2.2rem, 8vw, 3.2rem); 
-            background: var(--gold-metallic); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            font-style: italic; 
-            font-weight: 700;
-            margin: 0 auto;
-        }
+        .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; display: inline-block; }
 
-        /* ANIMAÇÃO DE VOO DOURADA */
-        .garrafa-voando {
-            position: fixed; z-index: 9999; pointer-events: none;
-            transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
-            object-fit: contain; 
-            filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.8));
-        }
+        /* ANIMAÇÃO DOURADA */
+        .garrafa-voando { position: fixed; z-index: 9999; pointer-events: none; transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045); object-fit: contain; filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.8)); }
 
         /* BOLINHAS DOURADAS */
-        .swiper-pagination-bullet { background: #fff !important; opacity: 0.3; }
-        .swiper-pagination-bullet-active { background: var(--gold-soft) !important; opacity: 1 !important; }
+        .swiper-pagination-bullet-active { background: var(--gold-soft) !important; }
 
-        #toast-notificacao {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px;
-            font-weight: 900; font-size: 0.9rem; z-index: 5000; transition: 0.5s; text-transform: uppercase;
-        }
+        #toast-notificacao { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: 900; z-index: 5000; transition: 0.5s; text-transform: uppercase; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
 
+        /* BARRA DE PROGRESSO */
         #container-frete { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #222; }
         #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; }
         .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
         .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out, background 0.3s; }
         .barra-verde { background: var(--green-esmeralda) !important; }
 
-        .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; position: relative; }
+        .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; }
 
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
@@ -79,8 +61,8 @@
         }
         @media (max-width: 1023px) {
             .desktop-only-images { display: none; }
-            .swiper-produto { display: block; height: 280px; width: 100%; position: relative; }
-            .swiper-produto img { max-height: 260px; width: auto; object-fit: contain; }
+            .swiper-produto { display: block; height: 280px; width: 100%; }
+            .swiper-produto img { max-height: 260px; object-fit: contain; }
         }
 
         .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; }
@@ -97,7 +79,7 @@
         .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; }
         .btn-continuar { width: 100%; margin-top: 15px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; text-transform: uppercase; cursor: pointer; }
 
-        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.1) rotate(5deg); } 40%, 80% { transform: scale(1.1) rotate(-5deg); } }
+        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.15) rotate(5deg); } 40%, 80% { transform: scale(1.15) rotate(-5deg); } }
     </style>
 </head>
 <body>
@@ -161,15 +143,16 @@
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
                 const text = await res.text();
                 const rows = text.split('\n').slice(1);
-                let disp = ''; let esg = '';
+                let htmlDisp = ''; let htmlEsg = '';
+                
                 rows.forEach(row => {
                     const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                     if(!c || c[3].toLowerCase() !== 'sim') return;
-                    const tem = (parseInt(c[4]) || 0) > 0;
+                    const temEstoque = (parseInt(c[4]) || 0) > 0;
                     const html = `
-                    <div class="card-produto ${tem ? '' : 'esgotado-card'}" id="card-${c[0]}">
+                    <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}" id="card-${c[0]}">
                         <div class="img-wrapper">
-                            ${tem ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}
+                            ${temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}
                             <div class="desktop-only-images"><img src="${c[0]}.png" class="foto-1 prod-img"><img src="${c[0]}-2.png" class="foto-2"></div>
                             <div class="swiper swiper-produto">
                                 <div class="swiper-wrapper">
@@ -180,11 +163,11 @@
                             </div>
                         </div>
                         <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',,')}</span></div>
-                        ${tem ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
+                        ${temEstoque ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
                     </div>`;
-                    if(tem) disp += html; else esg += html;
+                    if (temEstoque) htmlDisp += cardHTML = html; else htmlEsg += html;
                 });
-                document.getElementById('vitrine').innerHTML = disp + esg;
+                document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
                 document.querySelectorAll('.swiper-produto').forEach(el => { 
                     new Swiper(el, { loop: true, effect: 'fade', pagination: { el: el.querySelector('.swiper-pagination'), clickable: true }, autoplay: { delay: Math.random() * 2000 + 3000 } }); 
                 });
@@ -192,40 +175,35 @@
         }
 
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
-
+        
         function add(id, name, price) {
             const card = document.getElementById(`card-${id}`);
-            const img = card.querySelector('.prod-img');
+            const imgOriginal = card.querySelector('.prod-img');
             const cartBtn = document.getElementById('cart-btn');
-            const clone = img.cloneNode();
-            const r = img.getBoundingClientRect();
-            const cr = cartBtn.getBoundingClientRect();
-            
-            Object.assign(clone.style, { position:'fixed', zIndex:9999, width:r.width+'px', height:r.height+'px', top:r.top+'px', left:r.left+'px', transition:'all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045)' });
+            const clone = imgOriginal.cloneNode(true);
+            const rect = imgOriginal.getBoundingClientRect();
+            const cartRect = cartBtn.getBoundingClientRect();
+            Object.assign(clone.style, { position:'fixed', zIndex:9999, width:rect.width+'px', height:rect.height+'px', top:rect.top+'px', left:rect.left+'px', transition:'all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045)' });
             clone.classList.add('garrafa-voando');
             document.body.appendChild(clone);
-            
-            setTimeout(() => { Object.assign(clone.style, { top:cr.top+'px', left:cr.left+'px', width:'20px', height:'20px', opacity:0 }); }, 50);
-            
+            setTimeout(() => { Object.assign(clone.style, { top:cartRect.top+'px', left:cartRect.left+'px', width:'20px', height:'20px', opacity:0 }); }, 50);
             setTimeout(() => { 
-                clone.remove(); cart.push({id, name, price}); updateCart(); 
-                document.getElementById('toast-notificacao').classList.add('show'); 
-                setTimeout(() => document.getElementById('toast-notificacao').classList.remove('show'), 2000); 
-                cartBtn.style.animation = 'chacoalharRapido 0.5s'; 
-                setTimeout(() => cartBtn.style.animation='', 500); 
+                clone.remove(); cart.push({id, name, price, qtd:1}); updateCart(); 
+                document.getElementById('toast-notificacao').classList.add('show'); setTimeout(() => document.getElementById('toast-notificacao').classList.remove('show'), 2000); 
+                cartBtn.style.animation = 'chacoalharRapido 0.5s'; setTimeout(() => cartBtn.style.animation='', 500); 
             }, 800);
         }
 
         function updateCart() {
             const itemsCont = document.getElementById('cart-items');
-            const totalG = cart.length;
+            const totalG = cart.reduce((acc, i) => acc + i.qtd, 0);
             const barra = document.getElementById('barra-frete');
             const txt = document.getElementById('texto-frete');
             const entrega = document.getElementById('metodo-entrega').value;
 
-            if(barra && txt) {
+            if (barra && txt) {
                 barra.style.width = Math.min((totalG/3)*100, 100) + "%";
-                if(entrega === 'retirada') {
+                if (entrega === 'retirada') {
                     barra.classList.add('barra-verde');
                     txt.innerText = totalG >= 3 ? "DESCONTO DE R$ 15,00 ATIVADO! 💰" : `Faltam ${3-totalG} para R$ 15,00 de desconto`;
                 } else {
@@ -236,9 +214,8 @@
 
             if(totalG === 0) { if(itemsCont) itemsCont.innerHTML = "<p>Sacola vazia.</p>"; document.getElementById('checkout-form').style.display = 'none'; return; }
             document.getElementById('checkout-form').style.display = 'block';
-
-            itemsCont.innerHTML = cart.map((i, idx) => `<div class="cart-item-row"><div><b>${i.name}</b><br>R$ ${i.price.toFixed(2).replace('.',,')}</div><button class="qty-btn" onclick="cart.splice(${idx},1);updateCart()">X</button></div>`).join('');
-            let total = cart.reduce((a,b) => a + b.price, 0);
+            itemsCont.innerHTML = cart.map((i, idx) => `<div class="cart-item-row"><div><b>${i.name}</b><br>R$ ${i.price.toFixed(2).replace('.',',')}</div><button class="qty-btn" onclick="cart.splice(${idx},1);updateCart()">X</button></div>`).join('');
+            let total = cart.reduce((a,b) => a + (b.price * b.qtd), 0);
             if(entrega === 'tele' && totalG < 3) total += 15;
             if(entrega === 'retirada' && totalG >= 3) total -= 15;
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
