@@ -4,89 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tio Nan Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --bg: #070707; --card: #111; --new: #2ecc71; --pend: #f1c40f; --done: #3498db; --canc: #e74c3c; }
+        :root { --gold: #d4af37; --bg: #000; --card: #121212; --new: #2ecc71; --pend: #f1c40f; --done: #3498db; --canc: #e74c3c; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; padding-bottom: 90px; }
+        body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; padding-bottom: 100px; }
         
-        h1 { color: var(--gold); margin-bottom: 20px; font-weight: 900; text-align: center; font-size: 1.4rem; text-transform: uppercase; }
-        .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; }
+        h1 { color: var(--gold); margin-bottom: 25px; font-weight: 900; text-align: center; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; }
         
-        .tab-container { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; overflow-x: auto; }
-        .tab-btn { background: none; border: none; color: #666; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; padding: 5px 10px; white-space: nowrap; }
-        .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        /* ABAS */
+        .tab-container { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; color: #555; font-weight: 900; font-size: 0.9rem; text-transform: uppercase; cursor: pointer; padding: 8px 12px; transition: 0.3s; }
+        .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
 
         .secao-conteudo { display: none; }
-        .secao-conteudo.ativa { display: block; }
+        .secao-conteudo.ativa { display: block; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        td { padding: 12px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; vertical-align: middle; }
-        td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; }
-        td:last-child { border-right: 1px solid #222; border-radius: 0 10px 10px 0; text-align: right; }
+        /* LISTA DE PEDIDOS */
+        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 15px; display: flex; align-items: stretch; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .pedido-check { width: 50px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-right: 1px solid #222; }
+        .pedido-info { flex: 1; padding: 15px; }
+        .pedido-info b { font-size: 1.1rem; color: #fff; text-transform: uppercase; }
+        .pedido-detalhe { font-size: 0.9rem; color: #999; margin-top: 5px; line-height: 1.4; }
         
-        .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; color: #000; display: inline-block; }
+        .pedido-status-area { padding: 15px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 110px; }
+        .valor { font-size: 1.1rem; font-weight: 900; color: var(--gold); margin-top: 5px; }
+        
+        .status { padding: 5px 10px; border-radius: 6px; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; color: #000; display: inline-block; }
         .status-NovoPedido { background: var(--new); }
         .status-Pendente { background: var(--pend); }
         .status-Concluído { background: var(--done); color: #fff; }
         .status-Cancelado { background: var(--canc); color: #fff; }
 
-        .maps-link { color: #3498db; text-decoration: none; font-size: 0.75rem; font-weight: 700; display: block; margin-top: 6px; }
+        .maps-link { color: #3498db; text-decoration: none; font-size: 0.8rem; font-weight: 900; display: inline-block; margin-top: 10px; border: 1px solid #3498db; padding: 4px 10px; border-radius: 5px; }
 
-        .estoque-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #181818; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; }
-        .btn-step { background: #333; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 8px; font-size: 1.5rem; }
-        .estoque-input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-weight: 900; font-size: 1.2rem; }
+        /* ESTOQUE */
+        .estoque-item { background: var(--card); padding: 18px; border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .estoque-item b { font-size: 1rem; text-transform: uppercase; }
+        .btn-step { background: #222; color: var(--gold); border: 1px solid var(--gold); width: 50px; height: 50px; font-weight: bold; border-radius: 12px; font-size: 1.6rem; }
+        .estoque-input { background: transparent; border: none; color: #fff; width: 60px; text-align: center; font-weight: 900; font-size: 1.4rem; }
 
-        #bulk-bar { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 15px 25px; border-radius: 50px; font-weight: 900; z-index: 2000; box-shadow: 0 5px 20px #000; align-items: center; gap: 15px; }
-        #bulk-bar button { background: #000; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 0.7rem; }
+        /* MODAL */
+        #modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:30px; border:1px solid var(--gold); border-radius:20px; width:94%; z-index:1000; box-shadow: 0 0 30px var(--gold); }
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; backdrop-filter: blur(5px); }
+        .btn-status { width:100%; padding:18px; background:var(--gold); border:none; font-weight: 900; margin-top:20px; border-radius:12px; text-transform: uppercase; color: #000; font-size: 1rem; }
 
-        #modal, .overlay { display:none; }
-        #modal { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#151515; padding:20px; border:1px solid var(--gold); border-radius:15px; width:92%; z-index:1000; }
-        .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999; }
-        .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; margin-top:15px; border-radius:8px; text-transform: uppercase; color: #000; }
+        #bulk-bar { display: none; position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 18px 30px; border-radius: 60px; font-weight: 900; z-index: 2000; box-shadow: 0 10px 30px #000; align-items: center; gap: 20px; width: 90%; justify-content: space-between; }
+        #bulk-bar button { background: #000; color: #fff; border: none; padding: 10px 18px; border-radius: 30px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
     </style>
 </head>
 <body>
 
-    <h1>Gestão Tio Nan</h1>
+    <h1>Tio Nan Admin</h1>
 
-    <div class="card">
-        <div class="tab-container">
-            <button class="tab-btn active" onclick="mudarAba('ativos', this)">Ativos</button>
-            <button class="tab-btn" onclick="mudarAba('arquivados', this)">Arquivados</button>
-            <button class="tab-btn" onclick="mudarAba('estoque', this)">Estoque</button>
-        </div>
-        
-        <div id="secao-ativos" class="secao-conteudo ativa">
-            <table><tbody id="corpo-ativos"></tbody></table>
-        </div>
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="mudarAba('ativos', this)">📦 Ativos</button>
+        <button class="tab-btn" onclick="mudarAba('arquivados', this)">📁 Histórico</button>
+        <button class="tab-btn" onclick="mudarAba('estoque', this)">🍯 Estoque</button>
+    </div>
+    
+    <div id="secao-ativos" class="secao-conteudo ativa">
+        <div id="corpo-ativos"></div>
+    </div>
 
-        <div id="secao-arquivados" class="secao-conteudo">
-            <table><tbody id="corpo-arquivados"></tbody></table>
-        </div>
+    <div id="secao-arquivados" class="secao-conteudo">
+        <div id="corpo-arquivados"></div>
+    </div>
 
-        <div id="secao-estoque" class="secao-conteudo">
-            <div id="corpo-estoque"></div>
-        </div>
+    <div id="secao-estoque" class="secao-conteudo">
+        <div id="corpo-estoque"></div>
     </div>
 
     <div id="bulk-bar">
         <span id="bulk-count">0 selecionados</span>
-        <button onclick="mudarVariosStatus()">Mudar Status</button>
+        <button onclick="mudarVariosStatus()">Alterar Status</button>
     </div>
 
     <div class="overlay" id="overlay" onclick="fechar()"></div>
     <div id="modal">
-        <h2 id="m-nome" style="color:var(--gold); font-size:1.1rem; margin-bottom:10px"></h2>
-        <div id="m-detalhes" style="font-size: 0.85rem; margin-bottom: 20px; color: #ccc;"></div>
+        <h2 id="m-nome" style="color:var(--gold); font-size:1.4rem; margin-bottom:15px; text-transform: uppercase;"></h2>
+        <div id="m-detalhes" style="font-size: 1rem; margin-bottom: 25px; color: #ccc; line-height: 1.6;"></div>
         <div id="m-controle">
-            <select id="m-status" style="width:100%; padding:15px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; font-weight: bold;">
+            <label style="font-size: 0.7rem; color: #666; font-weight: 900; margin-bottom: 5px; display: block;">NOVO STATUS:</label>
+            <select id="m-status" style="width:100%; padding:18px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; font-size: 1rem;">
                 <option value="Novo Pedido">Novo Pedido</option>
                 <option value="Pendente">Pendente</option>
                 <option value="Concluído">Concluído</option>
                 <option value="Cancelado">Cancelado</option>
             </select>
-            <button onclick="salvarStatus()" class="btn-status">Salvar Alteração</button>
+            <button onclick="salvarStatus()" class="btn-status">Atualizar Pedido</button>
         </div>
     </div>
 
@@ -104,65 +111,69 @@
         }
 
         async function carregar() {
-            // CARREGAR ATIVOS
+            // ATIVOS
             const resA = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
             const rowsA = (await resA.text()).split('\n').slice(1).reverse();
-            renderizarPedidos(rowsA, 'corpo-ativos', true);
+            renderizar(rowsA, 'corpo-ativos', true);
 
-            // CARREGAR ARQUIVADOS
+            // ARQUIVADOS
             const resH = await fetch(`${urlWebhook}?action=getArquivados`);
             const rowsH = await resH.json();
-            renderizarPedidos(rowsH.reverse(), 'corpo-arquivados', false);
+            renderizar(rowsH.reverse(), 'corpo-arquivados', false);
 
-            // CARREGAR ESTOQUE
+            // ESTOQUE
             const resE = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
             const rowsE = (await resE.text()).split('\n').slice(1);
             let htmlE = '';
             rowsE.forEach(row => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(!c[1]) return;
-                htmlE += `<div class="estoque-row"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
+                htmlE += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:15px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
             });
             document.getElementById('corpo-estoque').innerHTML = htmlE;
         }
 
-        function renderizarPedidos(rows, containerId, permitirEdicao) {
+        function renderizar(rows, containerId, editavel) {
             let html = '';
             rows.forEach((row, i) => {
                 const c = Array.isArray(row) ? row : row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(!c[1]) return;
-                const status = c[6];
-                const statusClasse = status.replace(/\s/g, '');
-                const endereco = c[7] || "";
-                const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+                const statusClasse = c[6].replace(/\s/g, '');
+                const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[7])}`;
 
                 html += `
-                <tr>
-                    ${permitirEdicao ? `<td><input type="checkbox" class="check-ped" style="width:20px; height:20px" value="${rows.length - i}" onchange="toggleBulk()"></td>` : '<td></td>'}
-                    <td onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, ${permitirEdicao})'>
-                        <b>${c[1]}</b><br><small style="color:#777">${c[2].substring(0,30)}...</small>
-                        ${endereco ? `<a href="${linkMaps}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 Abrir Maps</a>` : ''}
-                    </td>
-                    <td style="text-align:right" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, ${permitirEdicao})'>
-                        <span class="status status-${statusClasse}">${status}</span><br><b>R$ ${c[3]}</b>
-                    </td>
-                </tr>`;
+                <div class="pedido-card">
+                    ${editavel ? `<div class="pedido-check"><input type="checkbox" class="check-ped" style="width:25px; height:25px; accent-color:var(--gold)" value="${rows.length - i}" onchange="toggleBulk()"></div>` : ''}
+                    <div class="pedido-info" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, ${editavel})'>
+                        <b>${c[1]}</b><br>
+                        <div class="pedido-detalhe">
+                            ${c[2]}<br>
+                            <small style="color:#666">${c[0]}</small>
+                        </div>
+                        ${c[7] ? `<a href="${linkMaps}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 GOOGLE MAPS</a>` : ''}
+                    </div>
+                    <div class="pedido-status-area" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, ${editavel})'>
+                        <span class="status status-${statusClasse}">${c[6]}</span>
+                        <div class="valor">R$ ${c[3]}</div>
+                        <small style="font-size:0.6rem; color:#555">${c[5]}</small>
+                    </div>
+                </div>`;
             });
-            document.getElementById(containerId).innerHTML = html || '<p style="text-align:center; padding:20px; color:#666">Vazio.</p>';
+            document.getElementById(containerId).innerHTML = html || '<p style="text-align:center; padding:50px; color:#444">Nenhum pedido aqui.</p>';
         }
 
         function toggleBulk() {
-            const selecionados = document.querySelectorAll('.check-ped:checked');
+            const n = document.querySelectorAll('.check-ped:checked').length;
             const bar = document.getElementById('bulk-bar');
-            bar.style.display = selecionados.length > 0 ? 'flex' : 'none';
-            document.getElementById('bulk-count').innerText = `${selecionados.length} selecionados`;
+            bar.style.display = n > 0 ? 'flex' : 'none';
+            document.getElementById('bulk-count').innerText = `${n} SELECIONADOS`;
         }
 
         async function mudarVariosStatus() {
-            const novo = prompt("Novo status (Novo Pedido, Pendente, Concluído, Cancelado):");
+            const novo = prompt("NOVO STATUS (Novo Pedido, Pendente, Concluído, Cancelado):");
             if(!novo) return;
             const rows = Array.from(document.querySelectorAll('.check-ped:checked')).map(cb => cb.value);
-            document.getElementById('bulk-bar').innerText = "PROCESSANDO...";
+            document.getElementById('bulk-bar').innerText = "ATUALIZANDO...";
             await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${encodeURIComponent(novo)}`);
             location.reload();
         }
@@ -170,7 +181,12 @@
         function abrirPedido(dados, linha, editavel) {
             sel = { linha, dados };
             document.getElementById('m-nome').innerText = dados[1];
-            document.getElementById('m-detalhes').innerHTML = `<b>Itens:</b> ${dados[2]}<br><b>Endereço:</b> ${dados[7]}<br><b>Pagamento:</b> ${dados[5]}<br><b>Total:</b> R$ ${dados[3]}`;
+            document.getElementById('m-detalhes').innerHTML = `
+                <b style="color:var(--gold)">🛒 ITENS:</b><br>${dados[2]}<br><br>
+                <b style="color:var(--gold)">💰 PAGAMENTO:</b> ${dados[5]}<br>
+                <b style="color:var(--gold)">📍 ENDEREÇO:</b> ${dados[7]}<br>
+                <b style="color:var(--gold)">💵 VALOR:</b> R$ ${dados[3]}
+            `;
             document.getElementById('m-status').value = dados[6];
             document.getElementById('m-controle').style.display = editavel ? 'block' : 'none';
             document.getElementById('modal').style.display = 'block';
@@ -178,27 +194,3 @@
         }
 
         async function salvarStatus() {
-            const status = document.getElementById('m-status').value;
-            fechar();
-            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(status)}`);
-            location.reload();
-        }
-
-        function stepStock(id, delta) { 
-            const inp = document.getElementById(`st-${id}`); 
-            inp.value = parseInt(inp.value) + delta; 
-            salvarEstoque(id); 
-        }
-        
-        async function salvarEstoque(id) { 
-            const val = document.getElementById(`st-${id}`).value;
-            fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
-        }
-
-        function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
-        
-        carregar();
-        setInterval(carregar, 60000);
-    </script>
-</body>
-</html>
