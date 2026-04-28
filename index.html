@@ -20,7 +20,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
-        /* NOTIFICAÇÃO TOAST */
+        /* TOAST */
         #toast-notificacao {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px;
@@ -29,7 +29,6 @@
         }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
 
-        /* HERO */
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
         .swiper-pagination-bullet { background: #fff !important; opacity: 0.5; }
@@ -38,7 +37,6 @@
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
         .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
 
-        /* VITRINE - CSS RESTAURADO PARA NÃO BUGAR IMAGENS */
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
         .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
@@ -54,7 +52,27 @@
             pointer-events: none; backdrop-filter: blur(4px);
         }
 
-        /* MEDIA QUERIES ORIGINAIS RESTAURADAS */
+        /* SACOLA */
+        .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
+        .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; }
+        .cart-overlay.active { right: 0; }
+        .cart-input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 1rem; outline: none; }
+        .btn-continuar { width: 100%; margin-top: 10px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
+        
+        #bloco-retirada { background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold-soft); padding: 15px; border-radius: 8px; margin-bottom: 15px; color: var(--gold-soft); font-size: 0.9rem; line-height: 1.4; text-align: left; }
+        #bloco-retirada a { color: var(--gold-soft); text-decoration: underline; font-weight: bold; }
+
+        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; }
+        .btn-adicionar:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333; cursor: not-allowed; }
+        .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
+        .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
+        .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
+        
+        /* AVISO DE REGIÃO INDISPONÍVEL */
+        #aviso-regiao { color: #ff4444; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; display: none; text-transform: uppercase; }
+
         @media (min-width: 1024px) {
             .swiper-produto { display: none !important; }
             .desktop-only-images { display: block; width: 100%; height: 100%; position: relative; cursor: pointer; }
@@ -69,25 +87,6 @@
             .swiper-produto { display: block; width: 100%; height: 280px; }
             .swiper-produto img { max-height: 260px; max-width: 100%; object-fit: contain; }
         }
-
-        /* SACOLA */
-        .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
-        .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; }
-        .cart-overlay.active { right: 0; }
-        .cart-input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 1rem; outline: none; }
-        .btn-continuar { width: 100%; margin-top: 10px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
-        
-        /* BLOCO RETIRADA (COM HIPERLINK MANTIDO) */
-        #bloco-retirada { background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold-soft); padding: 15px; border-radius: 8px; margin-bottom: 15px; color: var(--gold-soft); font-size: 0.9rem; line-height: 1.4; text-align: left; }
-        #bloco-retirada a { color: var(--gold-soft); text-decoration: underline; font-weight: bold; }
-
-        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; }
-        .btn-adicionar:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333; cursor: not-allowed; }
-        .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
-        .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
-        .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
-        .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
         
         @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.2) rotate(10deg); } 40%, 80% { transform: scale(1.2) rotate(-10deg); } }
     </style>
@@ -119,7 +118,7 @@
 
             <div id="bloco-retirada" style="display:none;">
                 <strong>📍 Endereço para busca:</strong><br>
-                <a href="https://maps.google.com/?q=Av.+Bento+Gonçalves,+4321,+Porto+Alegre" target="_blank">
+                <a href="http://googleusercontent.com/maps.google.com/Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">
                     Av. Bento Gonçalves, 4321<br>
                     Partenon, Porto Alegre - RS
                 </a>
@@ -131,7 +130,8 @@
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
                 <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
-                <div style="display:flex; gap:10px;"><input type="text" id="cidade" class="cart-input" placeholder="Cidade" style="width:75%;"><input type="text" id="estado" class="cart-input" placeholder="UF" style="width:25%;"></div>
+                <input type="hidden" id="cidade">
+                <input type="hidden" id="estado">
             </div>
 
             <select id="metodo-pagamento" class="cart-input">
@@ -142,8 +142,11 @@
                 <option value="Crédito">Crédito</option>
             </select>
 
+            <div id="aviso-regiao">Ops! Ainda não entregamos nesta cidade. 💔</div>
+
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
-            <button onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
+            
+            <button id="btn-finalizar" onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
             <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
         </div>
     </aside>
@@ -166,6 +169,7 @@
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
+        const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
         
         new Swiper('.swiper-hero', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 } });
         let cart = [];
@@ -186,8 +190,41 @@
                     document.getElementById('bairro').value = d.bairro;
                     document.getElementById('cidade').value = d.localidade;
                     document.getElementById('estado').value = d.uf;
+                    validarCidade(d.localidade);
                 }
             }
+        }
+
+        function validarCidade(cidade) {
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
+            const entrega = document.getElementById('metodo-entrega').value;
+
+            // Só valida se for Tele Entrega
+            if (entrega === 'tele') {
+                const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
+                if (!permitida) {
+                    btn.disabled = true;
+                    btn.style.background = "#333";
+                    btn.style.opacity = "0.5";
+                    btn.style.cursor = "not-allowed";
+                    aviso.style.display = "block";
+                } else {
+                    liberarBotao();
+                }
+            } else {
+                liberarBotao();
+            }
+        }
+
+        function liberarBotao() {
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
+            btn.disabled = false;
+            btn.style.background = "#25D366";
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+            aviso.style.display = "none";
         }
 
         async function loadProducts() {
@@ -228,6 +265,7 @@
         }
 
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
+        
         function add(id, name, price) {
             const item = cart.find(i => i.id === id);
             if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
@@ -248,6 +286,10 @@
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
             document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
             
+            // Se mudar para retirada, libera o botão ignorando a cidade
+            if (entrega === 'retirada') liberarBotao();
+            else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+
             itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
             document.getElementById('badge').innerText = cart.reduce((acc, i) => acc + i.qtd, 0);
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
@@ -269,7 +311,8 @@
                 const num = document.getElementById('numero').value;
                 const apto = document.getElementById('apto').value;
                 const bairro = document.getElementById('bairro').value;
-                enderecoComp = `${rua}, ${num}${apto ? ' (Apto/Casa: ' + apto + ')' : ''} - ${bairro}`;
+                const cidade = document.getElementById('cidade').value;
+                enderecoComp = `${rua}, ${num}${apto ? ' (Apto/Casa: ' + apto + ')' : ''} - ${bairro}, ${cidade}`;
             } else {
                 enderecoComp = "Retirada na Loja (Av. Bento Gonçalves, 4321)";
             }
