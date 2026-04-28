@@ -73,7 +73,6 @@
         #pix-area { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid var(--gold-soft); margin-bottom: 15px; display: none; }
         .pix-codigo { background: #000; padding: 10px; font-family: monospace; font-size: 0.65rem; color: #0f0; word-break: break-all; border-radius: 5px; margin: 10px 0; border: 1px solid #333; text-align: left; }
 
-        /* ANIMAÇÃO SACUALHAR */
         @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.2) rotate(10deg); } 40%, 80% { transform: scale(1.2) rotate(-10deg); } }
     </style>
 </head>
@@ -119,8 +118,9 @@
 
             <div id="pix-area">
                 <p style="color:var(--gold-soft); font-size: 0.8rem; font-weight: bold;">Copia e Cola Pix:</p>
-                <div class="pix-codigo" id="pix-string">Gerando código...</div>
+                <div class="pix-codigo" id="pix-string">00020126360014BR.GOV.BCB.PIX011455519855117075204000053039865802BR5901*6001*62070503***6304</div>
                 <button onclick="copiarPix()" style="background:#fff; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.7rem;">COPIAR CÓDIGO PIX</button>
+                <p style="font-size: 0.65rem; color: #888; margin-top: 10px;">Copie o código acima e cole na opção 'Pix Copia e Cola' do seu banco.</p>
             </div>
 
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
@@ -146,7 +146,6 @@
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
-        const MINHA_CHAVE_PIX = "5551985511707"; 
         
         let cart = [];
         let totalGlobal = 0;
@@ -158,12 +157,10 @@
             const text = await res.text();
             const rows = text.split('\n').slice(1);
             let html = '';
-            
             rows.forEach(row => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(c[3].toLowerCase() !== 'sim') return;
                 const precoFormat = "R$ " + parseFloat(c[2].replace(',','.')).toFixed(2).replace('.', ',');
-
                 html += `
                 <div class="card-produto">
                     <div class="img-wrapper">
@@ -197,7 +194,6 @@
             document.getElementById('checkout-form').style.display = 'block';
             const entrega = document.getElementById('metodo-entrega').value;
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
-            
             itemsCont.innerHTML = cart.map(i => `
                 <div class="cart-item-row">
                     <div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div>
@@ -207,27 +203,23 @@
                         <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
                     </div>
                 </div>`).join('');
-            
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
             if(entrega === 'tele') total += 15;
             totalGlobal = total;
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
             document.getElementById('badge').innerText = cart.reduce((acc, i) => acc + i.qtd, 0);
-            togglePixArea();
         }
 
         function togglePixArea() {
             const pag = document.getElementById('metodo-pagamento').value;
-            const area = document.getElementById('pix-area');
-            if (pag === 'Pix') {
-                area.style.display = 'block';
-                const valorFix = totalGlobal.toFixed(2).replace('.', '');
-                const payload = `00020101021226580014br.gov.bcb.pix0114${MINHA_CHAVE_PIX}52040000530398654${valorFix.length.toString().padStart(2, '0')}${valorFix}5802BR5915TIOnan CACHACA6009SAO PAULO62070503***6304`;
-                document.getElementById('pix-string').innerText = payload;
-            } else { area.style.display = 'none'; }
+            document.getElementById('pix-area').style.display = (pag === 'Pix') ? 'block' : 'none';
         }
 
-        function copiarPix() { navigator.clipboard.writeText(document.getElementById('pix-string').innerText); alert("Código Pix copiado!"); }
+        function copiarPix() { 
+            navigator.clipboard.writeText(document.getElementById('pix-string').innerText); 
+            alert("Código Pix copiado! Cole no seu banco."); 
+        }
+
         function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
 
