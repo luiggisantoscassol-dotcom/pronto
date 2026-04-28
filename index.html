@@ -20,7 +20,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
-        /* ANIMAÇÃO DE VOO MELHORADA */
+        /* ANIMAÇÃO DE VOO DA GARRAFA */
         .garrafa-voando {
             position: fixed;
             z-index: 9999;
@@ -110,7 +110,9 @@
     <aside class="cart-overlay" id="cart-overlay">
         <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
+        
         <div id="cart-items"></div>
+        
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
             <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
@@ -118,18 +120,27 @@
                 <option value="tele">Tele Entrega (+ R$ 15,00)</option>
                 <option value="retirada">Retirada na Loja</option>
             </select>
+
             <div id="bloco-retirada" style="display:none;">
                 <strong>📍 Endereço para busca:</strong><br>
-                <a href="http://googleusercontent.com/maps.google.com/Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">Av. Bento Gonçalves, 4321<br>Partenon, Porto Alegre - RS</a>
+                <a href="http://googleusercontent.com/maps.google.com/Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">
+                    Av. Bento Gonçalves, 4321<br>
+                    Partenon, Porto Alegre - RS
+                </a>
                 <br><small>(Clique no endereço para abrir o Maps)</small>
             </div>
+
             <div id="bloco-endereco" style="display:none;">
                 <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
                 <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
-                <div style="display:flex; gap:10px;"><input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;"><input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;"></div>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;">
+                    <input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;">
+                </div>
             </div>
+
             <select id="metodo-pagamento" class="cart-input">
                 <option value="none" selected disabled>Forma de Pagamento?</option>
                 <option value="Pix">Pix</option>
@@ -137,8 +148,11 @@
                 <option value="Débito">Débito</option>
                 <option value="Crédito">Crédito</option>
             </select>
+
             <div id="aviso-regiao">Ops! Ainda não entregamos nesta cidade. 💔</div>
+
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
+            
             <button id="btn-finalizar" onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
             <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
         </div>
@@ -179,25 +193,30 @@
                 const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                 const d = await res.json();
                 if(!d.erro) { 
-                    document.getElementById('rua').value = d.logradouro; document.getElementById('bairro').value = d.bairro;
-                    document.getElementById('cidade').value = d.localidade; document.getElementById('estado').value = d.uf;
+                    document.getElementById('rua').value = d.logradouro; 
+                    document.getElementById('bairro').value = d.bairro;
+                    document.getElementById('cidade').value = d.localidade;
+                    document.getElementById('estado').value = d.uf;
                     validarCidade(d.localidade);
                 }
             }
         }
 
         function validarCidade(cidade) {
-            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
             const entrega = document.getElementById('metodo-entrega').value;
             if (entrega === 'tele') {
                 const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
-                if (!permitida) { btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block"; } 
-                else { liberarBotao(); }
+                if (!permitida) {
+                    btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block";
+                } else { liberarBotao(); }
             } else { liberarBotao(); }
         }
 
         function liberarBotao() {
-            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
             btn.disabled = false; btn.style.background = "#25D366"; btn.style.opacity = "1"; aviso.style.display = "none";
         }
 
@@ -209,7 +228,7 @@
             
             rows.forEach(row => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                if(c[3].toLowerCase() !== 'sim') return;
+                if(!c || c.length < 4 || c[3].toLowerCase() !== 'sim') return;
                 const temEstoque = (parseInt(c[4]) || 0) > 0;
                 const card = `
                     <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}" id="card-${c[0]}">
@@ -224,12 +243,13 @@
                                 <div class="swiper-pagination"></div>
                             </div>
                         </div>
-                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',,')}</span></div>
+                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',',')}</span></div>
                         ${temEstoque ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
                     </div>`;
                 if (temEstoque) htmlDisp += card; else htmlEsg += card;
             });
             document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
+            
             document.querySelectorAll('.swiper-produto').forEach(el => {
                 const tempo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
                 new Swiper(el, { loop: true, effect: 'fade', fadeEffect: { crossFade: true }, autoplay: { delay: tempo, disableOnInteraction: false }, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } });
@@ -241,9 +261,7 @@
         function add(id, name, price) {
             const card = document.getElementById(`card-${id}`);
             let imgOriginal = card.querySelector('.swiper-slide-active img');
-            if (!imgOriginal || imgOriginal.offsetParent === null) {
-                imgOriginal = card.querySelector('.foto-1');
-            }
+            if (!imgOriginal || imgOriginal.offsetParent === null) { imgOriginal = card.querySelector('.foto-1'); }
             const cartBtn = document.getElementById('cart-btn');
             const clone = imgOriginal.cloneNode(true);
             const rect = imgOriginal.getBoundingClientRect();
@@ -263,7 +281,7 @@
                     clone.style.left = (cartRect.left + 10) + 'px';
                     clone.style.width = '40px';
                     clone.style.height = '40px';
-                    clone.style.opacity = '0.7';
+                    clone.style.opacity = '0.5';
                     clone.style.transform = "scale(0.2) rotate(45deg)";
                 }, 100);
             }, 50);
