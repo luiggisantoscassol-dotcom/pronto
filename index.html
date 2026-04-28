@@ -20,13 +20,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
-        /* ANIMAÇÃO DE VOO DA GARRAFA */
+        /* ANIMAÇÃO DE VOO MELHORADA */
         .garrafa-voando {
             position: fixed;
             z-index: 9999;
             pointer-events: none;
-            transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
             object-fit: contain;
+            filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.6));
         }
 
         #toast-notificacao {
@@ -90,9 +91,9 @@
         .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
         .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
-        .btn-continuar { width: 100%; margin-top: 10px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-continuar { width: 100%; margin-top: 15px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
 
-        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.1) rotate(5deg); } 40%, 80% { transform: scale(1.1) rotate(-5deg); } }
+        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.15) rotate(5deg); } 40%, 80% { transform: scale(1.15) rotate(-5deg); } }
     </style>
 </head>
 <body>
@@ -223,7 +224,7 @@
                                 <div class="swiper-pagination"></div>
                             </div>
                         </div>
-                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',',')}</span></div>
+                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',,')}</span></div>
                         ${temEstoque ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
                     </div>`;
                 if (temEstoque) htmlDisp += card; else htmlEsg += card;
@@ -238,11 +239,12 @@
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
         
         function add(id, name, price) {
-            // LÓGICA DA ANIMAÇÃO DE VOO
             const card = document.getElementById(`card-${id}`);
-            const imgOriginal = card.querySelector('.prod-img');
+            let imgOriginal = card.querySelector('.swiper-slide-active img');
+            if (!imgOriginal || imgOriginal.offsetParent === null) {
+                imgOriginal = card.querySelector('.foto-1');
+            }
             const cartBtn = document.getElementById('cart-btn');
-            
             const clone = imgOriginal.cloneNode(true);
             const rect = imgOriginal.getBoundingClientRect();
             const cartRect = cartBtn.getBoundingClientRect();
@@ -252,15 +254,18 @@
             clone.style.height = rect.height + 'px';
             clone.style.top = rect.top + 'px';
             clone.style.left = rect.left + 'px';
-
             document.body.appendChild(clone);
 
             setTimeout(() => {
-                clone.style.top = (cartRect.top + 20) + 'px';
-                clone.style.left = (cartRect.left + 20) + 'px';
-                clone.style.width = '20px';
-                clone.style.height = '20px';
-                clone.style.opacity = '0';
+                clone.style.transform = "scale(1.2)";
+                setTimeout(() => {
+                    clone.style.top = (cartRect.top + 10) + 'px';
+                    clone.style.left = (cartRect.left + 10) + 'px';
+                    clone.style.width = '40px';
+                    clone.style.height = '40px';
+                    clone.style.opacity = '0.7';
+                    clone.style.transform = "scale(0.2) rotate(45deg)";
+                }, 100);
             }, 50);
 
             setTimeout(() => {
@@ -270,12 +275,12 @@
                 updateCart();
                 const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
                 cartBtn.style.animation = 'none'; void cartBtn.offsetWidth; cartBtn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
-            }, 800);
+            }, 850);
         }
 
         function updateCart() {
             const itemsCont = document.getElementById('cart-items');
-            if (cart.length === 0) { itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8;"><p>Sua sacola está vazia.</p></div>`; document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; }
+            if (cart.length === 0) { itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; }
             document.getElementById('checkout-form').style.display = 'block';
             const entrega = document.getElementById('metodo-entrega').value;
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
