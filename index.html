@@ -89,7 +89,7 @@
 </head>
 <body>
 
-    <audio id="audio-add" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" preload="auto"></audio>
+    <audio id="audio-add" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
 
     <div id="toast-notificacao">Adicionado à sacola! 🥃</div>
 
@@ -117,7 +117,7 @@
 
             <div id="bloco-retirada" style="display:none;">
                 <strong>📍 Endereço para busca:</strong><br>
-                <a href="https://www.google.com/maps/search/?api=1&query=Av.+Bento+Gonçalves,+4321+Porto+Alegre" target="_blank">
+                <a href="https://maps.google.com/?q=Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">
                     Av. Bento Gonçalves, 4321<br>
                     Partenon, Porto Alegre - RS
                 </a>
@@ -231,11 +231,11 @@
             const item = cart.find(i => i.id === id);
             if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
             
-            // SOM DE ADICIONAR (VOLUME BAIXO)
+            // NOVO SOM DE CLIQUE/CARRINHO
             const audio = document.getElementById('audio-add');
-            audio.volume = 0.2; // 20% do volume
+            audio.volume = 0.2; 
             audio.currentTime = 0;
-            audio.play().catch(e => console.log("Áudio aguardando interação do usuário."));
+            audio.play().catch(e => console.log("Áudio bloqueado"));
 
             updateCart();
             const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
