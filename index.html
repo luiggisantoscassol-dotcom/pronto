@@ -15,6 +15,8 @@
             --gold-metallic: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             --gold-soft: #d4af37; --text-light: #f5f5f5;
             --font-premium: 'Playfair Display', serif; --font-body: 'Montserrat', sans-serif;
+            /* NOVA COR SALVA AQUI PARA NÃO TRAVAR O JS */
+            --green-esmeralda: linear-gradient(135deg, #2ecc71, #f1f2b5, #27ae60, #f1f2b5, #1e8449);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,6 +42,9 @@
         #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; }
         .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
         .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out; }
+
+        /* CLASSE AUXILIAR PARA O VERDE */
+        .barra-verde { background: var(--green-esmeralda) !important; }
 
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
@@ -115,7 +120,7 @@
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
         
         <div id="container-frete">
-            <div id="texto-frete">Adicione mais 3 garrafas para Frete Grátis</div>
+            <div id="texto-frete">Adicione 3 garrafas para ganhar um benefício!</div>
             <div class="barra-progresso-bg"><div class="barra-progresso-fill" id="barra-frete"></div></div>
         </div>
 
@@ -234,7 +239,7 @@
                                 <div class="swiper-pagination"></div>
                             </div>
                         </div>
-                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',',')}</span></div>
+                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',,')}</span></div>
                         ${temEstoque ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
                     </div>`;
                 if (temEstoque) htmlDisp += card; else htmlEsg += card;
@@ -282,39 +287,42 @@
             const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
             const barra = document.getElementById('barra-frete');
             const textoFrete = document.getElementById('texto-frete');
-            
-            // Atualiza Barra de Frete
+            const entrega = document.getElementById('metodo-entrega').value;
+
             const progresso = Math.min((totalGarrafas / 3) * 100, 100);
             barra.style.width = progresso + "%";
-            if (totalGarrafas === 0) {
-                textoFrete.innerText = "Adicione 3 garrafas para Frete Grátis";
-            } else if (totalGarrafas < 3) {
-                textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para Frete Grátis`;
+            
+            if (entrega === 'retirada') {
+                // SINALIZA O DESCONTO COM COR VERDE
+                barra.classList.add('barra-verde');
+                if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para DESCONTO ESPECIAL";
+                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para ganhar R$ 15,00 DE DESCONTO!`;
+                else textoFrete.innerText = "PARABÉNS! DESCONTO DE R$ 15,00 ATIVADO! 💰";
             } else {
-                textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
+                // VOLTA PARA O DOURADO ORIGINAL
+                barra.classList.remove('barra-verde');
+                if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para Frete Grátis";
+                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para Frete Grátis`;
+                else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
             }
 
             if (cart.length === 0) { 
                 itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; 
-                document.getElementById('checkout-form').style.display = 'none'; 
-                document.getElementById('badge').innerText = 0; return; 
+                document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; 
             }
             
             document.getElementById('checkout-form').style.display = 'block';
-            const entrega = document.getElementById('metodo-entrega').value;
-            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
-            document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
-            
-            if (entrega === 'retirada') liberarBotao(); else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+            const metodo = document.getElementById('metodo-entrega').value;
+            document.getElementById('bloco-endereco').style.display = (metodo === 'tele') ? 'block' : 'none';
+            document.getElementById('bloco-retirada').style.display = (metodo === 'retirada') ? 'block' : 'none';
+            if (metodo === 'retirada') liberarBotao(); else if (metodo === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
             
             itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
             
             document.getElementById('badge').innerText = totalGarrafas;
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-            
-            // Lógica do Frete Grátis no total
             if(entrega === 'tele' && totalGarrafas < 3) total += 15;
-            
+            if(entrega === 'retirada' && totalGarrafas >= 3) total -= 15;
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
         }
 
@@ -325,9 +333,11 @@
             if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos!");
             let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja";
             const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: endereco };
-            const freteMsg = (entrega === 'tele' && totalGarrafas >= 3) ? "\n🚚 FRETE GRÁTIS ATIVADO!" : "";
+            let beneficioMsg = "";
+            if(entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n🚚 FRETE GRÁTIS ATIVADO!";
+            if(entrega === 'retirada' && totalGarrafas >= 3) beneficioMsg = "\n💰 DESCONTO APLICADO!";
             fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + freteMsg)}`);
+            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + beneficioMsg)}`);
         }
         loadProducts(); updateCart();
     </script>
