@@ -3,128 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestão Tio Nan - Admin</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Tio Nan Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #d4af37; --bg: #070707; --card: #111; --new-green: #2ecc71; --done-blue: #3498db; }
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
         body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; }
-        
         h1 { color: var(--gold); margin-bottom: 20px; font-weight: 900; text-align: center; font-size: 1.5rem; text-transform: uppercase; }
+        .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; }
+        h2 { color: var(--gold); text-transform: uppercase; font-size: 1rem; font-weight: 900; }
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 8px; }
         
-        .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; }
-        h2 { color: var(--gold); margin-bottom: 15px; text-transform: uppercase; font-size: 1rem; border-bottom: 1px solid #222; padding-bottom: 8px; text-align: center; width: 100%; }
+        .estoque-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #181818; border-radius: 10px; margin-bottom: 8px; border: 1px solid #222; }
+        .btn-step { background: #333; color: var(--gold); border: none; width: 35px; height: 35px; font-weight: bold; border-radius: 5px; }
+        .estoque-input { background: transparent; border: none; color: #fff; width: 40px; text-align: center; font-weight: 900; }
 
-        .central-container { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 10px; }
-        .estoque-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 12px; background: #181818; border-radius: 10px; border: 1px solid #222; width: 100%; }
-        .estoque-info b { font-size: 0.9rem; color: #fff; display: block; }
-        .estoque-info small { color: #666; font-size: 0.75rem; }
-        .estoque-controles { display: flex; align-items: center; background: #222; border-radius: 8px; border: 1px solid #333; overflow: hidden; }
-        .btn-step { background: #333; color: var(--gold); border: none; width: 38px; height: 38px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
-        .estoque-input { background: transparent; border: none; color: #fff; width: 40px; text-align: center; font-weight: 900; font-size: 1rem; outline: none; }
-        
-        .table-wrapper { width: 100%; max-width: 350px; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        td { padding: 12px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        td { padding: 12px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; font-size: 0.8rem; }
         td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; }
         td:last-child { border-right: 1px solid #222; border-radius: 0 10px 10px 0; text-align: right; }
-
-        .status-novo-pedido td { border-left: 5px solid var(--new-green) !important; background: linear-gradient(to right, rgba(46, 204, 113, 0.05), #181818); }
-        .badge-novo { font-size: 0.6rem; background: var(--new-green); color: #000; padding: 2px 5px; border-radius: 3px; margin-left: 5px; font-weight: 900; }
+        .status-novo { border-left: 4px solid var(--new-green) !important; }
         
-        .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; min-width: 80px; text-align: center; display: inline-block; }
+        .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; }
         .Novo { background: var(--new-green); color: #000; }
         .Concluído { background: var(--done-blue); color: #fff; }
-        .Pendente { background: #ffc107; color: #000; }
-        .Cancelado { background: #dc3545; color: #fff; }
 
-        #modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#151515; padding:25px; border:1px solid var(--gold); border-radius:15px; width:95%; max-width:400px; z-index:1000; max-height: 85vh; overflow-y: auto; }
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; }
-        .detalhe-item { margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .detalhe-item label { color: var(--gold); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .detalhe-item p { font-size: 0.9rem; line-height: 1.4; color: #eee; }
-        #m-end-link { color: var(--gold); text-decoration: underline; font-weight: bold; }
-        .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; cursor:pointer; margin-top:15px; border-radius:8px; text-transform: uppercase; }
-        .btn-fechar { width:100%; margin-top: 10px; background:none; border:none; color:#777; cursor:pointer; font-weight: bold; padding: 10px; }
+        #modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#151515; padding:25px; border:1px solid var(--gold); border-radius:15px; width:90%; z-index:1000; }
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; }
+        .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; margin-top:10px; border-radius:8px; }
+        .btn-limpar { background: #222; color: #666; border: 1px solid #333; padding: 6px 12px; border-radius: 6px; font-size: 0.65rem; font-weight: 900; }
     </style>
 </head>
 <body>
 
-    <h1>Painel Tio Nan</h1>
-
-    <audio id="audio-alerta" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3" preload="auto"></audio>
+    <h1>Admin Tio Nan</h1>
 
     <div class="card">
-        <h2>📦 Gestão de Estoque</h2>
-        <div id="corpo-estoque" class="central-container"></div>
+        <div class="header-section"><h2>📦 Estoque</h2></div>
+        <div id="corpo-estoque"></div>
     </div>
 
     <div class="card">
-        <h2>🛒 Pedidos Recentes</h2>
-        <div class="table-wrapper">
-            <table><tbody id="corpo-pedidos"></tbody></table>
+        <div class="header-section">
+            <h2>🛒 Pedidos</h2>
+            <button onclick="arquivar()" id="btn-arq" class="btn-limpar">LIMPAR CONCLUÍDOS</button>
         </div>
+        <table><tbody id="corpo-pedidos"></tbody></table>
     </div>
 
     <div class="overlay" id="overlay" onclick="fechar()"></div>
     <div id="modal">
-        <h2 id="m-nome" style="border:none; text-align: left; font-size: 1.3rem; margin-bottom: 10px;"></h2>
-        <div class="detalhe-item"><label>Itens do Pedido</label><p id="m-itens"></p></div>
-        <div class="detalhe-item">
-            <label>Endereço / Entrega</label>
-            <a id="m-end-link" href="#" target="_blank"><p id="m-end" style="color: inherit;"></p></a>
-        </div>
-        <div class="detalhe-item"><label>Pagamento / Total</label><p id="m-pag"></p></div>
-        <label style="color: #666; font-size: 0.7rem; font-weight: 900;">STATUS:</label>
-        <select id="m-status" style="width:100%; padding:12px; background:#222; color:#fff; border:1px solid #444; margin-top:5px; border-radius:8px;">
+        <h2 id="m-nome"></h2>
+        <p id="m-itens" style="margin: 15px 0; font-size: 0.9rem;"></p>
+        <select id="m-status" style="width:100%; padding:10px; background:#222; color:#fff; border-radius:5px;">
             <option value="Novo Pedido">Novo Pedido</option>
             <option value="Pendente">Pendente</option>
             <option value="Concluído">Concluído</option>
             <option value="Cancelado">Cancelado</option>
         </select>
-        <button onclick="salvarStatus()" class="btn-status">SALVAR ALTERAÇÃO</button>
-        <button onclick="fechar()" class="btn-fechar">FECHAR</button>
+        <button onclick="salvarStatus()" class="btn-status">SALVAR</button>
     </div>
 
     <script>
-        const SENHA_MESTRA = "tionan123";
-        if(localStorage.getItem('logado') !== 'true'){
-            let pass = prompt("Senha:");
-            if(pass === SENHA_MESTRA) localStorage.setItem('logado', 'true');
-            else { alert("Erro!"); window.location.reload(); }
-        }
-
+        // ATUALIZE ESTE LINK COM A SUA NOVA IMPLANTAÇÃO DO GOOGLE
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
         let sel = null;
-        let ultimoPedidoData = null; // Guarda a data do último pedido para comparar
 
         async function carregar() {
             const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
-            const textV = await resV.text();
-            const rowsV = textV.split('\n').slice(1);
+            const rowsV = (await resV.text()).split('\n').slice(1);
             let htmlV = '';
-            
-            // LÓGICA DE NOTIFICAÇÃO
-            const primeiraLinha = rowsV[rowsV.length - 1]; // O pedido mais recente da planilha
-            if (primeiraLinha) {
-                const dadosPrimeiro = primeiraLinha.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-                const dataAtual = dadosPrimeiro[0];
-                const statusAtual = dadosPrimeiro[6].replace(/"/g,'');
-
-                // Se a data mudou E o status é "Novo Pedido", avisa!
-                if (ultimoPedidoData !== null && dataAtual !== ultimoPedidoData && statusAtual === "Novo Pedido") {
-                    notificarNovoPedido();
-                }
-                ultimoPedidoData = dataAtual;
-            }
-
             rowsV.reverse().forEach((row, i) => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(!c[1]) return;
-                const isNovo = (c[6] === "Novo Pedido");
-                htmlV += `<tr id="row-pedido-${rowsV.length - i}" class="${isNovo ? 'status-novo-pedido' : ''}" onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length - i})'>
-                    <td><b>${c[1]}</b>${isNovo ? '<span class="badge-novo">NOVO</span>' : ''}<br><small>${c[0].split(' ')[0]}</small></td>
+                const isNovo = c[6] === "Novo Pedido";
+                htmlV += `<tr class="${isNovo?'status-novo':''}" onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length-i})'>
+                    <td><b>${c[1]}</b><br><small>${c[0].split(' ')[0]}</small></td>
                     <td><span class="status ${c[6].split(' ')[0]}">${c[6]}</span><br><b>R$ ${c[3]}</b></td>
                 </tr>`;
             });
@@ -136,43 +93,34 @@
             rowsP.forEach(row => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(!c[1]) return;
-                htmlE += `<div class="estoque-row"><div class="estoque-info"><b>${c[1]}</b><small>Estoque: ${c[4]||0}</small></div><div class="estoque-controles"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]||0}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
+                htmlE += `<div class="estoque-row"><div><b>${c[1]}</b></div><div><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button> <input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"> <button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
             });
             document.getElementById('corpo-estoque').innerHTML = htmlE;
         }
 
-        function notificarNovoPedido() {
-            // Toca o som
-            const audio = document.getElementById('audio-alerta');
-            audio.play().catch(e => console.log("O navegador bloqueou o áudio. Toque em qualquer lugar da tela primeiro."));
-            
-            // Vibra o celular
-            if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]);
-            }
+        function stepStock(id, delta) { 
+            const inp = document.getElementById(`st-${id}`); 
+            inp.value = parseInt(inp.value) + delta; 
+            salvarEstoque(id); 
         }
-
-        function stepStock(id, delta) {
-            const input = document.getElementById(`st-${id}`);
-            input.value = parseInt(input.value) + delta;
-            salvarEstoque(id);
-        }
-
-        async function salvarEstoque(id) {
+        
+        async function salvarEstoque(id) { 
             const val = document.getElementById(`st-${id}`).value;
             fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
+        }
+
+        async function arquivar() {
+            if(!confirm("Mover concluídos para Arquivo?")) return;
+            document.getElementById('btn-arq').innerText = "...";
+            await fetch(`${urlWebhook}?action=arquivar`);
+            carregar();
+            document.getElementById('btn-arq').innerText = "LIMPAR CONCLUÍDOS";
         }
 
         function abrirPedido(dados, linha) {
             sel = { linha, dados };
             document.getElementById('m-nome').innerText = dados[1];
             document.getElementById('m-itens').innerText = dados[2];
-            document.getElementById('m-pag').innerText = `${dados[5]} — Total R$ ${dados[3]}`;
-            document.getElementById('m-end').innerText = dados[7];
-            
-            const enderecoParaMapa = dados[7].replace("Retirada na Loja (", "").replace(")", "");
-            document.getElementById('m-end-link').href = `http://googleusercontent.com/maps.google.com/3{encodeURIComponent(enderecoParaMapa)}`;
-
             document.getElementById('m-status').value = dados[6];
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
@@ -181,25 +129,14 @@
         function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
 
         async function salvarStatus() {
-            const novoStatus = document.getElementById('m-status').value;
-            const idLinha = `row-pedido-${sel.linha}`;
-            const elementoLinha = document.getElementById(idLinha);
-            if (elementoLinha) {
-                const badgeStatus = elementoLinha.querySelector('.status');
-                badgeStatus.className = `status ${novoStatus.split(' ')[0]}`;
-                badgeStatus.innerText = novoStatus;
-                if (novoStatus !== "Novo Pedido") {
-                    elementoLinha.classList.remove('status-novo-pedido');
-                    const badgeNovo = elementoLinha.querySelector('.badge-novo');
-                    if (badgeNovo) badgeNovo.remove();
-                }
-            }
+            const status = document.getElementById('m-status').value;
             fechar();
-            fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${novoStatus}`).then(() => { setTimeout(carregar, 2000); });
+            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${status}`);
+            carregar();
         }
 
         carregar();
-        setInterval(carregar, 20000); // Atualiza a cada 20 segundos para notificações mais rápidas
+        setInterval(carregar, 30000);
     </script>
 </body>
 </html>
