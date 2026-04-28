@@ -9,27 +9,36 @@
         :root { --gold: #d4af37; --bg: #000; --card: #121212; --new: #2ecc71; --pend: #f1c40f; --done: #3498db; --canc: #e74c3c; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; overflow-x: hidden; }
-        h1 { color: var(--gold); margin: 20px 0; font-weight: 900; text-align: center; font-size: 1.5rem; text-transform: uppercase; }
+        h1 { color: var(--gold); margin: 20px 0; font-weight: 900; text-align: center; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        
         .tab-container { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 1px solid #222; }
         .tab-btn { background: none; border: none; color: #555; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; padding: 12px 15px; flex: 1; transition: 0.3s; }
         .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
+
         .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: stretch; }
         .pedido-check { width: 45px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 15px 0 0 15px; }
         .pedido-info { flex: 1; padding: 15px; overflow: hidden; }
         .pedido-info b { font-size: 1.1rem; color: #fff; display: block; }
         .pedido-data { font-size: 0.85rem; color: #eee; font-weight: 600; margin-top: 5px; display: block; }
+        
         .status-area { padding: 10px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 105px; }
         .status { padding: 4px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; color: #000; margin-bottom: 5px; }
         .status-NovoPedido { background: var(--new); }
         .status-Pendente { background: var(--pend); }
         .status-Concluído { background: var(--done); color: #fff; }
         .status-Cancelado { background: var(--canc); color: #fff; }
+
         .estoque-item { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
         .btn-step { background: #222; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 10px; font-size: 1.5rem; }
+
         #bulk-bar { display: none; position: fixed; bottom: 20px; left: 5%; width: 90%; background: var(--gold); color: #000; padding: 15px; border-radius: 50px; font-weight: 900; z-index: 500; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px #000; }
         #bulk-bar button { background: #000; color: #fff; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 900; font-size: 0.7rem; }
+
         .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; }
-        #modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:90%; z-index:1000; }
+        .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:90%; z-index:1000; }
+        
+        select { width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; margin-top:10px; }
+        .btn-acao { width:100%; padding:15px; background:var(--gold); border:none; font-weight:900; border-radius:12px; text-transform:uppercase; color:#000; margin-top:15px; }
     </style>
 </head>
 <body>
@@ -40,30 +49,44 @@
         <button class="tab-btn" id="btn-estoque" onclick="mudarAba('estoque')">🍯 Estoque</button>
     </div>
     <div id="conteudo-principal"></div>
-    <div id="bulk-bar"><span id="bulk-count">0 SELECIONADOS</span><button onclick="mudarVariosStatus()">ALTERAR STATUS</button></div>
+
+    <div id="bulk-bar"><span id="bulk-count">0 SELECIONADOS</span><button onclick="abrirBulkModal()">MUDAR STATUS</button></div>
+
     <div class="overlay" id="overlay" onclick="fechar()"></div>
-    <div id="modal">
+
+    <div id="modal" class="modal">
         <h2 id="m-nome" style="color:var(--gold); margin-bottom:15px; text-transform: uppercase;"></h2>
         <div id="m-detalhes" style="font-size: 0.95rem; margin-bottom: 20px; color: #ddd; line-height: 1.6;"></div>
-        <div id="m-controle">
-            <select id="m-status" style="width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; margin-bottom: 10px;">
-                <option value="Novo Pedido">Novo Pedido</option>
-                <option value="Pendente">Pendente</option>
-                <option value="Concluído">Concluído</option>
-                <option value="Cancelado">Cancelado</option>
-            </select>
-            <button onclick="salvarStatus()" style="width:100%; padding:15px; background:var(--gold); border:none; font-weight:900; border-radius:12px; text-transform:uppercase; color:#000;">Atualizar</button>
-        </div>
+        <select id="m-status">
+            <option value="Novo Pedido">Novo Pedido</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+        </select>
+        <button onclick="salvarStatus()" class="btn-acao">Atualizar</button>
     </div>
+
+    <div id="modal-bulk" class="modal">
+        <h2 style="color:var(--gold); margin-bottom:15px; text-transform: uppercase;">Ação em Massa</h2>
+        <p id="m-bulk-info" style="font-size: 0.9rem; color: #ccc; margin-bottom: 10px;"></p>
+        <select id="m-status-bulk">
+            <option value="Novo Pedido">Novo Pedido</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+        </select>
+        <button onclick="executarBulk()" class="btn-acao">Alterar Todos</button>
+    </div>
+
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
         let abaAtual = 'ativos';
-        let reqId = 0; // ID de segurança para evitar mistura de abas
+        let reqId = 0;
 
         function mudarAba(aba) {
             abaAtual = aba;
-            reqId++; // Sobe o ID toda vez que clica
+            reqId++;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + aba).classList.add('active');
             document.getElementById('conteudo-principal').innerHTML = '<p style="text-align:center; margin-top:50px; color:#555;">Buscando dados...</p>';
@@ -74,10 +97,9 @@
         async function carregar(currentReqId) {
             try {
                 let html = '';
-                const cache = `?t=${Date.now()}`;
                 if (abaAtual === 'ativos') {
                     const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&cache=` + Date.now());
-                    if (currentReqId !== reqId) return; // Se mudou de aba enquanto baixava, para aqui.
+                    if (currentReqId !== reqId) return;
                     const rows = (await res.text()).split('\n').slice(1).reverse();
                     rows.forEach((row, i) => {
                         const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
@@ -118,12 +140,19 @@
             document.getElementById('bulk-count').innerText = `${n} SELECIONADOS`;
         }
 
-        async function mudarVariosStatus() {
-            const novo = prompt("Novo Status:");
-            if(!novo) return;
+        function abrirBulkModal() {
+            const n = document.querySelectorAll('.check-ped:checked').length;
+            document.getElementById('m-bulk-info').innerText = `Você selecionou ${n} pedido(s).`;
+            document.getElementById('modal-bulk').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        async function executarBulk() {
+            const status = document.getElementById('m-status-bulk').value;
             const rows = Array.from(document.querySelectorAll('.check-ped:checked')).map(cb => cb.value);
-            document.getElementById('bulk-bar').innerHTML = '<span style="color:#000">Processando...</span>';
-            await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${encodeURIComponent(novo)}`);
+            fechar();
+            document.getElementById('conteudo-principal').innerHTML = '<p style="text-align:center; margin-top:50px;">Processando...</p>';
+            await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${encodeURIComponent(status)}`);
             mudarAba('ativos');
         }
 
@@ -151,7 +180,10 @@
             await fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
         }
 
-        function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
+        function fechar() { 
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
+            document.getElementById('overlay').style.display = 'none'; 
+        }
         
         carregar(reqId);
     </script>
