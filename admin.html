@@ -9,36 +9,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #d4af37; --bg: #070707; --card: #111; --new-green: #2ecc71; --done-blue: #3498db; }
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; }
-        h1 { color: var(--gold); margin-bottom: 20px; font-weight: 900; text-align: center; font-size: 1.5rem; text-transform: uppercase; }
+        
+        h1 { color: var(--gold); margin-bottom: 20px; font-weight: 900; text-align: center; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; }
         .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; }
         
-        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 8px; }
-        h2 { color: var(--gold); text-transform: uppercase; font-size: 0.9rem; font-weight: 900; }
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        h2 { color: var(--gold); text-transform: uppercase; font-size: 0.85rem; font-weight: 900; }
         
-        /* Botão de Limpar Pedidos */
-        .btn-limpar { background: #222; color: var(--gold); border: 1px solid #333; padding: 6px 12px; border-radius: 6px; font-size: 0.65rem; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-        .btn-limpar:disabled { opacity: 0.5; }
+        .btn-limpar { background: #222; color: #888; border: 1px solid #333; padding: 6px 12px; border-radius: 6px; font-size: 0.6rem; font-weight: 900; cursor: pointer; }
 
-        .estoque-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #181818; border-radius: 10px; margin-bottom: 8px; border: 1px solid #222; }
-        .btn-step { background: #333; color: var(--gold); border: none; width: 35px; height: 35px; font-weight: bold; border-radius: 5px; }
-        .estoque-input { background: transparent; border: none; color: #fff; width: 40px; text-align: center; font-weight: 900; }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        /* Tabela de Pedidos */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         td { padding: 12px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; }
+        td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; width: 60%; }
         td:last-child { border-right: 1px solid #222; border-radius: 0 10px 10px 0; text-align: right; }
         
         .status-novo { border-left: 4px solid var(--new-green) !important; }
-        .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; }
+        .status { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; display: inline-block; margin-bottom: 5px; }
         .Novo { background: var(--new-green); color: #000; }
         .Concluído { background: var(--done-blue); color: #fff; }
         .Cancelado { background: #ff4444; color: #fff; }
 
-        #modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#151515; padding:25px; border:1px solid var(--gold); border-radius:15px; width:90%; z-index:1000; }
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; }
-        .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; margin-top:10px; border-radius:8px; text-transform: uppercase; }
+        .maps-link { color: #3498db; text-decoration: none; font-size: 0.75rem; display: block; margin-top: 5px; font-weight: 700; }
+
+        /* Estoque */
+        .estoque-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #181818; border-radius: 10px; margin-bottom: 8px; border: 1px solid #222; }
+        .btn-step { background: #333; color: var(--gold); border: none; width: 35px; height: 35px; font-weight: bold; border-radius: 5px; font-size: 1.2rem; }
+        .estoque-input { background: transparent; border: none; color: #fff; width: 45px; text-align: center; font-weight: 900; font-size: 1rem; }
+
+        /* Modal */
+        #modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#151515; padding:20px; border:1px solid var(--gold); border-radius:15px; width:92%; z-index:1000; }
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999; }
+        .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; margin-top:15px; border-radius:8px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -53,7 +57,7 @@
     <div class="card">
         <div class="header-section">
             <h2>🛒 Pedidos</h2>
-            <button onclick="arquivar()" id="btn-arq" class="btn-limpar">Limpar Histórico</button>
+            <button onclick="arquivar()" id="btn-arq" class="btn-limpar">LIMPAR CONCLUÍDOS</button>
         </div>
         <table><tbody id="corpo-pedidos"></tbody></table>
     </div>
@@ -61,8 +65,8 @@
     <div class="overlay" id="overlay" onclick="fechar()"></div>
     <div id="modal">
         <h2 id="m-nome"></h2>
-        <div style="margin: 15px 0; font-size: 0.85rem; color: #ccc;" id="m-itens"></div>
-        <select id="m-status" style="width:100%; padding:12px; background:#222; color:#fff; border:1px solid #444; border-radius:8px;">
+        <div id="m-detalhes" style="font-size: 0.85rem; color: #bbb; margin: 15px 0;"></div>
+        <select id="m-status" style="width:100%; padding:12px; background:#222; color:#fff; border-radius:8px; border:1px solid #444;">
             <option value="Novo Pedido">Novo Pedido</option>
             <option value="Pendente">Pendente</option>
             <option value="Concluído">Concluído</option>
@@ -72,48 +76,89 @@
     </div>
 
     <script>
-        // COLOQUE AQUI O SEU LINK ATUALIZADO DO GOOGLE APPS SCRIPT
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
         let sel = null;
 
         async function carregar() {
-            const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
-            const textV = await resV.text();
-            const rowsV = textV.split('\n').slice(1);
-            let htmlV = '';
-            rowsV.reverse().forEach((row, i) => {
-                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                if(!c[1]) return;
-                const isNovo = c[6] === "Novo Pedido";
-                htmlV += `<tr class="${isNovo?'status-novo':''}" onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length-i})'>
-                    <td><b>${c[1]}</b><br><small>${c[0].split(' ')[0]}</small></td>
-                    <td><span class="status ${c[6].split(' ')[0]}">${c[6]}</span><br><b>R$ ${c[3]}</b></td>
-                </tr>`;
-            });
-            document.getElementById('corpo-pedidos').innerHTML = htmlV;
+            try {
+                // Pedidos
+                const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
+                const textV = await resV.text();
+                const rowsV = textV.split('\n').slice(1);
+                let htmlV = '';
 
-            const resP = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
-            const rowsP = (await resP.text()).split('\n').slice(1);
-            let htmlE = '';
-            rowsP.forEach(row => {
-                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                if(!c[1]) return;
-                htmlE += `<div class="estoque-row"><div><b>${c[1]}</b></div><div><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button> <input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"> <button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
-            });
-            document.getElementById('corpo-estoque').innerHTML = htmlE;
+                rowsV.reverse().forEach((row, i) => {
+                    const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
+                    if(!c[1]) return;
+
+                    const status = c[6] || "Novo Pedido";
+                    const endereco = c[7] || "";
+                    const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+
+                    htmlV += `
+                    <tr class="${status === 'Novo Pedido' ? 'status-novo' : ''}" onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length - i})'>
+                        <td>
+                            <b>${c[1]}</b><br>
+                            <small style="color:#666">${c[0]}</small>
+                            ${endereco ? `<a href="${linkMaps}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 Abrir Maps</a>` : ''}
+                        </td>
+                        <td>
+                            <span class="status ${status.split(' ')[0]}">${status}</span><br>
+                            <b style="color:var(--gold)">R$ ${c[3]}</b>
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById('corpo-pedidos').innerHTML = htmlV;
+
+                // Estoque
+                const resP = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
+                const rowsP = (await resP.text()).split('\n').slice(1);
+                let htmlE = '';
+                rowsP.forEach(row => {
+                    const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
+                    if(!c[1]) return;
+                    htmlE += `
+                    <div class="estoque-row">
+                        <b>${c[1]}</b>
+                        <div>
+                            <button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button>
+                            <input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')">
+                            <button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('corpo-estoque').innerHTML = htmlE;
+            } catch (e) { console.error(e); }
+        }
+
+        function abrirPedido(dados, linha) {
+            sel = { linha, dados };
+            document.getElementById('m-nome').innerText = dados[1];
+            document.getElementById('m-detalhes').innerHTML = `
+                <b>Itens:</b> ${dados[2]}<br>
+                <b>Pagamento:</b> ${dados[5]}<br>
+                <b>Endereço:</b> ${dados[7]}
+            `;
+            document.getElementById('m-status').value = dados[6];
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        async function salvarStatus() {
+            const status = document.getElementById('m-status').value;
+            fechar();
+            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(status)}`);
+            carregar();
         }
 
         async function arquivar() {
-            if(!confirm("Deseja mover pedidos finalizados para a aba de arquivo?")) return;
+            if(!confirm("Arquivar pedidos finalizados?")) return;
             const btn = document.getElementById('btn-arq');
-            btn.innerText = "LIMPANDO...";
-            btn.disabled = true;
+            btn.innerText = "...";
             await fetch(`${urlWebhook}?action=arquivar`);
-            alert("Painel limpo com sucesso!");
             carregar();
-            btn.innerText = "Limpar Histórico";
-            btn.disabled = false;
+            btn.innerText = "LIMPAR CONCLUÍDOS";
         }
 
         function stepStock(id, delta) { 
@@ -127,23 +172,7 @@
             fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
         }
 
-        function abrirPedido(dados, linha) {
-            sel = { linha, dados };
-            document.getElementById('m-nome').innerText = dados[1];
-            document.getElementById('m-itens').innerText = dados[2];
-            document.getElementById('m-status').value = dados[6];
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
         function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
-
-        async function salvarStatus() {
-            const status = document.getElementById('m-status').value;
-            fechar();
-            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${status}`);
-            carregar();
-        }
 
         carregar();
         setInterval(carregar, 30000);
