@@ -34,6 +34,9 @@
 </head>
 <body>
     <h1>Tio Nan Admin</h1>
+    
+    <audio id="som-sucesso" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" preload="auto"></audio>
+
     <div class="tab-container">
         <button class="tab-btn active" id="btn-ativos" onclick="mudarAba('ativos')">📦 Ativos</button>
         <button class="tab-btn" id="btn-arquivados" onclick="mudarAba('arquivados')">📁 Histórico</button>
@@ -135,21 +138,23 @@
             const sNorm = st.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const isFin = (sNorm === "concluido" || sNorm === "cancelado");
 
+            // TOCAR SOM SE FOR CONCLUÍDO
+            if (sNorm === "concluido") {
+                const som = document.getElementById('som-sucesso');
+                som.currentTime = 0;
+                som.play().catch(e => console.log("Som bloqueado pelo navegador"));
+            }
+
             // Efeito Visual Imediato
             if (!sel.isArquivo && isFin) {
                 const card = document.getElementById(`card-ativo-${sel.linha}`);
                 if (card) card.style.opacity = "0.3";
             }
-            if (sel.isArquivo && !isFin) {
-                const card = document.getElementById(`card-arq-${sel.linha}`);
-                if (card) card.style.opacity = "0.3";
-            }
-
+            
             fechar();
             
-            // Envia para o Google em segundo plano
             fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(st)}&isArquivo=${sel.isArquivo}`)
-                .then(() => carregar()); // Recarrega os dados reais quando terminar
+                .then(() => carregar());
         }
 
         function stepStock(id, delta) { 
