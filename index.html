@@ -20,6 +20,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
+        /* ANIMAÇÃO DE VOO DA GARRAFA */
         .garrafa-voando {
             position: fixed; z-index: 9999; pointer-events: none;
             transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
@@ -34,6 +35,7 @@
         }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
 
+        /* BARRA DE PROGRESSO DINÂMICA */
         #container-frete { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #222; }
         #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; }
         .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
@@ -199,40 +201,44 @@
                 const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                 const d = await res.json();
                 if(!d.erro) { 
-                    document.getElementById('rua').value = d.logradouro; document.getElementById('bairro').value = d.bairro;
-                    document.getElementById('cidade').value = d.localidade; document.getElementById('estado').value = d.uf;
+                    document.getElementById('rua').value = d.logradouro; 
+                    document.getElementById('bairro').value = d.bairro;
+                    document.getElementById('cidade').value = d.localidade;
+                    document.getElementById('estado').value = d.uf;
                     validarCidade(d.localidade);
                 }
             }
         }
 
         function validarCidade(cidade) {
-            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
             const entrega = document.getElementById('metodo-entrega').value;
             if (entrega === 'tele') {
                 const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
-                if (!permitida) { btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block"; } 
-                else { liberarBotao(); }
+                if (!permitida) {
+                    btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block";
+                } else { liberarBotao(); }
             } else { liberarBotao(); }
         }
 
         function liberarBotao() {
-            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
             btn.disabled = false; btn.style.background = "#25D366"; btn.style.opacity = "1"; aviso.style.display = "none";
         }
 
         async function loadProducts() {
-            try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
-                const text = await res.text();
-                const rows = text.split('\n').slice(1);
-                let htmlDisp = ''; let htmlEsg = '';
-                
-                rows.forEach(row => {
-                    const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                    if(!c || c[3].toLowerCase() !== 'sim') return;
-                    const temEstoque = (parseInt(c[4]) || 0) > 0;
-                    const card = `
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
+            const text = await res.text();
+            const rows = text.split('\n').slice(1);
+            let htmlDisp = ''; let htmlEsg = '';
+            
+            rows.forEach(row => {
+                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
+                if(!c || c.length < 4 || c[3].toLowerCase() !== 'sim') return;
+                const temEstoque = (parseInt(c[4]) || 0) > 0;
+                const card = `
                     <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}" id="card-${c[0]}">
                         <div class="img-wrapper">
                             ${temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}
@@ -245,38 +251,46 @@
                                 <div class="swiper-pagination"></div>
                             </div>
                         </div>
-                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',,')}</span></div>
+                        <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${parseFloat(c[2].replace(',','.')).toFixed(2).replace('.',',')}</span></div>
                         ${temEstoque ? `<button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
                     </div>`;
-                    if (temEstoque) htmlDisp += card; else htmlEsg += card;
-                });
-                document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
-                document.querySelectorAll('.swiper-produto').forEach(el => {
-                    new Swiper(el, { loop: true, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true }, autoplay: { delay: Math.random() * 2000 + 3000 } });
-                });
-            } catch (e) {}
+                if (temEstoque) htmlDisp += card; else htmlEsg += card;
+            });
+            document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
+            
+            document.querySelectorAll('.swiper-produto').forEach(el => {
+                const tempo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
+                new Swiper(el, { loop: true, effect: 'fade', fadeEffect: { crossFade: true }, autoplay: { delay: tempo, disableOnInteraction: false }, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } });
+            });
         }
 
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
         
         function add(id, name, price) {
             const card = document.getElementById(`card-${id}`);
-            let imgOriginal = card.querySelector('.swiper-slide-active img') || card.querySelector('.foto-1');
+            let imgOriginal = card.querySelector('.swiper-slide-active img');
+            if (!imgOriginal || imgOriginal.offsetParent === null) { imgOriginal = card.querySelector('.foto-1'); }
             const cartBtn = document.getElementById('cart-btn');
             const clone = imgOriginal.cloneNode(true);
             const rect = imgOriginal.getBoundingClientRect();
             const cartRect = cartBtn.getBoundingClientRect();
 
             clone.classList.add('garrafa-voando');
-            clone.style.width = rect.width + 'px'; clone.style.height = rect.height + 'px';
-            clone.style.top = rect.top + 'px'; clone.style.left = rect.left + 'px';
+            clone.style.width = rect.width + 'px';
+            clone.style.height = rect.height + 'px';
+            clone.style.top = rect.top + 'px';
+            clone.style.left = rect.left + 'px';
             document.body.appendChild(clone);
 
             setTimeout(() => {
                 clone.style.transform = "scale(1.2)";
                 setTimeout(() => {
-                    clone.style.top = (cartRect.top + 10) + 'px'; clone.style.left = (cartRect.left + 10) + 'px';
-                    clone.style.width = '40px'; clone.style.height = '40px'; clone.style.opacity = '0.5'; clone.style.transform = "scale(0.2) rotate(45deg)";
+                    clone.style.top = (cartRect.top + 10) + 'px';
+                    clone.style.left = (cartRect.left + 10) + 'px';
+                    clone.style.width = '40px';
+                    clone.style.height = '40px';
+                    clone.style.opacity = '0.5';
+                    clone.style.transform = "scale(0.2) rotate(45deg)";
                 }, 100);
             }, 50);
 
@@ -297,21 +311,18 @@
             const textoFrete = document.getElementById('texto-frete');
             const entrega = document.getElementById('metodo-entrega').value;
 
-            if (barra && textoFrete) {
-                barra.style.width = Math.min((totalGarrafas / 3) * 100, 100) + "%";
-                
-                if (entrega === 'retirada') {
-                    // MUDANÇA DE COR ULTRA DIRETA (PARA NÃO TRAVAR)
-                    barra.style.background = "linear-gradient(135deg, #2ecc71, #27ae60)";
-                    if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para DESCONTO ESPECIAL";
-                    else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para ganhar R$ 15,00 DE DESCONTO!`;
-                    else textoFrete.innerText = "PARABÉNS! DESCONTO DE R$ 15,00 ATIVADO! 💰";
-                } else {
-                    barra.style.background = "linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)";
-                    if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para FRETE GRÁTIS";
-                    else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para ganhar FRETE GRÁTIS!`;
-                    else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
-                }
+            // Lógica Dinâmica da Barra de Progresso
+            const progresso = Math.min((totalGarrafas / 3) * 100, 100);
+            barra.style.width = progresso + "%";
+            
+            if (entrega === 'retirada') {
+                if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para DESCONTO ESPECIAL";
+                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para ganhar R$ 15,00 DE DESCONTO!`;
+                else textoFrete.innerText = "PARABÉNS! DESCONTO DE R$ 15,00 ATIVADO! 💰";
+            } else {
+                if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para FRETE GRÁTIS";
+                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para FRETE GRÁTIS!`;
+                else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
             }
 
             if (cart.length === 0) { 
@@ -320,22 +331,45 @@
             }
             
             document.getElementById('checkout-form').style.display = 'block';
+            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
+            document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
+            
+            if (entrega === 'retirada') liberarBotao(); 
+            else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+            
             itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
             
             document.getElementById('badge').innerText = totalGarrafas;
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-            if(entrega === 'tele' && totalGarrafas < 3) total += 15;
-            if(entrega === 'retirada' && totalGarrafas >= 3) total -= 15;
+            
+            // Lógica de Preço (Frete vs Desconto)
+            if (entrega === 'tele') {
+                if (totalGarrafas < 3) total += 15; // Cobra frete se menos de 3
+            } else if (entrega === 'retirada') {
+                if (totalGarrafas >= 3) total -= 15; // Dá desconto se 3 ou mais
+            }
+            
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
         }
 
+        function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
+        
         async function checkout() {
-            const nome = document.getElementById('cliente-nome').value;
-            const entrega = document.getElementById('metodo-entrega').value;
-            if(!nome || entrega === 'none') return alert("Preencha tudo!");
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n💰 "+document.getElementById('cart-total-display').innerText)}`);
+            const nome = document.getElementById('cliente-nome').value; const entrega = document.getElementById('metodo-entrega').value; const pag = document.getElementById('metodo-pagamento').value;
+            const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+            if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos os campos!");
+            
+            let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
+            const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: endereco };
+            
+            let beneficioMsg = "";
+            if(entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n🚚 FRETE GRÁTIS ATIVADO!";
+            if(entrega === 'retirada' && totalGarrafas >= 3) beneficioMsg = "\n💰 DESCONTO DE R$ 15,00 APLICADO!";
+
+            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
+            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + beneficioMsg)}`);
         }
-        loadProducts();
+        loadProducts(); updateCart();
     </script>
 </body>
 </html>
