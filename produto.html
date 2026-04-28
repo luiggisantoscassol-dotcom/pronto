@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #070707; color: #fff; font-family: 'Montserrat', sans-serif; padding: 40px 5%; }
+        .voltar { color: #d4af37; text-decoration: none; font-weight: bold; }
+        .wrapper { display: flex; flex-wrap: wrap; gap: 50px; margin-top: 40px; align-items: center; }
+        .foto img { max-width: 100%; max-height: 500px; border-radius: 15px; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 3rem; color: #d4af37; margin: 0; }
+        .preco { font-size: 2.2rem; margin: 20px 0; color: #f5f5f5; }
+        .desc { line-height: 1.8; color: #ccc; font-size: 1.1rem; margin-bottom: 30px; }
+        .btn { background: linear-gradient(135deg, #bf953f, #fcf6ba, #aa771c); color: #000; border: none; padding: 20px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="voltar">← Voltar para Vitrine</a>
+    <div class="wrapper">
+        <div class="foto"><img id="img-p" src=""></div>
+        <div class="info">
+            <h1 id="nome-p"></h1>
+            <div class="preco">R$ 50,00</div>
+            <p class="desc" id="desc-p"></p>
+            <button class="btn" onclick="window.location.href='index.html'">ADICIONAR AO CARRINHO</button>
+        </div>
+    </div>
+
+    <script>
+        const db = {
+            "gengibre": { nome: "Gengibre, Guaco & Mel", img: "gengibre.png", desc: "Uma combinação poderosa e medicinal. O ardor do gengibre equilibrado com a suavidade do mel e o frescor do guaco." },
+            "morango": { nome: "Morango Premium", img: "morango.png", desc: "Aroma irresistível e doçura natural. Produzida com morangos frescos para um sabor frutado inigualável." },
+            "morango-pimenta": { nome: "Morango com Pimenta", img: "morango-pimenta.png", desc: "Para os ousados. O doce do morango com um final levemente picante que desperta os sentidos." },
+            "cafe": { nome: "Café Gourmet", img: "cafe.png", desc: "Intensa e sofisticada. Notas torradas que combinam perfeitamente com a nossa cachaça artesanal." },
+            "jabuticaba": { nome: "Jabuticaba", img: "jabuticaba.png", desc: "Um clássico brasileiro. Sabor autêntico da fruta colhida no pé, com cor vibrante e doçura equilibrada." },
+            "butia": { nome: "Butiá", img: "butia.png", desc: "Sabor exótico e regional. O butiá traz uma acidez refrescante que torna esta cachaça única no paladar." },
+            "pura-tradicional": { nome: "Pura Tradicional", img: "pura-tradicional.png", desc: "A essência da cana. Cristalina, leve e produzida seguindo as tradições mais rigorosas de qualidade." },
+            "pura-envelhecida": { nome: "Pura Envelhecida", img: "pura-envelhecida.png", desc: "Descansada em barris nobres. Cor dourada, aroma amadeirado e um paladar macio e aveludado." }
+        };
+
+        const id = new URLSearchParams(window.location.search).get('id');
+        const p = db[id] || db['gengibre'];
+        document.getElementById('nome-p').innerText = p.nome;
+        document.getElementById('img-p').src = p.img;
+        document.getElementById('desc-p').innerText = p.desc;
+    </script>
+</body>
+</html>
