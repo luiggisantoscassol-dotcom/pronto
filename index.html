@@ -22,12 +22,9 @@
 
         /* ANIMAÇÃO DE VOO DA GARRAFA */
         .garrafa-voando {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
+            position: fixed; z-index: 9999; pointer-events: none;
             transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
-            object-fit: contain;
-            filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.6));
+            object-fit: contain; filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.6));
         }
 
         #toast-notificacao {
@@ -37,6 +34,12 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-transform: uppercase; white-space: nowrap;
         }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
+
+        /* BARRA DE FRETE GRÁTIS */
+        #container-frete { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+        #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; }
+        .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
+        .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out; }
 
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
@@ -111,6 +114,11 @@
         <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
         
+        <div id="container-frete">
+            <div id="texto-frete">Adicione mais 3 garrafas para Frete Grátis</div>
+            <div class="barra-progresso-bg"><div class="barra-progresso-fill" id="barra-frete"></div></div>
+        </div>
+
         <div id="cart-items"></div>
         
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
@@ -120,27 +128,18 @@
                 <option value="tele">Tele Entrega (+ R$ 15,00)</option>
                 <option value="retirada">Retirada na Loja</option>
             </select>
-
             <div id="bloco-retirada" style="display:none;">
                 <strong>📍 Endereço para busca:</strong><br>
-                <a href="http://googleusercontent.com/maps.google.com/Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">
-                    Av. Bento Gonçalves, 4321<br>
-                    Partenon, Porto Alegre - RS
-                </a>
+                <a href="http://googleusercontent.com/maps.google.com/Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">Av. Bento Gonçalves, 4321<br>Partenon, Porto Alegre - RS</a>
                 <br><small>(Clique no endereço para abrir o Maps)</small>
             </div>
-
             <div id="bloco-endereco" style="display:none;">
                 <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
                 <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;">
-                    <input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;">
-                </div>
+                <div style="display:flex; gap:10px;"><input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;"><input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;"></div>
             </div>
-
             <select id="metodo-pagamento" class="cart-input">
                 <option value="none" selected disabled>Forma de Pagamento?</option>
                 <option value="Pix">Pix</option>
@@ -148,11 +147,8 @@
                 <option value="Débito">Débito</option>
                 <option value="Crédito">Crédito</option>
             </select>
-
             <div id="aviso-regiao">Ops! Ainda não entregamos nesta cidade. 💔</div>
-
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
-            
             <button id="btn-finalizar" onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
             <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
         </div>
@@ -193,30 +189,25 @@
                 const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                 const d = await res.json();
                 if(!d.erro) { 
-                    document.getElementById('rua').value = d.logradouro; 
-                    document.getElementById('bairro').value = d.bairro;
-                    document.getElementById('cidade').value = d.localidade;
-                    document.getElementById('estado').value = d.uf;
+                    document.getElementById('rua').value = d.logradouro; document.getElementById('bairro').value = d.bairro;
+                    document.getElementById('cidade').value = d.localidade; document.getElementById('estado').value = d.uf;
                     validarCidade(d.localidade);
                 }
             }
         }
 
         function validarCidade(cidade) {
-            const btn = document.getElementById('btn-finalizar');
-            const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
             const entrega = document.getElementById('metodo-entrega').value;
             if (entrega === 'tele') {
                 const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
-                if (!permitida) {
-                    btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block";
-                } else { liberarBotao(); }
+                if (!permitida) { btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block"; } 
+                else { liberarBotao(); }
             } else { liberarBotao(); }
         }
 
         function liberarBotao() {
-            const btn = document.getElementById('btn-finalizar');
-            const aviso = document.getElementById('aviso-regiao');
+            const btn = document.getElementById('btn-finalizar'); const aviso = document.getElementById('aviso-regiao');
             btn.disabled = false; btn.style.background = "#25D366"; btn.style.opacity = "1"; aviso.style.display = "none";
         }
 
@@ -249,7 +240,6 @@
                 if (temEstoque) htmlDisp += card; else htmlEsg += card;
             });
             document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
-            
             document.querySelectorAll('.swiper-produto').forEach(el => {
                 const tempo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
                 new Swiper(el, { loop: true, effect: 'fade', fadeEffect: { crossFade: true }, autoplay: { delay: tempo, disableOnInteraction: false }, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } });
@@ -266,26 +256,17 @@
             const clone = imgOriginal.cloneNode(true);
             const rect = imgOriginal.getBoundingClientRect();
             const cartRect = cartBtn.getBoundingClientRect();
-
             clone.classList.add('garrafa-voando');
-            clone.style.width = rect.width + 'px';
-            clone.style.height = rect.height + 'px';
-            clone.style.top = rect.top + 'px';
-            clone.style.left = rect.left + 'px';
+            clone.style.width = rect.width + 'px'; clone.style.height = rect.height + 'px';
+            clone.style.top = rect.top + 'px'; clone.style.left = rect.left + 'px';
             document.body.appendChild(clone);
-
             setTimeout(() => {
                 clone.style.transform = "scale(1.2)";
                 setTimeout(() => {
-                    clone.style.top = (cartRect.top + 10) + 'px';
-                    clone.style.left = (cartRect.left + 10) + 'px';
-                    clone.style.width = '40px';
-                    clone.style.height = '40px';
-                    clone.style.opacity = '0.5';
-                    clone.style.transform = "scale(0.2) rotate(45deg)";
+                    clone.style.top = (cartRect.top + 10) + 'px'; clone.style.left = (cartRect.left + 10) + 'px';
+                    clone.style.width = '40px'; clone.style.height = '40px'; clone.style.opacity = '0.5'; clone.style.transform = "scale(0.2) rotate(45deg)";
                 }, 100);
             }, 50);
-
             setTimeout(() => {
                 clone.remove();
                 const item = cart.find(i => i.id === id);
@@ -298,27 +279,55 @@
 
         function updateCart() {
             const itemsCont = document.getElementById('cart-items');
-            if (cart.length === 0) { itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; }
+            const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+            const barra = document.getElementById('barra-frete');
+            const textoFrete = document.getElementById('texto-frete');
+            
+            // Atualiza Barra de Frete
+            const progresso = Math.min((totalGarrafas / 3) * 100, 100);
+            barra.style.width = progresso + "%";
+            if (totalGarrafas === 0) {
+                textoFrete.innerText = "Adicione 3 garrafas para Frete Grátis";
+            } else if (totalGarrafas < 3) {
+                textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para Frete Grátis`;
+            } else {
+                textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
+            }
+
+            if (cart.length === 0) { 
+                itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; 
+                document.getElementById('checkout-form').style.display = 'none'; 
+                document.getElementById('badge').innerText = 0; return; 
+            }
+            
             document.getElementById('checkout-form').style.display = 'block';
             const entrega = document.getElementById('metodo-entrega').value;
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
             document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
+            
             if (entrega === 'retirada') liberarBotao(); else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+            
             itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
-            document.getElementById('badge').innerText = cart.reduce((acc, i) => acc + i.qtd, 0);
+            
+            document.getElementById('badge').innerText = totalGarrafas;
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-            if(entrega === 'tele') total += 15;
+            
+            // Lógica do Frete Grátis no total
+            if(entrega === 'tele' && totalGarrafas < 3) total += 15;
+            
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
         }
 
         function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
         async function checkout() {
             const nome = document.getElementById('cliente-nome').value; const entrega = document.getElementById('metodo-entrega').value; const pag = document.getElementById('metodo-pagamento').value;
+            const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
             if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos!");
             let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja";
             const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: endereco };
+            const freteMsg = (entrega === 'tele' && totalGarrafas >= 3) ? "\n🚚 FRETE GRÁTIS ATIVADO!" : "";
             fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+document.getElementById('cart-total-display').innerText)}`);
+            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + freteMsg)}`);
         }
         loadProducts(); updateCart();
     </script>
