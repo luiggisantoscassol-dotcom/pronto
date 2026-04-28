@@ -89,8 +89,6 @@
 </head>
 <body>
 
-    <audio id="audio-add" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
-
     <div id="toast-notificacao">Adicionado à sacola! 🥃</div>
 
     <div class="cart-toggle" onclick="toggleCart()" id="cart-btn">
@@ -117,7 +115,7 @@
 
             <div id="bloco-retirada" style="display:none;">
                 <strong>📍 Endereço para busca:</strong><br>
-                <a href="https://maps.google.com/?q=Av. Bento Gonçalves, 4321, Porto Alegre" target="_blank">
+                <a href="http://googleusercontent.com/maps.google.com/4" target="_blank">
                     Av. Bento Gonçalves, 4321<br>
                     Partenon, Porto Alegre - RS
                 </a>
@@ -127,7 +125,8 @@
             <div id="bloco-endereco" style="display:none;">
                 <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
-                <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="bairro" class="cart-input" placeholder="Bairro" style="width:65%;"></div>
+                <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto / Casa (Opcional)" style="width:65%;"></div>
+                <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
                 <div style="display:flex; gap:10px;"><input type="text" id="cidade" class="cart-input" placeholder="Cidade" style="width:75%;"><input type="text" id="estado" class="cart-input" placeholder="UF" style="width:25%;"></div>
             </div>
 
@@ -230,13 +229,6 @@
         function add(id, name, price) {
             const item = cart.find(i => i.id === id);
             if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
-            
-            // NOVO SOM DE CLIQUE/CARRINHO
-            const audio = document.getElementById('audio-add');
-            audio.volume = 0.2; 
-            audio.currentTime = 0;
-            audio.play().catch(e => console.log("Áudio bloqueado"));
-
             updateCart();
             const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
             const btn = document.getElementById('cart-btn'); btn.style.animation = 'none'; void btn.offsetWidth; btn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
@@ -286,7 +278,18 @@
             const entrega = document.getElementById('metodo-entrega').value;
             const pag = document.getElementById('metodo-pagamento').value;
             if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos os dados!");
-            let enderecoComp = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
+            
+            let enderecoComp = "";
+            if (entrega === 'tele') {
+                const rua = document.getElementById('rua').value;
+                const num = document.getElementById('numero').value;
+                const apto = document.getElementById('apto').value;
+                const bairro = document.getElementById('bairro').value;
+                enderecoComp = `${rua}, ${num}${apto ? ' (Apto/Casa: ' + apto + ')' : ''} - ${bairro}`;
+            } else {
+                enderecoComp = "Retirada na Loja (Av. Bento Gonçalves, 4321)";
+            }
+
             const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: enderecoComp };
             fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
             window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+enderecoComp+"\n💰 "+document.getElementById('cart-total-display').innerText)}`);
