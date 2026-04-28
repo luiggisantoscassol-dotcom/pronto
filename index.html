@@ -130,8 +130,10 @@
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
                 <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
-                <input type="hidden" id="cidade">
-                <input type="hidden" id="estado">
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;">
+                    <input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;">
+                </div>
             </div>
 
             <select id="metodo-pagamento" class="cart-input">
@@ -200,7 +202,6 @@
             const aviso = document.getElementById('aviso-regiao');
             const entrega = document.getElementById('metodo-entrega').value;
 
-            // Só valida se for Tele Entrega
             if (entrega === 'tele') {
                 const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
                 if (!permitida) {
@@ -286,7 +287,6 @@
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
             document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
             
-            // Se mudar para retirada, libera o botão ignorando a cidade
             if (entrega === 'retirada') liberarBotao();
             else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
 
