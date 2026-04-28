@@ -10,24 +10,29 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; overflow-x: hidden; }
         h1 { color: var(--gold); margin: 20px 0; font-weight: 900; text-align: center; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        
         .tab-container { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 1px solid #222; }
         .tab-btn { background: none; border: none; color: #555; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; padding: 12px 15px; flex: 1; transition: 0.3s; }
         .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
+
         .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: stretch; min-height: 115px; transition: 0.3s; }
         .pedido-info { flex: 1; padding: 15px; overflow: hidden; }
         .pedido-info b { font-size: 1.1rem; color: #fff; display: block; text-transform: uppercase; }
         .pedido-data { font-size: 0.8rem; color: #eee; font-weight: 600; margin-top: 4px; display: block; }
         .maps-link { color: #3498db; text-decoration: none; font-size: 0.75rem; font-weight: 900; display: inline-block; margin-top: 8px; text-transform: uppercase; border-bottom: 1px solid #3498db; }
+        
         .status-area { padding: 10px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 105px; }
         .status { padding: 4px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; color: #000; margin-bottom: 5px; }
         .status-NovoPedido { background: var(--new); }
         .status-Pendente { background: var(--pend); }
         .status-Concluído { background: var(--done); color: #fff; }
         .status-Cancelado { background: var(--canc); color: #fff; }
+
         .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:92%; z-index:1000; max-height: 85vh; overflow-y: auto; }
         .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; backdrop-filter: blur(5px); }
-        select { width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; margin-top:10px; }
+        select { width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; margin-top:10px; font-size: 1rem; }
         .btn-acao { width:100%; padding:15px; background:var(--gold); border:none; font-weight:900; border-radius:12px; text-transform:uppercase; color:#000; margin-top:15px; }
+        
         .estoque-item { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
         .btn-step { background: #222; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 10px; font-size: 1.5rem; }
     </style>
@@ -42,7 +47,9 @@
         <button class="tab-btn" id="btn-arquivados" onclick="mudarAba('arquivados')">📁 Histórico</button>
         <button class="tab-btn" id="btn-estoque" onclick="mudarAba('estoque')">🍯 Estoque</button>
     </div>
+
     <div id="conteudo-principal"></div>
+
     <div class="overlay" id="overlay" onclick="fechar()"></div>
     <div id="modal" class="modal">
         <h2 id="m-nome" style="color:var(--gold); margin-bottom:5px; text-transform: uppercase;"></h2>
@@ -61,21 +68,26 @@
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
         let abaAtual = 'ativos';
+        let reqId = 0;
         let sel = null;
 
         function mudarAba(aba) {
             abaAtual = aba;
+            reqId++;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + aba).classList.add('active');
             document.getElementById('conteudo-principal').innerHTML = '<p style="text-align:center; margin-top:50px; color:#555;">Carregando...</p>';
-            carregar();
+            carregar(reqId);
         }
 
-        async function carregar() {
+        async function carregar(currentReqId) {
             try {
                 let html = '';
+                const cacheBuster = `?t=${Date.now()}`;
+                
                 if (abaAtual === 'ativos') {
                     const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&cache=` + Date.now());
+                    if (currentReqId !== reqId) return;
                     const rows = (await res.text()).split('\n').slice(1).reverse();
                     rows.forEach((row, i) => {
                         const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
@@ -95,6 +107,7 @@
                     });
                 } else if (abaAtual === 'arquivados') {
                     const res = await fetch(`${urlWebhook}?action=getArquivados&t=${Date.now()}`);
+                    if (currentReqId !== reqId) return;
                     const data = await res.json();
                     data.reverse().forEach((c, i) => {
                         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[7])}`;
@@ -112,6 +125,7 @@
                     });
                 } else if (abaAtual === 'estoque') {
                     const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&cache=` + Date.now());
+                    if (currentReqId !== reqId) return;
                     const rows = (await res.text()).split('\n').slice(1);
                     rows.forEach((row, i) => {
                         const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
@@ -119,7 +133,7 @@
                         html += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${i}', -1)">-</button><input type="number" id="st-${i}" style="background:none; border:none; color:white; width:40px; text-align:center; font-weight:bold; font-size:1.2rem" value="${c[4]}" readonly><button class="btn-step" onclick="stepStock('${i}', 1)">+</button></div></div>`;
                     });
                 }
-                document.getElementById('conteudo-principal').innerHTML = html || '<p style="text-align:center; margin-top:50px;">Vazio.</p>';
+                if (currentReqId === reqId) document.getElementById('conteudo-principal').innerHTML = html || '<p style="text-align:center; margin-top:50px;">Vazio.</p>';
             } catch (e) { console.error(e); }
         }
 
@@ -138,34 +152,36 @@
             const sNorm = st.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const isFin = (sNorm === "concluido" || sNorm === "cancelado");
 
-            // TOCAR SOM SE FOR CONCLUÍDO
+            // Som de Sucesso
             if (sNorm === "concluido") {
                 const som = document.getElementById('som-sucesso');
+                som.volume = 0.2;
                 som.currentTime = 0;
-                som.play().catch(e => console.log("Som bloqueado pelo navegador"));
+                som.play().catch(e => console.log("Áudio bloqueado"));
             }
 
-            // Efeito Visual Imediato
-            if (!sel.isArquivo && isFin) {
-                const card = document.getElementById(`card-ativo-${sel.linha}`);
+            // Update Otimista
+            if ((!sel.isArquivo && isFin) || (sel.isArquivo && !isFin)) {
+                const cardId = sel.isArquivo ? `card-arq-${sel.linha}` : `card-ativo-${sel.linha}`;
+                const card = document.getElementById(cardId);
                 if (card) card.style.opacity = "0.3";
             }
-            
+
             fechar();
-            
-            fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(st)}&isArquivo=${sel.isArquivo}`)
-                .then(() => carregar());
+            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(st)}&isArquivo=${sel.isArquivo}`);
+            carregar(reqId);
         }
 
-        function stepStock(id, delta) { 
+        async function stepStock(id, delta) { 
             const inp = document.getElementById(`st-${id}`); 
             const val = parseInt(inp.value) + delta;
             inp.value = val;
-            fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
+            await fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
         }
 
         function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
-        carregar();
+        
+        carregar(reqId);
     </script>
 </body>
 </html>
