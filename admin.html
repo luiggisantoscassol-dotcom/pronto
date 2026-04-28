@@ -6,41 +6,42 @@
     <title>Tio Nan Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --bg: #070707; --card: #111; --new-green: #2ecc71; }
+        :root { --gold: #d4af37; --bg: #070707; --card: #111; --new: #2ecc71; --pend: #f1c40f; --done: #3498db; --canc: #e74c3c; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; padding-bottom: 80px; }
+        body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; padding-bottom: 90px; }
         
         h1 { color: var(--gold); margin-bottom: 20px; font-weight: 900; text-align: center; font-size: 1.4rem; text-transform: uppercase; }
         .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; }
-        
-        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        h2 { color: var(--gold); text-transform: uppercase; font-size: 0.85rem; font-weight: 900; }
+        h2 { color: var(--gold); text-transform: uppercase; font-size: 0.85rem; font-weight: 900; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 8px; }
 
-        /* ESTOQUE - Botões maiores para celular */
+        /* ESTOQUE */
         .estoque-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #181818; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; }
-        .controls { display: flex; align-items: center; gap: 15px; }
-        .btn-step { background: #333; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 8px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
-        .btn-step:active { background: var(--gold); color: #000; }
+        .btn-step { background: #333; color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; font-weight: bold; border-radius: 8px; font-size: 1.5rem; }
         .estoque-input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-weight: 900; font-size: 1.2rem; }
 
-        /* PEDIDOS - Seleção Múltipla */
+        /* PEDIDOS */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        td { padding: 12px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; }
-        td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; width: 40px; text-align: center; }
+        td { padding: 12px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; vertical-align: middle; }
+        td:first-child { border-left: 1px solid #222; border-radius: 10px 0 0 10px; width: 45px; text-align: center; }
         td:last-child { border-right: 1px solid #222; border-radius: 0 10px 10px 0; text-align: right; }
         
-        .check-ped { width: 22px; height: 22px; accent-color: var(--gold); }
-        .status { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; }
-        .Novo { background: var(--new-green); color: #000; }
+        /* CORES DE STATUS */
+        .status { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; color: #000; display: inline-block; margin-bottom: 5px; }
+        .status-NovoPedido { background: var(--new); }
+        .status-Pendente { background: var(--pend); }
+        .status-Concluído { background: var(--done); color: #fff; }
+        .status-Cancelado { background: var(--canc); color: #fff; }
 
-        /* BARRA DE AÇÃO EM MASSA */
-        #bulk-bar { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 12px 20px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; z-index: 2000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); align-items: center; gap: 15px; }
-        #bulk-bar button { background: #000; color: #fff; border: none; padding: 5px 12px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 0.7rem; }
+        .maps-link { color: #3498db; text-decoration: none; font-size: 0.75rem; font-weight: 700; display: block; margin-top: 6px; }
+
+        /* BARRA MÚLTIPLA */
+        #bulk-bar { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 15px 25px; border-radius: 50px; font-weight: 900; z-index: 2000; box-shadow: 0 5px 20px #000; align-items: center; gap: 15px; }
+        #bulk-bar button { background: #000; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 0.7rem; }
 
         #modal, .overlay { display:none; }
         #modal { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#151515; padding:20px; border:1px solid var(--gold); border-radius:15px; width:92%; z-index:1000; }
         .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999; }
-        .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; margin-top:15px; border-radius:8px; text-transform: uppercase; }
+        .btn-status { width:100%; padding:15px; background:var(--gold); border:none; font-weight: 900; margin-top:15px; border-radius:8px; text-transform: uppercase; color: #000; }
     </style>
 </head>
 <body>
@@ -48,15 +49,12 @@
     <h1>Gestão Tio Nan</h1>
 
     <div class="card">
-        <div class="header-section"><h2>📦 Estoque</h2></div>
+        <h2>📦 Estoque</h2>
         <div id="corpo-estoque"></div>
     </div>
 
     <div class="card">
-        <div class="header-section">
-            <h2>🛒 Pedidos</h2>
-            <button onclick="arquivar()" class="btn-limpar" style="background:none; border:none; color:#777; font-size:0.6rem;">ARQUIVAR</button>
-        </div>
+        <h2>🛒 Pedidos Ativos</h2>
         <table><tbody id="corpo-pedidos"></tbody></table>
     </div>
 
@@ -66,17 +64,16 @@
     </div>
 
     <div class="overlay" id="overlay" onclick="fechar()"></div>
-    
     <div id="modal">
-        <h2 id="m-nome"></h2>
-        <div id="m-detalhes" style="font-size: 0.8rem; margin: 15px 0; color: #ccc;"></div>
-        <select id="m-status" style="width:100%; padding:12px; background:#222; color:#fff; border:1px solid #444; border-radius:8px;">
+        <h2 id="m-nome" style="border:none"></h2>
+        <div id="m-detalhes" style="font-size: 0.85rem; margin-bottom: 20px; color: #ccc;"></div>
+        <select id="m-status" style="width:100%; padding:15px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; font-weight: bold;">
             <option value="Novo Pedido">Novo Pedido</option>
             <option value="Pendente">Pendente</option>
             <option value="Concluído">Concluído</option>
             <option value="Cancelado">Cancelado</option>
         </select>
-        <button onclick="salvarStatus()" class="btn-status">Salvar</button>
+        <button onclick="salvarStatus()" class="btn-status">Atualizar Agora</button>
     </div>
 
     <script>
@@ -85,64 +82,59 @@
         let sel = null;
 
         async function carregar() {
-            const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
-            const rowsV = (await resV.text()).split('\n').slice(1);
-            let htmlV = '';
-            rowsV.reverse().forEach((row, i) => {
-                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                if(!c[1]) return;
-                const linhaReal = rowsV.length - i;
-                htmlV += `
-                <tr>
-                    <td><input type="checkbox" class="check-ped" value="${linhaReal}" onchange="toggleBulk()"></td>
-                    <td onclick='abrirPedido(${JSON.stringify(c)}, ${linhaReal})'>
-                        <b>${c[1]}</b><br><small style="color:#666">${c[2].substring(0,25)}...</small>
-                    </td>
-                    <td style="text-align:right" onclick='abrirPedido(${JSON.stringify(c)}, ${linhaReal})'>
-                        <span class="status ${c[6].split(' ')[0]}">${c[6]}</span><br><b>R$ ${c[3]}</b>
-                    </td>
-                </tr>`;
-            });
-            document.getElementById('corpo-pedidos').innerHTML = htmlV;
+            try {
+                const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
+                const rowsV = (await resV.text()).split('\n').slice(1);
+                let htmlV = '';
+                rowsV.reverse().forEach((row, i) => {
+                    const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
+                    if(!c[1]) return;
+                    
+                    const status = c[6] || "Novo Pedido";
+                    const statusClasse = status.replace(/\s/g, '');
+                    const endereco = c[7] || "";
+                    const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
 
-            const resP = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
-            const rowsP = (await resP.text()).split('\n').slice(1);
-            let htmlE = '';
-            rowsP.forEach(row => {
-                const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
-                if(!c[1]) return;
-                htmlE += `
-                <div class="estoque-row">
-                    <b>${c[1]}</b>
-                    <div class="controls">
-                        <button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button>
-                        <input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')">
-                        <button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('corpo-estoque').innerHTML = htmlE;
+                    htmlV += `
+                    <tr>
+                        <td><input type="checkbox" class="check-ped" style="width:20px; height:20px" value="${rowsV.length - i}" onchange="toggleBulk()"></td>
+                        <td onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length - i})'>
+                            <b>${c[1]}</b><br>
+                            <small style="color:#777">${c[2].substring(0,25)}...</small>
+                            ${endereco ? `<a href="${linkMaps}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 Abrir Maps</a>` : ''}
+                        </td>
+                        <td style="text-align:right" onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length - i})'>
+                            <span class="status status-${statusClasse}">${status}</span><br><b>R$ ${c[3]}</b>
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById('corpo-pedidos').innerHTML = htmlV;
+
+                const resP = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
+                const rowsP = (await resP.text()).split('\n').slice(1);
+                let htmlE = '';
+                rowsP.forEach(row => {
+                    const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
+                    if(!c[1]) return;
+                    htmlE += `<div class="estoque-row"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" class="estoque-input" value="${c[4]}" onchange="salvarEstoque('${c[0]}')"><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
+                });
+                document.getElementById('corpo-estoque').innerHTML = htmlE;
+            } catch(e) { console.log(e); }
         }
 
         function toggleBulk() {
             const selecionados = document.querySelectorAll('.check-ped:checked');
             const bar = document.getElementById('bulk-bar');
-            if(selecionados.length > 0) {
-                bar.style.display = 'flex';
-                document.getElementById('bulk-count').innerText = `${selecionados.length} selecionados`;
-            } else {
-                bar.style.display = 'none';
-            }
+            bar.style.display = selecionados.length > 0 ? 'flex' : 'none';
+            document.getElementById('bulk-count').innerText = `${selecionados.length} selecionados`;
         }
 
         async function mudarVariosStatus() {
-            const status = prompt("Digite o novo status (Ex: Concluído, Pendente, Novo Pedido):");
-            if(!status) return;
-            const checks = document.querySelectorAll('.check-ped:checked');
-            const rows = Array.from(checks).map(cb => cb.value);
-            
-            document.getElementById('bulk-bar').innerText = "ATUALIZANDO...";
-            await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${status}`);
+            const novo = prompt("Novo status (Novo Pedido, Pendente, Concluído, Cancelado):");
+            if(!novo) return;
+            const rows = Array.from(document.querySelectorAll('.check-ped:checked')).map(cb => cb.value);
+            document.getElementById('bulk-bar').innerText = "PROCESSANDO...";
+            await fetch(`${urlWebhook}?action=updateBulkStatus&rows=${JSON.stringify(rows)}&status=${encodeURIComponent(novo)}`);
             carregar();
             document.getElementById('bulk-bar').style.display = 'none';
         }
@@ -161,21 +153,23 @@
         function abrirPedido(dados, linha) {
             sel = { linha, dados };
             document.getElementById('m-nome').innerText = dados[1];
-            document.getElementById('m-detalhes').innerHTML = `<b>Itens:</b> ${dados[2]}<br><b>Endereço:</b> ${dados[7]}`;
+            document.getElementById('m-detalhes').innerHTML = `<b>Itens:</b> ${dados[2]}<br><b>Endereço:</b> ${dados[7]}<br><b>Pagamento:</b> ${dados[5]}`;
             document.getElementById('m-status').value = dados[6];
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
 
         async function salvarStatus() {
+            const status = document.getElementById('m-status').value;
             fechar();
-            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${document.getElementById('m-status').value}`);
+            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(status)}`);
             carregar();
         }
 
         function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
+        
         carregar();
-        setInterval(carregar, 60000);
+        setInterval(carregar, 40000);
     </script>
 </body>
 </html>
