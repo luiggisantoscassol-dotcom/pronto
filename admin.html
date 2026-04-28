@@ -10,24 +10,20 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; padding: 15px; overflow-x: hidden; }
         h1 { color: var(--gold); margin: 20px 0; font-weight: 900; text-align: center; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
-        
         .tab-container { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 1px solid #222; }
         .tab-btn { background: none; border: none; color: #555; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; padding: 12px 15px; flex: 1; transition: 0.3s; }
         .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
-
-        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: stretch; min-height: 115px; }
+        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: stretch; min-height: 115px; transition: 0.3s; }
         .pedido-info { flex: 1; padding: 15px; overflow: hidden; }
         .pedido-info b { font-size: 1.1rem; color: #fff; display: block; text-transform: uppercase; }
         .pedido-data { font-size: 0.8rem; color: #eee; font-weight: 600; margin-top: 4px; display: block; }
         .maps-link { color: #3498db; text-decoration: none; font-size: 0.75rem; font-weight: 900; display: inline-block; margin-top: 8px; text-transform: uppercase; border-bottom: 1px solid #3498db; }
-        
         .status-area { padding: 10px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 105px; }
         .status { padding: 4px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; color: #000; margin-bottom: 5px; }
         .status-NovoPedido { background: var(--new); }
         .status-Pendente { background: var(--pend); }
         .status-Concluído { background: var(--done); color: #fff; }
         .status-Cancelado { background: var(--canc); color: #fff; }
-
         .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:92%; z-index:1000; max-height: 85vh; overflow-y: auto; }
         .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; backdrop-filter: blur(5px); }
         select { width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; margin-top:10px; }
@@ -82,7 +78,7 @@
                         const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                         if(!c[1]) return;
                         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[7])}`;
-                        html += `<div class="pedido-card" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i - 1}, false)'>
+                        html += `<div class="pedido-card" id="card-ativo-${rows.length - i - 1}" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i - 1}, false)'>
                             <div class="pedido-info" style="padding-left:20px">
                                 <b>${c[1]}</b>
                                 <span class="pedido-data">📅 ${c[0]}</span>
@@ -99,7 +95,7 @@
                     const data = await res.json();
                     data.reverse().forEach((c, i) => {
                         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[7])}`;
-                        html += `<div class="pedido-card" onclick='abrirPedido(${JSON.stringify(c)}, ${data.length - i - 1}, true)'>
+                        html += `<div class="pedido-card" id="card-arq-${data.length - i - 1}" onclick='abrirPedido(${JSON.stringify(c)}, ${data.length - i - 1}, true)'>
                             <div class="pedido-info" style="padding-left:20px">
                                 <b>${c[1]}</b>
                                 <span class="pedido-data">📅 ${c[0]}</span>
@@ -114,10 +110,10 @@
                 } else if (abaAtual === 'estoque') {
                     const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&cache=` + Date.now());
                     const rows = (await res.text()).split('\n').slice(1);
-                    rows.forEach(row => {
+                    rows.forEach((row, i) => {
                         const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                         if(!c[1]) return;
-                        html += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${c[0]}', -1)">-</button><input type="number" id="st-${c[0]}" style="background:none; border:none; color:white; width:40px; text-align:center; font-weight:bold; font-size:1.2rem" value="${c[4]}" readonly><button class="btn-step" onclick="stepStock('${c[0]}', 1)">+</button></div></div>`;
+                        html += `<div class="estoque-item"><b>${c[1]}</b><div style="display:flex; align-items:center; gap:10px;"><button class="btn-step" onclick="stepStock('${i}', -1)">-</button><input type="number" id="st-${i}" style="background:none; border:none; color:white; width:40px; text-align:center; font-weight:bold; font-size:1.2rem" value="${c[4]}" readonly><button class="btn-step" onclick="stepStock('${i}', 1)">+</button></div></div>`;
                     });
                 }
                 document.getElementById('conteudo-principal').innerHTML = html || '<p style="text-align:center; margin-top:50px;">Vazio.</p>';
@@ -136,16 +132,31 @@
 
         async function salvarStatus() {
             const st = document.getElementById('m-status').value;
+            const sNorm = st.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const isFin = (sNorm === "concluido" || sNorm === "cancelado");
+
+            // Efeito Visual Imediato
+            if (!sel.isArquivo && isFin) {
+                const card = document.getElementById(`card-ativo-${sel.linha}`);
+                if (card) card.style.opacity = "0.3";
+            }
+            if (sel.isArquivo && !isFin) {
+                const card = document.getElementById(`card-arq-${sel.linha}`);
+                if (card) card.style.opacity = "0.3";
+            }
+
             fechar();
-            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(st)}&isArquivo=${sel.isArquivo}`);
-            carregar();
+            
+            // Envia para o Google em segundo plano
+            fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(st)}&isArquivo=${sel.isArquivo}`)
+                .then(() => carregar()); // Recarrega os dados reais quando terminar
         }
 
-        async function stepStock(id, delta) { 
+        function stepStock(id, delta) { 
             const inp = document.getElementById(`st-${id}`); 
             const val = parseInt(inp.value) + delta;
             inp.value = val;
-            await fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
+            fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${val}`);
         }
 
         function fechar() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
