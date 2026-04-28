@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cachaça do Tio Nan - Loja Oficial</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
@@ -18,29 +17,43 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); scroll-behavior: smooth; }
+        html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
 
-        /* TOAST */
+        /* NOTIFICAÇÃO TOAST */
         #toast-notificacao {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px;
             font-weight: 900; font-size: 0.9rem; z-index: 5000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-transform: uppercase; white-space: nowrap;
         }
         #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
 
-        /* HERO */
-        .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; min-height: 250px; }
+        /* HERO CARROSSEL */
+        .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; }
+        .swiper-pagination-bullet { background: #fff !important; opacity: 0.3; }
+        .swiper-pagination-bullet-active { background: var(--gold-soft) !important; opacity: 1 !important; }
 
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
         .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
 
         /* VITRINE */
         .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
-        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; background: #0a0a0a; border-radius: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .img-wrapper img { max-height: 260px; max-width: 90%; object-fit: contain; }
+        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
+
+        /* ESGOTADOS */
+        .card-produto.esgotado-card .img-wrapper { filter: grayscale(100%); opacity: 0.3; }
+        .faixa-esgotado-clean {
+            position: absolute; top: 50%; left: 0; width: 100%; background: #000; color: var(--gold-soft);
+            padding: 18px 0; font-family: var(--font-body); font-weight: 900; font-size: 1.1rem;
+            text-transform: uppercase; letter-spacing: 3px; z-index: 20; transform: translateY(-50%);
+            border-top: 2px solid var(--gold-soft); border-bottom: 2px solid var(--gold-soft); pointer-events: none;
+        }
+
+        /* CARROSSEL PRODUTO */
+        .swiper-produto { width: 100%; height: 280px; }
+        .swiper-produto img { max-height: 260px; max-width: 100%; object-fit: contain; }
 
         .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
         .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
@@ -58,7 +71,10 @@
 
         /* PIX AREA */
         #pix-area { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid var(--gold-soft); margin-bottom: 15px; display: none; }
-        .pix-codigo { background: #000; padding: 10px; font-family: monospace; font-size: 0.7rem; color: #0f0; word-break: break-all; border-radius: 5px; margin: 10px 0; border: 1px solid #333; }
+        .pix-codigo { background: #000; padding: 10px; font-family: monospace; font-size: 0.65rem; color: #0f0; word-break: break-all; border-radius: 5px; margin: 10px 0; border: 1px solid #333; text-align: left; }
+
+        /* ANIMAÇÃO SACUALHAR */
+        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.2) rotate(10deg); } 40%, 80% { transform: scale(1.2) rotate(-10deg); } }
     </style>
 </head>
 <body>
@@ -75,12 +91,10 @@
     <aside class="cart-overlay" id="cart-overlay">
         <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
-        
         <div id="cart-items"></div>
 
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
             <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
-            
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
                 <option value="none" selected disabled>Como quer receber?</option>
                 <option value="tele">Tele Entrega (+ R$ 15,00)</option>
@@ -105,12 +119,11 @@
 
             <div id="pix-area">
                 <p style="color:var(--gold-soft); font-size: 0.8rem; font-weight: bold;">Copia e Cola Pix:</p>
-                <div class="pix-codigo" id="pix-string">Gerando chave...</div>
+                <div class="pix-codigo" id="pix-string">Gerando código...</div>
                 <button onclick="copiarPix()" style="background:#fff; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.7rem;">COPIAR CÓDIGO PIX</button>
             </div>
 
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
-            
             <button onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
         </div>
     </aside>
@@ -118,9 +131,12 @@
     <main>
         <div class="swiper swiper-hero">
             <div class="swiper-wrapper">
-                <div class="swiper-slide"><img src="passo1.png" fetchpriority="high"></div>
+                <div class="swiper-slide"><img src="passo1.png"></div>
                 <div class="swiper-slide"><img src="passo2.png"></div>
+                <div class="swiper-slide"><img src="passo3.png"></div>
+                <div class="swiper-slide"><img src="passo4.png"></div>
             </div>
+            <div class="swiper-pagination"></div>
         </div>
         <section class="hero-section"><h1>Cachaça do Tio Nan</h1></section>
         <div id="vitrine" class="produtos-grid"></div>
@@ -130,43 +146,41 @@
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbwu4OWF-2JEsWZl3fw7qpevre0rSeN7hGUJZUPWwx-Jt50kzJ7QinlfOepG5ARQC5WG/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
-        const MINHA_CHAVE_PIX = "5551989067003"; 
+        const MINHA_CHAVE_PIX = "5551985511707"; 
         
         let cart = [];
         let totalGlobal = 0;
 
-        function togglePixArea() {
-            const pag = document.getElementById('metodo-pagamento').value;
-            const area = document.getElementById('pix-area');
-            if (pag === 'Pix') {
-                area.style.display = 'block';
-                const valorFix = totalGlobal.toFixed(2).replace('.', '');
-                const payload = `00020101021226580014br.gov.bcb.pix0114${MINHA_CHAVE_PIX}52040000530398654${valorFix.length.toString().padStart(2, '0')}${valorFix}5802BR5915TIOnan CACHACA6009SAO PAULO62070503***6304`;
-                document.getElementById('pix-string').innerText = payload;
-            } else { area.style.display = 'none'; }
-        }
-
-        function copiarPix() {
-            navigator.clipboard.writeText(document.getElementById('pix-string').innerText);
-            alert("Código Pix copiado!");
-        }
+        new Swiper('.swiper-hero', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 } });
 
         async function loadProducts() {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
             const text = await res.text();
             const rows = text.split('\n').slice(1);
             let html = '';
+            
             rows.forEach(row => {
                 const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                 if(c[3].toLowerCase() !== 'sim') return;
+                const precoFormat = "R$ " + parseFloat(c[2].replace(',','.')).toFixed(2).replace('.', ',');
+
                 html += `
                 <div class="card-produto">
-                    <div class="img-wrapper"><img src="${c[0]}.png" loading="lazy" decoding="async"></div>
-                    <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">R$ ${c[2]}</span></div>
-                    <button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar</button>
+                    <div class="img-wrapper">
+                        <div class="swiper swiper-produto">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="${c[0]}.png" loading="lazy"></div>
+                                <div class="swiper-slide"><img src="${c[0]}-2.png" onerror="this.parentElement.remove()" loading="lazy"></div>
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    </div>
+                    <div><h3 class="prod-nome">${c[1]}</h3><span class="preco">${precoFormat}</span></div>
+                    <button class="btn-adicionar" onclick="add('${c[0]}','${c[1]}',${parseFloat(c[2].replace(',','.'))})">Adicionar à sacola</button>
                 </div>`;
             });
             document.getElementById('vitrine').innerHTML = html;
+            document.querySelectorAll('.swiper-produto').forEach(el => { new Swiper(el, { pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } }); });
         }
 
         function add(id, name, price) {
@@ -174,27 +188,19 @@
             if(item) item.qtd++; else cart.push({id, name, price, qtd:1});
             updateCart();
             const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
-        function changeQty(id, delta) {
-            const item = cart.find(i => i.id === id);
-            if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); }
+            const btn = document.getElementById('cart-btn'); btn.style.animation = 'none'; void btn.offsetWidth; btn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
         }
 
         function updateCart() {
             const itemsCont = document.getElementById('cart-items');
-            if (cart.length === 0) { 
-                itemsCont.innerHTML = `<p style="padding:20px; color:#555;">Sacola vazia.</p>`; 
-                document.getElementById('checkout-form').style.display = 'none'; 
-                document.getElementById('badge').innerText = 0; return; 
-            }
+            if (cart.length === 0) { itemsCont.innerHTML = `<p style="padding:20px; color:#555;">Sacola vazia.</p>`; document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; }
             document.getElementById('checkout-form').style.display = 'block';
             const entrega = document.getElementById('metodo-entrega').value;
             document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
             
             itemsCont.innerHTML = cart.map(i => `
                 <div class="cart-item-row">
-                    <div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2)}</small></div>
+                    <div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
                         <span>${i.qtd}</span>
@@ -210,6 +216,19 @@
             togglePixArea();
         }
 
+        function togglePixArea() {
+            const pag = document.getElementById('metodo-pagamento').value;
+            const area = document.getElementById('pix-area');
+            if (pag === 'Pix') {
+                area.style.display = 'block';
+                const valorFix = totalGlobal.toFixed(2).replace('.', '');
+                const payload = `00020101021226580014br.gov.bcb.pix0114${MINHA_CHAVE_PIX}52040000530398654${valorFix.length.toString().padStart(2, '0')}${valorFix}5802BR5915TIOnan CACHACA6009SAO PAULO62070503***6304`;
+                document.getElementById('pix-string').innerText = payload;
+            } else { area.style.display = 'none'; }
+        }
+
+        function copiarPix() { navigator.clipboard.writeText(document.getElementById('pix-string').innerText); alert("Código Pix copiado!"); }
+        function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
         function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
 
         async function checkout() {
@@ -217,11 +236,10 @@
             const entrega = document.getElementById('metodo-entrega').value;
             const pag = document.getElementById('metodo-pagamento').value;
             if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos os dados!");
-            
             let enderecoComp = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value}${document.getElementById('apto').value ? ' Apto '+document.getElementById('apto').value : ''} - ${document.getElementById('bairro').value}` : "Retirada na Loja";
             const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, pagamento: pag, status: "Novo Pedido", endereco: enderecoComp };
             fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*NOVO PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+enderecoComp+"\n💰 "+dados.total)}`);
+            window.open(`https://wa.me/5551985511707?text=${encodeURIComponent("*NOVO PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+enderecoComp+"\n💰 "+dados.total)}`);
         }
         
         loadProducts();
