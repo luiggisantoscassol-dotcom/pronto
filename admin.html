@@ -15,11 +15,12 @@
         .tab-btn { background: none; border: none; color: #555; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; padding: 12px 15px; flex: 1; transition: 0.3s; }
         .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
 
-        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: stretch; }
+        .pedido-card { background: var(--card); border-radius: 15px; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: stretch; min-height: 110px; }
         .pedido-check { width: 45px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 15px 0 0 15px; }
         .pedido-info { flex: 1; padding: 15px; overflow: hidden; }
-        .pedido-info b { font-size: 1.1rem; color: #fff; display: block; }
-        .pedido-data { font-size: 0.85rem; color: #eee; font-weight: 600; margin-top: 5px; display: block; }
+        .pedido-info b { font-size: 1.1rem; color: #fff; display: block; text-transform: uppercase; }
+        .pedido-data { font-size: 0.8rem; color: #eee; font-weight: 600; margin-top: 4px; display: block; }
+        .maps-link { color: #3498db; text-decoration: none; font-size: 0.75rem; font-weight: 900; display: inline-block; margin-top: 8px; text-transform: uppercase; border-bottom: 1px solid #3498db; }
         
         .status-area { padding: 10px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 105px; }
         .status { padding: 4px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; color: #000; margin-bottom: 5px; }
@@ -34,10 +35,10 @@
         #bulk-bar { display: none; position: fixed; bottom: 20px; left: 5%; width: 90%; background: var(--gold); color: #000; padding: 15px; border-radius: 50px; font-weight: 900; z-index: 500; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px #000; }
         #bulk-bar button { background: #000; color: #fff; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 900; font-size: 0.7rem; }
 
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; }
-        .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:90%; z-index:1000; }
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; backdrop-filter: blur(5px); }
+        .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; padding:25px; border:1px solid var(--gold); border-radius:20px; width:92%; z-index:1000; max-height: 85vh; overflow-y: auto; }
         
-        select { width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; margin-top:10px; }
+        select { width:100%; padding:15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:12px; font-weight: 900; margin-top:10px; font-size: 1rem; }
         .btn-acao { width:100%; padding:15px; background:var(--gold); border:none; font-weight:900; border-radius:12px; text-transform:uppercase; color:#000; margin-top:15px; }
     </style>
 </head>
@@ -57,13 +58,15 @@
     <div id="modal" class="modal">
         <h2 id="m-nome" style="color:var(--gold); margin-bottom:15px; text-transform: uppercase;"></h2>
         <div id="m-detalhes" style="font-size: 0.95rem; margin-bottom: 20px; color: #ddd; line-height: 1.6;"></div>
-        <select id="m-status">
-            <option value="Novo Pedido">Novo Pedido</option>
-            <option value="Pendente">Pendente</option>
-            <option value="Concluído">Concluído</option>
-            <option value="Cancelado">Cancelado</option>
-        </select>
-        <button onclick="salvarStatus()" class="btn-acao">Atualizar</button>
+        <div id="m-controle">
+            <select id="m-status">
+                <option value="Novo Pedido">Novo Pedido</option>
+                <option value="Pendente">Pendente</option>
+                <option value="Concluído">Concluído</option>
+                <option value="Cancelado">Cancelado</option>
+            </select>
+            <button onclick="salvarStatus()" class="btn-acao">Atualizar</button>
+        </div>
     </div>
 
     <div id="modal-bulk" class="modal">
@@ -83,6 +86,7 @@
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
         let abaAtual = 'ativos';
         let reqId = 0;
+        let sel = null;
 
         function mudarAba(aba) {
             abaAtual = aba;
@@ -104,10 +108,18 @@
                     rows.forEach((row, i) => {
                         const c = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(v => v.replace(/"/g,''));
                         if(!c[1]) return;
+                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[7])}`;
                         html += `<div class="pedido-card">
                             <div class="pedido-check"><input type="checkbox" class="check-ped" style="width:22px; height:22px;" value="${rows.length - i}" onchange="toggleBulk()"></div>
-                            <div class="pedido-info" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, true)'><b>${c[1]}</b><span class="pedido-data">📅 ${c[0]}</span></div>
-                            <div class="status-area"><span class="status status-${c[6].replace(/\s/g, '')}">${c[6]}</span><b style="color:var(--gold)">R$ ${c[3]}</b></div>
+                            <div class="pedido-info" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, true)'>
+                                <b>${c[1]}</b>
+                                <span class="pedido-data">📅 ${c[0]}</span>
+                                ${c[7] ? `<a href="${mapsUrl}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 Abrir Maps</a>` : ''}
+                            </div>
+                            <div class="status-area" onclick='abrirPedido(${JSON.stringify(c)}, ${rows.length - i}, true)'>
+                                <span class="status status-${c[6].replace(/\s/g, '')}">${c[6]}</span>
+                                <b style="color:var(--gold)">R$ ${c[3]}</b>
+                            </div>
                         </div>`;
                     });
                 } else if (abaAtual === 'arquivados') {
@@ -115,9 +127,17 @@
                     if (currentReqId !== reqId) return;
                     const data = await res.json();
                     data.reverse().forEach((c) => {
+                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[7])}`;
                         html += `<div class="pedido-card">
-                            <div class="pedido-info" style="padding-left:20px" onclick='abrirPedido(${JSON.stringify(c)}, 0, false)'><b>${c[1]}</b><span class="pedido-data">📅 ${c[0]}</span></div>
-                            <div class="status-area"><span class="status status-${c[6].replace(/\s/g, '')}">${c[6]}</span><b style="color:var(--gold)">R$ ${c[3]}</b></div>
+                            <div class="pedido-info" style="padding-left:20px" onclick='abrirPedido(${JSON.stringify(c)}, 0, false)'>
+                                <b>${c[1]}</b>
+                                <span class="pedido-data">📅 ${c[0]}</span>
+                                ${c[7] ? `<a href="${mapsUrl}" target="_blank" class="maps-link" onclick="event.stopPropagation();">📍 Ver no Mapa</a>` : ''}
+                            </div>
+                            <div class="status-area" onclick='abrirPedido(${JSON.stringify(c)}, 0, false)'>
+                                <span class="status status-${c[6].replace(/\s/g, '')}">${c[6]}</span>
+                                <b style="color:var(--gold)">R$ ${c[3]}</b>
+                            </div>
                         </div>`;
                     });
                 } else if (abaAtual === 'estoque') {
@@ -157,19 +177,19 @@
         }
 
         function abrirPedido(dados, linha, editavel) {
+            sel = { linha };
             document.getElementById('m-nome').innerText = dados[1];
-            document.getElementById('m-detalhes').innerHTML = `📅 <b>DATA:</b> ${dados[0]}<br><br>🛒 <b>ITENS:</b><br>${dados[2]}<br><br>📍 <b>ENDEREÇO:</b> ${dados[7]}<br><br>💰 <b>VALOR:</b> R$ ${dados[3]}<br><br>💳 <b>PGTO:</b> ${dados[5]}`;
+            document.getElementById('m-detalhes').innerHTML = `📅 <b>DATA:</b> ${dados[0]}<br><br>🛒 <b>ITENS:</b><br>${dados[2]}<br><br>📍 <b>ENDEREÇO:</b> ${dados[7]}<br><br>💰 <b>VALOR:</b> R$ ${dados[3]}<br><br>💳 <b>PAGAMENTO:</b> ${dados[5]}`;
             document.getElementById('m-status').value = dados[6];
             document.getElementById('m-controle').style.display = editavel ? 'block' : 'none';
             document.getElementById('modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
-            window.sel = { linha };
         }
 
         async function salvarStatus() {
             const st = document.getElementById('m-status').value;
             fechar();
-            await fetch(`${urlWebhook}?action=updateStatus&row=${window.sel.linha}&status=${encodeURIComponent(st)}`);
+            await fetch(`${urlWebhook}?action=updateStatus&row=${sel.linha}&status=${encodeURIComponent(st)}`);
             mudarAba('ativos');
         }
 
