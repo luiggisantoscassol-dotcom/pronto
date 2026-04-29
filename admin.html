@@ -40,10 +40,79 @@
         .Concluído { background: var(--blue); color: #fff; }
         .Cancelado { background: var(--red); color: #fff; }
 
-        .pdv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-bottom: 20px; }
-        .pdv-card { background: #111; border: 1px solid #222; border-radius: var(--radius); padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 280px; }
-        .pdv-card img { width: 100%; height: 90px; object-fit: contain; margin-bottom: 10px; }
-        .btn-edit-product { position: absolute; top: 0; right: 0; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; background: rgba(212, 175, 55, 0.15); color: var(--gold); border-radius: 0 var(--radius) 0 25px; font-size: 1.3rem; cursor: pointer; border: none; z-index: 5; }
+        /* PDV GRID E CARDS - MELHORADOS */
+        .pdv-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 15px; 
+            padding-bottom: 20px; 
+        }
+        .pdv-card { 
+            background: #111; 
+            border: 1px solid #222; 
+            border-radius: var(--radius); 
+            padding: 15px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            position: relative; 
+            min-height: 290px; /* Mais espaço para não "esmagar" os botões */
+        }
+        .pdv-card img { 
+            width: 100%; 
+            height: 100px; 
+            object-fit: contain; 
+            margin-bottom: 10px; 
+            margin-top: 15px; /* Evita sobreposição do botão editar */
+        }
+        .btn-edit-product { 
+            position: absolute; 
+            top: 0; 
+            right: 0; 
+            width: 50px; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: rgba(212, 175, 55, 0.15); 
+            color: var(--gold); 
+            border-radius: 0 var(--radius) 0 20px; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            border: none; 
+            z-index: 5; 
+        }
+        .pdv-name { 
+            font-weight: 800; 
+            font-size: 0.9rem; 
+            color: #fff;
+            margin-bottom: 5px; 
+            line-height: 1.2;
+        }
+        .pdv-price { 
+            color: var(--gold); 
+            font-weight: 900; 
+            font-size: 1.1rem; 
+            margin-bottom: 15px; 
+        }
+        .pdv-btn-add { 
+            width: 100%; 
+            background: #1a1a1a; 
+            border: 1px solid #333; 
+            padding: 15px 10px; 
+            border-radius: 15px; 
+            color: var(--gold); 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .pdv-btn-add:active {
+            background: var(--gold);
+            color: #000;
+        }
 
         .estoque-row { background: #080808; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #1a1a1a; }
         .estoque-controles { display: flex; align-items: center; background: #000; border-radius: 15px; border: 1px solid #333; height: 65px; margin-top: 10px; }
@@ -60,7 +129,7 @@
         #toast-admin { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 18px 40px; border-radius: 50px; font-weight: 900; z-index: 5000; transition: 0.5s; text-transform: uppercase; }
         #toast-admin.show { bottom: 120px; }
 
-        @media (max-width: 450px) { .sidebar { width: 85%; } .pdv-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 450px) { .sidebar { width: 85%; } }
     </style>
 </head>
 <body>
@@ -88,7 +157,7 @@
     <div id="tab-historico" class="tab-content"><div class="card"><h2>Histórico Total</h2><div id="corpo-historico"></div></div></div>
     
     <div id="tab-pdv" class="tab-content">
-        <div id="pdv-floating-cart" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900;" onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span id="pdv-float-total">R$ 0,00</span></div>
+        <div id="pdv-floating-cart" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; max-width:500px; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900; cursor:pointer;" onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span id="pdv-float-total">R$ 0,00</span></div>
         <div class="pdv-grid" id="corpo-pdv-grid"></div>
     </div>
 
@@ -194,7 +263,6 @@
                     
                     const safeData = encodeURIComponent(JSON.stringify(c));
                     
-                    // Identifica se a coluna frete foi preenchida ou está vazia
                     let frt = 0;
                     if (c[8] && c[8].trim() !== "") {
                         frt = limparMoeda(c[8]);
@@ -204,7 +272,7 @@
                         let mesAno = extrairMesAno(dt);
                         if(!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, orders: [] };
                         statsMensal[mesAno].f += val; 
-                        statsMensal[mesAno].l += (val - cus - frt); // Retira custo e frete do Lucro Real
+                        statsMensal[mesAno].l += (val - cus - frt);
                         statsMensal[mesAno].orders.push({ safeData: safeData, id: idTab, arquivo: isA });
                         fatG += val; 
                         lucG += (val - cus - frt);
@@ -246,15 +314,35 @@
                     htmlPDV += `<div class="pdv-card">
                         <button class="btn-edit-product" onclick="abrirEdicao('${id}','${nS}',${p},${cus})">✏️</button>
                         <img src="${f1 || 'https://via.placeholder.com/150'}">
-                        <div><div class="pdv-name">${n}</div><div class="pdv-price">R$ ${p.toFixed(2)}</div></div>
-                        <button class="pdv-btn-add" onclick="addPDV('${id}', '${nS}', ${p}, ${cus})">ADICIONAR À SACOLA</button>
+                        <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:flex-end;">
+                            <div class="pdv-name">${n}</div>
+                            <div class="pdv-price">R$ ${p.toFixed(2)}</div>
+                        </div>
+                        <button class="pdv-btn-add" onclick="addPDV('${id}', '${nS}', ${p}, ${cus})">Adicionar</button>
                     </div>`;
                 });
                 document.getElementById('corpo-estoque').innerHTML = htmlE; document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV; updatePDVCart();
             } catch (err) { console.error(err); }
         }
 
-        // --- ABRIR PEDIDO ROBUSTO ---
+        function abrirEdicao(id, n, p, c) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+        async function salvarEdicao() { const id = document.getElementById('edit-id').value, n = encodeURIComponent(document.getElementById('edit-nome').value), p = document.getElementById('edit-preco').value, c = document.getElementById('edit-custo').value; fecharTodosModais(); showToast("Salvando..."); fetch(`${urlWebhook}?action=editProduct&id=${id}&nome=${n}&preco=${p}&custo=${c}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
+        async function cadastrarProduto() { const n = document.getElementById('cad-nome').value, p = document.getElementById('cad-preco').value, f1 = document.getElementById('cad-foto1').value, f2 = document.getElementById('cad-foto2').value; if(!n || !p) return alert("Erro!"); const d = `nome=${encodeURIComponent(n)}&preco=${p}&custo=${document.getElementById('cad-custo').value}&estoque=${document.getElementById('cad-estoque').value}&foto1=${encodeURIComponent(f1)}&foto2=${encodeURIComponent(f2)}`; showToast("Cadastrando..."); fetch(`${urlWebhook}?action=addProduct&${d}`, {mode:'no-cors'}); setTimeout(() => { switchTab('tab-estoque'); carregar(); }, 4000); }
+        async function excluirProduto(id) { if(!confirm("Excluir para sempre?")) return; fecharTodosModais(); showToast("Excluindo..."); fetch(`${urlWebhook}?action=deleteProduct&id=${id}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
+
+        function verDetalhesMes(mesAno) {
+            const data = statsMensal[mesAno]; if (!data) return;
+            document.getElementById('mes-titulo-detalhe').innerText = `Vendas de ${mesAno}`;
+            let html = "<table>";
+            data.orders.forEach(o => {
+                const c = JSON.parse(decodeURIComponent(o.safeData)); 
+                const dt = c[0] || ""; const dtF = dt.includes(' ') ? `${dt.split(' ')[0]} <small style="color:#888;">${dt.split(' ')[1].substring(0,5)}</small>` : dt;
+                html += `<tr onclick="abrirPedido('${o.safeData}', ${o.id}, ${o.arquivo})"><td><b>${c[1]}</b><br><small>${dtF}</small></td><td><b style="color:var(--gold);">R$ ${limparMoeda(c[3]).toFixed(2)}</b></td></tr>`;
+            });
+            document.getElementById('corpo-mes-detalhe').innerHTML = html + "</table>";
+            document.getElementById('modal-mes-detalhe').style.display = 'flex'; document.getElementById('overlay').style.display = 'block';
+        }
+
         function abrirPedido(safeData, row, isA) { 
             sel = { row, isA }; 
             const c = JSON.parse(decodeURIComponent(safeData));
@@ -262,18 +350,13 @@
             const dt = c[0] || ""; 
             const dtF = dt.includes(' ') ? `${dt.split(' ')[0]} às ${dt.split(' ')[1].substring(0,5)}` : dt; 
             
-            // Lógica do Frete
             let htmlFrete = '<span style="color:#888;">Não registrado</span>';
             if (c[8] !== undefined && c[8].trim() !== "") {
                 const freteVal = limparMoeda(c[8]);
-                if (freteVal === 0) {
-                    htmlFrete = '<span style="color:var(--green)">Grátis</span>';
-                } else {
-                    htmlFrete = `R$ ${freteVal.toFixed(2)}`;
-                }
+                if (freteVal === 0) { htmlFrete = '<span style="color:var(--green)">Grátis</span>'; } 
+                else { htmlFrete = `R$ ${freteVal.toFixed(2)}`; }
             }
             
-            // Lógica do Endereço Linkado
             const enderecoOriginal = c[7] || 'Balcão';
             let htmlEndereco = enderecoOriginal;
             if (enderecoOriginal.toLowerCase() !== 'balcão' && enderecoOriginal.trim() !== '') {
@@ -293,25 +376,6 @@
             document.getElementById('m-status').value = c[6] || "Novo Pedido"; 
             document.getElementById('modal-pedido').style.display = 'block'; 
             document.getElementById('overlay').style.display = 'block'; 
-        }
-
-        // Demais Funções CRUD
-        function abrirEdicao(id, n, p, c) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-        async function salvarEdicao() { const id = document.getElementById('edit-id').value, n = encodeURIComponent(document.getElementById('edit-nome').value), p = document.getElementById('edit-preco').value, c = document.getElementById('edit-custo').value; fecharTodosModais(); showToast("Salvando..."); fetch(`${urlWebhook}?action=editProduct&id=${id}&nome=${n}&preco=${p}&custo=${c}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
-        async function cadastrarProduto() { const n = document.getElementById('cad-nome').value, p = document.getElementById('cad-preco').value, f1 = document.getElementById('cad-foto1').value, f2 = document.getElementById('cad-foto2').value; if(!n || !p) return alert("Erro!"); const d = `nome=${encodeURIComponent(n)}&preco=${p}&custo=${document.getElementById('cad-custo').value}&estoque=${document.getElementById('cad-estoque').value}&foto1=${encodeURIComponent(f1)}&foto2=${encodeURIComponent(f2)}`; showToast("Cadastrando..."); fetch(`${urlWebhook}?action=addProduct&${d}`, {mode:'no-cors'}); setTimeout(() => { switchTab('tab-estoque'); carregar(); }, 4000); }
-        async function excluirProduto(id) { if(!confirm("Excluir para sempre?")) return; fecharTodosModais(); showToast("Excluindo..."); fetch(`${urlWebhook}?action=deleteProduct&id=${id}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
-
-        function verDetalhesMes(mesAno) {
-            const data = statsMensal[mesAno]; if (!data) return;
-            document.getElementById('mes-titulo-detalhe').innerText = `Vendas de ${mesAno}`;
-            let html = "<table>";
-            data.orders.forEach(o => {
-                const c = JSON.parse(decodeURIComponent(o.safeData)); 
-                const dt = c[0] || ""; const dtF = dt.includes(' ') ? `${dt.split(' ')[0]} <small style="color:#888;">${dt.split(' ')[1].substring(0,5)}</small>` : dt;
-                html += `<tr onclick="abrirPedido('${o.safeData}', ${o.id}, ${o.arquivo})"><td><b>${c[1]}</b><br><small>${dtF}</small></td><td><b style="color:var(--gold);">R$ ${limparMoeda(c[3]).toFixed(2)}</b></td></tr>`;
-            });
-            document.getElementById('corpo-mes-detalhe').innerHTML = html + "</table>";
-            document.getElementById('modal-mes-detalhe').style.display = 'flex'; document.getElementById('overlay').style.display = 'block';
         }
 
         async function salvarStatus() { 
@@ -356,7 +420,6 @@
 
         function stepStock(id, d) { const display = document.getElementById(`st-display-${id}`); if(display) { const nv = parseInt(display.innerText) + d; display.innerText = nv; fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${nv}`, { mode: 'no-cors' }); } }
 
-        // GESTOS TOUCH
         let touchstartX = 0; let touchendX = 0;
         document.body.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
         document.body.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, {passive: true});
