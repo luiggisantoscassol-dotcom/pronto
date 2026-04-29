@@ -362,22 +362,6 @@
             }
         }
 
-        // --- 3. TRAVA DE SCROLL AO ABRIR SACOLA ---
-        function toggleCart() { 
-            const overlay = document.getElementById('cart-overlay');
-            const backdrop = document.getElementById('backdrop');
-            
-            overlay.classList.toggle('active'); 
-            
-            if(overlay.classList.contains('active')) {
-                document.body.classList.add('stop-scroll');
-                backdrop.style.display = 'block';
-            } else {
-                document.body.classList.remove('stop-scroll');
-                backdrop.style.display = 'none';
-            }
-        }
-        
         function add(id, name, price, cost) {
             const card = document.getElementById(`card-${id}`);
             let imgOriginal = card.querySelector('.swiper-slide-active img') || card.querySelector('.foto-1');
@@ -473,6 +457,55 @@
             window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + beneficioMsg)}`);
         }
         loadProducts(); updateCart();
+
+        // --- 3. CONTROLE DA SACOLA COM GESTO NATIVO DO NAVEGADOR ---
+        let isCartOpen = false;
+
+        function toggleCart() { 
+            if (isCartOpen) {
+                closeCart(false);
+            } else {
+                openCart();
+            }
+        }
+
+        function openCart() {
+            isCartOpen = true;
+            const overlay = document.getElementById('cart-overlay');
+            const backdrop = document.getElementById('backdrop');
+            
+            overlay.classList.add('active'); 
+            document.body.classList.add('stop-scroll');
+            backdrop.style.display = 'block';
+
+            // Cria um "passo" no histórico do navegador para a sacola
+            history.pushState({ sacolaAberta: true }, "", "#sacola");
+        }
+
+        function closeCart(veioDoBotaoVoltar = false) {
+            isCartOpen = false;
+            const overlay = document.getElementById('cart-overlay');
+            const backdrop = document.getElementById('backdrop');
+            
+            overlay.classList.remove('active'); 
+            document.body.classList.remove('stop-scroll');
+            backdrop.style.display = 'none';
+
+            // Se o usuário fechou clicando no "X" ou no fundo escuro, 
+            // nós forçamos o navegador a voltar um passo para limpar o "#sacola"
+            if (!veioDoBotaoVoltar) {
+                history.back();
+            }
+        }
+
+        // Escuta o deslize lateral do iPhone (Safari/Chrome) e o botão Voltar do Android
+        window.addEventListener("popstate", (event) => {
+            if (isCartOpen) {
+                // Passamos 'true' porque o próprio navegador já fez a ação de voltar
+                closeCart(true);
+            }
+        });
+
     </script>
 </body>
 </html>
