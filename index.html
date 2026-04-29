@@ -101,7 +101,7 @@
             position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; 
             background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; 
             overflow-y: auto; text-align: center;
-            overscroll-behavior: contain; /* Trava o scroll aqui dentro */
+            overscroll-behavior: contain;
         }
         .cart-overlay.active { right: 0; }
         
@@ -199,18 +199,16 @@
         new Swiper('.swiper-hero', { loop: true, autoplay: { delay: 5000 } });
         let cart = [];
 
-        // FUNÇÃO QUE TRAVA O SCROLL DO FUNDO
         function toggleCart() {
             const overlay = document.getElementById('cart-overlay');
             const backdrop = document.getElementById('backdrop');
             overlay.classList.toggle('active');
-            
             if(overlay.classList.contains('active')) {
                 backdrop.style.display = 'block';
-                document.body.classList.add('stop-scroll'); // TRAVA O FUNDO
+                document.body.classList.add('stop-scroll');
             } else {
                 backdrop.style.display = 'none';
-                document.body.classList.remove('stop-scroll'); // LIBERA O FUNDO
+                document.body.classList.remove('stop-scroll');
             }
         }
 
@@ -225,9 +223,9 @@
                     const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
                     if(!c[1] || c[1] === "EXCLUIDO") return;
                     const id = c[0], nome = c[1], foto = c[2] || "https://via.placeholder.com/300", 
-                          preco = parseFloat(c[4].replace(',', '.')), estoque = parseInt(c[5]) || 0;
+                          preco = parseFloat(c[4].replace(',', '.')), estoque = parseInt(c[5]) || 0, custo = parseFloat(c[6].replace(',', '.')) || 0;
                     
-                    const card = `<div class="card-produto ${estoque > 0 ? '' : 'esgotado-card'}" id="card-${id}"><div class="img-wrapper">${estoque > 0 ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}<img src="${foto}" style="max-height:260px; width:100%; object-fit:contain;"></div><h3 class="prod-nome">${nome}</h3><span class="preco">R$ ${preco.toFixed(2).replace('.',',')}</span>${estoque > 0 ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${preco},${c[6]})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}</div>`;
+                    const card = `<div class="card-produto ${estoque > 0 ? '' : 'esgotado-card'}" id="card-${id}"><div class="img-wrapper">${estoque > 0 ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}<img src="${foto}" style="max-height:260px; width:100%; object-fit:contain;"></div><h3 class="prod-nome">${nome}</h3><span class="preco">R$ ${preco.toFixed(2).replace('.',',')}</span>${estoque > 0 ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${preco},${custo})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}</div>`;
                     if (estoque > 0) htmlDisp += card; else htmlEsg += card;
                 });
                 document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
@@ -265,10 +263,37 @@
 
         function checkout() {
             const nome = document.getElementById('cliente-nome').value;
-            if(!nome) return alert("Digite seu nome!");
+            const entrega = document.getElementById('metodo-entrega').value;
+            if(!nome || entrega === "none") return alert("Digite seu nome e escolha o método de entrega!");
+
+            // CÁLCULO DOS VALORES MATEMÁTICOS (CORRIGE O BUG DOS 0 REAIS)
+            const totalG = cart.reduce((acc, i) => acc + i.qtd, 0);
+            let valorProdutos = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
+            let custoProdutos = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
+            if (entrega === 'tele' && totalG < 3) valorProdutos += 15;
+
             const itensTxt = cart.map(i => `${i.name} (x${i.qtd})`).join(', ');
-            const total = document.getElementById('cart-total-display').innerText;
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+itensTxt+"\n💰 "+total)}`);
+            let endereco = "Retirada";
+            if(entrega === 'tele') {
+                endereco = `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}`;
+            }
+
+            const dados = {
+                data: new Date().toLocaleString('pt-BR'),
+                cliente: nome,
+                itens: itensTxt,
+                total: valorProdutos.toFixed(2), // Envia o número puro para a planilha
+                custo: custoProdutos.toFixed(2),
+                pagamento: document.getElementById('metodo-pagamento').value,
+                endereco: endereco,
+                status: "Novo Pedido"
+            };
+
+            // ENVIO PARA O ADMIN
+            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
+
+            // ABERTURA DO WHATSAPP
+            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+itensTxt+"\n💰 R$ "+valorProdutos.toFixed(2))}`);
         }
 
         loadProducts();
