@@ -1,603 +1,284 @@
 <!DOCTYPE html>
-
 <html lang="pt-br">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-    <title>Cachaça do Tio Nan - Loja Oficial</title>
-
-    
-
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
-
-
+    <title>Tio Nan - Gestão Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-
-        :root {
-
-            --bg-dark: #000000; 
-
-            --bg-card: #111111;
-
-            --gold-metallic: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-
-            --gold-soft: #d4af37; --text-light: #f5f5f5;
-
-            --font-premium: 'Playfair Display', serif; --font-body: 'Montserrat', sans-serif;
-
+        :root { 
+            --gold: #d4af37; --gold-light: #f1c40f; --bg: #070707; --card: #121212; --green: #2ecc71; 
+            --blue: #3498db; --red: #e74c3c; --gray: #999; --text: #ffffff; --radius: 15px;
         }
-
-
-
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
-
         
-
-        html, body { 
-
-            width: 100%; 
-
-            overflow-x: hidden; 
-
-            background-color: var(--bg-dark); 
-
-            color: var(--text-light); 
-
-            font-family: var(--font-body); 
-
-        }
-
-
-
-        /* TRAVA DE ROLAGEM DO FUNDO */
-
-        body.stop-scroll {
-
-            overflow: hidden !important;
-
-            height: 100vh !important;
-
-        }
-
-
-
-        #loader-wrapper {
-
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-
-            background: #000; z-index: 999999;
-
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-
-            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
-
-            overflow: hidden;
-
-        }
-
-        #loader-wrapper.hidden { opacity: 0; visibility: hidden; }
-
-
-
-        #loading-video { width: 100%; max-width: 400px; height: auto; border: none; outline: none; }
-
-
-
-        .loading-text {
-
-            color: var(--gold-soft); margin-top: 25px; font-weight: 900;
-
-            font-family: var(--font-body); text-transform: uppercase; letter-spacing: 3px;
-
-            animation: pulseText 1.5s ease-in-out infinite alternate;
-
-            font-size: 0.75rem;
-
-        }
-
-
-
-        @keyframes pulseText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
-
-
-
-        .garrafa-voando {
-
-            position: fixed; z-index: 9999; pointer-events: none;
-
-            transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
-
-            object-fit: contain; filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.6));
-
-        }
-
-
-
-        #toast-notificacao {
-
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-
-            background: var(--gold-metallic); color: #000; padding: 12px 25px; border-radius: 50px;
-
-            font-weight: 900; font-size: 0.9rem; z-index: 5000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-transform: uppercase; white-space: nowrap;
-
-        }
-
-        #toast-notificacao.show { transform: translateX(-50%) translateY(0px); }
-
-
-
-        #container-frete { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #222; }
-
-        #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; }
-
-        .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
-
-        .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out; }
-
-
-
-        .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
-
-        .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
-
-
-
-        .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
-
-        .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
-
-
-
-        .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
-
-        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         
-
-        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
-
-        .card-produto.esgotado-card .img-wrapper { opacity: 0.7; } 
-
-
-
-        .faixa-esgotado-clean {
-
-            position: absolute; top: 50%; left: 0; width: 100%; 
-
-            background: rgba(0, 0, 0, 0.6); color: #fff;
-
-            padding: 12px 0; font-family: var(--font-body); font-weight: 900; font-size: 0.8rem;
-
-            text-transform: uppercase; letter-spacing: 2px; z-index: 20; transform: translateY(-50%);
-
-            border-top: 1px solid rgba(212, 175, 55, 0.5); border-bottom: 1px solid rgba(212, 175, 55, 0.5); 
-
-            pointer-events: none; backdrop-filter: blur(4px);
-
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; 
+            padding-top: 85px; padding-bottom: 120px; overflow-x: hidden; -webkit-text-size-adjust: 100%;
         }
 
+        /* HEADER FIX */
+        header { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 75px; 
+            background: rgba(0,0,0,0.98); display: flex; align-items: center; 
+            padding: 0 25px; z-index: 1100; border-bottom: 1px solid #222; backdrop-filter: blur(15px);
+        }
+        .menu-icon { font-size: 2rem; color: var(--gold); cursor: pointer; display: flex; align-items: center; gap: 15px; z-index: 1200; }
+        .header-title { font-weight: 900; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; color: var(--gold); }
 
+        /* SIDEBAR FIX */
+        .sidebar { 
+            position: fixed; top: 0; left: -300px; width: 280px; height: 100%; 
+            background: #000; z-index: 2000; transition: 0.3s ease; padding: 40px 20px; box-shadow: none; 
+        }
+        .sidebar.active { left: 0; box-shadow: 20px 0 50px rgba(0,0,0,0.9); }
+        .nav-item { 
+            display: block; width: 100%; padding: 18px; color: #bbb; border-radius: 12px; 
+            margin-bottom: 10px; border: none; background: none; text-align: left; 
+            cursor: pointer; text-transform: uppercase; font-size: 0.85rem; font-weight: 700;
+        }
+        .nav-item.active { background: var(--gold); color: #000; font-weight: 900; }
+        .overlay-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500; display: none; }
 
-        .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        /* CONTEÚDO */
+        .tab-content { display: none; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 15px; }
+        .tab-content.active { display: block; }
+        .card { background: var(--card); padding: 20px; border-radius: var(--radius); border: 1px solid #222; margin-bottom: 20px; }
+        h2 { color: var(--gold); margin-bottom: 20px; text-transform: uppercase; font-size: 1rem; text-align: center; border-bottom: 1px solid #222; padding-bottom: 10px; }
 
-        .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
+        /* PDV ESTRUTURADO */
+        .pdv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .pdv-card { 
+            background: #181818; border: 1px solid #282828; border-radius: var(--radius); 
+            padding: 12px; text-align: center; display: flex; flex-direction: column; 
+            justify-content: space-between; min-height: 250px; position: relative;
+        }
+        .pdv-card img { width: 100%; height: 100px; object-fit: contain; margin-bottom: 10px; }
+        .pdv-name { font-size: 0.75rem; font-weight: 800; color: #fff; height: 35px; overflow: hidden; text-transform: uppercase; }
+        .pdv-price { color: var(--gold); font-weight: 900; font-size: 1.1rem; margin: 10px 0; }
+        .pdv-btn-add { background: var(--gold); border: none; padding: 12px; border-radius: 10px; color: #000; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; }
+        .badge-pdv { position: absolute; top: -5px; left: -5px; background: var(--green); color: #000; width: 28px; height: 28px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 900; border: 2px solid #000; }
 
-        
-
-        /* SACOLA COM BLOQUEIO DE OVERFLOW */
-
-        .cart-overlay { 
-
-            position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; 
-
-            background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; 
-
-            overflow-y: auto; text-align: center;
-
-            overscroll-behavior: contain;
-
+        /* SACOLA FLUTUANTE */
+        #pdv-floating-cart { 
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
+            width: 90%; max-width: 400px; background: var(--green); color: #000; 
+            padding: 18px 25px; border-radius: 50px; display: none; 
+            justify-content: space-between; align-items: center; font-weight: 900; 
+            z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
         }
 
-        .cart-overlay.active { right: 0; }
+        /* ESTOQUE */
+        .estoque-row { background: #181818; padding: 15px; border-radius: var(--radius); margin-bottom: 10px; border: 1px solid #222; }
+        .estoque-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .estoque-controles { display: flex; align-items: center; background: #000; border-radius: 10px; height: 40px; overflow: hidden; border: 1px solid #333; }
+        .btn-step { background: #222; color: var(--gold); border: none; width: 45px; height: 100%; font-size: 1.5rem; font-weight: 900; }
+        .estoque-val { min-width: 50px; text-align: center; font-weight: 900; color: #fff; }
 
-        
+        /* TABELAS */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        td { background: #181818; padding: 15px 10px; border-top: 1px solid #222; border-bottom: 1px solid #222; font-size: 0.8rem; }
+        td:first-child { border-left: 1px solid #222; border-radius: 12px 0 0 12px; width: 40px; }
+        td:last-child { border-right: 1px solid #222; border-radius: 0 12px 12px 0; text-align: right; }
+        .status { padding: 4px 8px; border-radius: 5px; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; }
+        .Novo { background: var(--green); color: #000; }
+        .Concluído { background: var(--blue); color: #fff; }
+        .Cancelado { background: var(--red); color: #fff; }
 
-        .cart-input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 16px !important; outline: none; }
+        /* MODAIS */
+        .modal-box { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#0a0a0a; padding:20px; border:1px solid var(--gold); border-radius: 20px; width:92%; max-width:450px; z-index:3000; max-height: 90vh; overflow-y: auto; }
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2900; }
+        input, select { padding: 15px; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; font-size: 16px !important; width: 100%; margin-bottom: 10px; outline: none; }
+        .btn-status { width:100%; padding: 18px; background: var(--gold); border:none; color: #000; font-weight: 900; border-radius: 12px; text-transform: uppercase; }
 
-        
-
-        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; }
-
-        .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
-
-        .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
-
-        .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
-
-        .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
-
-        .btn-continuar { width: 100%; margin-top: 15px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
-
-
-
-        @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.15) rotate(5deg); } 40%, 80% { transform: scale(1.15) rotate(-5deg); } }
-
+        #toast-admin { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; padding: 15px 30px; border-radius: 50px; font-weight: 900; z-index: 5000; transition: 0.4s; }
+        #toast-admin.show { bottom: 100px; }
     </style>
-
 </head>
-
 <body>
 
+    <div id="toast-admin">Sucesso! ✓</div>
 
-
-    <div id="loader-wrapper">
-
-        <video id="loading-video" autoplay loop muted playsinline>
-
-            <source src="load.mp4" type="video/mp4">
-
-        </video>
-
-        <div class="loading-text">Servindo a verdadeira...</div>
-
-    </div>
-
-
-
-    <div id="toast-notificacao">Adicionado à sacola! 🥃</div>
-
-
-
-    <div class="cart-toggle" onclick="toggleCart()" id="cart-btn">
-
-        <svg viewBox="0 0 24 24" style="width:30px; fill:#000;"><path d="M17,6H16V5c0-2.21-1.79-4-4-4S8,2.79,8,5v1H7C5.34,6,4,7.34,4,9v10c0,1.66,1.34,3,3,3h10c1.66,0,3-1.34,3-3V9 C20,7.34,18.66,6,17,6z M10,5c0-1.1,0.9-2,2-2s2,0.9,2,2v1h-4V5z"/></svg>
-
-        <div class="cart-count" id="badge">0</div>
-
-    </div>
-
+    <header>
+        <div class="menu-icon" onclick="toggleMenu()">☰ <span class="header-title">Tio Nan Admin</span></div>
+    </header>
     
+    <div class="overlay-menu" id="overlay-menu" onclick="toggleMenu()"></div>
+    
+    <nav class="sidebar" id="sidebar">
+        <h3 style="color:var(--gold); margin-bottom:20px; font-weight:900;">GESTÃO</h3>
+        <button class="nav-item" onclick="switchTab('tab-pedidos')">🛒 Pedidos</button>
+        <button class="nav-item" onclick="switchTab('tab-pdv')">💰 PDV / Balcão</button>
+        <button class="nav-item" onclick="switchTab('tab-historico')">📜 Histórico</button>
+        <button class="nav-item" onclick="switchTab('tab-estoque')">📦 Estoque</button>
+        <button class="nav-item" onclick="switchTab('tab-stats')">📊 Stats</button>
+        <button class="nav-item" onclick="switchTab('tab-cadastro')">➕ Novo</button>
+    </nav>
 
-    <div class="backdrop" id="backdrop" onclick="toggleCart()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: none;"></div>
+    <div id="tab-pedidos" class="tab-content"><div class="card"><h2>Abertos</h2><div id="corpo-pedidos"></div></div></div>
+    
+    <div id="tab-historico" class="tab-content"><div class="card"><h2>Histórico</h2><div id="corpo-historico"></div></div></div>
 
-
-
-    <aside class="cart-overlay" id="cart-overlay">
-
-        <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
-
-        <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
-
-        
-
-        <div id="container-frete">
-
-            <div id="texto-frete">Adicione 3 garrafas para ganhar um benefício!</div>
-
-            <div class="barra-progresso-bg"><div class="barra-progresso-fill" id="barra-frete"></div></div>
-
+    <div id="tab-pdv" class="tab-content">
+        <div id="pdv-floating-cart" onclick="abrirSacolaPDV()">
+            <span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span>
+            <span id="pdv-float-total">R$ 0,00</span>
         </div>
+        <div class="pdv-grid" id="corpo-pdv-grid"></div>
+    </div>
 
+    <div id="tab-estoque" class="tab-content"><div id="corpo-estoque"></div></div>
 
-
-        <div id="cart-items"></div>
-
-        
-
-        <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
-
-            <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
-
-            <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
-
-                <option value="none" selected disabled>Como quer receber?</option>
-
-                <option value="tele">Tele Entrega (+ R$ 15,00)</option>
-
-                <option value="retirada">Retirada na Loja</option>
-
-            </select>
-
-
-
-            <div id="bloco-retirada" style="display:none; background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold-soft); padding: 15px; border-radius: 8px; margin-bottom: 15px; color: var(--gold-soft); font-size: 0.9rem; line-height: 1.4; text-align: left;">
-
-                <strong>📍 Endereço para busca:</strong><br>
-
-                Av. Bento Gonçalves, 4321 - Partenon
-
+    <div id="tab-stats" class="tab-content">
+        <div class="card" style="background:linear-gradient(to bottom, #111, #000); border: 1px solid var(--gold);">
+            <div style="display:flex; justify-content:space-around; text-align:center;">
+                <div><small>VENDAS</small><br><b id="total-fat-geral" style="color:var(--gold); font-size:1.2rem;">R$ 0,00</b></div>
+                <div><small>LUCRO</small><br><b id="total-lucro-geral" style="color:var(--green); font-size:1.2rem;">R$ 0,00</b></div>
             </div>
-
-
-
-            <div id="bloco-endereco" style="display:none;">
-
-                <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9">
-
-                <input type="text" id="rua" class="cart-input" placeholder="Rua">
-
-                <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto" style="width:65%;"></div>
-
-                <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
-
-                <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly>
-
-            </div>
-
-
-
-            <select id="metodo-pagamento" class="cart-input">
-
-                <option value="Pix">Pix</option>
-
-                <option value="Dinheiro">Dinheiro</option>
-
-                <option value="Cartão">Cartão</option>
-
-            </select>
-
-
-
-            <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
-
-            <button onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
-
-            <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
-
         </div>
+        <div id="corpo-estatisticas"></div>
+    </div>
 
-    </aside>
+    <div id="tab-cadastro" class="tab-content"><div class="card"><h2>Novo Produto</h2><input type="text" id="cad-nome" placeholder="Nome"><input type="number" id="cad-preco" placeholder="Preço"><input type="number" id="cad-custo" placeholder="Custo"><input type="number" id="cad-estoque" placeholder="Estoque"><input type="url" id="cad-foto1" placeholder="URL Foto"><button onclick="cadastrarProduto()" class="btn-status">CADASTRAR</button></div></div>
 
+    <div class="overlay" id="overlay" onclick="fecharTodosModais()"></div>
 
+    <div id="modal-sacola-pdv" class="modal-box" style="padding: 0; flex-direction: column;">
+        <div style="padding: 20px; background: #000; border-bottom: 1px solid #222; display: flex; justify-content: space-between;"><h2>Sacola</h2><button onclick="fecharTodosModais()" style="background:none; border:none; color:var(--gold); font-size:2rem;">×</button></div>
+        <div style="padding: 20px; overflow-y: auto; flex: 1;"><div id="pdv-itens" style="margin-bottom:20px;"></div><input type="text" id="pdv-cliente" placeholder="Nome Cliente"><select id="pdv-pagamento"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select></div>
+        <div style="padding: 20px; background: #000; border-top: 1px solid #222;"><h3 id="pdv-total" style="color:var(--gold); text-align:center; margin-bottom:15px;">Total: R$ 0,00</h3><button onclick="finalizarVendaPDV()" class="btn-status" style="background: var(--green);">FINALIZAR</button></div>
+    </div>
 
-    <main>
-
-        <div class="swiper swiper-hero">
-
-            <div class="swiper-wrapper">
-
-                <div class="swiper-slide"><img src="passo1.png"></div>
-
-                <div class="swiper-slide"><img src="passo2.png"></div>
-
-            </div>
-
-            <div class="swiper-pagination"></div>
-
-        </div>
-
-        <section class="hero-section"><h1>Cachaça do Tio Nan</h1></section>
-
-        <div id="vitrine" class="produtos-grid"></div>
-
-    </main>
-
-
-
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <div id="modal-pedido" class="modal-box"><h2 id="m-nome"></h2><div id="detalhes-pedido" style="background: #111; padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 0.9rem;"></div><select id="m-status"><option value="Novo Pedido">Novo Pedido</option><option value="Concluído">Concluído</option><option value="Cancelado">Cancelado</option><option value="EXCLUIR">EXCLUIR</option></select><button onclick="salvarStatus()" class="btn-status">SALVAR</button></div>
 
     <script>
-
         const urlWebhook = "https://script.google.com/macros/s/AKfycbzdKBuX0YgzgzDNIFtKcYhpVT2_ZOL-jcAVsNJwFjRQcsxw_n7QasraXeIuZiBc44lO/exec";
-
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
+        let adminCart = [];
+        let selPedido = null;
 
-        
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay-menu').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
+        function fecharTodosModais() { document.querySelectorAll('.modal-box, .overlay').forEach(el => el.style.display = 'none'); }
+        function showToast(m) { const t = document.getElementById('toast-admin'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+        function limparMoeda(v) { return parseFloat(String(v).replace('R$', '').replace('.', '').replace(',', '.')) || 0; }
 
-        new Swiper('.swiper-hero', { loop: true, autoplay: { delay: 5000 } });
-
-        let cart = [];
-
-
-
-        function toggleCart() {
-
-            const overlay = document.getElementById('cart-overlay');
-
-            const backdrop = document.getElementById('backdrop');
-
-            overlay.classList.toggle('active');
-
-            if(overlay.classList.contains('active')) {
-
-                backdrop.style.display = 'block';
-
-                document.body.classList.add('stop-scroll');
-
-            } else {
-
-                backdrop.style.display = 'none';
-
-                document.body.classList.remove('stop-scroll');
-
-            }
-
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); if(n.getAttribute('onclick').includes(id)) n.classList.add('active'); });
+            document.getElementById(id).classList.add('active');
+            if(window.innerWidth < 800) toggleMenu();
+            document.getElementById('pdv-floating-cart').style.display = (id === 'tab-pdv' && adminCart.length > 0) ? 'flex' : 'none';
         }
 
-
-
-        async function loadProducts() {
-
+        async function carregar() {
             try {
-
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
-
-                const text = await res.text();
-
-                const rows = text.split('\n').slice(1);
-
-                let htmlDisp = ''; let htmlEsg = '';
-
+                const rows = (await res.text()).split('\n').slice(1);
                 
+                const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
+                const rowsV = (await resV.text()).split('\n').slice(1);
 
+                let htmlP = '<table>'; let htmlPDV = ''; let htmlE = '';
+                
+                // CARREGAR PRODUTOS (PDV E ESTOQUE)
                 rows.forEach(row => {
-
                     const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
-
                     if(!c[1] || c[1] === "EXCLUIDO") return;
-
-                    const id = c[0], nome = c[1], foto = c[2] || "https://via.placeholder.com/300", 
-
-                          preco = parseFloat(c[4].replace(',', '.')), estoque = parseInt(c[5]) || 0, custo = parseFloat(c[6].replace(',', '.')) || 0;
-
+                    const id = c[0], nome = c[1], preco = limparMoeda(c[4]), custo = limparMoeda(c[6]), estoque = c[5] || 0;
                     
-
-                    const card = `<div class="card-produto ${estoque > 0 ? '' : 'esgotado-card'}" id="card-${id}"><div class="img-wrapper">${estoque > 0 ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}<img src="${foto}" style="max-height:260px; width:100%; object-fit:contain;"></div><h3 class="prod-nome">${nome}</h3><span class="preco">R$ ${preco.toFixed(2).replace('.',',')}</span>${estoque > 0 ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${preco},${custo})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}</div>`;
-
-                    if (estoque > 0) htmlDisp += card; else htmlEsg += card;
-
+                    htmlPDV += `<div class="pdv-card"><div class="badge-pdv" id="badge-pdv-${id}">0</div><img src="${c[2] || 'https://via.placeholder.com/150'}"><div class="pdv-name">${nome}</div><div class="pdv-price">R$ ${preco.toFixed(2)}</div><button class="pdv-btn-add" onclick="addPDV('${id}', '${nome.replace(/'/g, "")}', ${preco}, ${custo})">Adicionar</button></div>`;
+                    htmlE += `<div class="estoque-row"><div class="estoque-header"><b>${nome}</b></div><div style="display:flex; justify-content:space-between; align-items:center;"><small>QTD EM ESTOQUE</small><div class="estoque-controles"><button class="btn-step" onclick="stepStock('${id}', -1)">-</button><div class="estoque-val" id="st-${id}">${estoque}</div><button class="btn-step" onclick="stepStock('${id}', 1)">+</button></div></div></div>`;
                 });
+                document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV;
+                document.getElementById('corpo-estoque').innerHTML = htmlE;
 
-                document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
+                // CARREGAR PEDIDOS
+                let fatG = 0; let lucG = 0;
+                rowsV.reverse().forEach((row, i) => {
+                    const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
+                    if(!c[1]) return;
+                    const val = limparMoeda(c[3]), cus = limparMoeda(c[4]), st = c[6] || "Novo Pedido";
+                    if(st.includes("Concluído")) { fatG += val; lucG += (val - cus); }
+                    htmlP += `<tr onclick='abrirPedido(${JSON.stringify(c)}, ${rowsV.length - i})'><td></td><td><b>${c[1]}</b><br><small>${c[0].split(' ')[0]}</small></td><td><span class="status ${st.split(' ')[0]}">${st}</span><br><b>R$ ${val.toFixed(2)}</b></td></tr>`;
+                });
+                document.getElementById('corpo-pedidos').innerHTML = htmlP + '</table>';
+                document.getElementById('total-fat-geral').innerText = `R$ ${fatG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+                document.getElementById('total-lucro-geral').innerText = `R$ ${lucG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
 
             } catch (e) { console.error(e); }
-
-            finally { setTimeout(() => document.getElementById('loader-wrapper').classList.add('hidden'), 1500); }
-
         }
 
-
-
-        function add(id, name, price, cost) {
-
-            const item = cart.find(i => i.id === id);
-
-            if(item) item.qtd++; else cart.push({id, name, price, cost, qtd:1});
-
-            updateCart();
-
-            const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
-
+        function addPDV(id, name, price, cost) {
+            let item = adminCart.find(x => x.id === id);
+            if(item) item.qtd++; else adminCart.push({id, name, price, cost, qtd:1});
+            updatePDVCart();
+            showToast("Adicionado!");
         }
 
-
-
-        function updateCart() {
-
-            const itemsCont = document.getElementById('cart-items');
-
-            const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
-
-            const barra = document.getElementById('barra-frete');
-
-            const entrega = document.getElementById('metodo-entrega').value;
-
-
-
-            barra.style.width = Math.min((totalGarrafas / 3) * 100, 100) + "%";
-
-            document.getElementById('checkout-form').style.display = cart.length > 0 ? 'block' : 'none';
-
-            document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
-
-            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
-
-
-
-            itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br>R$ ${(i.price * i.qtd).toFixed(2)}</div><div style="display:flex; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span>${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
-
+        function updatePDVCart() {
+            const float = document.getElementById('pdv-floating-cart');
+            if(adminCart.length === 0) { float.style.display = 'none'; fecharTodosModais(); return; }
+            float.style.display = 'flex';
             
+            let tQtd = 0; let tVal = 0;
+            document.querySelectorAll('.badge-pdv').forEach(b => b.style.display = 'none');
+            
+            document.getElementById('pdv-itens').innerHTML = adminCart.map(i => {
+                tQtd += i.qtd; tVal += (i.price * i.qtd);
+                const badge = document.getElementById(`badge-pdv-${i.id}`);
+                if(badge) { badge.innerText = i.qtd; badge.style.display = 'flex'; }
+                return `<div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;"><div><b>${i.name}</b><br>R$ ${(i.price * i.qtd).toFixed(2)}</div><div class="estoque-controles" style="height:30px;"><button class="btn-step" style="width:30px;" onclick="changePDV('${i.id}', -1)">-</button><span style="width:30px;text-align:center;">${i.qtd}</span><button class="btn-step" style="width:30px;" onclick="changePDV('${i.id}', 1)">+</button></div></div>`;
+            }).join('');
 
-            document.getElementById('badge').innerText = totalGarrafas;
-
-            let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-
-            if (entrega === 'tele' && totalGarrafas < 3) total += 15;
-
-            document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2)}`;
-
+            document.getElementById('pdv-float-qtd').innerText = tQtd;
+            document.getElementById('pdv-float-total').innerText = `R$ ${tVal.toFixed(2)}`;
+            document.getElementById('pdv-total').innerText = `Total: R$ ${tVal.toFixed(2)}`;
         }
 
+        function changePDV(id, d) {
+            let i = adminCart.find(x => x.id === id);
+            if(i) { i.qtd += d; if(i.qtd <= 0) adminCart = adminCart.filter(x => x.id !== id); }
+            updatePDVCart();
+        }
 
+        function abrirSacolaPDV() { document.getElementById('modal-sacola-pdv').style.display = 'flex'; document.getElementById('overlay').style.display = 'block'; }
 
-        function changeQty(id, delta) { const item = cart.find(i => i.id === id); if(item) { item.qtd += delta; if(item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
-
-
-
-        function checkout() {
-
-            const nome = document.getElementById('cliente-nome').value;
-
-            const entrega = document.getElementById('metodo-entrega').value;
-
-            if(!nome || entrega === "none") return alert("Digite seu nome e escolha o método de entrega!");
-
-
-
-            // CÁLCULO DOS VALORES MATEMÁTICOS (CORRIGE O BUG DOS 0 REAIS)
-
-            const totalG = cart.reduce((acc, i) => acc + i.qtd, 0);
-
-            let valorProdutos = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-
-            let custoProdutos = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
-
-            if (entrega === 'tele' && totalG < 3) valorProdutos += 15;
-
-
-
-            const itensTxt = cart.map(i => `${i.name} (x${i.qtd})`).join(', ');
-
-            let endereco = "Retirada";
-
-            if(entrega === 'tele') {
-
-                endereco = `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}`;
-
-            }
-
-
-
-            const dados = {
-
-                data: new Date().toLocaleString('pt-BR'),
-
-                cliente: nome,
-
-                itens: itensTxt,
-
-                total: valorProdutos.toFixed(2), // Envia o número puro para a planilha
-
-                custo: custoProdutos.toFixed(2),
-
-                pagamento: document.getElementById('metodo-pagamento').value,
-
-                endereco: endereco,
-
-                status: "Novo Pedido"
-
+        async function finalizarVendaPDV() {
+            if(adminCart.length === 0) return;
+            const payload = { 
+                cliente: document.getElementById('pdv-cliente').value || "Venda Balcão", 
+                itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', '), 
+                total: document.getElementById('pdv-total').innerText,
+                custo: adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0),
+                pagamento: document.getElementById('pdv-pagamento').value,
+                status: "Concluído", endereco: "Balcão", isAdminSale: true,
+                cartItems: adminCart.map(i => ({id: i.id, qtd: i.qtd}))
             };
-
-
-
-            // ENVIO PARA O ADMIN
-
-            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
-
-
-
-            // ABERTURA DO WHATSAPP
-
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+itensTxt+"\n💰 R$ "+valorProdutos.toFixed(2))}`);
-
+            fecharTodosModais(); adminCart = []; updatePDVCart();
+            showToast("Registrando...");
+            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+            setTimeout(carregar, 3000);
         }
 
+        function abrirPedido(c, row) { selPedido = row; document.getElementById('m-nome').innerText = c[1]; document.getElementById('detalhes-pedido').innerHTML = `<b>ITENS:</b> ${c[2]}<br><br><b>PAGAMENTO:</b> ${c[5]}<br><b>TOTAL:</b> R$ ${limparMoeda(c[3]).toFixed(2)}`; document.getElementById('m-status').value = c[6] || "Novo Pedido"; document.getElementById('modal-pedido').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+        
+        async function salvarStatus() {
+            const st = document.getElementById('m-status').value;
+            fecharTodosModais(); showToast("Atualizando...");
+            fetch(`${urlWebhook}?action=updateStatus&row=${selPedido}&status=${st}&t=${Date.now()}`, { mode: 'no-cors' });
+            setTimeout(carregar, 3000);
+        }
 
+        function stepStock(id, d) {
+            const el = document.getElementById(`st-${id}`);
+            const nv = parseInt(el.innerText) + d;
+            el.innerText = nv;
+            fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${nv}`, { mode: 'no-cors' });
+        }
 
-        loadProducts();
-
+        carregar();
+        setInterval(carregar, 60000);
     </script>
-
 </body>
-
 </html>
