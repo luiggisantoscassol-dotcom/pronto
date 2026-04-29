@@ -7,120 +7,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --gold: #d4af37; --gold-light: #f1c40f; --bg: #070707; --card: #121212; --green: #2ecc71; 
-            --blue: #3498db; --red: #e74c3c; --gray: #999; --text: #ffffff; --radius: 20px;
+            --gold: #d4af37; --gold-light: #f1c40f; --gold-grad: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            --bg: #050505; --card: #121212; --green: #2ecc71; --blue: #3498db; --red: #e74c3c; --text: #ffffff; --radius: 24px;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: 'Montserrat', sans-serif; 
-            padding-top: 80px; 
-            padding-bottom: 110px; 
-            overflow-x: hidden;
-            -webkit-text-size-adjust: 100%;
-            overscroll-behavior-y: contain; 
-        }
+        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; padding-top: 85px; padding-bottom: 110px; overflow-x: hidden; overscroll-behavior-y: contain; }
 
-        header { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; 
-            height: 70px; 
-            background: rgba(0,0,0,0.95); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; /* Ajustado para ícone na direita */
-            padding: 0 20px; 
-            z-index: 1100; 
-            border-bottom: 1px solid #222;
-            backdrop-filter: blur(15px);
-        }
-        .header-title { font-weight: 900; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1.5px; color: var(--gold); }
-        .menu-icon { font-size: 1.8rem; color: var(--gold); cursor: pointer; display: flex; align-items: center; }
+        header { position: fixed; top: 0; left: 0; width: 100%; height: 75px; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; z-index: 1100; border-bottom: 1px solid #1a1a1a; backdrop-filter: blur(20px); }
+        .header-title { font-weight: 900; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px; color: var(--gold); }
+        .menu-icon { font-size: 2rem; color: var(--gold); cursor: pointer; background: #111; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 15px; border: 1px solid #222; }
 
-        /* MENU LATERAL - AGORA NA DIREITA */
-        .sidebar { 
-            position: fixed; 
-            top: 0; right: -300px; /* Movido para a direita */
-            left: auto;
-            width: 280px; 
-            height: 100%; 
-            background: #000; 
-            z-index: 2000; 
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            padding: 40px 20px; 
-        }
-        .sidebar.active { 
-            right: 0; /* Abre para a direita */
-            box-shadow: -25px 0 60px rgba(0,0,0,1); 
-        }
-        
-        .sidebar h3 { color: var(--gold); margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px; font-weight: 900; text-transform: uppercase; font-size: 1rem; text-align: right; }
-        .nav-item { 
-            display: block; width: 100%; padding: 16px; color: #bbb; text-decoration: none; 
-            font-weight: 700; border-radius: 12px; margin-bottom: 8px; border: none; 
-            background: none; text-align: right; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.2s;
-        }
-        .nav-item.active { background: var(--gold); color: #000; font-weight: 900; }
-        .overlay-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500; display: none; backdrop-filter: blur(5px); }
+        .sidebar { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: #0a0a0a; z-index: 2000; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); padding: 40px 20px; border-left: 1px solid #222; }
+        .sidebar.active { right: 0; box-shadow: -30px 0 80px rgba(0,0,0,1); }
+        .sidebar h3 { color: var(--gold); margin-bottom: 35px; border-bottom: 1px solid #222; padding-bottom: 20px; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; text-align: right; }
+        .nav-item { display: flex; align-items: center; justify-content: flex-end; gap: 15px; width: 100%; padding: 22px; color: #777; font-weight: 700; border-radius: 18px; margin-bottom: 12px; border: none; background: transparent; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }
+        .nav-item.active { background: var(--gold-grad); color: #000; font-weight: 900; box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3); }
+        .overlay-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1500; display: none; backdrop-filter: blur(8px); }
 
-        .tab-content { 
-            display: none; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 15px; transition: opacity 0.3s ease;
-        }
-        .tab-content.active { display: block; animation: fadeInUp 0.4s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content { display: none; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 15px; }
+        .tab-content.active { display: block; animation: fadeInUp 0.6s ease; }
+        .card { background: var(--card); padding: 25px; border-radius: var(--radius); border: 1px solid #1a1a1a; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        h2 { color: var(--gold); margin-bottom: 25px; text-transform: uppercase; font-size: 1rem; letter-spacing: 1.5px; text-align: center; font-weight: 900; }
 
-        .card { background: var(--card); padding: 20px; border-radius: var(--radius); border: 1px solid #222; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        h2 { color: var(--gold); margin-bottom: 20px; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #222; padding-bottom: 15px; text-align: center; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; table-layout: fixed; }
+        td { padding: 18px 12px; background: #080808; border-top: 1px solid #1a1a1a; border-bottom: 1px solid #1a1a1a; font-size: 0.85rem; vertical-align: middle; }
+        td:first-child { border-left: 1px solid #1a1a1a; border-radius: 15px 0 0 15px; }
+        td:last-child { border-right: 1px solid #1a1a1a; border-radius: 0 15px 15px 0; text-align: right; width: 120px; }
+        .row-removing { opacity: 0; transform: translateX(50px); transition: 0.4s; }
 
-        .resumo-total { background: linear-gradient(135deg, #181818, #000); border: 1px solid #333; padding: 20px; border-radius: var(--radius); margin-bottom: 25px; display: flex; justify-content: space-around; text-align: center; border-bottom: 2px solid var(--gold); }
-        .resumo-item span { display: block; font-size: 0.6rem; text-transform: uppercase; color: var(--gray); font-weight: 800; margin-bottom: 5px; }
-        .resumo-item b { font-size: 1.2rem; color: var(--gold); }
-        .stat-card { background: #1a1a1a; padding: 18px; border-radius: var(--radius); border-left: 5px solid var(--gold); margin-bottom: 15px; }
-
-        .mass-action-bar { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid var(--gold); width: 92%; max-width: 500px; padding: 15px; border-radius: 20px; display: none; flex-direction: column; gap: 12px; z-index: 1050; box-shadow: 0 15px 40px rgba(0,0,0,0.9); }
-        .mass-info { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .mass-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 100%; }
-        .mass-btn { padding: 12px 5px; border-radius: 12px; font-size: 0.65rem; font-weight: 900; cursor: pointer; text-transform: uppercase; border: none; }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; table-layout: fixed; }
-        tr.removing { transition: 0.5s; opacity: 0; transform: translateX(50px); }
-        td { padding: 15px 10px; background: #181818; border-top: 1px solid #222; border-bottom: 1px solid #222; font-size: 0.85rem; vertical-align: middle; }
-        td:first-child { border-left: 1px solid #222; border-radius: 15px 0 0 15px; width: 45px; text-align: center; }
-        td.info-col { width: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        td:last-child { border-right: 1px solid #222; border-radius: 0 15px 15px 0; text-align: right; width: 110px; }
-        
-        .check-box { width: 22px; height: 22px; cursor: pointer; accent-color: var(--gold); }
-        .status { padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.55rem; text-transform: uppercase; display: inline-block; margin-bottom: 4px; }
+        .status { padding: 5px 10px; border-radius: 8px; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; display: inline-block; margin-bottom: 4px; }
         .Novo { background: var(--green); color: #000; }
         .Concluído { background: var(--blue); color: #fff; }
         .Cancelado { background: var(--red); color: #fff; }
 
-        .pdv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 20px; }
-        .pdv-card { background: #1a1a1a; border: 1px solid #333; border-radius: var(--radius); padding: 12px; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 220px; }
-        .pdv-card img { width: 100%; height: 90px; object-fit: contain; margin-bottom: 8px; }
-        .pdv-btn-add { width: 100%; background: var(--gold); border: none; padding: 12px; border-radius: 12px; color: #000; font-weight: 900; cursor: pointer; font-size: 0.65rem; text-transform: uppercase; }
+        .pdv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-bottom: 20px; }
+        .pdv-card { background: #111; border: 1px solid #222; border-radius: var(--radius); padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 280px; }
+        .pdv-card img { width: 100%; height: 90px; object-fit: contain; margin-bottom: 10px; }
+        .btn-edit-product { position: absolute; top: 0; right: 0; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; background: rgba(212, 175, 55, 0.15); color: var(--gold); border-radius: 0 var(--radius) 0 25px; font-size: 1.3rem; cursor: pointer; border: none; z-index: 5; }
 
-        .estoque-row { display: flex; flex-direction: column; gap: 12px; padding: 18px; background: #181818; border-radius: var(--radius); margin-bottom: 12px; border: 1px solid #282828; }
-        .estoque-controles { display: flex; align-items: center; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; height: 44px; }
-        .btn-step { background: #222; color: var(--gold); border: none; width: 44px; height: 100%; font-size: 1.5rem; font-weight: 900; cursor: pointer; }
-        .estoque-val-display { min-width: 50px; text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--gold-light); }
+        .estoque-row { background: #080808; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #1a1a1a; }
+        .estoque-controles { display: flex; align-items: center; background: #000; border-radius: 15px; border: 1px solid #333; height: 65px; margin-top: 10px; }
+        .btn-step { background: transparent; color: var(--gold); border: none; flex: 1; height: 100%; font-size: 2rem; font-weight: 900; }
 
-        .modal-box { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#0a0a0a; padding:25px; border:1px solid var(--gold); border-radius: 25px; width:94%; max-width:500px; z-index:3000; max-height: 90vh; overflow-y: auto; }
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:2900; backdrop-filter: blur(10px); }
+        .stat-month-card { background: #111; border-radius: 20px; padding: 22px; margin-bottom: 15px; border-left: 6px solid var(--gold); cursor: pointer; border: 1px solid #222; }
+        .resumo-total { background: linear-gradient(135deg, #181818, #000); padding: 25px; border-radius: var(--radius); margin-bottom: 25px; display: flex; justify-content: space-around; text-align: center; border-bottom: 3px solid var(--gold); }
         
-        input, select { padding: 16px; border-radius: 12px; border: 1px solid #333; background: #111; color: #fff; font-family: inherit; font-size: 16px !important; outline: none; margin-bottom: 12px; width: 100%; }
-        .btn-status { width:100%; padding: 18px; background: var(--gold); border:none; color: #000; font-weight: 900; cursor:pointer; border-radius: 15px; text-transform: uppercase; font-size: 0.85rem; }
+        .modal-box { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#080808; padding:30px; border:1px solid #222; border-radius: 30px; width:94%; max-width:500px; z-index:3000; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,1); }
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:2900; backdrop-filter: blur(15px); }
+        
+        input, select { padding: 20px; border-radius: 18px; border: 1px solid #333; background: #000; color: #fff; font-size: 16px !important; margin-bottom: 12px; width: 100%; font-family: inherit; }
+        .btn-status { width: 100%; padding: 22px; background: var(--gold-grad); border: none; color: #000; font-weight: 900; border-radius: 20px; text-transform: uppercase; cursor: pointer; }
+        #toast-admin { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 18px 40px; border-radius: 50px; font-weight: 900; z-index: 5000; transition: 0.5s; text-transform: uppercase; }
+        #toast-admin.show { bottom: 120px; }
 
-        #toast-admin { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; padding: 14px 30px; border-radius: 50px; font-weight: 900; z-index: 5000; transition: 0.5s; text-transform: uppercase; font-size: 0.8rem; box-shadow: 0 10px 20px rgba(0,0,0,0.5); white-space: nowrap; }
-        #toast-admin.show { bottom: 100px; }
-
-        #pdv-floating-cart { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #000; border: 2px solid var(--gold); padding: 15px 20px; border-radius: 20px; z-index: 1000; display: none; justify-content: space-between; align-items: center; font-weight: 900; cursor: pointer; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-
-        @media (max-width: 450px) { .pdv-grid { grid-template-columns: 1fr; } .sidebar { width: 85%; } }
+        @media (max-width: 450px) { .sidebar { width: 85%; } .pdv-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -128,66 +68,95 @@
     <div id="toast-admin">Sucesso! ✓</div>
 
     <header>
-        <span class="header-title">Tio Nan Admin</span>
+        <span class="header-title">Tio Nan Gestão</span>
         <div class="menu-icon" onclick="toggleMenu()"><span>☰</span></div>
     </header>
     
     <div class="overlay-menu" id="overlay-menu" onclick="toggleMenu()"></div>
     
     <nav class="sidebar" id="sidebar">
-        <h3>MENU GESTÃO</h3>
-        <button class="nav-item" onclick="switchTab('tab-pedidos')">🛒 Pedidos Ativos</button>
-        <button class="nav-item" onclick="switchTab('tab-pdv')">💰 PDV / Balcão</button>
-        <button class="nav-item" onclick="switchTab('tab-historico')">📜 Histórico Total</button>
-        <button class="nav-item" onclick="switchTab('tab-estoque')">📦 Estoque</button>
-        <button class="nav-item" onclick="switchTab('tab-stats')">📊 Estatísticas</button>
-        <button class="nav-item" onclick="switchTab('tab-cadastro')">➕ Novo Produto</button>
+        <h3>CONTROLE PRO</h3>
+        <button class="nav-item" onclick="switchTab('tab-pedidos')">Pedidos 🛒</button>
+        <button class="nav-item" onclick="switchTab('tab-pdv')">Balcão 💰</button>
+        <button class="nav-item" onclick="switchTab('tab-historico')">Histórico 📜</button>
+        <button class="nav-item" onclick="switchTab('tab-estoque')">Estoque 📦</button>
+        <button class="nav-item" onclick="switchTab('tab-stats')">Resultados 📊</button>
+        <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastro ➕</button>
     </nav>
 
-    <div id="tab-pedidos" class="tab-content"><div class="card"><h2>Abertos</h2><div id="corpo-pedidos"></div></div></div>
-    <div id="tab-historico" class="tab-content">
-        <div id="mass-bar" class="mass-action-bar">
-            <div class="mass-info"><span id="mass-count" style="color:var(--gold); font-weight:900;">0 itens</span><button class="mass-btn" onclick="toggleSelecionarTudo()" style="background:#222; color:var(--gold); border:1px solid var(--gold); width:70px;">TUDO</button></div>
-            <div class="mass-btns"><button class="mass-btn" onclick="mudarStatusEmMassa('Concluído')" style="background:var(--blue); color:#fff">OK</button><button class="mass-btn" onclick="mudarStatusEmMassa('Cancelado')" style="background:var(--red); color:#fff">X</button><button class="mass-btn" onclick="mudarStatusEmMassa('EXCLUIR')" style="background:#444; color:#fff">🗑️</button></div>
-        </div>
-        <div class="card"><h2>Histórico</h2><div id="corpo-historico"></div></div>
-    </div>
+    <div id="tab-pedidos" class="tab-content"><div class="card"><h2>Pedidos em Aberto</h2><div id="corpo-pedidos"></div></div></div>
+    <div id="tab-historico" class="tab-content"><div class="card"><h2>Histórico Total</h2><div id="corpo-historico"></div></div></div>
+    
     <div id="tab-pdv" class="tab-content">
-        <div id="pdv-floating-cart" onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span id="pdv-float-total">R$ 0,00</span></div>
+        <div id="pdv-floating-cart" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900;" onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span id="pdv-float-total">R$ 0,00</span></div>
         <div class="pdv-grid" id="corpo-pdv-grid"></div>
     </div>
-    <div id="tab-estoque" class="tab-content"><div id="corpo-estoque"></div></div>
+
+    <div id="tab-estoque" class="tab-content"><div class="card"><h2>Gestão de Estoque</h2><div id="corpo-estoque"></div></div></div>
+
     <div id="tab-stats" class="tab-content">
-        <div class="resumo-total"><div class="resumo-item"><span>Faturamento</span><b id="total-fat-geral">R$ 0,00</b></div><div class="resumo-item"><span>Lucro Real</span><b id="total-lucro-geral" style="color:var(--green)">R$ 0,00</b></div></div>
+        <div class="card">
+            <h2>Resumo Geral</h2>
+            <div class="resumo-total">
+                <div class="resumo-item"><span>Total Vendas</span><b id="total-fat-geral">R$ 0,00</b></div>
+                <div class="resumo-item"><span>Lucro Real</span><b id="total-lucro-geral" style="color:var(--green)">R$ 0,00</b></div>
+            </div>
+        </div>
         <div id="corpo-estatisticas"></div>
     </div>
-    <div id="tab-cadastro" class="tab-content"><div class="card"><h2>Novo Produto</h2><input type="text" id="cad-nome" placeholder="Nome"><input type="number" id="cad-preco" placeholder="Venda"><input type="number" id="cad-custo" placeholder="Custo"><input type="number" id="cad-estoque" placeholder="Qtd"><input type="url" id="cad-foto1" placeholder="URL Foto"><button onclick="cadastrarProduto()" class="btn-status">CADASTRAR</button></div></div>
+
+    <div id="tab-cadastro" class="tab-content">
+        <div class="card">
+            <h2>Cadastrar Produto</h2>
+            <input type="text" id="cad-nome" placeholder="Nome do Produto">
+            <input type="number" id="cad-preco" placeholder="Preço de Venda">
+            <input type="number" id="cad-custo" placeholder="Preço de Custo">
+            <input type="number" id="cad-estoque" placeholder="Quantidade Inicial">
+            <input type="url" id="cad-foto1" placeholder="Link da Foto 1">
+            <input type="url" id="cad-foto2" placeholder="Link da Foto 2">
+            <button onclick="cadastrarProduto()" class="btn-status">SALVAR NOVO PRODUTO</button>
+        </div>
+    </div>
 
     <div class="overlay" id="overlay" onclick="fecharTodosModais()"></div>
-    <div id="modal-sacola-pdv" class="modal-box" style="padding: 0; flex-direction: column;">
-        <div style="padding: 20px; background: #000; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center;"><h2>Sacola</h2><button onclick="fecharTodosModais()" style="background:none; border:none; color:var(--gold); font-size:2rem;">×</button></div>
-        <div style="padding: 20px; overflow-y: auto; flex: 1;"><div id="pdv-itens" style="margin-bottom:20px;"></div><input type="text" id="pdv-cliente" placeholder="Nome Cliente"><select id="pdv-pagamento"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select></div>
-        <div style="padding: 20px; background: #000; border-top: 1px solid #222;"><h3 id="pdv-total" style="color:var(--gold); text-align:center; margin-bottom:15px; font-weight: 900;">R$ 0,00</h3><button onclick="finalizarVendaPDV()" class="btn-status" style="background: var(--green); margin:0;">CONCLUIR VENDA</button></div>
+    
+    <div id="modal-mes-detalhe" class="modal-box" style="padding: 0; flex-direction: column;">
+        <div style="padding: 20px; background: #000; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; border-radius: 30px 30px 0 0;"><h2 id="mes-titulo-detalhe">Mês</h2><button onclick="fecharTodosModais()" style="background:none; border:none; color:var(--gold); font-size:2.5rem;">×</button></div>
+        <div id="corpo-mes-detalhe" style="padding: 10px 20px; overflow-y: auto; flex: 1;"></div>
     </div>
-    <div id="modal-pedido" class="modal-box"><h2 id="m-nome"></h2><div id="detalhes-pedido" style="margin: 20px 0; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333;"></div><select id="m-status"><option value="Novo Pedido">Novo Pedido</option><option value="Concluído">Concluído</option><option value="Cancelado">Cancelado</option><option value="EXCLUIR">EXCLUIR PERMANENTEMENTE</option></select><button onclick="salvarStatus()" class="btn-status">SALVAR</button></div>
-    <div id="modal-editar" class="modal-box"><h2>Editar</h2><input type="hidden" id="edit-id"><input type="text" id="edit-nome"><div style="display:flex; gap:10px;"><input type="number" id="edit-preco" step="0.01" style="flex:1;"><input type="number" id="edit-custo" step="0.01" style="flex:1;"></div><button onclick="salvarEdicao()" class="btn-status">SALVAR</button></div>
+
+    <div id="modal-editar" class="modal-box">
+        <h2>Editar Produto</h2>
+        <input type="hidden" id="edit-id">
+        <label>Nome:</label><input type="text" id="edit-nome">
+        <label>Venda:</label><input type="number" id="edit-preco" step="0.01">
+        <label>Custo:</label><input type="number" id="edit-custo" step="0.01">
+        <button onclick="salvarEdicao()" class="btn-status">SALVAR ALTERAÇÕES</button>
+        <button onclick="excluirProduto(document.getElementById('edit-id').value)" style="background:transparent; color:var(--red); border:none; margin-top:20px; width:100%; font-weight:800; cursor:pointer;">EXCLUIR PRODUTO</button>
+    </div>
+
+    <div id="modal-pedido" class="modal-box"><h2 id="m-nome"></h2><div id="detalhes-pedido" style="margin: 20px 0; background: #000; padding: 25px; border-radius: 20px; border: 1px solid #222; line-height: 1.6;"></div><select id="m-status"><option value="Novo Pedido">Novo Pedido</option><option value="Concluído">Concluído</option><option value="Cancelado">Cancelado</option><option value="EXCLUIR">EXCLUIR</option></select><button onclick="salvarStatus()" class="btn-status">ATUALIZAR STATUS</button></div>
+
+    <div id="modal-sacola-pdv" class="modal-box" style="padding: 0; flex-direction: column;">
+        <div style="padding: 25px; background: #000; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; border-radius: 30px 30px 0 0;"><h2>Sacola</h2><button onclick="fecharTodosModais()" style="background:none; border:none; color:var(--gold); font-size:2.5rem;">×</button></div>
+        <div style="padding: 25px; overflow-y: auto; flex: 1;">
+            <div id="pdv-itens"></div>
+            <input type="text" id="pdv-cliente" placeholder="Nome do Cliente">
+            <input type="number" id="pdv-frete" placeholder="Valor do Frete R$ (Opcional)" step="0.01">
+            <select id="pdv-pagamento"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select>
+        </div>
+        <div style="padding: 25px; background: #000; border-top: 1px solid #222;"><h3 id="pdv-total" style="color:var(--gold); text-align:center; margin-bottom:20px; font-weight: 900; font-size: 1.6rem;">R$ 0,00</h3><button onclick="finalizarVendaPDV()" style="width:100%; padding:22px; background:var(--green); border:none; color:#000; border-radius:18px; font-weight:900;">CONCLUIR VENDA</button></div>
+    </div>
 
     <script>
         const urlWebhook = "https://script.google.com/macros/s/AKfycbzdKBuX0YgzgzDNIFtKcYhpVT2_ZOL-jcAVsNJwFjRQcsxw_n7QasraXeIuZiBc44lO/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
-        let sel = null; let adminCart = [];
+        let sel = null; let adminCart = []; let statsMensal = {};
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay-menu').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         function fecharTodosModais() { document.querySelectorAll('.modal-box').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
         function showToast(m) { const t = document.getElementById('toast-admin'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
         function limparMoeda(v) { let s = String(v || "0"); if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.'); return parseFloat(s.replace(/[^0-9.-]/g, '')) || 0; }
-
-        function getMesAnoFormatado(dt) {
-            if (!dt || String(dt).toLowerCase().includes("mês")) { const a = new Date(); return `${String(a.getMonth()+1).padStart(2,'0')}/${a.getFullYear()}`; }
-            const p = dt.split(' ')[0].split(dt.includes('/') ? '/' : '-');
-            if (p.length >= 2) { let m = p[1].padStart(2, '0'); let a = p[0].length === 4 ? p[0] : p[2]; return `${m}/${a}`; }
-            return "04/2026";
-        }
 
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -199,6 +168,14 @@
             localStorage.setItem('abaAtivaTioNan', id);
         }
 
+        function extrairMesAno(dt) {
+            if (!dt) return "S/D";
+            const partes = dt.split(' ')[0].split(/[\/-]/);
+            if (partes.length < 2) return "S/D";
+            let mes = partes[1], ano = partes[0].length === 4 ? partes[0] : partes[2];
+            return `${mes}/${ano}`;
+        }
+
         async function carregar() {
             try {
                 const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
@@ -206,31 +183,55 @@
                 const resA = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Arquivados&t=${Date.now()}`);
                 let rowsA = []; if(resA.ok) { const tA = await resA.text(); if(!tA.includes('<!doctype html>')) rowsA = tA.split('\n').slice(1); }
 
-                let htmlV = '<table>'; let htmlH = '<table>'; let stats = {}; let fatG = 0; let lucG = 0;
+                let htmlV = '<table>'; let htmlH = '<table>'; 
+                statsMensal = {}; let fatG = 0; let lucG = 0;
 
                 function processar(row, idTab, isA) {
                     const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
                     if(!c[1]) return "";
-                    const st = c[6] || "Novo Pedido", val = limparMoeda(c[3]), cus = limparMoeda(c[4]), dt = c[0] || "";
-                    if(st.toUpperCase().includes("CONCLU")) {
-                        let m = getMesAnoFormatado(dt);
-                        if(!stats[m]) stats[m] = { f: 0, l: 0 }; stats[m].f += val; stats[m].l += (val - cus); fatG += val; lucG += (val - cus);
+                    const st = c[6] || "Novo", val = limparMoeda(c[3]), cus = limparMoeda(c[4]), dt = c[0] || "";
+                    const dtF = dt.includes(' ') ? `${dt.split(' ')[0]}<br><small style="color:#888;">${dt.split(' ')[1].substring(0,5)}</small>` : dt;
+                    
+                    const safeData = encodeURIComponent(JSON.stringify(c));
+                    
+                    // Identifica se a coluna frete foi preenchida ou está vazia
+                    let frt = 0;
+                    if (c[8] && c[8].trim() !== "") {
+                        frt = limparMoeda(c[8]);
                     }
-                    let ck = isA ? `<td><input type="checkbox" class="check-box" value="${idTab}"></td>` : "<td></td>";
-                    return `<tr id="row-${isA?'arq':'ven'}-${idTab}">${ck}<td class="info-col" onclick='abrirPedido(${JSON.stringify(c)}, ${idTab}, ${isA})'><b>${c[1]}</b><br><small>${dt.split(' ')[0]}</small></td><td onclick='abrirPedido(${JSON.stringify(c)}, ${idTab}, ${isA})'><span class="status ${st.split(' ')[0]}">${st}</span><br><b>R$ ${val.toFixed(2)}</b></td></tr>`;
+
+                    if(st.toUpperCase().includes("CONCLU")) {
+                        let mesAno = extrairMesAno(dt);
+                        if(!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, orders: [] };
+                        statsMensal[mesAno].f += val; 
+                        statsMensal[mesAno].l += (val - cus - frt); // Retira custo e frete do Lucro Real
+                        statsMensal[mesAno].orders.push({ safeData: safeData, id: idTab, arquivo: isA });
+                        fatG += val; 
+                        lucG += (val - cus - frt);
+                    }
+                    return `<tr id="row-${isA?'arq':'ven'}-${idTab}" onclick="abrirPedido('${safeData}', ${idTab}, ${isA})">
+                                <td><b>${c[1]}</b><br><small>${dtF}</small></td>
+                                <td><span class="status ${st.split(' ')[0]}">${st}</span><br><b style="color:var(--gold);">R$ ${val.toFixed(2)}</b></td>
+                            </tr>`;
                 }
+
                 rowsV.reverse().forEach((r, i) => htmlV += processar(r, rowsV.length - i, false));
                 rowsA.reverse().forEach((r, i) => htmlH += processar(r, rowsA.length - i, true));
                 
                 document.getElementById('corpo-pedidos').innerHTML = htmlV + '</table>';
                 document.getElementById('corpo-historico').innerHTML = htmlH + '</table>';
-                document.querySelectorAll('.check-box').forEach(cb => cb.addEventListener('change', updateMassBar));
                 document.getElementById('total-fat-geral').innerText = `R$ ${fatG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
                 document.getElementById('total-lucro-geral').innerText = `R$ ${lucG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
-                let htmlS = ''; Object.keys(stats).sort().reverse().forEach(m => {
-                    htmlS += `<div class="stat-card"><div class="stat-month">${m}</div><div style="display:flex;justify-content:space-between;"><span>Faturamento:</span> <span>R$ ${stats[m].f.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span></div><div style="display:flex;justify-content:space-between;"><span>Lucro Real:</span> <span style="color:var(--green); font-weight:900;">R$ ${stats[m].l.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span></div></div>`;
+
+                let htmlStats = "";
+                Object.keys(statsMensal).sort().reverse().forEach(mes => {
+                    htmlStats += `<div class="stat-month-card" onclick="verDetalhesMes('${mes}')">
+                        <div style="font-weight:900; color:var(--gold); margin-bottom:10px; display:flex; justify-content:space-between;"><span>${mes}</span> <span>➔</span></div>
+                        <div class="stat-row"><span style="color:#888;">Faturamento:</span> <b>R$ ${statsMensal[mes].f.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b></div>
+                        <div class="stat-row"><span style="color:#888;">Lucro Limpo:</span> <b style="color:var(--green)">R$ ${statsMensal[mes].l.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b></div>
+                    </div>`;
                 });
-                document.getElementById('corpo-estatisticas').innerHTML = htmlS || '<p style="text-align:center; opacity:0.5; padding:20px;">Sem vendas.</p>';
+                document.getElementById('corpo-estatisticas').innerHTML = htmlStats || "<p style='text-align:center; opacity:0.5;'>Sem dados.</p>";
 
                 const resP = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
                 const rowsP = (await resP.text()).split('\n').slice(1);
@@ -238,147 +239,140 @@
                 rowsP.forEach(row => {
                     const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
                     if(!c[1] || c[1] === "EXCLUIDO") return;
-                    const id = c[0], n = c[1], nS = n.replace(/'/g, "\\'"), p = limparMoeda(c[4]), cus = limparMoeda(c[6]), e = c[5] || 0;
-                    htmlE += `<div class="estoque-row"><div class="estoque-info"><span class="estoque-nome">${n}</span><div style="display:flex; gap:12px;"><button onclick="abrirEdicao('${id}', '${nS}', ${p}, ${cus})" style="background:none;border:none;font-size:1.4rem;">✏️</button><button onclick="excluirProduto('${id}')" style="background:none;border:none;font-size:1.4rem;color:var(--red);">🗑️</button></div></div><div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid #222;"><span style="font-size:0.6rem; color:var(--gray); font-weight:900; text-transform:uppercase;">Disponível</span><div class="estoque-controles"><button class="btn-step" onclick="stepStock('${id}', -1)">-</button><div class="estoque-val-display" id="st-display-${id}">${e}</div><button class="btn-step" onclick="stepStock('${id}', 1)">+</button></div></div></div>`;
-                    htmlPDV += `<div class="pdv-card"><img src="${c[2] || 'https://via.placeholder.com/150'}"><div class="pdv-name">${n}</div><div class="pdv-price">R$ ${p.toFixed(2)}</div><button class="pdv-btn-add" onclick="addPDV('${id}', '${nS}', ${p}, ${cus})">ADICIONAR</button></div>`;
+                    const id = c[0], n = c[1], nS = n.replace(/'/g, "\\'"), p = limparMoeda(c[4]), cus = limparMoeda(c[6]), e = c[5] || 0, f1 = c[2];
+                    
+                    htmlE += `<div class="estoque-row"><div style="display:flex; justify-content:space-between; align-items:center;"><b>${n}</b><button onclick="abrirEdicao('${id}','${nS}',${p},${cus})" style="background:transparent; border:none; font-size:1.5rem; padding:10px; cursor:pointer;">✏️</button></div><div class="estoque-controles"><button class="btn-step" onclick="stepStock('${id}', -1)">−</button><div class="estoque-val-display" id="st-display-${id}">${e}</div><button class="btn-step" onclick="stepStock('${id}', 1)">+</button></div></div>`;
+                    
+                    htmlPDV += `<div class="pdv-card">
+                        <button class="btn-edit-product" onclick="abrirEdicao('${id}','${nS}',${p},${cus})">✏️</button>
+                        <img src="${f1 || 'https://via.placeholder.com/150'}">
+                        <div><div class="pdv-name">${n}</div><div class="pdv-price">R$ ${p.toFixed(2)}</div></div>
+                        <button class="pdv-btn-add" onclick="addPDV('${id}', '${nS}', ${p}, ${cus})">ADICIONAR À SACOLA</button>
+                    </div>`;
                 });
                 document.getElementById('corpo-estoque').innerHTML = htmlE; document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV; updatePDVCart();
             } catch (err) { console.error(err); }
         }
 
-        function updateMassBar() { const cks = document.querySelectorAll('.check-box:checked'); const bar = document.getElementById('mass-bar'); if (bar) { bar.style.display = (cks.length > 0) ? 'flex' : 'none'; if(cks.length > 0) document.getElementById('mass-count').innerText = `${cks.length} selecionados`; } }
-        function toggleSelecionarTudo() { const cks = document.querySelectorAll('.check-box'); const ckds = document.querySelectorAll('.check-box:checked'); const isA = (cks.length === ckds.length); cks.forEach(cb => cb.checked = !isA); updateMassBar(); }
+        // --- ABRIR PEDIDO ROBUSTO ---
+        function abrirPedido(safeData, row, isA) { 
+            sel = { row, isA }; 
+            const c = JSON.parse(decodeURIComponent(safeData));
+            
+            const dt = c[0] || ""; 
+            const dtF = dt.includes(' ') ? `${dt.split(' ')[0]} às ${dt.split(' ')[1].substring(0,5)}` : dt; 
+            
+            // Lógica do Frete
+            let htmlFrete = '<span style="color:#888;">Não registrado</span>';
+            if (c[8] !== undefined && c[8].trim() !== "") {
+                const freteVal = limparMoeda(c[8]);
+                if (freteVal === 0) {
+                    htmlFrete = '<span style="color:var(--green)">Grátis</span>';
+                } else {
+                    htmlFrete = `R$ ${freteVal.toFixed(2)}`;
+                }
+            }
+            
+            // Lógica do Endereço Linkado
+            const enderecoOriginal = c[7] || 'Balcão';
+            let htmlEndereco = enderecoOriginal;
+            if (enderecoOriginal.toLowerCase() !== 'balcão' && enderecoOriginal.trim() !== '') {
+                const urlMaps = `https://maps.google.com/?q=${encodeURIComponent(enderecoOriginal)}`;
+                htmlEndereco = `<a href="${urlMaps}" target="_blank" style="color:var(--gold); font-weight:700; text-decoration:none; border-bottom:1px dashed var(--gold); padding-bottom:2px;">${enderecoOriginal} 📍</a>`;
+            }
 
-        async function mudarStatusEmMassa(novoStatus) {
-            const checks = Array.from(document.querySelectorAll('.check-box:checked'));
-            if(!confirm(`Mudar ${checks.length} itens?`)) return;
-            checks.forEach(cb => { const row = cb.closest('tr'); if(row) { row.classList.add('removing'); setTimeout(() => row.remove(), 500); } });
-            const rowsArray = checks.map(cb => cb.value).join(',');
-            showToast("Aguarde...");
-            fetch(`${urlWebhook}?action=bulkUpdate&rows=${rowsArray}&status=${novoStatus}&t=${Date.now()}`, { mode: 'no-cors' });
-            setTimeout(() => { showToast("Sincronizado!"); updateMassBar(); carregar(); }, 2000);
+            document.getElementById('m-nome').innerText = c[1]; 
+            document.getElementById('detalhes-pedido').innerHTML = `
+                <b>📦 ITENS:</b><br>${c[2]}<br><br>
+                <b>💰 PAGTO:</b> ${c[5]}<br>
+                <b>🚚 LOCAL:</b> ${htmlEndereco}<br><br>
+                <b>📦 FRETE:</b> ${htmlFrete}<br>
+                <b>⏰ FEITO EM:</b> ${dtF}
+                <div style="text-align:right; font-size:1.8rem; font-weight:900; color:var(--gold); margin-top:15px; border-top:1px solid #333; padding-top:15px;">R$ ${limparMoeda(c[3]).toFixed(2)}</div>`; 
+            
+            document.getElementById('m-status').value = c[6] || "Novo Pedido"; 
+            document.getElementById('modal-pedido').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block'; 
+        }
+
+        // Demais Funções CRUD
+        function abrirEdicao(id, n, p, c) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+        async function salvarEdicao() { const id = document.getElementById('edit-id').value, n = encodeURIComponent(document.getElementById('edit-nome').value), p = document.getElementById('edit-preco').value, c = document.getElementById('edit-custo').value; fecharTodosModais(); showToast("Salvando..."); fetch(`${urlWebhook}?action=editProduct&id=${id}&nome=${n}&preco=${p}&custo=${c}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
+        async function cadastrarProduto() { const n = document.getElementById('cad-nome').value, p = document.getElementById('cad-preco').value, f1 = document.getElementById('cad-foto1').value, f2 = document.getElementById('cad-foto2').value; if(!n || !p) return alert("Erro!"); const d = `nome=${encodeURIComponent(n)}&preco=${p}&custo=${document.getElementById('cad-custo').value}&estoque=${document.getElementById('cad-estoque').value}&foto1=${encodeURIComponent(f1)}&foto2=${encodeURIComponent(f2)}`; showToast("Cadastrando..."); fetch(`${urlWebhook}?action=addProduct&${d}`, {mode:'no-cors'}); setTimeout(() => { switchTab('tab-estoque'); carregar(); }, 4000); }
+        async function excluirProduto(id) { if(!confirm("Excluir para sempre?")) return; fecharTodosModais(); showToast("Excluindo..."); fetch(`${urlWebhook}?action=deleteProduct&id=${id}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
+
+        function verDetalhesMes(mesAno) {
+            const data = statsMensal[mesAno]; if (!data) return;
+            document.getElementById('mes-titulo-detalhe').innerText = `Vendas de ${mesAno}`;
+            let html = "<table>";
+            data.orders.forEach(o => {
+                const c = JSON.parse(decodeURIComponent(o.safeData)); 
+                const dt = c[0] || ""; const dtF = dt.includes(' ') ? `${dt.split(' ')[0]} <small style="color:#888;">${dt.split(' ')[1].substring(0,5)}</small>` : dt;
+                html += `<tr onclick="abrirPedido('${o.safeData}', ${o.id}, ${o.arquivo})"><td><b>${c[1]}</b><br><small>${dtF}</small></td><td><b style="color:var(--gold);">R$ ${limparMoeda(c[3]).toFixed(2)}</b></td></tr>`;
+            });
+            document.getElementById('corpo-mes-detalhe').innerHTML = html + "</table>";
+            document.getElementById('modal-mes-detalhe').style.display = 'flex'; document.getElementById('overlay').style.display = 'block';
+        }
+
+        async function salvarStatus() { 
+            const st = document.getElementById('m-status').value; const rowId = `row-${sel.isA ? 'arq' : 'ven'}-${sel.row}`; const rowEl = document.getElementById(rowId);
+            if (rowEl && (!sel.isA && (st === "Concluído" || st === "Cancelado" || st === "EXCLUIR"))) { rowEl.classList.add('row-removing'); setTimeout(() => rowEl.remove(), 400); }
+            fecharTodosModais(); showToast("Atualizando..."); fetch(`${urlWebhook}?action=updateStatus&row=${sel.row}&status=${st}&isArquivo=${sel.isA}&t=${Date.now()}`, { mode: 'no-cors' }); 
+            setTimeout(carregar, 3000); 
         }
 
         function addPDV(id, n, p, c) { let i = adminCart.find(x => x.id === id); if(i) i.qtd++; else adminCart.push({id, name: n, price: p, cost: c, qtd:1}); updatePDVCart(); showToast("Na sacola"); }
         function updatePDVCart() {
-            const float = document.getElementById('pdv-floating-cart');
-            if(!float) return;
+            const float = document.getElementById('pdv-floating-cart'); if(!float) return;
             if(adminCart.length === 0) { float.style.display = 'none'; fecharTodosModais(); return; }
-            const abaAtiva = document.querySelector('.nav-item.active');
-            if (abaAtiva && abaAtiva.getAttribute('onclick').includes('tab-pdv')) float.style.display = 'flex';
+            if (document.querySelector('.nav-item.active').getAttribute('onclick').includes('tab-pdv')) float.style.display = 'flex';
             let tq = 0, tv = 0;
             document.getElementById('pdv-itens').innerHTML = adminCart.map(i => {
                 tq += i.qtd; tv += (i.price * i.qtd);
-                return `<div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center; border-bottom: 1px solid #222; padding-bottom: 15px;"><div style="flex:1;"><span style="font-size:0.9rem; font-weight:700;">${i.name}</span><br><b style="color:var(--gold);">R$ ${(i.price * i.qtd).toFixed(2)}</b></div><div class="estoque-controles" style="height:38px;"><button class="btn-step" style="width:38px;" onclick="changePDV('${i.id}', -1)">-</button><span style="width:30px;text-align:center;font-weight:900;">${i.qtd}</span><button class="btn-step" style="width:38px;" onclick="changePDV('${i.id}', 1)">+</button></div></div>`;
+                return `<div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center; border-bottom: 1px solid #1a1a1a; padding-bottom: 15px;"><div style="flex:1;"><span style="font-weight:700;">${i.name}</span><br><b style="color:var(--gold);">R$ ${(i.price * i.qtd).toFixed(2)}</b></div><div class="estoque-controles" style="height:45px; width:120px; margin-top:0;"><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', -1)">−</button><span style="width:40px;text-align:center;font-weight:900;">${i.qtd}</span><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', 1)">+</button></div></div>`;
             }).join('');
             document.getElementById('pdv-float-qtd').innerText = tq; document.getElementById('pdv-float-total').innerText = `R$ ${tv.toFixed(2)}`; document.getElementById('pdv-total').innerText = `Total: R$ ${tv.toFixed(2)}`;
         }
         function changePDV(id, d) { let i = adminCart.find(x => x.id === id); if(i) { i.qtd += d; if(i.qtd <= 0) adminCart = adminCart.filter(x => x.id !== id); } updatePDVCart(); }
         function abrirSacolaPDV() { document.getElementById('modal-sacola-pdv').style.display = 'flex'; document.getElementById('overlay').style.display = 'block'; }
-
-        async function finalizarVendaPDV() {
-            if(!confirm("Finalizar venda agora?")) return;
-            const payload = { cliente: document.getElementById('pdv-cliente').value || "Balcão", itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: `Total: R$ ${adminCart.reduce((a, b) => a + (b.price * b.qtd), 0).toFixed(2)}`, custo: adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0), pagamento: document.getElementById('pdv-pagamento').value, status: "Concluído", endereco: "PDV Balcão", isAdminSale: true, cartItems: adminCart.map(i => ({id: i.id, qtd: i.qtd})) };
-            fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Finalizando...");
-            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            setTimeout(carregar, 3000);
-        }
-
-        function abrirPedido(c, row, isA) { sel = { row, isA }; document.getElementById('m-nome').innerText = c[1]; document.getElementById('detalhes-pedido').innerHTML = `<b>📦 ITENS:</b><br>${c[2]}<br><br><b>💰 PAGAMENTO:</b> ${c[5]}<br><b>📍 LOCAL:</b> ${isA ? 'Arquivo' : 'Aberto'}<br><b>🚚 ENDEREÇO:</b> ${c[7] || 'Balcão'}<br><br><div style="text-align:right; font-size:1.8rem; font-weight:900; color:var(--gold);">R$ ${limparMoeda(c[3]).toFixed(2)}</div>`; document.getElementById('m-status').value = c[6] || "Novo Pedido"; document.getElementById('modal-pedido').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-        async function salvarStatus() { 
-            const st = document.getElementById('m-status').value; 
-            const rowEl = document.getElementById(`row-${sel.isA?'arq':'ven'}-${sel.row}`);
-            fecharTodosModais(); 
-            if(!sel.isA && (st === "Concluído" || st === "Cancelado" || st === "EXCLUIR")) { if(rowEl) { rowEl.classList.add('removing'); setTimeout(() => rowEl.remove(), 500); } }
-            showToast("Atualizando..."); 
-            fetch(`${urlWebhook}?action=updateStatus&row=${sel.row}&status=${st}&isArquivo=${sel.isA}&t=${Date.now()}`, { mode: 'no-cors' }); 
-            setTimeout(carregar, 3000); 
-        }
-
-        function abrirEdicao(id, n, p, c) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-        async function salvarEdicao() { const id = document.getElementById('edit-id').value, nome = encodeURIComponent(document.getElementById('edit-nome').value), preco = document.getElementById('edit-preco').value, custo = document.getElementById('edit-custo').value; fecharTodosModais(); showToast("Salvando..."); fetch(`${urlWebhook}?action=editProduct&id=${id}&nome=${nome}&preco=${preco}&custo=${custo}&t=${Date.now()}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
-        async function excluirProduto(id) { if(!confirm("EXCLUIR permanentemente?")) return; showToast("Excluindo..."); fetch(`${urlWebhook}?action=deleteProduct&id=${id}&t=${Date.now()}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
         
-        function stepStock(id, d) { 
-            const display = document.getElementById(`st-display-${id}`); 
-            if(display) {
-                const nv = parseInt(display.innerText) + d; 
-                display.innerText = nv; 
-                fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${nv}&t=${Date.now()}`, { mode: 'no-cors' }); 
-            }
+        async function finalizarVendaPDV() {
+            if(!confirm("Finalizar venda?")) return;
+            const fretePdv = limparMoeda(document.getElementById('pdv-frete').value);
+            const totalProdutos = adminCart.reduce((a, b) => a + (b.price * b.qtd), 0);
+            const payload = { 
+                cliente: document.getElementById('pdv-cliente').value || "Balcão", 
+                itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', '), 
+                total: `R$ ${(totalProdutos + fretePdv).toFixed(2)}`, 
+                custo: adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0), 
+                pagamento: document.getElementById('pdv-pagamento').value, 
+                status: "Concluído", 
+                frete: fretePdv,
+                isAdminSale: true,
+                cartItems: adminCart.map(i => ({id: i.id, qtd: i.qtd}))
+            };
+            fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Enviando..."); fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }); setTimeout(carregar, 3000);
         }
 
-        async function cadastrarProduto() {
-            const n = document.getElementById('cad-nome').value, p = document.getElementById('cad-preco').value, f = document.getElementById('cad-foto1').value; if(!n || !p || !f) return alert("Preencha tudo!");
-            const d = `nome=${encodeURIComponent(n)}&preco=${p}&custo=${document.getElementById('cad-custo').value}&estoque=${document.getElementById('cad-estoque').value}&foto1=${encodeURIComponent(f)}`;
-            showToast("Cadastrando..."); switchTab('tab-estoque'); fetch(`${urlWebhook}?action=addProduct&${d}`, {mode:'no-cors'}); setTimeout(carregar, 4000);
-        }
+        function stepStock(id, d) { const display = document.getElementById(`st-display-${id}`); if(display) { const nv = parseInt(display.innerText) + d; display.innerText = nv; fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${nv}`, { mode: 'no-cors' }); } }
 
-        // --- GESTOS TOUCH REVISADOS (MENU NA DIREITA) ---
-
-        let touchstartX = 0;
-        let touchstartY = 0;
-        let touchendX = 0;
-        let touchendY = 0;
-
-        document.body.addEventListener('touchstart', e => {
-            touchstartX = e.changedTouches[0].screenX;
-            touchstartY = e.changedTouches[0].screenY;
-        }, {passive: true});
-
-        document.body.addEventListener('touchend', e => {
-            touchendX = e.changedTouches[0].screenX;
-            touchendY = e.changedTouches[0].screenY;
-            handleGesture();
-        }, {passive: true});
-
+        // GESTOS TOUCH
+        let touchstartX = 0; let touchendX = 0;
+        document.body.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
+        document.body.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, {passive: true});
         function handleGesture() {
             const deltaX = touchendX - touchstartX;
-            const deltaY = touchendY - touchstartY;
-            const screenWidth = window.innerWidth;
-
-            // Bloqueia troca de aba se o usuário estiver rolando verticalmente a lista
-            if (Math.abs(deltaY) > Math.abs(deltaX)) return;
-
-            // Bloqueia se um modal estiver aberto
-            if (document.getElementById('overlay').style.display === 'block') return;
-
-            // Sensibilidade do swipe
-            if (Math.abs(deltaX) > 70) {
-                if (deltaX > 0) {
-                    // DESLIZOU DA ESQUERDA PARA DIREITA (→) 
-                    const sidebar = document.getElementById('sidebar');
-                    if (sidebar.classList.contains('active')) {
-                        toggleMenu(); // Se o menu estiver aberto, deslizar para direita fecha ele
-                    } else if (touchstartX > 60) {
-                        navigateTabs(-1); // Volta uma aba (se não for gesto de voltar nativo do sistema)
-                    }
-                    // Se touchstartX < 60, o sistema iOS/Android fará o "Back" nativo.
-                } else {
-                    // DESLIZOU DA DIREITA PARA ESQUERDA (←)
-                    const sidebar = document.getElementById('sidebar');
-                    // Se começou bem na borda direita, abre o menu
-                    if (!sidebar.classList.contains('active') && touchstartX > (screenWidth - 60)) {
-                        toggleMenu();
-                    } else {
-                        navigateTabs(1); // Avança uma aba
-                    }
-                }
+            if (Math.abs(deltaX) > 80 && document.getElementById('overlay').style.display !== 'block') {
+                if (deltaX > 0) { if (document.getElementById('sidebar').classList.contains('active')) toggleMenu(); else if (touchstartX > 60) navigateTabs(-1); }
+                else { if (touchstartX > (window.innerWidth - 60)) toggleMenu(); else navigateTabs(1); }
             }
         }
-
         function navigateTabs(direction) {
             const abas = ['tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-stats', 'tab-cadastro'];
-            const currentTabId = document.querySelector('.tab-content.active').id;
-            let index = abas.indexOf(currentTabId);
-            index += direction;
-            if (index >= 0 && index < abas.length) {
-                switchTab(abas[index]);
-                if (window.navigator.vibrate) window.navigator.vibrate(12);
-            }
+            const index = abas.indexOf(document.querySelector('.tab-content.active').id) + direction;
+            if (index >= 0 && index < abas.length) switchTab(abas[index]);
         }
 
-        // Inicialização
         const abaSalva = localStorage.getItem('abaAtivaTioNan') || 'tab-pedidos';
         switchTab(abaSalva); carregar(); setInterval(carregar, 60000);
     </script>
