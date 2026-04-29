@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cachaça do Tio Nan - Loja Oficial</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
@@ -18,7 +18,23 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-body); }
+        
+        html, body { 
+            width: 100%; 
+            overflow-x: hidden; 
+            background-color: var(--bg-dark); 
+            color: var(--text-light); 
+            font-family: var(--font-body);
+            /* Impede o zoom de duplo toque no sistema */
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* CLASSE PARA TRAVAR O FUNDO */
+        body.stop-scroll {
+            overflow: hidden !important;
+            height: 100vh !important;
+        }
 
         /* --- LOADER LIMPO: APENAS VÍDEO --- */
         #loader-wrapper {
@@ -107,9 +123,24 @@
 
         .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
-        .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; }
+        
+        /* AJUSTE NA SACOLA PARA NÃO ROLAR O FUNDO */
+        .cart-overlay { 
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; 
+            height: 100vh; background: var(--bg-card); z-index: 4000; 
+            transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center;
+            /* Impede que o scroll "vaze" para o fundo */
+            overscroll-behavior: contain;
+        }
         .cart-overlay.active { right: 0; }
-        .cart-input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 1rem; outline: none; }
+        
+        /* AJUSTE DE FONTE PARA EVITAR ZOOM NO IOS */
+        .cart-input, select, input { 
+            width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; 
+            padding: 15px; margin-bottom: 15px; border-radius: 8px; 
+            font-size: 16px !important; /* IMPORTANTE: 16px trava o zoom do iPhone */
+            outline: none; 
+        }
         
         .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; }
         .btn-adicionar:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333; cursor: not-allowed; }
@@ -209,6 +240,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
+        // --- 1. BLOQUEIO DE GESTOS DE ZOOM ---
+        document.addEventListener('touchstart', function (event) {
+            if (event.touches.length > 1) {
+                event.preventDefault(); // Impede pinch zoom
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault(); // Impede zoom no Safari iOS
+        });
+
+        // --- 2. RESTANTE DO CÓDIGO FUNCIONAL ---
         const urlWebhook = "https://script.google.com/macros/s/AKfycbzdKBuX0YgzgzDNIFtKcYhpVT2_ZOL-jcAVsNJwFjRQcsxw_n7QasraXeIuZiBc44lO/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
         const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
@@ -319,7 +362,21 @@
             }
         }
 
-        function toggleCart() { document.getElementById('cart-overlay').classList.toggle('active'); document.getElementById('backdrop').style.display = document.getElementById('cart-overlay').classList.contains('active') ? 'block' : 'none'; }
+        // --- 3. TRAVA DE SCROLL AO ABRIR SACOLA ---
+        function toggleCart() { 
+            const overlay = document.getElementById('cart-overlay');
+            const backdrop = document.getElementById('backdrop');
+            
+            overlay.classList.toggle('active'); 
+            
+            if(overlay.classList.contains('active')) {
+                document.body.classList.add('stop-scroll');
+                backdrop.style.display = 'block';
+            } else {
+                document.body.classList.remove('stop-scroll');
+                backdrop.style.display = 'none';
+            }
+        }
         
         function add(id, name, price, cost) {
             const card = document.getElementById(`card-${id}`);
