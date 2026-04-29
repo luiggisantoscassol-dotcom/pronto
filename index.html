@@ -17,22 +17,26 @@
             --font-premium: 'Playfair Display', serif; --font-body: 'Montserrat', sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         html, body { 
             width: 100%; 
             overflow-x: hidden; 
             background-color: var(--bg-dark); 
             color: var(--text-light); 
-            font-family: var(--font-body); 
+            font-family: var(--font-body);
+            /* Impede o zoom de duplo toque no sistema */
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
         }
 
-        /* TRAVA DE ROLAGEM DO FUNDO */
+        /* CLASSE PARA TRAVAR O FUNDO */
         body.stop-scroll {
             overflow: hidden !important;
             height: 100vh !important;
         }
 
+        /* --- LOADER LIMPO: APENAS VÍDEO --- */
         #loader-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 999999;
@@ -42,7 +46,13 @@
         }
         #loader-wrapper.hidden { opacity: 0; visibility: hidden; }
 
-        #loading-video { width: 100%; max-width: 400px; height: auto; border: none; outline: none; }
+        #loading-video {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border: none;
+            outline: none;
+        }
 
         .loading-text {
             color: var(--gold-soft); margin-top: 25px; font-weight: 900;
@@ -53,6 +63,7 @@
 
         @keyframes pulseText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
 
+        /* --- LAYOUT DA LOJA --- */
         .garrafa-voando {
             position: fixed; z-index: 9999; pointer-events: none;
             transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
@@ -74,6 +85,8 @@
 
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
+        .swiper-pagination-bullet { background: #fff !important; opacity: 0.5; }
+        .swiper-pagination-bullet-active { background: var(--gold-soft) !important; opacity: 1 !important; }
 
         .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
         .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
@@ -82,8 +95,8 @@
         .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         
         .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
-        .card-produto.esgotado-card .img-wrapper { opacity: 0.7; } 
 
+        .card-produto.esgotado-card .img-wrapper { opacity: 0.7; } 
         .faixa-esgotado-clean {
             position: absolute; top: 50%; left: 0; width: 100%; 
             background: rgba(0, 0, 0, 0.6); color: #fff;
@@ -93,21 +106,44 @@
             pointer-events: none; backdrop-filter: blur(4px);
         }
 
+        @media (min-width: 1024px) {
+            .swiper-produto { display: none !important; }
+            .desktop-only-images { display: block; width: 100%; height: 100%; position: relative; cursor: pointer; }
+            .foto-1 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 100%; max-height: 260px; z-index: 2; transition: opacity 0.3s ease; object-fit: contain; }
+            .foto-2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 100%; max-height: 260px; z-index: 1; opacity: 0; transition: opacity 0.3s ease; object-fit: contain; }
+            .card-produto:not(.esgotado-card):hover .foto-1 { opacity: 0; }
+            .card-produto:not(.esgotado-card):hover .foto-2 { opacity: 1; }
+        }
+
+        @media (max-width: 1023px) {
+            .desktop-only-images { display: none; }
+            .swiper-produto { display: block; width: 100%; height: 280px; }
+            .swiper-produto img { max-height: 260px; max-width: 100%; object-fit: contain; }
+        }
+
         .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
         
-        /* SACOLA COM BLOQUEIO DE OVERFLOW */
+        /* AJUSTE NA SACOLA PARA NÃO ROLAR O FUNDO */
         .cart-overlay { 
-            position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; 
-            background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; 
-            overflow-y: auto; text-align: center;
-            overscroll-behavior: contain; /* Trava o scroll aqui dentro */
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; 
+            height: 100vh; background: var(--bg-card); z-index: 4000; 
+            transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center;
+            /* Impede que o scroll "vaze" para o fundo */
+            overscroll-behavior: contain;
         }
         .cart-overlay.active { right: 0; }
         
-        .cart-input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 16px !important; outline: none; }
+        /* AJUSTE DE FONTE PARA EVITAR ZOOM NO IOS */
+        .cart-input, select, input { 
+            width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; 
+            padding: 15px; margin-bottom: 15px; border-radius: 8px; 
+            font-size: 16px !important; /* IMPORTANTE: 16px trava o zoom do iPhone */
+            outline: none; 
+        }
         
         .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; }
+        .btn-adicionar:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333; cursor: not-allowed; }
         .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
         .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
@@ -156,25 +192,34 @@
 
             <div id="bloco-retirada" style="display:none; background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold-soft); padding: 15px; border-radius: 8px; margin-bottom: 15px; color: var(--gold-soft); font-size: 0.9rem; line-height: 1.4; text-align: left;">
                 <strong>📍 Endereço para busca:</strong><br>
-                Av. Bento Gonçalves, 4321 - Partenon
+                Av. Bento Gonçalves, 4321<br>
+                Partenon, Porto Alegre - RS
             </div>
 
             <div id="bloco-endereco" style="display:none;">
-                <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9">
+                <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
-                <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto" style="width:65%;"></div>
+                <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
-                <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;">
+                    <input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;">
+                </div>
             </div>
 
             <select id="metodo-pagamento" class="cart-input">
+                <option value="none" selected disabled>Forma de Pagamento?</option>
                 <option value="Pix">Pix</option>
                 <option value="Dinheiro">Dinheiro</option>
-                <option value="Cartão">Cartão</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
             </select>
 
+            <div id="aviso-regiao" style="color: #ff4444; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; display: none; text-transform: uppercase;">Ops! Ainda não entregamos nesta cidade. 💔</div>
+
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
-            <button onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
+            
+            <button id="btn-finalizar" onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
             <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
         </div>
     </aside>
@@ -184,6 +229,8 @@
             <div class="swiper-wrapper">
                 <div class="swiper-slide"><img src="passo1.png"></div>
                 <div class="swiper-slide"><img src="passo2.png"></div>
+                <div class="swiper-slide"><img src="passo3.png"></div>
+                <div class="swiper-slide"><img src="passo4.png"></div>
             </div>
             <div class="swiper-pagination"></div>
         </div>
@@ -193,25 +240,62 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
+        // --- 1. BLOQUEIO DE GESTOS DE ZOOM ---
+        document.addEventListener('touchstart', function (event) {
+            if (event.touches.length > 1) {
+                event.preventDefault(); // Impede pinch zoom
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault(); // Impede zoom no Safari iOS
+        });
+
+        // --- 2. RESTANTE DO CÓDIGO FUNCIONAL ---
         const urlWebhook = "https://script.google.com/macros/s/AKfycbzdKBuX0YgzgzDNIFtKcYhpVT2_ZOL-jcAVsNJwFjRQcsxw_n7QasraXeIuZiBc44lO/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
+        const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
         
-        new Swiper('.swiper-hero', { loop: true, autoplay: { delay: 5000 } });
+        new Swiper('.swiper-hero', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 } });
         let cart = [];
 
-        // FUNÇÃO QUE TRAVA O SCROLL DO FUNDO
-        function toggleCart() {
-            const overlay = document.getElementById('cart-overlay');
-            const backdrop = document.getElementById('backdrop');
-            overlay.classList.toggle('active');
-            
-            if(overlay.classList.contains('active')) {
-                backdrop.style.display = 'block';
-                document.body.classList.add('stop-scroll'); // TRAVA O FUNDO
-            } else {
-                backdrop.style.display = 'none';
-                document.body.classList.remove('stop-scroll'); // LIBERA O FUNDO
+        function mascaraCEP(t) {
+            let v = t.value.replace(/\D/g, "");
+            if (v.length > 5) v = v.substring(0, 5) + "-" + v.substring(5, 8);
+            t.value = v;
+        }
+
+        async function buscaCEP() {
+            let cep = document.getElementById('cep').value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const d = await res.json();
+                if(!d.erro) { 
+                    document.getElementById('rua').value = d.logradouro; 
+                    document.getElementById('bairro').value = d.bairro;
+                    document.getElementById('cidade').value = d.localidade;
+                    document.getElementById('estado').value = d.uf;
+                    validarCidade(d.localidade);
+                }
             }
+        }
+
+        function validarCidade(cidade) {
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
+            const entrega = document.getElementById('metodo-entrega').value;
+            if (entrega === 'tele') {
+                const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
+                if (!permitida) {
+                    btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block";
+                } else { liberarBotao(); }
+            } else { liberarBotao(); }
+        }
+
+        function liberarBotao() {
+            const btn = document.getElementById('btn-finalizar');
+            const aviso = document.getElementById('aviso-regiao');
+            btn.disabled = false; btn.style.background = "#25D366"; btn.style.opacity = "1"; aviso.style.display = "none";
         }
 
         async function loadProducts() {
@@ -223,55 +307,172 @@
                 
                 rows.forEach(row => {
                     const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
-                    if(!c[1] || c[1] === "EXCLUIDO") return;
-                    const id = c[0], nome = c[1], foto = c[2] || "https://via.placeholder.com/300", 
-                          preco = parseFloat(c[4].replace(',', '.')), estoque = parseInt(c[5]) || 0;
+                    if(!c || !c[1] || c[1] === "EXCLUIDO") return;
                     
-                    const card = `<div class="card-produto ${estoque > 0 ? '' : 'esgotado-card'}" id="card-${id}"><div class="img-wrapper">${estoque > 0 ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}<img src="${foto}" style="max-height:260px; width:100%; object-fit:contain;"></div><h3 class="prod-nome">${nome}</h3><span class="preco">R$ ${preco.toFixed(2).replace('.',',')}</span>${estoque > 0 ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${preco},${c[6]})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}</div>`;
-                    if (estoque > 0) htmlDisp += card; else htmlEsg += card;
+                    const id = c[0];
+                    const nome = c[1];
+                    const foto1 = (c[2] && c[2].length > 5) ? c[2] : "https://via.placeholder.com/300x300?text=Sem+Foto"; 
+                    const temFoto2 = (c[3] && c[3].length > 5);
+                    const foto2 = temFoto2 ? c[3] : foto1; 
+                    
+                    const precoTexto = c[4] ? c[4].replace(',', '.') : "0";
+                    const precoNum = parseFloat(precoTexto);
+                    const estoque = parseInt(c[5]) || 0;
+                    const temEstoque = estoque > 0;
+                    const custoNum = parseFloat(c[6] ? c[6].replace(',', '.') : "0");
+
+                    const card = `
+                        <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}" id="card-${id}">
+                            <div class="img-wrapper">
+                                ${temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}
+                                <div class="desktop-only-images">
+                                    <img src="${foto1}" class="foto-1 prod-img">
+                                    <img src="${foto2}" class="foto-2">
+                                </div>
+                                <div class="swiper swiper-produto">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide"><img src="${foto1}" class="prod-img"></div>
+                                        ${temFoto2 ? `<div class="swiper-slide"><img src="${foto2}" class="prod-img"></div>` : ''}
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="prod-nome">${nome}</h3>
+                                <span class="preco">R$ ${precoNum.toFixed(2).replace('.',',')}</span>
+                            </div>
+                            ${temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
+                        </div>`;
+                        
+                    if (temEstoque) htmlDisp += card; else htmlEsg += card;
                 });
                 document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
-            } catch (e) { console.error(e); }
-            finally { setTimeout(() => document.getElementById('loader-wrapper').classList.add('hidden'), 1500); }
+
+                document.querySelectorAll('.swiper-produto').forEach(el => {
+                    const tempo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
+                    new Swiper(el, { loop: true, effect: 'fade', fadeEffect: { crossFade: true }, autoplay: { delay: tempo, disableOnInteraction: false }, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } });
+                });
+
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setTimeout(() => {
+                    document.getElementById('loader-wrapper').classList.add('hidden');
+                }, 1500);
+            }
         }
 
+        // --- 3. TRAVA DE SCROLL AO ABRIR SACOLA ---
+        function toggleCart() { 
+            const overlay = document.getElementById('cart-overlay');
+            const backdrop = document.getElementById('backdrop');
+            
+            overlay.classList.toggle('active'); 
+            
+            if(overlay.classList.contains('active')) {
+                document.body.classList.add('stop-scroll');
+                backdrop.style.display = 'block';
+            } else {
+                document.body.classList.remove('stop-scroll');
+                backdrop.style.display = 'none';
+            }
+        }
+        
         function add(id, name, price, cost) {
-            const item = cart.find(i => i.id === id);
-            if(item) item.qtd++; else cart.push({id, name, price, cost, qtd:1});
-            updateCart();
-            const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
+            const card = document.getElementById(`card-${id}`);
+            let imgOriginal = card.querySelector('.swiper-slide-active img') || card.querySelector('.foto-1');
+            
+            const cartBtn = document.getElementById('cart-btn');
+            const clone = imgOriginal.cloneNode(true);
+            const rect = imgOriginal.getBoundingClientRect();
+            const cartRect = cartBtn.getBoundingClientRect();
+
+            clone.classList.add('garrafa-voando');
+            clone.style.width = rect.width + 'px';
+            clone.style.height = rect.height + 'px';
+            clone.style.top = rect.top + 'px';
+            clone.style.left = rect.left + 'px';
+            document.body.appendChild(clone);
+
+            setTimeout(() => {
+                clone.style.transform = "scale(1.2)";
+                setTimeout(() => {
+                    clone.style.top = (cartRect.top + 10) + 'px';
+                    clone.style.left = (cartRect.left + 10) + 'px';
+                    clone.style.width = '40px';
+                    clone.style.height = '40px';
+                    clone.style.opacity = '0.5';
+                    clone.style.transform = "scale(0.2) rotate(45deg)";
+                }, 100);
+            }, 50);
+
+            setTimeout(() => {
+                clone.remove();
+                const item = cart.find(i => i.id === id);
+                if(item) item.qtd++; else cart.push({id, name, price, cost: cost, qtd:1});
+                updateCart();
+                const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
+                cartBtn.style.animation = 'none'; void cartBtn.offsetWidth; cartBtn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
+            }, 850);
         }
 
         function updateCart() {
             const itemsCont = document.getElementById('cart-items');
             const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
             const barra = document.getElementById('barra-frete');
+            const textoFrete = document.getElementById('texto-frete');
             const entrega = document.getElementById('metodo-entrega').value;
 
-            barra.style.width = Math.min((totalGarrafas / 3) * 100, 100) + "%";
-            document.getElementById('checkout-form').style.display = cart.length > 0 ? 'block' : 'none';
-            document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
-            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
+            const progresso = Math.min((totalGarrafas / 3) * 100, 100);
+            barra.style.width = progresso + "%";
+            
+            if (entrega === 'retirada') {
+                textoFrete.innerText = "Busque seu pedido na loja sem taxas! 📍";
+                barra.style.width = "100%";
+            } else {
+                if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para FRETE GRÁTIS";
+                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para FRETE GRÁTIS!`;
+                else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
+            }
 
-            itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br>R$ ${(i.price * i.qtd).toFixed(2)}</div><div style="display:flex; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span>${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
+            if (cart.length === 0) { 
+                itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; 
+                document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; 
+            }
+            
+            document.getElementById('checkout-form').style.display = 'block';
+            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
+            document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
+            
+            if (entrega === 'retirada') liberarBotao(); 
+            else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+            
+            itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
             
             document.getElementById('badge').innerText = totalGarrafas;
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
             if (entrega === 'tele' && totalGarrafas < 3) total += 15;
-            document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2)}`;
+            document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
         }
 
-        function changeQty(id, delta) { const item = cart.find(i => i.id === id); if(item) { item.qtd += delta; if(item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
+        function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
+        
+        async function checkout() {
+            const nome = document.getElementById('cliente-nome').value; const entrega = document.getElementById('metodo-entrega').value; const pag = document.getElementById('metodo-pagamento').value;
+            const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+            if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos os campos!");
+            
+            let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
+            const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
+            const dados = { data: new Date().toLocaleString('pt-BR'), cliente: nome, itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), total: document.getElementById('cart-total-display').innerText, custo: custoTotalPedido, pagamento: pag, status: "Novo Pedido", endereco: endereco };
+            
+            let beneficioMsg = "";
+            if(entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n🚚 FRETE GRÁTIS ATIVADO!";
 
-        function checkout() {
-            const nome = document.getElementById('cliente-nome').value;
-            if(!nome) return alert("Digite seu nome!");
-            const itensTxt = cart.map(i => `${i.name} (x${i.qtd})`).join(', ');
-            const total = document.getElementById('cart-total-display').innerText;
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+itensTxt+"\n💰 "+total)}`);
+            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
+            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + beneficioMsg)}`);
         }
-
-        loadProducts();
+        loadProducts(); updateCart();
     </script>
 </body>
 </html>
