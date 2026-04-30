@@ -27,10 +27,77 @@
             font-family: var(--font-body);
             touch-action: manipulation;
             -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent; /* Remove a caixa azul no clique do celular */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body.stop-scroll { overflow: hidden !important; height: 100vh !important; }
+
+        /* --- MODAL DE VERIFICAÇÃO DE IDADE --- */
+        #age-verification-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark); z-index: 1000000;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; text-align: center;
+        }
+
+        .age-box {
+            max-width: 400px;
+            padding: 40px 20px;
+            border: 1px solid #222;
+            background: var(--bg-card);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+
+        .age-logo {
+            font-family: var(--font-premium);
+            font-size: 2rem;
+            background: var(--gold-metallic);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .age-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .age-buttons {
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .btn-age {
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: var(--font-body);
+        }
+
+        .btn-yes {
+            background: var(--gold-metallic);
+            color: #000;
+            border: none;
+        }
+
+        .btn-no {
+            background: transparent;
+            color: #555;
+            border: 1px solid #333;
+            font-size: 0.7rem;
+        }
+
+        .btn-yes:active { transform: scale(0.95); }
 
         #loader-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -98,7 +165,6 @@
             .swiper-produto img { max-height: 260px; max-width: 100%; object-fit: contain; }
         }
 
-        /* --- ANIMAÇÃO BOTÃO SACOLA FLUTUANTE --- */
         .cart-toggle { 
             position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
             transition: transform 0.15s ease;
@@ -111,7 +177,6 @@
         
         .cart-input, select, input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 16px !important; outline: none; }
         
-        /* --- ANIMAÇÃO BOTÃO ADICIONAR --- */
         .btn-adicionar { 
             background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; 
             transition: transform 0.1s ease, box-shadow 0.2s ease;
@@ -123,28 +188,24 @@
         .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
         
-        /* --- ANIMAÇÃO BOTÕES QUANTIDADE + / - --- */
         .qty-btn { 
             background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; 
             transition: transform 0.1s ease, background 0.1s;
         }
         .qty-btn:active { transform: scale(0.85); background: #333; }
 
-        /* --- ANIMAÇÃO BOTÃO CONTINUAR COMPRANDO --- */
         .btn-continuar { 
             width: 100%; margin-top: 15px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; 
             transition: transform 0.1s ease, background 0.2s;
         }
         .btn-continuar:active { transform: scale(0.96); background: rgba(255,255,255,0.05); }
 
-        /* --- ANIMAÇÃO BOTÃO FINALIZAR WHATSAPP --- */
         #btn-finalizar {
             background: #25D366; color: white; border: none; width: 100%; padding: 20px; font-weight: 900; border-radius: 12px; cursor: pointer; text-transform: uppercase;
             transition: transform 0.15s ease, box-shadow 0.2s;
         }
         #btn-finalizar:active { transform: scale(0.96); box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4); }
 
-        /* --- ANIMAÇÃO BOTÃO FECHAR SACOLA (X) --- */
         .btn-fechar {
             position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--gold-soft); font-size: 2.5rem; cursor: pointer;
             transition: transform 0.1s ease;
@@ -155,6 +216,17 @@
     </style>
 </head>
 <body>
+
+    <div id="age-verification-overlay">
+        <div class="age-box">
+            <span class="age-logo">Cachaça do Tio Nan</span>
+            <p class="age-text">Você tem mais de 18 anos?<br><small style="font-size: 0.7rem; opacity: 0.6;">A apreciação de uma boa cachaça é um prazer reservado a adultos.</small></p>
+            <div class="age-buttons">
+                <button class="btn-age btn-yes" onclick="verifyAge(true)">Sim, sou maior de idade</button>
+                <button class="btn-age btn-no" onclick="verifyAge(false)">Não tenho 18 anos</button>
+            </div>
+        </div>
+    </div>
 
     <div id="loader-wrapper">
         <video id="loading-video" autoplay loop muted playsinline>
@@ -243,6 +315,27 @@
     <script>
         document.addEventListener('touchstart', function (event) { if (event.touches.length > 1) { event.preventDefault(); } }, { passive: false });
         document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+
+        // --- FUNÇÕES DE VERIFICAÇÃO DE IDADE ---
+        function verifyAge(isAdult) {
+            if (isAdult) {
+                localStorage.setItem('ageVerified', 'true');
+                document.getElementById('age-verification-overlay').style.display = 'none';
+                const video = document.getElementById('loading-video');
+                if(video) video.play(); 
+            } else {
+                window.location.href = "https://www.google.com";
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('ageVerified') === 'true') {
+                document.getElementById('age-verification-overlay').style.display = 'none';
+            } else {
+                const video = document.getElementById('loading-video');
+                if(video) video.pause();
+            }
+        });
 
         const urlWebhook = "https://script.google.com/macros/s/AKfycbzdKBuX0YgzgzDNIFtKcYhpVT2_ZOL-jcAVsNJwFjRQcsxw_n7QasraXeIuZiBc44lO/exec";
         const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
