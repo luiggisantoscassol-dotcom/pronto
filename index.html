@@ -126,32 +126,83 @@
             color: var(--blue-navy);
             box-shadow: 0 10px 20px rgba(197,160,89,0.3);
         }
-        .btn-yes:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(197,160,89,0.5); }
+        .btn-yes:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none !important;
+            opacity: 0.5;
+        }
+        .btn-yes:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(197,160,89,0.5); }
 
         .btn-no {
             background: transparent;
             color: rgba(255,255,255,0.4);
             border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.4s;
         }
-        .btn-no:hover { color: #fff; border-color: #fff; transform: translateY(-3px); }
+        .btn-no:hover:not(:disabled) { color: #fff; border-color: #fff; transform: translateY(-3px); }
+        .btn-no:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            transform: none !important;
+        }
 
         .visitor-input {
             width: 100%; 
-            padding: 20px; 
-            margin-bottom: 25px; 
-            border-radius: 15px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            background: rgba(0,0,0,0.4); 
+            padding: 22px; 
+            border-radius: 18px; 
+            border: 2px solid rgba(197, 160, 89, 0.4); 
+            background: rgba(10, 10, 15, 1); 
             color: #fff; 
             font-family: var(--font-body); 
-            font-size: 1rem; 
+            font-size: 1.1rem; 
             text-align: center;
-            transition: 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.1), inset 0 2px 15px rgba(0,0,0,0.6);
+            animation: inputPulse 2s infinite ease-in-out;
+        }
+        .visitor-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 300;
+            letter-spacing: 1px;
         }
         .visitor-input:focus {
             border-color: var(--gold-antique);
             outline: none;
-            background: rgba(0,0,0,0.6);
+            background: rgba(20, 20, 25, 1);
+            box-shadow: 0 0 30px rgba(197, 160, 89, 0.4), inset 0 2px 15px rgba(0,0,0,0.6);
+            transform: scale(1.03);
+            animation: none; /* Para a pulsação ao focar */
+        }
+        @keyframes inputPulse {
+            0% { box-shadow: 0 0 8px rgba(197, 160, 89, 0.1), inset 0 2px 15px rgba(0,0,0,0.6); border-color: rgba(197, 160, 89, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(197, 160, 89, 0.5), inset 0 2px 15px rgba(0,0,0,0.6); border-color: rgba(197, 160, 89, 1); }
+            100% { box-shadow: 0 0 8px rgba(197, 160, 89, 0.1), inset 0 2px 15px rgba(0,0,0,0.6); border-color: rgba(197, 160, 89, 0.3); }
+        }
+        .age-input-group {
+            margin-bottom: 30px;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out 0.3s both;
+        }
+        .age-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--gold-soft);
+            margin-bottom: 15px;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+        }
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         /* ---- LOADER CINEMATOGRÁFICO ---- */
@@ -179,6 +230,7 @@
             clip-path: inset(100% 0 0 0);
             animation: fillingGlass 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
             mix-blend-mode: lighten;
+            will-change: clip-path;
         }
         @keyframes fillingGlass {
             0% { clip-path: inset(100% 0 0 0); opacity: 0.5; }
@@ -207,6 +259,7 @@
             position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
             background: var(--gold-metallic);
             animation: loaderProgress 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: left;
         }
 
         @keyframes shine {
@@ -265,6 +318,56 @@
             box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 20px rgba(197,160,89,0.05); 
         }
         .img-wrapper { width: 100%; height: 260px; margin-bottom: 25px; position: relative; overflow: visible; display: flex; align-items: center; justify-content: center; }
+        
+        .hint-detalhes {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            transform: translateY(10px) scale(0.8);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--gold-antique);
+            color: var(--gold-antique);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 30;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .card-produto:hover .hint-detalhes {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        @media (max-width: 1023px) {
+            .hint-detalhes {
+                opacity: 0.9;
+                transform: none;
+                top: 15px;
+                right: 15px;
+                left: auto;
+                padding: 6px 12px;
+                font-size: 0.55rem;
+                background: var(--blue-navy);
+                letter-spacing: 1px;
+                scale: 0.9;
+                animation: floatBadge 3s infinite ease-in-out;
+            }
+            @keyframes floatBadge {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+        }
 
         .card-produto.esgotado-card { opacity: 0.7; filter: grayscale(0.5); } 
         .faixa-esgotado-clean { 
@@ -306,9 +409,20 @@
             width: 100%; background: #000; color: white; border: 1px solid #333; 
             border-radius: 8px; padding: 15px; margin-bottom: 15px; 
             font-size: 16px !important; outline: none; font-family: var(--font-body);
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, background-color 0.3s;
         }
         .cart-input:focus, select:focus, input:focus { border-color: var(--gold-antique); }
+        
+        .input-error {
+            border-color: #ff4444 !important;
+            background-color: rgba(255, 68, 68, 0.05) !important;
+            animation: shakeError 0.4s ease-in-out;
+        }
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
         
         .btn-adicionar { 
             background: var(--gold-metallic); color: var(--blue-navy); border: none; padding: 22px; width: 100%; font-weight: 800; cursor: pointer; border-radius: 12px; text-transform: uppercase; font-size: 1.1rem; position: relative; z-index: 5; 
@@ -465,11 +579,17 @@
                 <small>A apreciação de uma boa cachaça é um prazer reservado a adultos.</small>
             </p>
             
-            <input type="text" id="visitor-name" class="visitor-input" placeholder="Como podemos te chamar?" required>
+            <div class="age-input-group">
+                <label for="visitor-name" class="age-input-label">
+                    <svg viewBox="0 0 24 24" style="width:18px; fill:var(--gold-soft);"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    Diga seu nome para começar
+                </label>
+                <input type="text" id="visitor-name" class="visitor-input" placeholder="Como podemos te chamar?" required>
+            </div>
 
             <div class="age-buttons">
-                <button class="btn-age btn-yes" onclick="verifyAge(true)">Sim, sou maior de idade</button>
-                <button class="btn-age btn-no" onclick="verifyAge(false)">Não tenho 18 anos</button>
+                <button class="btn-age btn-yes" onclick="verifyAge(true)" disabled>Sim, sou maior de idade</button>
+                <button class="btn-age btn-no" onclick="verifyAge(false)" disabled>Não tenho 18 anos</button>
             </div>
         </div>
     </div>
@@ -645,6 +765,18 @@
             } else {
                 const video = document.getElementById('loading-video');
                 if(video) video.pause();
+                
+                // Listener para o campo de nome
+                const nameInput = document.getElementById('visitor-name');
+                const btnYes = document.querySelector('.btn-yes');
+                const btnNo = document.querySelector('.btn-no');
+                if (nameInput && btnYes && btnNo) {
+                    nameInput.addEventListener('input', () => {
+                        const isValid = nameInput.value.trim().length >= 2;
+                        btnYes.disabled = !isValid;
+                        btnNo.disabled = !isValid;
+                    });
+                }
             }
         });
 
@@ -779,6 +911,10 @@
                                     </div>
                                     <div class="swiper-pagination"></div>
                                 </div>
+                                <div class="hint-detalhes">
+                                    <svg viewBox="0 0 24 24" style="width:14px; fill:currentColor;"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                    Ver Detalhes
+                                </div>
                             </div>
                             <div onclick="abrirModalProduto('${dadosModal}')" style="cursor:pointer;">
                                 <h3 class="prod-nome">${nome}</h3>
@@ -791,10 +927,25 @@
                 });
                 document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
 
-                document.querySelectorAll('.swiper-produto').forEach(el => {
-                    const tempo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
-                    new Swiper(el, { loop: true, effect: 'fade', fadeEffect: { crossFade: true }, autoplay: { delay: tempo, disableOnInteraction: false }, pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } });
-                });
+                // Inicialização Otimizada com Intersection Observer
+                const swiperObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const el = entry.target;
+                            const tempo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
+                            new Swiper(el, { 
+                                loop: true, 
+                                effect: 'fade', 
+                                fadeEffect: { crossFade: true }, 
+                                autoplay: { delay: tempo, disableOnInteraction: false }, 
+                                pagination: { el: el.querySelector('.swiper-pagination'), clickable: true } 
+                            });
+                            observer.unobserve(el); // Inicializa apenas uma vez
+                        }
+                    });
+                }, { rootMargin: '100px' });
+
+                document.querySelectorAll('.swiper-produto').forEach(el => swiperObserver.observe(el));
 
             } catch (error) {
                 console.error("Erro ao carregar produtos:", error);
@@ -1018,8 +1169,28 @@
                 const pag = document.getElementById('metodo-pagamento').value;
                 const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
                 
-                if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos os campos!");
-                
+                // Limpa erros anteriores
+                document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+                function showError(elementId) {
+                    const el = document.getElementById(elementId);
+                    if (el) {
+                        el.classList.add('input-error');
+                        el.focus();
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+
+                if (!nome) return showError('cliente-nome');
+                if (!entrega || entrega === "none") return showError('metodo-entrega');
+                if (entrega === 'tele') {
+                    if (!document.getElementById('rua').value) return showError('rua');
+                    if (!document.getElementById('numero').value) return showError('numero');
+                    if (!document.getElementById('bairro').value) return showError('bairro');
+                    if (!document.getElementById('cidade').value) return showError('cidade');
+                }
+                if (!pag || pag === "none") return showError('metodo-pagamento');
+
                 let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
                 const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
                 
@@ -1082,6 +1253,18 @@
         function openCart() { isCartOpen = true; const overlay = document.getElementById('cart-overlay'); const backdrop = document.getElementById('backdrop'); overlay.classList.add('active'); document.body.classList.add('stop-scroll'); backdrop.style.display = 'block'; history.pushState({ sacolaAberta: true }, "", "#sacola"); }
         function closeCart(veioDoBotaoVoltar = false) { isCartOpen = false; const overlay = document.getElementById('cart-overlay'); const backdrop = document.getElementById('backdrop'); overlay.classList.remove('active'); document.body.classList.remove('stop-scroll'); backdrop.style.display = 'none'; if (!veioDoBotaoVoltar) { history.back(); } }
         window.addEventListener("popstate", (event) => { if (isCartOpen) { closeCart(true); } });
+
+        // Remove erro visual ao digitar ou alterar campo
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains('input-error')) {
+                e.target.classList.remove('input-error');
+            }
+        });
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains('input-error')) {
+                e.target.classList.remove('input-error');
+            }
+        });
 
     </script>
 </body>
