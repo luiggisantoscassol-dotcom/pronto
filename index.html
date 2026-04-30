@@ -27,6 +27,7 @@
             font-family: var(--font-body);
             touch-action: manipulation;
             -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent; /* Remove a caixa azul no clique do celular */
         }
 
         body.stop-scroll { overflow: hidden !important; height: 100vh !important; }
@@ -97,7 +98,12 @@
             .swiper-produto img { max-height: 260px; max-width: 100%; object-fit: contain; }
         }
 
-        .cart-toggle { position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        /* --- ANIMAÇÃO BOTÃO SACOLA FLUTUANTE --- */
+        .cart-toggle { 
+            position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
+            transition: transform 0.15s ease;
+        }
+        .cart-toggle:active { transform: scale(0.9); }
         .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
         
         .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; overscroll-behavior: contain; }
@@ -105,13 +111,45 @@
         
         .cart-input, select, input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 16px !important; outline: none; }
         
-        .btn-adicionar { background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; }
+        /* --- ANIMAÇÃO BOTÃO ADICIONAR --- */
+        .btn-adicionar { 
+            background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; 
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+        }
+        .btn-adicionar:active:not(:disabled) { transform: scale(0.95); box-shadow: inset 0 0 15px rgba(0,0,0,0.3); }
         .btn-adicionar:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333; cursor: not-allowed; }
+        
         .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
         .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; text-align: left; }
-        .qty-btn { background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
-        .btn-continuar { width: 100%; margin-top: 15px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
+        
+        /* --- ANIMAÇÃO BOTÕES QUANTIDADE + / - --- */
+        .qty-btn { 
+            background: #222; color: var(--gold-soft); border: 1px solid #333; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; 
+            transition: transform 0.1s ease, background 0.1s;
+        }
+        .qty-btn:active { transform: scale(0.85); background: #333; }
+
+        /* --- ANIMAÇÃO BOTÃO CONTINUAR COMPRANDO --- */
+        .btn-continuar { 
+            width: 100%; margin-top: 15px; background: none; border: 1px solid #444; color: #888; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; 
+            transition: transform 0.1s ease, background 0.2s;
+        }
+        .btn-continuar:active { transform: scale(0.96); background: rgba(255,255,255,0.05); }
+
+        /* --- ANIMAÇÃO BOTÃO FINALIZAR WHATSAPP --- */
+        #btn-finalizar {
+            background: #25D366; color: white; border: none; width: 100%; padding: 20px; font-weight: 900; border-radius: 12px; cursor: pointer; text-transform: uppercase;
+            transition: transform 0.15s ease, box-shadow 0.2s;
+        }
+        #btn-finalizar:active { transform: scale(0.96); box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4); }
+
+        /* --- ANIMAÇÃO BOTÃO FECHAR SACOLA (X) --- */
+        .btn-fechar {
+            position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--gold-soft); font-size: 2.5rem; cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .btn-fechar:active { transform: scale(0.8); }
 
         @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.15) rotate(5deg); } 40%, 80% { transform: scale(1.15) rotate(-5deg); } }
     </style>
@@ -135,7 +173,7 @@
     <div class="backdrop" id="backdrop" onclick="toggleCart()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: none;"></div>
 
     <aside class="cart-overlay" id="cart-overlay">
-        <button onclick="toggleCart()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--gold-soft); font-size:2.5rem; cursor:pointer;">×</button>
+        <button class="btn-fechar" onclick="toggleCart()">×</button>
         <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
         
         <div id="container-frete">
@@ -182,7 +220,7 @@
 
             <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
             
-            <button id="btn-finalizar" onclick="checkout()" style="background:#25D366; color:white; border:none; width:100%; padding:20px; font-weight:900; border-radius:12px; cursor:pointer; text-transform: uppercase;">FINALIZAR NO WHATSAPP</button>
+            <button id="btn-finalizar" onclick="checkout()">FINALIZAR NO WHATSAPP</button>
             <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
         </div>
     </aside>
@@ -393,7 +431,6 @@
 
         function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
         
-        // --- FUNÇÃO CORRIGIDA PARA ENVIAR O FRETE ---
         async function checkout() {
             const nome = document.getElementById('cliente-nome').value; 
             const entrega = document.getElementById('metodo-entrega').value; 
@@ -405,22 +442,23 @@
             let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
             const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
             
-            // Calcula o valor exato do frete
             let valorFrete = 0;
             if (entrega === 'tele' && totalGarrafas < 3) {
                 valorFrete = 15.00;
             }
 
+            let valorTotalComFrete = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0) + valorFrete;
+
             const dados = { 
                 data: new Date().toLocaleString('pt-BR'), 
                 cliente: nome, 
                 itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), 
-                total: document.getElementById('cart-total-display').innerText, 
+                total: `R$ ${valorTotalComFrete.toFixed(2)}`, 
                 custo: custoTotalPedido, 
                 pagamento: pag, 
                 status: "Novo Pedido", 
                 endereco: endereco,
-                frete: valorFrete // AGORA O ADMIN VAI RECEBER O FRETE AQUI!
+                frete: valorFrete 
             };
             
             let beneficioMsg = "";
