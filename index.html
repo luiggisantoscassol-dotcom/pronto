@@ -18,24 +18,28 @@
     <meta name="twitter:title" content="Cachaça do Tio Nan - Loja Oficial">
     <meta name="twitter:description" content="A verdadeira cachaça premium. Escolha a sua, faça o pedido e aproveite o frete grátis na compra de 3 garrafas!">
     <meta name="twitter:image" content="https://www.tionan.com.br/imagem-compartilhamento.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <style>
         :root {
             --bg-dark: #000000; 
-            --bg-card: #111111;
-            --gold-metallic: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            --gold-soft: #d4af37; --text-light: #f5f5f5;
-            --font-premium: 'Playfair Display', serif; --font-body: 'Montserrat', sans-serif;
+            --bg-card: rgba(15, 15, 15, 0.6);
+            --blue-navy: #1B365D;
+            --gold-antique: #C5A059;
+            --gold-metallic: linear-gradient(135deg, #a67c37 0%, #f1d3a1 50%, #a67c37 100%);
+            --gold-soft: #e5c185;
+            --text-light: #f5f5f5;
+            --font-premium: 'Zilla Slab', serif; 
+            --font-body: 'Outfit', sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         html, body { 
             width: 100%; 
             overflow-x: hidden; 
-            background-color: var(--bg-dark); 
+            background: #000000; 
             color: var(--text-light); 
             font-family: var(--font-body);
             touch-action: manipulation;
@@ -43,7 +47,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body.stop-scroll { overflow: hidden !important; height: 100vh !important; }
+        body.stop-scroll { overflow-y: hidden; } /* Apenas trava o scroll sem resetar a altura */
 
         /* --- MODAL DE VERIFICAÇÃO DE IDADE --- */
         #age-verification-overlay {
@@ -112,27 +116,72 @@
 
         .btn-yes:active { transform: scale(0.95); }
 
-        #loader-wrapper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 999999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease-out, visibility 0.8s ease-out; overflow: hidden;
+        /* ---- LOADER CINEMATOGRÁFICO ---- */
+        #loader-wrapper { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: radial-gradient(circle at center, #111 0%, #000 100%); 
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1); 
         }
-        #loader-wrapper.hidden { opacity: 0; visibility: hidden; }
-
-        #loading-video { width: 100%; max-width: 400px; height: auto; border: none; outline: none; }
-
-        .loading-text {
-            color: var(--gold-soft); margin-top: 25px; font-weight: 900;
-            font-family: var(--font-body); text-transform: uppercase; letter-spacing: 3px;
-            animation: pulseText 1.5s ease-in-out infinite alternate; font-size: 0.75rem;
+        #loader-wrapper.hidden { opacity: 0; pointer-events: none; }
+        
+        /* ---- ANIMAÇÃO DE SERVIR PREMIUM ---- */
+        .loader-serving-container {
+            position: relative; width: 280px; height: 280px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center;
         }
-        @keyframes pulseText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+        .loader-glass-bg {
+            position: absolute; width: 100%; height: 100%;
+            background: url('serving_minimal.png') center/contain no-repeat;
+            opacity: 0.15; mix-blend-mode: lighten;
+        }
+        .loader-glass-fill {
+            position: absolute; width: 100%; height: 100%;
+            background: url('serving_minimal.png') center/contain no-repeat;
+            clip-path: inset(100% 0 0 0);
+            animation: fillingGlass 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            mix-blend-mode: lighten;
+        }
+        @keyframes fillingGlass {
+            0% { clip-path: inset(100% 0 0 0); opacity: 0.5; }
+            50% { clip-path: inset(0% 0 0 0); opacity: 1; }
+            100% { clip-path: inset(0% 0 0 0); opacity: 0; }
+        }
 
-        .garrafa-voando {
-            position: fixed; z-index: 9999; pointer-events: none;
-            transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
-            object-fit: contain; filter: drop-shadow(0 5px 15px rgba(212, 175, 55, 0.6));
+        .loading-text { 
+            font-family: var(--font-premium); 
+            color: var(--gold-antique); 
+            font-size: 0.9rem; 
+            letter-spacing: 5px; 
+            text-transform: uppercase; 
+            font-weight: 300;
+            margin-bottom: 25px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .loader-bar-container {
+            width: 140px; height: 2px; background: rgba(255,255,255,0.05);
+            position: relative; overflow: hidden;
+            border-radius: 4px;
+        }
+        .loader-bar-fill {
+            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: var(--gold-metallic);
+            animation: loaderProgress 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+        @keyframes loaderProgress {
+            0% { left: -100%; }
+            50% { left: 0; }
+            100% { left: 100%; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         #toast-notificacao {
@@ -147,21 +196,47 @@
         #texto-frete { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--gold-soft); letter-spacing: 1px; }
         .barra-progresso-bg { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
         .barra-progresso-fill { width: 0%; height: 100%; background: var(--gold-metallic); transition: width 0.5s ease-in-out; }
+        .swiper-pagination-bullet { background: #fff !important; opacity: 0.3; }
+        .swiper-pagination-bullet-active { background: var(--gold-antique) !important; opacity: 1 !important; }
 
         .swiper-hero { width: 100%; max-width: 700px; padding: 20px 0; margin: 0 auto; background: transparent; }
         .swiper-hero img { width: 95%; max-height: 350px; border-radius: 15px; object-fit: contain; display: block; margin: 0 auto; background: transparent; }
-        .swiper-pagination-bullet { background: #fff !important; opacity: 0.5; }
-        .swiper-pagination-bullet-active { background: var(--gold-soft) !important; opacity: 1 !important; }
+        .hero-section { width: 100%; text-align: center; padding: 40px 20px; }
+        .hero-section h1 { 
+            font-family: var(--font-premium); 
+            font-size: clamp(1.8rem, 8vw, 3.5rem); 
+            color: var(--gold-antique);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: -10px;
+            line-height: 1.1;
+            word-wrap: break-word;
+        }
 
-        .hero-section { width: 100%; text-align: center; padding: 30px 15px; }
-        .hero-section h1 { font-family: var(--font-premium); font-size: clamp(2.2rem, 8vw, 3.2rem); background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700; }
+        .vitrine { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 60px 35px; padding: 20px 20px 150px; max-width: 1200px; margin: 0 auto; }
+        .card-produto { 
+            background: var(--bg-card); padding: 40px 30px; text-align: center; border-radius: 20px; 
+            border: 1px solid rgba(197,160,89,0.1); position: relative; transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        .card-produto:hover { 
+            transform: translateY(-12px); 
+            border-color: rgba(197,160,89,0.4); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 20px rgba(197,160,89,0.05); 
+        }
+        .img-wrapper { width: 100%; height: 260px; margin-bottom: 25px; position: relative; overflow: visible; display: flex; align-items: center; justify-content: center; }
 
-        .produtos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px 5% 120px; max-width: 1100px; margin: 0 auto; }
-        .card-produto { background: var(--bg-card); padding: 25px; text-align: center; border-radius: 20px; border: 1px solid #1a1a1a; position: relative; transition: 0.3s; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
-        .img-wrapper { width: 100%; height: 280px; margin-bottom: 15px; position: relative; overflow: hidden; }
-
-        .card-produto.esgotado-card .img-wrapper { opacity: 0.7; } 
-        .faixa-esgotado-clean { position: absolute; top: 50%; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 12px 0; font-family: var(--font-body); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; z-index: 20; transform: translateY(-50%); border-top: 1px solid rgba(212, 175, 55, 0.5); border-bottom: 1px solid rgba(212, 175, 55, 0.5); pointer-events: none; backdrop-filter: blur(4px); }
+        .card-produto.esgotado-card { opacity: 0.7; filter: grayscale(0.5); } 
+        .faixa-esgotado-clean { 
+            position: absolute; top: 20px; right: 20px; 
+            background: #500; color: #fff; 
+            padding: 8px 16px; border-radius: 50px; 
+            font-family: var(--font-body); font-weight: 800; font-size: 0.7rem; 
+            text-transform: uppercase; letter-spacing: 1.5px; z-index: 20; 
+            border: 1px solid #700; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
 
         @media (min-width: 1024px) {
             .swiper-produto { display: none !important; }
@@ -179,23 +254,53 @@
         }
 
         .cart-toggle { 
-            position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
-            transition: transform 0.15s ease;
+            position: fixed; bottom: 30px; right: 25px; background: var(--gold-metallic); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2001; box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--blue-navy);
         }
-        .cart-toggle:active { transform: scale(0.9); }
-        .cart-count { position: absolute; top: 0; right: 0; background: #ff4444; color: white; min-width: 22px; height: 22px; border-radius: 11px; font-size: 0.8rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid #000; }
+        .cart-toggle:hover { transform: scale(1.1); }
+        .cart-count { position: absolute; top: -5px; right: -5px; background: var(--blue-navy); color: var(--gold-antique); min-width: 26px; height: 26px; border-radius: 13px; font-size: 0.85rem; font-weight: 800; display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold-antique); }
         
         .cart-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; background: var(--bg-card); z-index: 4000; transition: 0.4s ease; padding: 30px; overflow-y: auto; text-align: center; overscroll-behavior: contain; }
         .cart-overlay.active { right: 0; }
         
-        .cart-input, select, input { width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-size: 16px !important; outline: none; }
+        .cart-input, select, input { 
+            width: 100%; background: #000; color: white; border: 1px solid #333; 
+            border-radius: 8px; padding: 15px; margin-bottom: 15px; 
+            font-size: 16px !important; outline: none; font-family: var(--font-body);
+            transition: border-color 0.3s;
+        }
+        .cart-input:focus, select:focus, input:focus { border-color: var(--gold-antique); }
         
         .btn-adicionar { 
-            background: var(--gold-metallic); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 0.85rem; position: relative; z-index: 5; 
-            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            background: var(--gold-metallic); color: var(--blue-navy); border: none; padding: 22px; width: 100%; font-weight: 800; cursor: pointer; border-radius: 12px; text-transform: uppercase; font-size: 1.1rem; position: relative; z-index: 5; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            letter-spacing: 2px;
+            font-family: var(--font-premium);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .btn-adicionar:hover { transform: scale(1.02) translateY(-2px); box-shadow: 0 8px 25px rgba(197,160,89,0.4); }
+        .btn-adicionar:disabled { 
+            background: #0a0a0a !important; 
+            color: #ccc !important; 
+            border: 1px solid #600; 
+            cursor: not-allowed; 
+            transform: none !important; 
+            box-shadow: none !important;
+            opacity: 1;
+            font-weight: 900;
+            letter-spacing: 3px;
+        }
+        .btn-adicionar::after {
+            content: ""; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
+            background: rgba(255, 255, 255, 0.4); border-radius: 50%;
+            transform: translate(-50%, -50%); opacity: 0; pointer-events: none;
+        }
+        .btn-adicionar.animating::after {
+            animation: rippleEffect 0.6s ease-out;
         }
         .btn-adicionar:active:not(:disabled) { transform: scale(0.95); box-shadow: inset 0 0 15px rgba(0,0,0,0.3); }
-        .btn-adicionar:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333; cursor: not-allowed; }
         
         .preco { font-family: var(--font-body); font-size: 1.8rem; color: var(--gold-soft); margin-bottom: 20px; display: block; font-weight: 900; }
         .prod-nome { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
@@ -214,10 +319,17 @@
         .btn-continuar:active { transform: scale(0.96); background: rgba(255,255,255,0.05); }
 
         #btn-finalizar {
-            background: #25D366; color: white; border: none; width: 100%; padding: 20px; font-weight: 900; border-radius: 12px; cursor: pointer; text-transform: uppercase;
-            transition: transform 0.15s ease, box-shadow 0.2s;
+            background: #25D366; color: #fff; border: none; width: 100%; 
+            padding: 18px; font-weight: 800; border-radius: 12px; cursor: pointer; 
+            text-transform: uppercase; letter-spacing: 1.5px; font-size: 1rem;
+            font-family: var(--font-body);
+            transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            margin-top: 25px;
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.2);
         }
-        #btn-finalizar:active { transform: scale(0.96); box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4); }
+        #btn-finalizar:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(37, 211, 102, 0.3); }
+        #btn-finalizar:active { transform: scale(0.96); }
 
         .btn-fechar {
             position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--gold-soft); font-size: 2.5rem; cursor: pointer;
@@ -226,6 +338,83 @@
         .btn-fechar:active { transform: scale(0.8); }
 
         @keyframes chacoalharRapido { 0%, 100% { transform: scale(1); } 20%, 60% { transform: scale(1.15) rotate(5deg); } 40%, 80% { transform: scale(1.15) rotate(-5deg); } }
+        
+        @keyframes rippleEffect {
+            0% { width: 0; height: 0; opacity: 0.8; }
+            100% { width: 300px; height: 300px; opacity: 0; }
+        }
+
+        @keyframes clickPulse {
+            0% { transform: scale(0.95); box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 0 0 0 rgba(212, 175, 55, 0.8); }
+            50% { transform: scale(1.02); box-shadow: inset 0 0 0 rgba(0,0,0,0), 0 0 20px 10px rgba(212, 175, 55, 0); }
+            100% { transform: scale(1); box-shadow: inset 0 0 0 rgba(0,0,0,0), 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+        .btn-adicionar.animating {
+            animation: clickPulse 0.5s ease-out;
+        }
+
+        /* ---- MODAL DETALHES DO PRODUTO ---- */
+        #modal-produto-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); z-index: 5000; display: none;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        #modal-produto-overlay.active { display: flex; }
+        
+        #modal-produto-box {
+            width: 100%; max-width: 500px;
+            background: linear-gradient(180deg, #151515, #000000);
+            border-radius: 24px;
+            padding: 40px 25px;
+            max-height: 90vh; overflow-y: auto;
+            opacity: 0; transform: scale(0.9); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,1);
+        }
+        #modal-produto-overlay.active #modal-produto-box { opacity: 1; transform: scale(1); }
+        
+        .modal-prod-foto {
+            width: 100%; height: 280px; object-fit: contain;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 20px 40px rgba(212,175,55,0.25));
+        }
+        .modal-prod-nome {
+            font-family: var(--font-premium); font-size: 2.5rem;
+            color: var(--gold-antique); font-weight: 700;
+            margin-bottom: 10px; text-transform: uppercase;
+        }
+        .modal-prod-preco {
+            font-size: 2rem; font-weight: 400; color: #fff;
+            margin-bottom: 25px; font-family: var(--font-premium);
+        }
+        .modal-tag {
+            display: inline-block; background: var(--blue-navy); color: var(--gold-antique);
+            border: 1px solid var(--gold-antique); border-radius: 4px;
+            padding: 8px 18px; font-size: 0.85rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px; margin: 0 5px 15px;
+        }
+        .modal-prod-desc {
+            color: #ccc; line-height: 1.8; margin: 25px 0; font-size: 1.05rem; font-weight: 300;
+        }
+        .modal-harm-title {
+            color: var(--gold-champagne); font-weight: 800; font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 12px; margin-top: 20px;
+        }
+        .modal-fechar {
+            position: absolute; top: 15px; right: 20px;
+            background: none; border: none; color: #555; font-size: 2.2rem; cursor: pointer;
+            line-height: 1;
+        }
+
+        /* ---- GARRAFA VOADORA PREMIUM (ARCO) ---- */
+        .garrafa-voando {
+            position: fixed; z-index: 9999; pointer-events: none;
+            object-fit: contain;
+            will-change: transform, opacity;
+            filter: drop-shadow(0 20px 30px rgba(212, 175, 55, 0.9)) brightness(1.2);
+        }
     </style>
 </head>
 <body>
@@ -234,6 +423,9 @@
         <div class="age-box">
             <span class="age-logo">Cachaça do Tio Nan</span>
             <p class="age-text">Você tem mais de 18 anos?<br><small style="font-size: 0.7rem; opacity: 0.6;">A apreciação de uma boa cachaça é um prazer reservado a adultos.</small></p>
+            
+            <input type="text" id="visitor-name" placeholder="Como podemos te chamar?" style="width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; font-family: var(--font-body); font-size: 1rem; text-align: center;" required>
+
             <div class="age-buttons">
                 <button class="btn-age btn-yes" onclick="verifyAge(true)">Sim, sou maior de idade</button>
                 <button class="btn-age btn-no" onclick="verifyAge(false)">Não tenho 18 anos</button>
@@ -242,13 +434,34 @@
     </div>
 
     <div id="loader-wrapper">
-        <video id="loading-video" autoplay loop muted playsinline>
-            <source src="load.mp4" type="video/mp4">
-        </video>
+        <div class="loader-glow"></div>
+        <div class="loader-serving-container">
+            <div class="loader-glass-bg"></div>
+            <div class="loader-glass-fill"></div>
+        </div>
         <div class="loading-text">Servindo a verdadeira...</div>
+        <div class="loader-bar-container">
+            <div class="loader-bar-fill"></div>
+        </div>
     </div>
 
-    <div id="toast-notificacao">Adicionado à sacola! 🥃</div>
+    <!-- MODAL DETALHES DO PRODUTO -->
+    <div id="modal-produto-overlay" onclick="fecharModalProduto(event)">
+        <div id="modal-produto-box" style="position:relative;">
+            <button class="modal-fechar" onclick="fecharModalProduto()">×</button>
+            <img id="modal-foto" class="modal-prod-foto" src="" alt="">
+            <p class="modal-prod-nome" id="modal-nome"></p>
+            <p class="modal-prod-preco" id="modal-preco"></p>
+            <div id="modal-tags"></div>
+            <p class="modal-prod-desc" id="modal-desc"></p>
+            <div id="modal-harm-wrapper" style="margin-top:5px; margin-bottom:20px;">
+                <p class="modal-harm-title">🍽️ Harmoniza com</p>
+                <p id="modal-harm" style="color:#888; font-size:0.9rem;"></p>
+            </div>
+            <button id="modal-btn-add" class="btn-adicionar" style="margin-bottom:12px;">Adicionar à Sacola</button>
+            <button class="btn-continuar" onclick="fecharModalProduto()" style="border-radius:12px; padding:15px;">Voltar para a loja</button>
+        </div>
+    </div>
 
     <div class="cart-toggle" onclick="toggleCart()" id="cart-btn">
         <svg viewBox="0 0 24 24" style="width:30px; fill:#000;"><path d="M17,6H16V5c0-2.21-1.79-4-4-4S8,2.79,8,5v1H7C5.34,6,4,7.34,4,9v10c0,1.66,1.34,3,3,3h10c1.66,0,3-1.34,3-3V9 C20,7.34,18.66,6,17,6z M10,5c0-1.1,0.9-2,2-2s2,0.9,2,2v1h-4V5z"/></svg>
@@ -259,7 +472,7 @@
 
     <aside class="cart-overlay" id="cart-overlay">
         <button class="btn-fechar" onclick="toggleCart()">×</button>
-        <h3 style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
+        <h3 id="cart-title" style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola</h3>
         
         <div id="container-frete">
             <div id="texto-frete">Adicione 3 garrafas para ganhar um benefício!</div>
@@ -268,45 +481,55 @@
 
         <div id="cart-items"></div>
         
-        <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
+        <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:30px;">
+            <p style="font-weight:900; text-transform:uppercase; font-size:0.75rem; letter-spacing:2px; color:var(--gold-soft); margin-bottom:20px;">Detalhes do Pedido</p>
+            
             <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
+            
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
                 <option value="none" selected disabled>Como quer receber?</option>
-                <option value="tele">Tele Entrega (+ R$ 15,00)</option>
-                <option value="retirada">Retirada na Loja</option>
+                <option value="tele">Entrega em Casa (Tele)</option>
+                <option value="retirada">Retirar na Loja</option>
             </select>
 
-            <div id="bloco-retirada" style="display:none; background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold-soft); padding: 15px; border-radius: 8px; margin-bottom: 15px; color: var(--gold-soft); font-size: 0.9rem; line-height: 1.4; text-align: left;">
-                <strong>📍 Endereço para busca:</strong><br>
-                Av. Bento Gonçalves, 4321<br>
-                Partenon, Porto Alegre - RS
+            <div id="bloco-retirada" style="display:none; padding:15px; background:rgba(212,175,55,0.05); border-radius:10px; margin:15px 0; border:1px solid rgba(212,175,55,0.1); font-size:0.85rem; color:#aaa; text-align:left;">
+                📍 Retirada na <a href="https://maps.app.goo.gl/9U6D1r5WJjM9X6aU8" target="_blank" style="color:var(--gold-soft); font-weight:bold; text-decoration:underline;">Av. Bento Gonçalves, 4321</a>. Horário a combinar via WhatsApp.
             </div>
 
             <div id="bloco-endereco" style="display:none;">
                 <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua">
-                <div style="display:flex; gap:10px;"><input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"><input type="text" id="apto" class="cart-input" placeholder="Apto (Opcional)" style="width:65%;"></div>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;">
+                    <input type="text" id="apto" class="cart-input" placeholder="Apto/Opc" style="width:65%;">
+                </div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; background:#111; color:#888;">
-                    <input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; background:#111; color:#888;">
+                    <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly style="width:75%; opacity:0.6;">
+                    <input type="text" id="estado" class="cart-input" placeholder="UF" readonly style="width:25%; opacity:0.6;">
                 </div>
             </div>
 
-            <select id="metodo-pagamento" class="cart-input">
-                <option value="none" selected disabled>Forma de Pagamento?</option>
+            <select id="metodo-pagamento" class="cart-input" onchange="handlePagamentoChange()">
+                <option value="none" selected disabled>Forma de Pagamento</option>
                 <option value="Pix">Pix</option>
                 <option value="Dinheiro">Dinheiro</option>
-                <option value="Débito">Débito</option>
-                <option value="Crédito">Crédito</option>
+                <option value="Cartão">Cartão na Entrega</option>
             </select>
+
+            <div id="bloco-troco" style="display:none;">
+                <input type="text" id="troco" class="cart-input" placeholder="Precisa de troco para quanto? (Opcional)">
+            </div>
 
             <div id="aviso-regiao" style="color: #ff4444; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; display: none; text-transform: uppercase;">Ops! Ainda não entregamos nesta cidade. 💔</div>
 
-            <h3 id="cart-total-display" style="margin:25px 0; color:var(--gold-soft); font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
+            <h3 id="cart-total-display" style="margin:30px 0; color:#fff; font-size: 1.8rem; font-weight: 900;">Total: R$ 0,00</h3>
             
-            <button id="btn-finalizar" onclick="checkout()">FINALIZAR NO WHATSAPP</button>
-            <button class="btn-continuar" onclick="toggleCart()">Continuar Comprando</button>
+            <button id="btn-finalizar" onclick="checkout()" style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                <svg viewBox="0 0 24 24" style="width:20px; fill:currentColor;"><path d="M17.472 14.382c-.301-.15-1.767-.872-2.04-.971-.272-.1-.47-.15-.665.15-.195.3-.755.952-.925 1.151-.17.199-.34.225-.64.075-.301-.15-1.27-.468-2.42-1.493-.893-.796-1.495-1.778-1.67-2.078-.17-.301-.019-.463.13-.612.135-.133.301-.35.451-.525.15-.175.2-.299.3-.499.1-.2.05-.375-.025-.525-.075-.15-.665-1.601-.91-2.195-.24-.576-.48-.497-.665-.506-.172-.007-.37-.008-.57-.008-.2 0-.525.075-.8.375-.275.3-.1.575-1.05 1.55s1.05 2.05 1.15 2.175c.1.125 2.047 3.125 4.958 4.378.692.298 1.233.475 1.654.609.696.22 1.33.19 1.83.114.56-.085 1.767-.723 2.022-1.422.255-.699.255-1.299.175-1.422-.08-.124-.275-.199-.575-.35zm-5.457 7.618l-.014.001c-1.89 0-3.743-.51-5.36-1.474l-.384-.228-3.991 1.046 1.066-3.89-.251-.4c-1.06-1.688-1.62-3.654-1.618-5.674 0-5.897 4.798-10.695 10.697-10.695 2.857 0 5.541 1.11 7.56 3.13s3.13 4.703 3.13 7.56c-.002 5.898-4.8 10.695-10.698 10.695zM12 1c-6.065 0-11 4.935-11 11 0 1.964.522 3.88 1.512 5.57l-1.512 5.43 5.57-1.458c1.64.887 3.483 1.358 5.37 1.358h.014c6.066 0 11-4.935 11-11 0-2.938-1.144-5.7-3.222-7.778s-4.84-3.222-7.778-3.222z"/></svg>
+                Finalizar no WhatsApp
+            </button>
+            <button class="btn-continuar" onclick="toggleCart()">Continuar Explorando</button>
         </div>
     </aside>
 
@@ -320,11 +543,26 @@
             </div>
             <div class="swiper-pagination"></div>
         </div>
-        <section class="hero-section"><h1>Cachaça do Tio Nan</h1></section>
-        <div id="vitrine" class="produtos-grid"></div>
+        <section class="hero-section"><h1 id="hero-title">Cachaça do Tio Nan</h1></section>
+        <div id="vitrine" class="vitrine"></div>
     </main>
 
+    <footer>
+        <span style="font-family: var(--font-premium); font-size: 1.5rem; color: var(--gold-soft); margin-bottom: 15px; display: block;">Cachaçaria Tio Nan</span>
+        <p style="color: #555; font-size: 0.85rem; max-width: 600px; margin: 0 auto 25px; line-height: 1.8;">
+            Produzindo as melhores cachaças artesanais do Rio Grande do Sul. Tradição, pureza e um sabor inigualável em cada dose.
+            <br><br>
+            Av. Bento Gonçalves, 4321 - Porto Alegre/RS
+        </p>
+        <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;">
+            <a href="#" style="color: #888; text-decoration: none; font-size: 0.9rem;">Instagram</a>
+            <a href="#" style="color: #888; text-decoration: none; font-size: 0.9rem;">WhatsApp</a>
+        </div>
+        <div style="text-transform: uppercase; letter-spacing: 4px; font-size: 0.7rem; color: #333; font-weight: 900;">Beba com moderação. Venda proibida para menores de 18 anos.</div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('touchstart', function (event) { if (event.touches.length > 1) { event.preventDefault(); } }, { passive: false });
         document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
@@ -332,8 +570,15 @@
         // --- FUNÇÕES DE VERIFICAÇÃO DE IDADE ---
         function verifyAge(isAdult) {
             if (isAdult) {
+                const nameInput = document.getElementById('visitor-name').value.trim();
+                if (!nameInput) {
+                    alert("Por favor, preencha como gostaria de ser chamado para prosseguir.");
+                    return;
+                }
+                localStorage.setItem('visitorName', nameInput);
                 localStorage.setItem('ageVerified', 'true');
                 document.getElementById('age-verification-overlay').style.display = 'none';
+                updateWelcome();
                 const video = document.getElementById('loading-video');
                 if(video) video.play(); 
             } else {
@@ -344,14 +589,38 @@
         window.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('ageVerified') === 'true') {
                 document.getElementById('age-verification-overlay').style.display = 'none';
+                updateWelcome();
             } else {
                 const video = document.getElementById('loading-video');
                 if(video) video.pause();
             }
         });
 
-        const urlWebhook = "https://script.google.com/macros/s/AKfycbzdKBuX0YgzgzDNIFtKcYhpVT2_ZOL-jcAVsNJwFjRQcsxw_n7QasraXeIuZiBc44lO/exec";
-        const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
+        function updateWelcome() {
+            const visitorName = localStorage.getItem('visitorName') || '';
+            const titleEl = document.getElementById('hero-title');
+            if (titleEl) {
+                if (visitorName) {
+                    titleEl.innerHTML = `<span style="display:block; font-size:0.7em; opacity:1; color:#fff; margin-bottom:12px; letter-spacing:3px;">Olá, ${visitorName}!</span>Seja bem vindo à Tio Nan`;
+                } else {
+                    titleEl.innerText = "Seja bem vindo à Tio Nan";
+                }
+            }
+            
+            const cartTitle = document.getElementById('cart-title');
+            if (cartTitle && visitorName) cartTitle.innerText = `Sacola de ${visitorName}`;
+            
+            const inputNome = document.getElementById('cliente-nome');
+            if (inputNome && !inputNome.value) inputNome.value = visitorName;
+        }
+
+        const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
+        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let userIP = 'Desconhecido';
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => userIP = data.ip).catch(e => console.error('Erro ao pegar IP:', e));
+
         const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
         
         new Swiper('.swiper-hero', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 } });
@@ -396,46 +665,70 @@
             btn.disabled = false; btn.style.background = "#25D366"; btn.style.opacity = "1"; aviso.style.display = "none";
         }
 
+        const DESCRICOES_PREMIUM = {
+            "Gengibre, Guaco e Mel": "Uma alquimia perfeita para quem aprecia intensidade e conforto. O calor picante do gengibre fresco desperta o paladar, enquanto o guaco traz notas herbais profundas que remetem à tradição do campo. A finalização fica por conta da doçura aveludada do mel, que suaviza a potência da cachaça e deixa um retrogosto acolhedor. Ideal para dias frios ou para momentos de puro relaxamento.",
+            "Café": "O encontro perfeito entre o corpo robusto da cachaça artesanal e o aroma intenso do café torrado. Apresenta notas de chocolate amargo e um final persistente, ideal para paladares que buscam sofisticação em cada dose.",
+            "Butiá": "Uma explosão de tropicalidade gaúcha. O sabor exótico e levemente ácido do butiá harmoniza perfeitamente com a doçura da cana, revelando aromas silvestres e uma refrescância incomparável.",
+            "Morango com Pimenta": "A sedutora dança entre a doçura vibrante e o fogo sutil. O frescor suculento do morango maduro envolve a boca de imediato, preparando o terreno para a picância instigante da pimenta dedo-de-moça. É uma bebida de contrastes marcantes: começa doce e encerra com um toque levemente ardente que convida ao próximo gole.",
+            "Jabuticaba": "O \"ouro negro\" brasileiro em forma de elixir. A jabuticaba traz uma adstringência elegante e uma doçura natural que dança com a suavidade da destilação artesanal, evocando tradição e frescor.",
+            "Morango": "Frescor frutado e doçura equilibrada. O sabor puro do morango silvestre se funde à cachaça artesanal, resultando em uma bebida leve, aromática e extremamente agradável para qualquer ocasião."
+        };
+
         async function loadProducts() {
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`);
-                const text = await res.text();
-                const rows = text.split('\n').slice(1);
+                const { data: produtos, error } = await db.from('produtos').select('*').eq('excluido', false);
+                if (error) throw error;
+                
                 let htmlDisp = ''; let htmlEsg = '';
                 
-                rows.forEach(row => {
-                    const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
-                    if(!c || !c[1] || c[1] === "EXCLUIDO") return;
+                produtos.forEach(p => {
+                    const id = p.id;
+                    const nome = p.nome;
+                    const foto1 = (p.foto_1 && p.foto_1.length > 5) ? p.foto_1 : "https://via.placeholder.com/300x300?text=Sem+Foto"; 
+                    const temFoto2 = (p.foto_2 && p.foto_2.length > 5);
+                    const foto2 = temFoto2 ? p.foto_2 : foto1; 
                     
-                    const id = c[0];
-                    const nome = c[1];
-                    const foto1 = (c[2] && c[2].length > 5) ? c[2] : "https://via.placeholder.com/300x300?text=Sem+Foto"; 
-                    const temFoto2 = (c[3] && c[3].length > 5);
-                    const foto2 = temFoto2 ? c[3] : foto1; 
-                    
-                    const precoTexto = c[4] ? c[4].replace(',', '.') : "0";
-                    const precoNum = parseFloat(precoTexto);
-                    const estoque = parseInt(c[5]) || 0;
+                    const precoNum = parseFloat(p.preco);
+                    const estoque = parseInt(p.estoque) || 0;
                     const temEstoque = estoque > 0;
-                    const custoNum = parseFloat(c[6] ? c[6].replace(',', '.') : "0");
+                    const custoNum = parseFloat(p.custo || 0);
+
+                    // Descrição Inteligente: Mapeamento insensível a maiúsculas/minúsculas e espaços
+                    let descricao = p.descricao || '';
+                    const nomeNormalizado = nome.trim().toLowerCase();
+                    
+                    // Encontrar a descrição premium correspondente
+                    const chavePremium = Object.keys(DESCRICOES_PREMIUM).find(k => k.toLowerCase() === nomeNormalizado);
+                    
+                    // Forçar para os sabores específicos ou se a descrição for genérica/curta
+                    const saboresForcados = ["gengibre, guaco e mel", "morango com pimenta"];
+                    if (saboresForcados.includes(nomeNormalizado) || !descricao || descricao.includes("feita com muito carinho") || descricao.length < 10) {
+                        if (chavePremium) descricao = DESCRICOES_PREMIUM[chavePremium];
+                    }
+                    
+                    const teor = p.teor_alcoolico || '';
+                    const harmonizacao = p.harmonizacao || '';
+
+                    // Encode para passar com segurança pelo onclick
+                    const dadosModal = encodeURIComponent(JSON.stringify({ id, nome, foto1, precoNum, custoNum, descricao, teor, harmonizacao, temEstoque }));
 
                     const card = `
                         <div class="card-produto ${temEstoque ? '' : 'esgotado-card'}" id="card-${id}">
-                            <div class="img-wrapper">
+                            <div class="img-wrapper" onclick="abrirModalProduto('${dadosModal}')" style="cursor:pointer;">
                                 ${temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>'}
                                 <div class="desktop-only-images">
                                     <img src="${foto1}" class="foto-1 prod-img">
-                                    <img src="${foto2}" class="foto-2">
+                                    <img src="${foto2}" class="foto-2" loading="lazy">
                                 </div>
                                 <div class="swiper swiper-produto">
                                     <div class="swiper-wrapper">
-                                        <div class="swiper-slide"><img src="${foto1}" class="prod-img"></div>
-                                        ${temFoto2 ? `<div class="swiper-slide"><img src="${foto2}" class="prod-img"></div>` : ''}
+                                        <div class="swiper-slide"><img src="${foto1}" class="prod-img" loading="lazy"></div>
+                                        ${temFoto2 ? `<div class="swiper-slide"><img src="${foto2}" class="prod-img" loading="lazy"></div>` : ''}
                                     </div>
                                     <div class="swiper-pagination"></div>
                                 </div>
                             </div>
-                            <div>
+                            <div onclick="abrirModalProduto('${dadosModal}')" style="cursor:pointer;">
                                 <h3 class="prod-nome">${nome}</h3>
                                 <span class="preco">R$ ${precoNum.toFixed(2).replace('.',',')}</span>
                             </div>
@@ -452,48 +745,140 @@
                 });
 
             } catch (error) {
-                console.error(error);
+                console.error("Erro ao carregar produtos:", error);
             } finally {
                 setTimeout(() => { document.getElementById('loader-wrapper').classList.add('hidden'); }, 1500);
             }
         }
 
         function add(id, name, price, cost) {
+            // 1. Adiciona no carrinho IMEDIATAMENTE
+            const item = cart.find(i => i.id === id);
+            if(item) item.qtd++; else cart.push({id, name, price, cost: cost, qtd:1});
+            updateCart();
+
+            // 2. Feedback visual no botão (snappy)
             const card = document.getElementById(`card-${id}`);
-            let imgOriginal = card.querySelector('.swiper-slide-active img') || card.querySelector('.foto-1');
-            
+            if(card) {
+                const btnAdicionar = card.querySelector('.btn-adicionar');
+                if (btnAdicionar) {
+                    btnAdicionar.classList.remove('animating');
+                    void btnAdicionar.offsetWidth;
+                    btnAdicionar.classList.add('animating');
+                    btnAdicionar.textContent = "Adicionado! ✓";
+                    clearTimeout(btnAdicionar.resetTimeout);
+                    btnAdicionar.resetTimeout = setTimeout(() => { btnAdicionar.textContent = "Adicionar à sacola"; }, 1500);
+                }
+            }
+
+            // 3. Toast
+            const toast = document.getElementById('toast-notificacao'); 
+            if(toast) {
+                toast.classList.add('show'); 
+                clearTimeout(window.toastTimeout);
+                window.toastTimeout = setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+
+            // 4. Efeito da Garrafa Voadora
             const cartBtn = document.getElementById('cart-btn');
-            const clone = imgOriginal.cloneNode(true);
-            const rect = imgOriginal.getBoundingClientRect();
-            const cartRect = cartBtn.getBoundingClientRect();
+            if (card && cartBtn) {
+                let imgOriginal = Array.from(card.querySelectorAll('img')).find(img => img.offsetWidth > 10 && img.offsetHeight > 10);
+                if (!imgOriginal) imgOriginal = card.querySelector('img');
+                
+                if (imgOriginal) {
+                    const rect = imgOriginal.getBoundingClientRect();
+                    const cartRect = cartBtn.getBoundingClientRect();
+                    const clone = imgOriginal.cloneNode(true);
+                    
+                    clone.className = 'garrafa-voando';
+                    clone.style.width = rect.width + 'px';
+                    clone.style.height = rect.height + 'px';
+                    clone.style.left = rect.left + 'px';
+                    clone.style.top = rect.top + 'px';
+                    clone.style.transform = 'translate(0,0) scale(1) rotate(0deg)';
+                    clone.style.opacity = '1';
+                    document.body.appendChild(clone);
 
-            clone.classList.add('garrafa-voando');
-            clone.style.width = rect.width + 'px';
-            clone.style.height = rect.height + 'px';
-            clone.style.top = rect.top + 'px';
-            clone.style.left = rect.left + 'px';
-            document.body.appendChild(clone);
+                    const destX = (cartRect.left + cartRect.width / 2) - (rect.left + rect.width / 2);
+                    const destY = (cartRect.top + cartRect.height / 2) - (rect.top + rect.height / 2);
 
+                    const animation = clone.animate([
+                        { transform: 'translate(0,0) scale(1) rotate(0deg)', opacity: 1, offset: 0 },
+                        { transform: `translate(${destX * 0.3}px, -150px) scale(0.75) rotate(180deg)`, opacity: 1, offset: 0.4, easing: 'ease-out' },
+                        { transform: `translate(${destX}px, ${destY}px) scale(0.1) rotate(1080deg)`, opacity: 0.2, offset: 1, easing: 'ease-in' }
+                    ], { duration: 1200, fill: 'forwards' });
+
+                    animation.onfinish = () => {
+                        clone.remove();
+                        // Atualiza o contador apenas agora
+                        sincronizarBadge();
+                        // Efeito de chacoalhar a sacola
+                        cartBtn.style.animation = 'none'; 
+                        void cartBtn.offsetWidth; 
+                        cartBtn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
+                    };
+                }
+            }
+
+            // 5. Rastreio de IP no Supabase (por último, sem bloquear nada)
+            const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
+            db.from('rastreio_carrinho').insert([{ ip: userIP, produto_nome: name, cliente_nome: visitorName }])
+              .then(({error}) => { if(error) console.warn("Erro no rastreio:", error.message); })
+              .catch(e => {});
+        }
+
+        function abrirModalProduto(dadosEncoded) {
+            const p = JSON.parse(decodeURIComponent(dadosEncoded));
+            document.getElementById('modal-foto').src = p.foto1;
+            document.getElementById('modal-nome').innerText = p.nome;
+            document.getElementById('modal-preco').innerText = `R$ ${parseFloat(p.precoNum).toFixed(2).replace('.', ',')}`;
+            
+            let tagsHtml = '';
+            if (p.teor) tagsHtml += `<span class="modal-tag">🌡️ ${p.teor}</span>`;
+            document.getElementById('modal-tags').innerHTML = tagsHtml;
+            
+            document.getElementById('modal-desc').innerText = p.descricao || 'Uma cachaça artesanal feita com muito carinho pelo Tio Nan.';
+            
+            const harmWrapper = document.getElementById('modal-harm-wrapper');
+            if (p.harmonizacao) {
+                document.getElementById('modal-harm').innerText = p.harmonizacao;
+                harmWrapper.style.display = 'block';
+            } else {
+                harmWrapper.style.display = 'none';
+            }
+
+            const btnAdd = document.getElementById('modal-btn-add');
+            if (p.temEstoque) {
+                btnAdd.disabled = false;
+                btnAdd.innerText = "Adicionar à Sacola";
+                btnAdd.onclick = () => {
+                    add(p.id, p.nome, p.precoNum, p.custoNum);
+                    fecharModalProduto();
+                };
+            } else {
+                btnAdd.disabled = true;
+                btnAdd.innerText = "Produto Esgotado";
+                btnAdd.onclick = null;
+            }
+
+            document.getElementById('modal-produto-overlay').classList.add('active');
+            const modalBox = document.getElementById('modal-produto-box');
+            if (modalBox) {
+                modalBox.style.scrollBehavior = 'auto';
+                modalBox.scrollTop = 0;
+            }
+            document.body.classList.add('stop-scroll');
+        }
+
+        function fecharModalProduto(event) {
+            if (event && event.target !== document.getElementById('modal-produto-overlay') && event.target.className !== 'modal-fechar' && event.target.className !== 'btn-continuar') return;
+            document.getElementById('modal-produto-overlay').classList.remove('active');
+            document.body.classList.remove('stop-scroll');
+            // Resetar o scroll após a animação de saída
             setTimeout(() => {
-                clone.style.transform = "scale(1.2)";
-                setTimeout(() => {
-                    clone.style.top = (cartRect.top + 10) + 'px';
-                    clone.style.left = (cartRect.left + 10) + 'px';
-                    clone.style.width = '40px';
-                    clone.style.height = '40px';
-                    clone.style.opacity = '0.5';
-                    clone.style.transform = "scale(0.2) rotate(45deg)";
-                }, 100);
-            }, 50);
-
-            setTimeout(() => {
-                clone.remove();
-                const item = cart.find(i => i.id === id);
-                if(item) item.qtd++; else cart.push({id, name, price, cost: cost, qtd:1});
-                updateCart();
-                const toast = document.getElementById('toast-notificacao'); toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
-                cartBtn.style.animation = 'none'; void cartBtn.offsetWidth; cartBtn.style.animation = 'chacoalharRapido 0.6s ease-in-out';
-            }, 850);
+                const box = document.getElementById('modal-produto-box');
+                if (box) { box.style.scrollBehavior = 'auto'; box.scrollTop = 0; }
+            }, 500);
         }
 
         function updateCart() {
@@ -517,7 +902,10 @@
 
             if (cart.length === 0) { 
                 itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`; 
-                document.getElementById('checkout-form').style.display = 'none'; document.getElementById('badge').innerText = 0; return; 
+                document.getElementById('checkout-form').style.display = 'none'; 
+                // No caso de esvaziar manualmente, atualizamos o badge na hora
+                sincronizarBadge();
+                return; 
             }
             
             document.getElementById('checkout-form').style.display = 'block';
@@ -529,53 +917,98 @@
             
             itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
             
-            document.getElementById('badge').innerText = totalGarrafas;
+            // Removido o update do badge daqui para sincronizar com a animação
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
             if (entrega === 'tele' && totalGarrafas < 3) total += 15;
             document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.',',')}`;
         }
 
-        function changeQty(id, delta) { const item = cart.find(i => i.id === id); if (item) { item.qtd += delta; if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); updateCart(); } }
-        
-        async function checkout() {
-            const nome = document.getElementById('cliente-nome').value; 
-            const entrega = document.getElementById('metodo-entrega').value; 
+        function handlePagamentoChange() {
             const pag = document.getElementById('metodo-pagamento').value;
+            document.getElementById('bloco-troco').style.display = (pag === 'Dinheiro') ? 'block' : 'none';
+        }
+
+        function changeQty(id, delta) { 
+            const item = cart.find(i => i.id === id); 
+            if (item) { 
+                item.qtd += delta; 
+                if (item.qtd <= 0) cart = cart.filter(i => i.id !== id); 
+                updateCart(); 
+                sincronizarBadge(); // Quando altera manualmente na sacola, sincroniza na hora
+            } 
+        }
+
+        function sincronizarBadge() {
             const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
-            
-            if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos os campos!");
-            
-            let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
-            const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
-            
-            let valorFrete = 0;
-            if (entrega === 'tele' && totalGarrafas < 3) {
-                valorFrete = 15.00;
-            }
-
-            let valorTotalComFrete = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0) + valorFrete;
-
-            const dados = { 
-                data: new Date().toLocaleString('pt-BR'), 
-                cliente: nome, 
-                itens: cart.map(i => `${i.name} (x${i.qtd})`).join(', '), 
-                total: `R$ ${valorTotalComFrete.toFixed(2)}`, 
-                custo: custoTotalPedido, 
-                pagamento: pag, 
-                status: "Novo Pedido", 
-                endereco: endereco,
-                frete: valorFrete 
-            };
-            
-            let beneficioMsg = "";
-            if(entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n🚚 FRETE GRÁTIS ATIVADO!";
-            else if (valorFrete > 0) beneficioMsg = `\n🚚 Frete: R$ ${valorFrete.toFixed(2).replace('.', ',')}`;
-
-            fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(dados) });
-            window.open(`https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+dados.itens+"\n📍 "+endereco+"\n💰 "+dados.total + beneficioMsg)}`);
+            const badge = document.getElementById('badge');
+            if(badge) badge.innerText = totalGarrafas;
         }
         
-        loadProducts(); updateCart();
+        async function checkout() {
+            try {
+                const nome = document.getElementById('cliente-nome').value; 
+                const entrega = document.getElementById('metodo-entrega').value; 
+                const pag = document.getElementById('metodo-pagamento').value;
+                const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+                
+                if(!nome || entrega === "none" || pag === "none") return alert("Preencha todos os campos!");
+                
+                let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
+                const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
+                
+                let valorFrete = 0;
+                if (entrega === 'tele' && totalGarrafas < 3) {
+                    valorFrete = 15.00;
+                }
+
+                let valorTotalComFrete = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0) + valorFrete;
+
+                const itensMsg = cart.map(i => `${i.name} (x${i.qtd})`).join(', ');
+                const totalMsg = `R$ ${valorTotalComFrete.toFixed(2)}`;
+                
+                let beneficioMsg = "";
+                if(entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n🚚 FRETE GRÁTIS ATIVADO!";
+                else if (valorFrete > 0) beneficioMsg = `\n🚚 Frete: R$ ${valorFrete.toFixed(2).replace('.', ',')}`;
+
+                // Envia para o Supabase em segundo plano
+                const dbDados = {
+                    cliente: nome,
+                    itens: itensMsg,
+                    total: parseFloat(valorTotalComFrete.toFixed(2)),
+                    custo: parseFloat(custoTotalPedido.toFixed(2)),
+                    pagamento: pag,
+                    endereco: endereco,
+                    frete: parseFloat(valorFrete)
+                };
+                db.from('pedidos').insert([dbDados]).then(() => console.log("Salvo")).catch(e => console.error(e));
+
+                let trocoMsg = "";
+                if (pag === "Dinheiro") {
+                    const trocoVal = document.getElementById('troco').value;
+                    if (trocoVal) trocoMsg = `\n💵 Troco para: R$ ${trocoVal}`;
+                }
+
+                // Disparo para o BARK (Notificação Nativa iOS - Super Estável)
+                try {
+                    const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname.replace('index.html', '');
+                    const adminUrl = baseUrl + (baseUrl.endsWith('/') ? '' : '/') + 'admin.html';
+                    const barkTitle = encodeURIComponent(`🥃 NOVO PEDIDO: ${nome.toUpperCase()}`);
+                    const barkBody = encodeURIComponent(`Valor: ${totalMsg}\nItens: ${itensMsg}`);
+                    const barkUrl = `https://api.day.app/nrsU2kcUcKiCA3zqQ3nzYY/${barkTitle}/${barkBody}?url=${encodeURIComponent(adminUrl)}&icon=https://eegqobqhrfdkmjyjnqvp.supabase.co/storage/v1/object/public/fotos/favicon.png&sound=telegraph`;
+                    
+                    fetch(barkUrl).catch(e => console.log("Bark offline ou bloqueado"));
+                } catch (e) {}
+
+                // Redireciona imediatamente (mais seguro para mobile)
+                const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 "+nome+"\n📦 "+itensMsg+"\n📍 "+endereco+"\n💳 Pagamento: "+pag + trocoMsg +"\n💰 "+totalMsg + beneficioMsg)}`;
+                window.location.href = waUrl;
+            } catch (e) {
+                console.error(e);
+                alert("Ops! Verifique se todos os campos estão preenchidos corretamente.");
+            }
+        }
+        
+        loadProducts(); updateCart(); sincronizarBadge(); updateWelcome();
 
         let isCartOpen = false;
         function toggleCart() { if (isCartOpen) { closeCart(false); } else { openCart(); } }
