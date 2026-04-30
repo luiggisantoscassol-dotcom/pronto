@@ -131,6 +131,7 @@
 
         @media (max-width: 450px) { .sidebar { width: 85%; } }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -151,10 +152,21 @@
         <button class="nav-item" onclick="switchTab('tab-estoque')">Estoque 📦</button>
         <button class="nav-item" onclick="switchTab('tab-stats')">Resultados 📊</button>
         <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastro ➕</button>
+        <button class="nav-item" onclick="switchTab('tab-rastreio')">Rastreio 👁️</button>
     </nav>
 
-    <div id="tab-pedidos" class="tab-content"><div class="card"><h2>Pedidos em Aberto</h2><div id="corpo-pedidos"></div></div></div>
+    <div id="tab-pedidos" class="tab-content">
+        <div class="card">
+            <div id="setup-notificacoes" style="padding:15px; background:rgba(212,175,55,0.1); border-radius:15px; margin-bottom:20px; text-align:center; display:none;">
+                <p style="font-size:0.8rem; margin-bottom:10px;">Deseja receber notificações no celular?</p>
+                <button onclick="ativarNotificacoes()" style="padding:10px 20px; background:var(--gold); border:none; border-radius:10px; font-weight:900; font-size:0.7rem; cursor:pointer;">ATIVAR ALERTAS</button>
+            </div>
+            <h2>Pedidos em Aberto</h2>
+            <div id="corpo-pedidos"></div>
+        </div>
+    </div>
     <div id="tab-historico" class="tab-content"><div class="card"><h2>Histórico Total</h2><div id="corpo-historico"></div></div></div>
+    <div id="tab-rastreio" class="tab-content"><div class="card"><h2>Rastreio de Adições (IP)</h2><div id="corpo-rastreio"></div></div></div>
     
     <div id="tab-pdv" class="tab-content">
         <div id="pdv-floating-cart" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; max-width:500px; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900; cursor:pointer;" onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span id="pdv-float-total">R$ 0,00</span></div>
@@ -183,6 +195,9 @@
             <input type="number" id="cad-estoque" placeholder="Quantidade Inicial">
             <input type="url" id="cad-foto1" placeholder="Link da Foto 1">
             <input type="url" id="cad-foto2" placeholder="Link da Foto 2">
+            <textarea id="cad-descricao" placeholder="Descrição da Cachaça (Sommelier)" style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 18px; margin-bottom: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
+            <input type="text" id="cad-teor" placeholder="Teor Alcoólico (ex: 38% Vol)">
+            <input type="text" id="cad-harmonizacao" placeholder="Harmonização (ex: Queijos curados)">
             <button onclick="cadastrarProduto()" class="btn-status">SALVAR NOVO PRODUTO</button>
         </div>
     </div>
@@ -200,6 +215,9 @@
         <label>Nome:</label><input type="text" id="edit-nome">
         <label>Venda:</label><input type="number" id="edit-preco" step="0.01">
         <label>Custo:</label><input type="number" id="edit-custo" step="0.01">
+        <label>Descrição:</label><textarea id="edit-descricao" style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 18px; margin-bottom: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
+        <label>Teor Alcoólico:</label><input type="text" id="edit-teor">
+        <label>Harmonização:</label><input type="text" id="edit-harmonizacao">
         <button onclick="salvarEdicao()" class="btn-status">SALVAR ALTERAÇÕES</button>
         <button onclick="excluirProduto(document.getElementById('edit-id').value)" style="background:transparent; color:var(--red); border:none; margin-top:20px; width:100%; font-weight:800; cursor:pointer;">EXCLUIR PRODUTO</button>
     </div>
@@ -218,14 +236,41 @@
     </div>
 
     <script>
-        const urlWebhook = "https://script.google.com/macros/s/AKfycbzdKBuX0YgzgzDNIFtKcYhpVT2_ZOL-jcAVsNJwFjRQcsxw_n7QasraXeIuZiBc44lO/exec";
-        const SHEET_ID = "1MjcWuXWOXJGJ-vyei-C_Zg5SPWCeUd-NFQxLib2G6ho";
+        const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
+        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
         let sel = null; let adminCart = []; let statsMensal = {};
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay-menu').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
         function fecharTodosModais() { document.querySelectorAll('.modal-box').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
         function showToast(m) { const t = document.getElementById('toast-admin'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
-        function limparMoeda(v) { let s = String(v || "0"); if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.'); return parseFloat(s.replace(/[^0-9.-]/g, '')) || 0; }
+
+        // --- SISTEMA DE NOTIFICAÇÕES NATIVAS ---
+        function verificarPermissaoNotificacao() {
+            if ("Notification" in window) {
+                if (Notification.permission === "default") {
+                    document.getElementById('setup-notificacoes').style.display = 'block';
+                }
+            }
+        }
+        
+        async function ativarNotificacoes() {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+                document.getElementById('setup-notificacoes').style.display = 'none';
+                new Notification("Tio Nan - Gestão Pro", { body: "Notificações ativadas com sucesso! 🥃" });
+            }
+        }
+
+        function dispararNotificacaoNativa(cliente) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("🥃 NOVO PEDIDO!", {
+                    body: `O cliente ${cliente} acabou de fazer um pedido.`,
+                    icon: 'https://eegqobqhrfdkmjyjnqvp.supabase.co/storage/v1/object/public/fotos/favicon.png' // Fallback se tiver ícone
+                });
+            }
+        }
 
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -237,60 +282,109 @@
             localStorage.setItem('abaAtivaTioNan', id);
         }
 
-        function extrairMesAno(dt) {
-            if (!dt) return "S/D";
-            const partes = dt.split(' ')[0].split(/[\/-]/);
-            if (partes.length < 2) return "S/D";
-            let mes = partes[1], ano = partes[0].length === 4 ? partes[0] : partes[2];
-            return `${mes}/${ano}`;
+        function extrairMesAno(dtStr) {
+            if (!dtStr) return "S/D";
+            const dt = new Date(dtStr);
+            const mes = String(dt.getMonth() + 1).padStart(2, '0');
+            return `${mes}/${dt.getFullYear()}`;
+        }
+
+        function formatarDataHora(dtStr) {
+            if (!dtStr) return "";
+            const dt = new Date(dtStr);
+            return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth()+1).padStart(2, '0')}/${dt.getFullYear()} às ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+        }
+        
+        function formatarData(dtStr) {
+            if (!dtStr) return "";
+            const dt = new Date(dtStr);
+            return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth()+1).padStart(2, '0')}/${dt.getFullYear()}`;
         }
 
         async function carregar() {
             try {
-                const resV = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1901875162&t=${Date.now()}`);
-                const rowsV = (await resV.text()).split('\n').slice(1);
-                const resA = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Arquivados&t=${Date.now()}`);
-                let rowsA = []; if(resA.ok) { const tA = await resA.text(); if(!tA.includes('<!doctype html>')) rowsA = tA.split('\n').slice(1); }
+                // Carregar Produtos
+                const { data: produtos } = await db.from('produtos').select('*').eq('excluido', false).order('nome');
+                
+                // Carregar Pedidos
+                const { data: pedidos } = await db.from('pedidos').select('*').order('created_at', { ascending: false });
 
+                // Carregar Rastreio
+                const { data: rastreio } = await db.from('rastreio_carrinho').select('*').order('created_at', { ascending: false });
+
+                // Processar Rastreio de IP
+                let ipMap = {};
+                if (rastreio) {
+                    rastreio.forEach(r => {
+                        const chave = r.ip;
+                        const nomeCliente = r.cliente_nome && r.cliente_nome !== 'Anônimo' ? r.cliente_nome : null;
+                        if(!ipMap[chave]) ipMap[chave] = { cont: 0, items: [], ultimo: r.created_at, nome: nomeCliente };
+                        // Atualiza o nome se achou um que não é Anônimo
+                        if (nomeCliente && !ipMap[chave].nome) ipMap[chave].nome = nomeCliente;
+                        
+                        ipMap[chave].cont++;
+                        ipMap[chave].items.push(`${r.produto_nome} (${formatarDataHora(r.created_at)})`);
+                    });
+                }
+                
+                let htmlRastreio = '<table>';
+                Object.keys(ipMap).forEach((ip, index) => {
+                    const data = ipMap[ip];
+                    const exibirNome = data.nome ? data.nome : "Visitante Anônimo";
+                    const listaItens = data.items.map(i => `<li>${i}</li>`).join('');
+                    
+                    htmlRastreio += `<tr onclick="document.getElementById('detalhe-${index}').style.display = document.getElementById('detalhe-${index}').style.display === 'none' ? 'table-row' : 'none'" style="cursor:pointer; border-bottom:1px solid #222;">
+                                        <td><b style="font-size:1.1rem;">${exibirNome}</b><br><small style="color:#888;">IP: ${ip}</small><br><small>Último: ${formatarDataHora(data.ultimo)}</small></td>
+                                        <td style="text-align:right;"><b style="color:var(--gold); font-size:1.2rem;">${data.cont} itens</b> <span style="font-size:0.8rem; opacity:0.6;">▼</span></td>
+                                     </tr>
+                                     <tr id="detalhe-${index}" style="display:none; background:#1a1a1a;">
+                                        <td colspan="2" style="padding:15px; font-size:0.9rem; color:#ccc; border-radius: 8px;">
+                                            <ul style="list-style-type:none; margin:0; padding:0; line-height:1.6;">${listaItens}</ul>
+                                        </td>
+                                     </tr>`;
+                });
+                document.getElementById('corpo-rastreio').innerHTML = htmlRastreio + '</table>';
+
+                // Processar Pedidos
                 let htmlV = '<table>'; let htmlH = '<table>'; 
                 statsMensal = {}; let fatG = 0; let lucG = 0;
 
-                function processar(row, idTab, isA) {
-                    const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
-                    if(!c[1]) return "";
-                    const st = c[6] || "Novo", val = limparMoeda(c[3]), cus = limparMoeda(c[4]), dt = c[0] || "";
-                    const dtF = dt.includes(' ') ? `${dt.split(' ')[0]}<br><small style="color:#888;">${dt.split(' ')[1].substring(0,5)}</small>` : dt;
-                    
-                    const safeData = encodeURIComponent(JSON.stringify(c));
-                    
-                    let frt = 0;
-                    if (c[8] && c[8].trim() !== "") {
-                        frt = limparMoeda(c[8]);
-                    }
+                if (pedidos) {
+                    pedidos.forEach(p => {
+                        const val = parseFloat(p.total || 0);
+                        const cus = parseFloat(p.custo || 0);
+                        const frt = parseFloat(p.frete || 0);
+                        const st = p.status || "Novo Pedido";
+                        const isA = (st === "Concluído" || st === "Cancelado");
+                        const dtF = `${formatarData(p.created_at)}<br><small style="color:#888;">${new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>`;
+                        
+                        const safeData = encodeURIComponent(JSON.stringify(p));
 
-                    if(st.toUpperCase().includes("CONCLU")) {
-                        let mesAno = extrairMesAno(dt);
-                        if(!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, orders: [] };
-                        statsMensal[mesAno].f += val; 
-                        statsMensal[mesAno].l += (val - cus - frt);
-                        statsMensal[mesAno].orders.push({ safeData: safeData, id: idTab, arquivo: isA });
-                        fatG += val; 
-                        lucG += (val - cus - frt);
-                    }
-                    return `<tr id="row-${isA?'arq':'ven'}-${idTab}" onclick="abrirPedido('${safeData}', ${idTab}, ${isA})">
-                                <td><b>${c[1]}</b><br><small>${dtF}</small></td>
-                                <td><span class="status ${st.split(' ')[0]}">${st}</span><br><b style="color:var(--gold);">R$ ${val.toFixed(2)}</b></td>
-                            </tr>`;
+                        if(st === "Concluído") {
+                            let mesAno = extrairMesAno(p.created_at);
+                            if(!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, orders: [] };
+                            statsMensal[mesAno].f += val; 
+                            statsMensal[mesAno].l += (val - cus - frt);
+                            statsMensal[mesAno].orders.push(p);
+                            fatG += val; 
+                            lucG += (val - cus - frt);
+                        }
+
+                        const tr = `<tr onclick="abrirPedido('${safeData}')">
+                                    <td><b>${p.cliente}</b><br><small>${dtF}</small></td>
+                                    <td><span class="status ${st.split(' ')[0]}">${st}</span><br><b style="color:var(--gold);">R$ ${val.toFixed(2)}</b></td>
+                                </tr>`;
+
+                        if (isA) htmlH += tr; else htmlV += tr;
+                    });
                 }
-
-                rowsV.reverse().forEach((r, i) => htmlV += processar(r, rowsV.length - i, false));
-                rowsA.reverse().forEach((r, i) => htmlH += processar(r, rowsA.length - i, true));
                 
                 document.getElementById('corpo-pedidos').innerHTML = htmlV + '</table>';
                 document.getElementById('corpo-historico').innerHTML = htmlH + '</table>';
                 document.getElementById('total-fat-geral').innerText = `R$ ${fatG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
                 document.getElementById('total-lucro-geral').innerText = `R$ ${lucG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
 
+                // Processar Estatísticas Mensais
                 let htmlStats = "";
                 Object.keys(statsMensal).sort().reverse().forEach(mes => {
                     htmlStats += `<div class="stat-month-card" onclick="verDetalhesMes('${mes}')">
@@ -301,88 +395,132 @@
                 });
                 document.getElementById('corpo-estatisticas').innerHTML = htmlStats || "<p style='text-align:center; opacity:0.5;'>Sem dados.</p>";
 
-                const resP = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0&t=${Date.now()}`);
-                const rowsP = (await resP.text()).split('\n').slice(1);
+                // Processar Produtos (Estoque e PDV)
                 let htmlE = ''; let htmlPDV = '';
-                rowsP.forEach(row => {
-                    const c = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v ? v.replace(/^"|"$/g, '').trim() : "");
-                    if(!c[1] || c[1] === "EXCLUIDO") return;
-                    const id = c[0], n = c[1], nS = n.replace(/'/g, "\\'"), p = limparMoeda(c[4]), cus = limparMoeda(c[6]), e = c[5] || 0, f1 = c[2];
-                    
-                    htmlE += `<div class="estoque-row"><div style="display:flex; justify-content:space-between; align-items:center;"><b>${n}</b><button onclick="abrirEdicao('${id}','${nS}',${p},${cus})" style="background:transparent; border:none; font-size:1.5rem; padding:10px; cursor:pointer;">✏️</button></div><div class="estoque-controles"><button class="btn-step" onclick="stepStock('${id}', -1)">−</button><div class="estoque-val-display" id="st-display-${id}">${e}</div><button class="btn-step" onclick="stepStock('${id}', 1)">+</button></div></div>`;
-                    
-                    htmlPDV += `<div class="pdv-card">
-                        <button class="btn-edit-product" onclick="abrirEdicao('${id}','${nS}',${p},${cus})">✏️</button>
-                        <img src="${f1 || 'https://via.placeholder.com/150'}">
-                        <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:flex-end;">
-                            <div class="pdv-name">${n}</div>
-                            <div class="pdv-price">R$ ${p.toFixed(2)}</div>
-                        </div>
-                        <button class="pdv-btn-add" onclick="addPDV('${id}', '${nS}', ${p}, ${cus})">Adicionar</button>
-                    </div>`;
-                });
+                if (produtos) {
+                    produtos.forEach(p => {
+                        const id = p.id, n = p.nome, nS = n.replace(/'/g, "\\'"), pr = parseFloat(p.preco||0), cus = parseFloat(p.custo||0), e = p.estoque || 0, f1 = p.foto_1;
+                        const desc = (p.descricao || '').replace(/'/g, "\\'").replace(/\n/g, "\\n");
+                        const teor = (p.teor_alcoolico || '').replace(/'/g, "\\'");
+                        const harm = (p.harmonizacao || '').replace(/'/g, "\\'");
+                        
+                        htmlE += `<div class="estoque-row"><div style="display:flex; justify-content:space-between; align-items:center;"><b>${n}</b><button onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')" style="background:transparent; border:none; font-size:1.5rem; padding:10px; cursor:pointer;">✏️</button></div><div class="estoque-controles"><button class="btn-step" onclick="stepStock('${id}', -1)">−</button><div class="estoque-val-display" id="st-display-${id}">${e}</div><button class="btn-step" onclick="stepStock('${id}', 1)">+</button></div></div>`;
+                        
+                        htmlPDV += `<div class="pdv-card">
+                            <button class="btn-edit-product" onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')">✏️</button>
+                            <img src="${f1 || 'https://via.placeholder.com/150'}">
+                            <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:flex-end;">
+                                <div class="pdv-name">${n}</div>
+                                <div class="pdv-price">R$ ${pr.toFixed(2)}</div>
+                            </div>
+                            <button class="pdv-btn-add" onclick="addPDV('${id}', '${nS}', ${pr}, ${cus})">Adicionar</button>
+                        </div>`;
+                    });
+                }
                 document.getElementById('corpo-estoque').innerHTML = htmlE; document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV; updatePDVCart();
             } catch (err) { console.error(err); }
         }
 
-        function abrirEdicao(id, n, p, c) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-        async function salvarEdicao() { const id = document.getElementById('edit-id').value, n = encodeURIComponent(document.getElementById('edit-nome').value), p = document.getElementById('edit-preco').value, c = document.getElementById('edit-custo').value; fecharTodosModais(); showToast("Salvando..."); fetch(`${urlWebhook}?action=editProduct&id=${id}&nome=${n}&preco=${p}&custo=${c}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
-        async function cadastrarProduto() { const n = document.getElementById('cad-nome').value, p = document.getElementById('cad-preco').value, f1 = document.getElementById('cad-foto1').value, f2 = document.getElementById('cad-foto2').value; if(!n || !p) return alert("Erro!"); const d = `nome=${encodeURIComponent(n)}&preco=${p}&custo=${document.getElementById('cad-custo').value}&estoque=${document.getElementById('cad-estoque').value}&foto1=${encodeURIComponent(f1)}&foto2=${encodeURIComponent(f2)}`; showToast("Cadastrando..."); fetch(`${urlWebhook}?action=addProduct&${d}`, {mode:'no-cors'}); setTimeout(() => { switchTab('tab-estoque'); carregar(); }, 4000); }
-        async function excluirProduto(id) { if(!confirm("Excluir para sempre?")) return; fecharTodosModais(); showToast("Excluindo..."); fetch(`${urlWebhook}?action=deleteProduct&id=${id}`, {mode:'no-cors'}); setTimeout(carregar, 3000); }
+        function abrirEdicao(id, n, p, c, desc, teor, harm) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('edit-descricao').value = desc || ''; document.getElementById('edit-teor').value = teor || ''; document.getElementById('edit-harmonizacao').value = harm || ''; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+        
+        async function salvarEdicao() { 
+            const id = document.getElementById('edit-id').value;
+            const n = document.getElementById('edit-nome').value;
+            const p = parseFloat(document.getElementById('edit-preco').value);
+            const c = parseFloat(document.getElementById('edit-custo').value);
+            const desc = document.getElementById('edit-descricao').value;
+            const teor = document.getElementById('edit-teor').value;
+            const harm = document.getElementById('edit-harmonizacao').value;
+            fecharTodosModais(); showToast("Salvando..."); 
+            await db.from('produtos').update({ nome: n, preco: p, custo: c, descricao: desc, teor_alcoolico: teor, harmonizacao: harm }).eq('id', id);
+            carregar(); 
+        }
+
+        async function cadastrarProduto() { 
+            const n = document.getElementById('cad-nome').value;
+            const p = parseFloat(document.getElementById('cad-preco').value);
+            const c = parseFloat(document.getElementById('cad-custo').value || 0);
+            const e = parseInt(document.getElementById('cad-estoque').value || 0);
+            const f1 = document.getElementById('cad-foto1').value;
+            const f2 = document.getElementById('cad-foto2').value;
+            const desc = document.getElementById('cad-descricao').value;
+            const teor = document.getElementById('cad-teor').value;
+            const harm = document.getElementById('cad-harmonizacao').value;
+            
+            if(!n || !p) return alert("Erro!"); 
+            showToast("Cadastrando..."); 
+            
+            await db.from('produtos').insert([{
+                nome: n, preco: p, custo: c, estoque: e, foto_1: f1, foto_2: f2, descricao: desc, teor_alcoolico: teor, harmonizacao: harm
+            }]);
+            
+            document.getElementById('cad-nome').value = ''; document.getElementById('cad-preco').value = ''; document.getElementById('cad-custo').value = ''; document.getElementById('cad-estoque').value = ''; document.getElementById('cad-foto1').value = ''; document.getElementById('cad-foto2').value = ''; document.getElementById('cad-descricao').value = ''; document.getElementById('cad-teor').value = ''; document.getElementById('cad-harmonizacao').value = '';
+            switchTab('tab-estoque'); carregar(); 
+        }
+
+        async function excluirProduto(id) { 
+            if(!confirm("Excluir para sempre?")) return; 
+            fecharTodosModais(); showToast("Excluindo..."); 
+            await db.from('produtos').update({ excluido: true }).eq('id', id);
+            carregar(); 
+        }
 
         function verDetalhesMes(mesAno) {
             const data = statsMensal[mesAno]; if (!data) return;
             document.getElementById('mes-titulo-detalhe').innerText = `Vendas de ${mesAno}`;
             let html = "<table>";
-            data.orders.forEach(o => {
-                const c = JSON.parse(decodeURIComponent(o.safeData)); 
-                const dt = c[0] || ""; const dtF = dt.includes(' ') ? `${dt.split(' ')[0]} <small style="color:#888;">${dt.split(' ')[1].substring(0,5)}</small>` : dt;
-                html += `<tr onclick="abrirPedido('${o.safeData}', ${o.id}, ${o.arquivo})"><td><b>${c[1]}</b><br><small>${dtF}</small></td><td><b style="color:var(--gold);">R$ ${limparMoeda(c[3]).toFixed(2)}</b></td></tr>`;
+            data.orders.forEach(p => {
+                const dtF = `${formatarData(p.created_at)} <small style="color:#888;">${new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>`;
+                const safeData = encodeURIComponent(JSON.stringify(p));
+                html += `<tr onclick="abrirPedido('${safeData}')"><td><b>${p.cliente}</b><br><small>${dtF}</small></td><td><b style="color:var(--gold);">R$ ${parseFloat(p.total).toFixed(2)}</b></td></tr>`;
             });
             document.getElementById('corpo-mes-detalhe').innerHTML = html + "</table>";
             document.getElementById('modal-mes-detalhe').style.display = 'flex'; document.getElementById('overlay').style.display = 'block';
         }
 
-        function abrirPedido(safeData, row, isA) { 
-            sel = { row, isA }; 
-            const c = JSON.parse(decodeURIComponent(safeData));
+        function abrirPedido(safeData) { 
+            const p = JSON.parse(decodeURIComponent(safeData));
+            sel = p; // Guarda o pedido selecionado
             
-            const dt = c[0] || ""; 
-            const dtF = dt.includes(' ') ? `${dt.split(' ')[0]} às ${dt.split(' ')[1].substring(0,5)}` : dt; 
+            const dtF = formatarDataHora(p.created_at);
             
             let htmlFrete = '<span style="color:#888;">Não registrado</span>';
-            if (c[8] !== undefined && c[8].trim() !== "") {
-                const freteVal = limparMoeda(c[8]);
+            if (p.frete !== undefined && p.frete !== null) {
+                const freteVal = parseFloat(p.frete);
                 if (freteVal === 0) { htmlFrete = '<span style="color:var(--green)">Grátis</span>'; } 
                 else { htmlFrete = `R$ ${freteVal.toFixed(2)}`; }
             }
             
-            const enderecoOriginal = c[7] || 'Balcão';
+            const enderecoOriginal = p.endereco || 'Balcão';
             let htmlEndereco = enderecoOriginal;
             if (enderecoOriginal.toLowerCase() !== 'balcão' && enderecoOriginal.trim() !== '') {
                 const urlMaps = `https://maps.google.com/?q=${encodeURIComponent(enderecoOriginal)}`;
                 htmlEndereco = `<a href="${urlMaps}" target="_blank" style="color:var(--gold); font-weight:700; text-decoration:none; border-bottom:1px dashed var(--gold); padding-bottom:2px;">${enderecoOriginal} 📍</a>`;
             }
 
-            document.getElementById('m-nome').innerText = c[1]; 
+            document.getElementById('m-nome').innerText = p.cliente; 
             document.getElementById('detalhes-pedido').innerHTML = `
-                <b>📦 ITENS:</b><br>${c[2]}<br><br>
-                <b>💰 PAGTO:</b> ${c[5]}<br>
+                <b>📦 ITENS:</b><br>${p.itens}<br><br>
+                <b>💰 PAGTO:</b> ${p.pagamento}<br>
                 <b>🚚 LOCAL:</b> ${htmlEndereco}<br><br>
                 <b>📦 FRETE:</b> ${htmlFrete}<br>
                 <b>⏰ FEITO EM:</b> ${dtF}
-                <div style="text-align:right; font-size:1.8rem; font-weight:900; color:var(--gold); margin-top:15px; border-top:1px solid #333; padding-top:15px;">R$ ${limparMoeda(c[3]).toFixed(2)}</div>`; 
+                <div style="text-align:right; font-size:1.8rem; font-weight:900; color:var(--gold); margin-top:15px; border-top:1px solid #333; padding-top:15px;">R$ ${parseFloat(p.total).toFixed(2)}</div>`; 
             
-            document.getElementById('m-status').value = c[6] || "Novo Pedido"; 
+            document.getElementById('m-status').value = p.status || "Novo Pedido"; 
             document.getElementById('modal-pedido').style.display = 'block'; 
             document.getElementById('overlay').style.display = 'block'; 
         }
 
         async function salvarStatus() { 
-            const st = document.getElementById('m-status').value; const rowId = `row-${sel.isA ? 'arq' : 'ven'}-${sel.row}`; const rowEl = document.getElementById(rowId);
-            if (rowEl && (!sel.isA && (st === "Concluído" || st === "Cancelado" || st === "EXCLUIR"))) { rowEl.classList.add('row-removing'); setTimeout(() => rowEl.remove(), 400); }
-            fecharTodosModais(); showToast("Atualizando..."); fetch(`${urlWebhook}?action=updateStatus&row=${sel.row}&status=${st}&isArquivo=${sel.isA}&t=${Date.now()}`, { mode: 'no-cors' }); 
-            setTimeout(carregar, 3000); 
+            const st = document.getElementById('m-status').value; 
+            fecharTodosModais(); showToast("Atualizando..."); 
+            if (st === "EXCLUIR") {
+                await db.from('pedidos').delete().eq('id', sel.id);
+            } else {
+                await db.from('pedidos').update({ status: st }).eq('id', sel.id);
+            }
+            carregar(); 
         }
 
         function addPDV(id, n, p, c) { let i = adminCart.find(x => x.id === id); if(i) i.qtd++; else adminCart.push({id, name: n, price: p, cost: c, qtd:1}); updatePDVCart(); showToast("Na sacola"); }
@@ -402,23 +540,31 @@
         
         async function finalizarVendaPDV() {
             if(!confirm("Finalizar venda?")) return;
-            const fretePdv = limparMoeda(document.getElementById('pdv-frete').value);
+            const fretePdv = parseFloat(document.getElementById('pdv-frete').value || 0);
             const totalProdutos = adminCart.reduce((a, b) => a + (b.price * b.qtd), 0);
             const payload = { 
                 cliente: document.getElementById('pdv-cliente').value || "Balcão", 
                 itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', '), 
-                total: `R$ ${(totalProdutos + fretePdv).toFixed(2)}`, 
-                custo: adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0), 
+                total: parseFloat((totalProdutos + fretePdv).toFixed(2)), 
+                custo: parseFloat((adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0)).toFixed(2)), 
                 pagamento: document.getElementById('pdv-pagamento').value, 
                 status: "Concluído", 
                 frete: fretePdv,
-                isAdminSale: true,
-                cartItems: adminCart.map(i => ({id: i.id, qtd: i.qtd}))
+                endereco: "Balcão"
             };
-            fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Enviando..."); fetch(urlWebhook, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }); setTimeout(carregar, 3000);
+            fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Enviando..."); 
+            await db.from('pedidos').insert([payload]);
+            carregar();
         }
 
-        function stepStock(id, d) { const display = document.getElementById(`st-display-${id}`); if(display) { const nv = parseInt(display.innerText) + d; display.innerText = nv; fetch(`${urlWebhook}?action=updateStock&id=${id}&stock=${nv}`, { mode: 'no-cors' }); } }
+        async function stepStock(id, d) { 
+            const display = document.getElementById(`st-display-${id}`); 
+            if(display) { 
+                const nv = parseInt(display.innerText) + d; 
+                display.innerText = nv; 
+                await db.from('produtos').update({ estoque: nv }).eq('id', id);
+            } 
+        }
 
         let touchstartX = 0; let touchendX = 0;
         document.body.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
@@ -431,13 +577,38 @@
             }
         }
         function navigateTabs(direction) {
-            const abas = ['tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-stats', 'tab-cadastro'];
-            const index = abas.indexOf(document.querySelector('.tab-content.active').id) + direction;
+            const abas = ['tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-stats', 'tab-cadastro', 'tab-rastreio'];
+            const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
+            const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
         }
 
         const abaSalva = localStorage.getItem('abaAtivaTioNan') || 'tab-pedidos';
-        switchTab(abaSalva); carregar(); setInterval(carregar, 60000);
+        switchTab(abaSalva); carregar();
+
+        // --- SISTEMA DE NOTIFICAÇÃO EM TEMPO REAL ---
+        db.channel('pedidos_realtime')
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'pedidos' },
+            (payload) => {
+                const p = payload.new;
+                // Só notifica se for um pedido novo (evita duplicar PDV que já nasce concluído)
+                if (p.status === "Novo Pedido") {
+                    showToast(`🔔 NOVO PEDIDO: ${p.cliente.toUpperCase()}! 🥃`);
+                    dispararNotificacaoNativa(p.cliente.toUpperCase());
+                    try {
+                        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                        audio.play();
+                    } catch(e) {}
+                    carregar(); // Atualiza a tela na hora
+                }
+            }
+          )
+          .subscribe();
+
+        verificarPermissaoNotificacao();
+        setInterval(carregar, 120000); // Backup de refresh a cada 2 min
     </script>
 </body>
 </html>
