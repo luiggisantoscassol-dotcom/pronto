@@ -200,6 +200,20 @@
 
     <div id="toast-admin">Sucesso! ✓</div>
 
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; background-image: radial-gradient(circle at 50% 50%, rgba(197,160,89,0.1) 0%, transparent 70%);">
+        <div class="card" style="width: 90%; max-width: 400px; text-align: center; border: 1px solid rgba(197,160,89,0.3); box-shadow: 0 30px 60px rgba(0,0,0,0.9);">
+            <h2 style="margin-bottom: 5px; font-size: 1.5rem;">Acesso Pro</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 30px; font-weight: 600;">Painel de Gestão Tio Nan</p>
+            
+            <input type="text" id="login-user" placeholder="Usuário" style="margin-bottom: 15px; text-align: center;">
+            <input type="password" id="login-pass" placeholder="Senha" style="margin-bottom: 25px; text-align: center;">
+            
+            <button onclick="fazerLogin()" class="btn-status" style="width: 100%; font-size: 0.9rem; padding: 18px;">ENTRAR NO SISTEMA</button>
+            <p id="login-error" style="color: var(--red-premium); font-size: 0.8rem; margin-top: 15px; display: none; font-weight: 800;">Acesso negado. Tente novamente.</p>
+        </div>
+    </div>
+
     <header>
         <span class="header-title">Tio Nan Gestão</span>
         <div class="menu-icon" onclick="toggleMenu()"><span>☰</span></div>
@@ -326,6 +340,34 @@
     </div>
 
     <script>
+        // --- SISTEMA DE LOGIN ---
+        function verificarSessao() {
+            if (sessionStorage.getItem('tioNanAdminLogado') === 'true') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Bloqueia rolagem
+            }
+        }
+
+        function fazerLogin() {
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            
+            // USUÁRIO E SENHA DEFINIDOS AQUI
+            if (u === 'admin' && p === 'admin') { 
+                sessionStorage.setItem('tioNanAdminLogado', 'true');
+                document.getElementById('login-screen').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                document.getElementById('login-error').style.display = 'none';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+        
+        verificarSessao();
+
         const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
