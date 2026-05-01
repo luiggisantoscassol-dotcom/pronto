@@ -351,17 +351,17 @@
         @media (max-width: 1023px) {
             .hint-detalhes {
                 opacity: 0.85;
-                bottom: 10px;
-                right: 10px;
+                bottom: 12px;
+                right: 12px;
                 top: auto;
                 left: auto;
-                padding: 4px 8px;
-                font-size: 0.5rem;
+                padding: 6px 12px;
+                font-size: 0.65rem;
                 background: rgba(10, 14, 26, 0.75);
                 backdrop-filter: blur(5px);
-                border: 1px solid rgba(197, 160, 89, 0.3);
+                border: 1px solid rgba(197, 160, 89, 0.4);
                 letter-spacing: 0.5px;
-                transform: scale(0.8);
+                transform: scale(0.95);
                 animation: none;
             }
         }
@@ -952,13 +952,37 @@
         }
 
         function add(id, name, price, cost) {
+            const card = document.getElementById(`card-${id}`);
+            const modalOverlay = document.getElementById('modal-produto-overlay');
+            const isModalOpen = modalOverlay && modalOverlay.classList.contains('active');
+            
+            // Origem: ou a foto do modal, ou a foto do card
+            let sourceImg = null;
+            if (isModalOpen) {
+                sourceImg = document.getElementById('modal-foto');
+            } else if (card) {
+                // Procura a imagem do card que está de fato visível na tela
+                sourceImg = Array.from(card.querySelectorAll('img')).find(img => {
+                    const r = img.getBoundingClientRect();
+                    const isVisible = r.width > 0 && window.getComputedStyle(img).display !== 'none';
+                    const isOnScreen = r.left >= -50 && r.right <= (window.innerWidth || document.documentElement.clientWidth) + 50;
+                    return isVisible && isOnScreen;
+                }) || card.querySelector('img');
+            }
+            
+            const fotoUrl = sourceImg ? sourceImg.src : '';
+
             // 1. Adiciona no carrinho IMEDIATAMENTE
             const item = cart.find(i => i.id === id);
-            if(item) item.qtd++; else cart.push({id, name, price, cost: cost, qtd:1});
+            if(item) {
+                item.qtd++;
+                if (fotoUrl) item.foto = fotoUrl; // Atualiza a foto se houver uma nova
+            } else {
+                cart.push({id, name, price, cost: cost, qtd:1, foto: fotoUrl});
+            }
             updateCart();
 
             // 2. Feedback visual no botão (snappy)
-            const card = document.getElementById(`card-${id}`);
             if(card) {
                 const btnAdicionar = card.querySelector('.btn-adicionar');
                 if (btnAdicionar) {
@@ -993,22 +1017,6 @@
 
             // 4. Efeito da Garrafa Voadora
             const cartBtn = document.getElementById('cart-btn');
-            const modalOverlay = document.getElementById('modal-produto-overlay');
-            const isModalOpen = modalOverlay && modalOverlay.classList.contains('active');
-            
-            // Origem: ou a foto do modal, ou a foto do card
-            let sourceImg = null;
-            if (isModalOpen) {
-                sourceImg = document.getElementById('modal-foto');
-            } else if (card) {
-                // Procura a imagem do card que está de fato visível na tela
-                sourceImg = Array.from(card.querySelectorAll('img')).find(img => {
-                    const r = img.getBoundingClientRect();
-                    const isVisible = r.width > 0 && window.getComputedStyle(img).display !== 'none';
-                    const isOnScreen = r.left >= -50 && r.right <= (window.innerWidth || document.documentElement.clientWidth) + 50;
-                    return isVisible && isOnScreen;
-                }) || card.querySelector('img');
-            }
 
             if (sourceImg && cartBtn) {
                 const rect = sourceImg.getBoundingClientRect();
@@ -1136,7 +1144,10 @@
             if (entrega === 'retirada') liberarBotao(); 
             else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
             
-            itemsCont.innerHTML = cart.map(i => `<div class="cart-item-row"><div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`).join('');
+            itemsCont.innerHTML = cart.map(i => {
+                const imgHtml = i.foto ? `<img src="${i.foto}" style="width:40px; height:40px; object-fit:contain; border-radius:6px; background:rgba(255,255,255,0.02); margin-right:10px;">` : '';
+                return `<div class="cart-item-row"><div style="display:flex; align-items:center;">${imgHtml}<div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`;
+            }).join('');
             
             // Removido o update do badge daqui para sincronizar com a animação
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
