@@ -1242,6 +1242,9 @@
                 style="font-weight:900; text-transform:uppercase; font-size:0.75rem; letter-spacing:2px; color:var(--gold-soft); margin-bottom:20px;">
                 Detalhes do Pedido</p>
 
+            <input type="tel" id="cliente-telefone" class="cart-input" placeholder="Telefone (WhatsApp)"
+                oninput="mascaraTelefone(this)" onblur="buscarCliente()">
+
             <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
 
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
@@ -1430,6 +1433,45 @@
             let v = t.value.replace(/\D/g, "");
             if (v.length > 5) v = v.substring(0, 5) + "-" + v.substring(5, 8);
             t.value = v;
+        }
+
+        function mascaraTelefone(t) {
+            let v = t.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.substring(0, 11);
+            if (v.length > 10) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7, 11)}`;
+            } else if (v.length > 6) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2, 6)}-${v.substring(6, 10)}`;
+            } else if (v.length > 2) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2)}`;
+            } else if (v.length > 0) {
+                t.value = `(${v}`;
+            }
+        }
+
+        async function buscarCliente() {
+            const telInput = document.getElementById('cliente-telefone');
+            if (!telInput) return;
+            const tel = telInput.value.replace(/\D/g, "");
+            if (tel.length >= 10) {
+                try {
+                    const { data, error } = await db.from('clientes').select('*').eq('telefone', tel).limit(1);
+                    if (data && data.length > 0 && !error) {
+                        const cli = data[0];
+                        document.getElementById('cliente-nome').value = cli.nome || "";
+                        if (cli.cep) {
+                            document.getElementById('cep').value = cli.cep;
+                            document.getElementById('rua').value = cli.rua || "";
+                            document.getElementById('numero').value = cli.numero || "";
+                            document.getElementById('bairro').value = cli.bairro || "";
+                            document.getElementById('cidade').value = cli.cidade || "";
+                            document.getElementById('estado').value = cli.estado || "";
+                            document.getElementById('apto').value = cli.apto || "";
+                            validarCidade(cli.cidade);
+                        }
+                    }
+                } catch (e) { console.log("Erro ao buscar cliente."); }
+            }
         }
 
         async function buscaCEP() {
@@ -1778,7 +1820,12 @@
             if (btnEsvaziar) btnEsvaziar.style.display = 'block';
 
             document.getElementById('checkout-form').style.display = 'block';
-            document.getElementById('bloco-endereco').style.display = (entrega === 'tele') ? 'block' : 'none';
+            if (entrega === 'tele') {
+                document.getElementById('bloco-endereco').style.display = 'block';
+                buscarCliente(); // Garante a busca ao selecionar Tele
+            } else {
+                document.getElementById('bloco-endereco').style.display = 'none';
+            }
             document.getElementById('bloco-retirada').style.display = (entrega === 'retirada') ? 'block' : 'none';
 
             if (entrega === 'retirada') liberarBotao();
@@ -1842,6 +1889,8 @@
                     }
                 }
 
+                const telefone = document.getElementById('cliente-telefone').value;
+                if (!telefone || telefone.length < 14) return showError('cliente-telefone');
                 if (!nome) return showError('cliente-nome');
                 if (!entrega || entrega === "none") return showError('metodo-entrega');
                 if (entrega === 'tele') {
@@ -1871,7 +1920,7 @@
 
                 // Envia para o Supabase em segundo plano
                 const dbDados = {
-                    cliente: nome,
+                    cliente: `${nome} (${telefone})`,
                     itens: itensMsg,
                     total: parseFloat(valorTotalComFrete.toFixed(2)),
                     custo: parseFloat(custoTotalPedido.toFixed(2)),
@@ -1880,6 +1929,25 @@
                     frete: parseFloat(valorFrete)
                 };
                 db.from('pedidos').insert([dbDados]).then(() => console.log("Salvo")).catch(e => console.error(e));
+
+                // Salva ou atualiza o cliente
+                const dadosCliente = {
+                    telefone: telefone.replace(/\D/g, ""),
+                    nome: nome
+                };
+
+                // Só salva o endereço se for entrega, para não sobrescrever com vazio se for retirada
+                if (entrega === 'tele') {
+                    dadosCliente.cep = document.getElementById('cep').value;
+                    dadosCliente.rua = document.getElementById('rua').value;
+                    dadosCliente.numero = document.getElementById('numero').value;
+                    dadosCliente.bairro = document.getElementById('bairro').value;
+                    dadosCliente.cidade = document.getElementById('cidade').value;
+                    dadosCliente.estado = document.getElementById('estado').value;
+                    dadosCliente.apto = document.getElementById('apto').value;
+                }
+                
+                db.from('clientes').upsert([dadosCliente], { onConflict: 'telefone' }).then(() => console.log("Cliente atualizado")).catch(e => console.log(e));
 
                 let trocoMsg = "";
                 if (pag === "Dinheiro") {
@@ -1899,7 +1967,7 @@
                 } catch (e) { }
 
                 // Redireciona imediatamente (mais seguro para mobile)
-                const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 " + nome + "\n📦 " + itensMsg + "\n📍 " + endereco + "\n💳 Pagamento: " + pag + trocoMsg + "\n💰 " + totalMsg + beneficioMsg)}`;
+                const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 " + nome + "\n📱 " + telefone + "\n📦 " + itensMsg + "\n📍 " + endereco + "\n💳 Pagamento: " + pag + trocoMsg + "\n💰 " + totalMsg + beneficioMsg)}`;
                 window.location.href = waUrl;
             } catch (e) {
                 console.error(e);
