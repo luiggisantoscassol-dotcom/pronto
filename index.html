@@ -961,13 +961,20 @@
             if (isModalOpen) {
                 sourceImg = document.getElementById('modal-foto');
             } else if (card) {
-                // Procura a imagem do card que está de fato visível na tela
-                sourceImg = Array.from(card.querySelectorAll('img')).find(img => {
-                    const r = img.getBoundingClientRect();
-                    const isVisible = r.width > 0 && window.getComputedStyle(img).display !== 'none';
-                    const isOnScreen = r.left >= -50 && r.right <= (window.innerWidth || document.documentElement.clientWidth) + 50;
-                    return isVisible && isOnScreen;
-                }) || card.querySelector('img');
+                // Seleção precisa da imagem baseada no dispositivo
+                if (window.innerWidth < 1024) {
+                    // No mobile, a imagem visível é a do slide ativo do carrossel
+                    sourceImg = card.querySelector('.swiper-slide-active img') || card.querySelector('.swiper-slide img') || card.querySelector('img');
+                } else {
+                    // No PC, ao clicar no botão o mouse está sobre o card (hover), logo a foto-2 pode estar visível
+                    const f2 = card.querySelector('.desktop-only-images .foto-2');
+                    const f1 = card.querySelector('.desktop-only-images .foto-1');
+                    if (f2 && window.getComputedStyle(f2).opacity > 0) {
+                        sourceImg = f2;
+                    } else {
+                        sourceImg = f1 || card.querySelector('img');
+                    }
+                }
             }
             
             const fotoUrl = sourceImg ? sourceImg.src : '';
