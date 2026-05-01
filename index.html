@@ -1217,15 +1217,9 @@
 
     <aside class="cart-overlay" id="cart-overlay">
         <button class="btn-fechar" onclick="toggleCart()">×</button>
-        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:30px;">
-            <h3 id="cart-title"
-                style="color:var(--gold-soft); font-size:1.8rem; font-family: var(--font-premium); margin:0;">Sua Sacola
-            </h3>
-            <button id="btn-esvaziar-sacola" onclick="esvaziarSacola()"
-                style="background:rgba(255,50,50,0.1); border:1px solid rgba(255,50,50,0.3); color:#ff5555; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer; padding:6px 12px; transition: all 0.2s; display:none;"
-                onmouseover="this.style.background='rgba(255,50,50,0.2)'"
-                onmouseout="this.style.background='rgba(255,50,50,0.1)'">🗑️ Esvaziar</button>
-        </div>
+        <h3 id="cart-title"
+            style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola
+        </h3>
 
         <div id="container-frete">
             <div id="texto-frete">Adicione 3 garrafas para ganhar um benefício!</div>
@@ -1235,6 +1229,13 @@
         </div>
 
         <div id="cart-items"></div>
+
+        <div id="container-btn-esvaziar" style="text-align: center; margin-top: 15px; margin-bottom: 25px; display: none;">
+            <button id="btn-esvaziar-sacola" onclick="esvaziarSacola()"
+                style="background:#000000; border:1px solid #333; color:#ffffff; border-radius:20px; font-size:0.75rem; font-weight:600; letter-spacing: 0.5px; cursor:pointer; padding:8px 20px; transition: all 0.3s;"
+                onmouseover="this.style.background='#222222'"
+                onmouseout="this.style.background='#000000'">🗑️ ESVAZIAR LIXEIRA</button>
+        </div>
 
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:30px;">
             <p
@@ -1616,19 +1617,26 @@
                     btnAdicionar.classList.add('animating');
                     btnAdicionar.textContent = "Adicionado! ✓";
                     clearTimeout(btnAdicionar.resetTimeout);
-                    btnAdicionar.resetTimeout = setTimeout(() => { btnAdicionar.textContent = "Adicionar à sacola"; }, 1500);
+                    btnAdicionar.resetTimeout = setTimeout(() => { 
+                        btnAdicionar.textContent = "Adicionar à sacola"; 
+                        btnAdicionar.classList.remove('animating');
+                    }, 1500);
                 }
             }
 
             // Feedback no botão do MODAL (caso esteja aberto)
             const btnModal = document.getElementById('modal-btn-add');
             if (btnModal) {
+                btnModal.classList.remove('animating');
+                void btnModal.offsetWidth;
+                btnModal.classList.add('animating');
                 btnModal.textContent = "Adicionado! ✓";
-                btnModal.style.background = "var(--green)";
                 clearTimeout(btnModal.resetTimeout);
                 btnModal.resetTimeout = setTimeout(() => {
                     btnModal.textContent = "Adicionar à Sacola";
+                    btnModal.classList.remove('animating');
                     btnModal.style.background = "";
+                    btnModal.style.color = "";
                 }, 1500);
             }
 
@@ -1759,14 +1767,14 @@
             if (cart.length === 0) {
                 itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`;
                 document.getElementById('checkout-form').style.display = 'none';
-                const btnEsvaziar = document.getElementById('btn-esvaziar-sacola');
+                const btnEsvaziar = document.getElementById('container-btn-esvaziar');
                 if (btnEsvaziar) btnEsvaziar.style.display = 'none';
                 // No caso de esvaziar manualmente, atualizamos o badge na hora
                 sincronizarBadge();
                 return;
             }
 
-            const btnEsvaziar = document.getElementById('btn-esvaziar-sacola');
+            const btnEsvaziar = document.getElementById('container-btn-esvaziar');
             if (btnEsvaziar) btnEsvaziar.style.display = 'block';
 
             document.getElementById('checkout-form').style.display = 'block';
@@ -1804,11 +1812,9 @@
 
         function esvaziarSacola() {
             if (cart.length === 0) return;
-            if (confirm('Tem certeza que deseja esvaziar sua sacola?')) {
-                cart = [];
-                updateCart();
-                sincronizarBadge();
-            }
+            cart = [];
+            updateCart();
+            sincronizarBadge();
         }
 
         function sincronizarBadge() {
