@@ -20,6 +20,9 @@
             --radius-sm: 15px;
             --font-premium: 'Cinzel', serif;
             --font-body: 'Montserrat', sans-serif;
+            --gold: #d4af37;
+            --green: #27ae60;
+            --red: #c0392b;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -80,8 +83,9 @@
         .order-row { 
             background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
             padding: 20px; border-radius: var(--radius-sm); margin-bottom: 15px;
-            display: grid; grid-template-columns: 1fr auto; gap: 15px;
+            display: grid; grid-template-columns: auto 1fr auto; gap: 15px;
             transition: 0.3s;
+            align-items: center;
         }
         .order-row:hover { border-color: rgba(197,160,89,0.3); background: rgba(255,255,255,0.04); }
         .order-info { display: flex; flex-direction: column; gap: 5px; }
@@ -89,10 +93,57 @@
         .order-details { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
         .order-price { font-weight: 900; color: var(--text-gold); font-size: 1.1rem; }
         
-        .status { padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.65rem; text-transform: uppercase; }
-        .status.Novo { background: var(--gold-metallic); color: #000; }
-        .status.Concluído { background: var(--green-premium); color: #fff; }
-        .status.Cancelado { background: var(--red-premium); color: #fff; }
+        .order-checkbox { 
+            display: none; /* Escondido por padrão */
+            width: 20px; height: 20px; accent-color: var(--text-gold); cursor: pointer; 
+        }
+        .selection-mode .order-checkbox { display: block !important; }
+        .selection-mode .order-row { border-color: rgba(197,160,89,0.3); }
+        
+        .status-container {
+            min-width: 100px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+        }
+
+        .status-badge, .btn-whats-mini { 
+            width: 95px !important; height: 32px;
+            display: flex !important; align-items: center; justify-content: center;
+            border-radius: 8px; font-size: 0.5rem; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 0.5px; 
+            border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
+            color: #fff; transition: 0.3s; text-decoration: none;
+            padding: 0 5px; box-sizing: border-box;
+        }
+
+        .btn-whats-mini { 
+            background: rgba(37, 211, 102, 0.1); 
+            border: 1px solid rgba(37, 211, 102, 0.3);
+            color: #25D366;
+        }
+        .btn-whats-mini:hover { background: #25D366; color: #fff; }
+
+        /* Identidade Visual GOLD para os Status */
+        select.status-badge { 
+            background: rgba(197, 160, 89, 0.1); 
+            color: var(--text-gold); 
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            appearance: none; -webkit-appearance: none; text-align-last: center;
+        }
+        
+        select.status-badge.Novo { background: var(--gold-metallic); color: #000; border-color: var(--text-gold); }
+        select.status-badge.Confirmado { background: rgba(197, 160, 89, 0.3); }
+        select.status-badge.Em { background: rgba(197, 160, 89, 0.2); }
+        select.status-badge.Saiu { background: rgba(197, 160, 89, 0.15); }
+        select.status-badge.Concluído { background: rgba(197, 160, 89, 0.5); color: #fff; }
+        select.status-badge.Cancelado { background: rgba(255, 0, 0, 0.1); color: #ff4444; border-color: rgba(255,0,0,0.3); }
+
+        @media (max-width: 600px) {
+            .order-row { padding: 12px; gap: 10px; margin-bottom: 10px; }
+            .order-name { font-size: 0.85rem; }
+            .order-details { font-size: 0.7rem; }
+            .order-price { font-size: 0.9rem; }
+            .status { padding: 4px 8px; font-size: 0.55rem; }
+            .order-checkbox { width: 20px !important; height: 20px !important; }
+        }
 
         /* PDV GRID E CARDS - LUXO */
         .pdv-grid { 
@@ -175,6 +226,28 @@
         }
         .modal-fechar-btn:hover { transform: rotate(90deg); color: #fff; }
 
+        .btn-whats-mini {
+            display:inline-block; margin-top:6px; background:#25D366; color:#fff; 
+            padding:7px 12px; border-radius:8px; font-size:0.6rem; text-decoration:none; 
+            font-weight:900; box-shadow: 0 4px 10px rgba(37,211,102,0.3); 
+            transition:0.3s; text-transform:uppercase; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-whats-mini:hover { transform: scale(1.05); }
+
+        @media (max-width: 600px) {
+            #bulk-actions-bar {
+                width: 92% !important;
+                min-width: unset !important;
+                padding: 8px 12px !important;
+                gap: 8px !important;
+                bottom: 20px !important;
+                border-radius: 15px !important;
+            }
+            #bulk-count { font-size: 0.55rem !important; padding: 6px 8px !important; }
+            #bulk-status { font-size: 0.6rem !important; padding: 8px !important; }
+            #bulk-actions-bar button { padding: 10px 12px !important; font-size: 0.6rem !important; border-radius: 10px !important; }
+        }
+
         .modal-header { 
             padding: 20px 25px; background: #000; border-bottom: 1px solid rgba(197,160,89,0.2); 
             display: flex; justify-content: space-between; align-items: center; 
@@ -225,6 +298,7 @@
         <h3>CONTROLE PRO</h3>
         <button class="nav-item" onclick="switchTab('tab-pedidos')">Pedidos 🛒</button>
         <button class="nav-item" onclick="switchTab('tab-pdv')">Balcão 💰</button>
+        <button class="nav-item" onclick="switchTab('tab-clientes')">Clientes 👥</button>
         <button class="nav-item" onclick="switchTab('tab-historico')">Histórico 📜</button>
         <button class="nav-item" onclick="switchTab('tab-estoque')">Estoque 📦</button>
         <button class="nav-item" onclick="switchTab('tab-stats')">Resultados 📊</button>
@@ -239,11 +313,38 @@
                 <button onclick="ativarNotificacoes()" style="padding:10px 20px; background:var(--gold); border:none; border-radius:10px; font-weight:900; font-size:0.7rem; cursor:pointer;">ATIVAR ALERTAS</button>
             </div>
             <h2>Pedidos em Aberto</h2>
+            <div style="margin-bottom:20px; display:flex; gap:10px; justify-content:center;">
+                <button onclick="selecionarTodos(true)" style="background:rgba(197,160,89,0.1); border:1px solid rgba(197,160,89,0.2); color:var(--text-gold); padding:10px 20px; border-radius:12px; font-size:0.65rem; cursor:pointer; font-weight:900; letter-spacing:1px;">SELECIONAR TODOS</button>
+                <button onclick="selecionarTodos(false)" style="background:rgba(255,0,0,0.05); border:1px solid rgba(255,0,0,0.1); color:var(--red-premium); padding:10px 20px; border-radius:12px; font-size:0.65rem; cursor:pointer; font-weight:900; letter-spacing:1px;">LIMPAR</button>
+            </div>
             <div id="corpo-pedidos"></div>
         </div>
     </div>
+
+    <!-- Barra de Ações em Massa -->
+    <div id="bulk-actions-bar" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--gold-metallic); padding:10px 20px; border-radius:20px; z-index:2000; box-shadow: 0 15px 45px rgba(0,0,0,0.9); align-items:center; gap:12px; border: 1px solid rgba(0,0,0,0.3); width: max-content; min-width: 320px;">
+        <div style="background:#000; color:var(--gold); padding:8px 12px; border-radius:12px; font-weight:900; font-size:0.7rem; border:1px solid rgba(197,160,89,0.3);" id="bulk-count">0 SELECIONADOS</div>
+        <select id="bulk-status" style="padding:10px 15px; border-radius:12px; border:none; background:rgba(0,0,0,0.8); color:#fff; font-weight:800; font-size:0.7rem; margin:0; width:auto; flex:1;">
+            <option value="">NOVO STATUS...</option>
+            <option value="Novo Pedido">Novo Pedido</option>
+            <option value="Confirmado">Confirmado</option>
+            <option value="Em Preparo">Em Preparo</option>
+            <option value="Saiu para Entrega">Saiu para Entrega</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+        </select>
+        <button onclick="aplicarBulkStatus()" style="background:#000; color:#fff; border:none; padding:12px 20px; border-radius:12px; font-weight:900; cursor:pointer; font-size:0.75rem; letter-spacing:1px;">APLICAR</button>
+    </div>
     <div id="tab-historico" class="tab-content"><div class="card"><h2>Histórico Total</h2><div id="corpo-historico"></div></div></div>
     <div id="tab-rastreio" class="tab-content"><div class="card"><h2>Rastreio de Adições (IP)</h2><div id="corpo-rastreio"></div></div></div>
+    <div id="tab-clientes" class="tab-content">
+        <div class="card">
+            <h2>Base de Clientes</h2>
+            <button onclick="abrirModalCliente()" class="btn-status" style="margin-bottom:20px; font-size: 0.75rem;">+ ADICIONAR NOVO CLIENTE</button>
+            <input type="text" id="search-clientes" placeholder="Pesquisar por nome ou telefone..." oninput="filtrarClientes()">
+            <div id="corpo-clientes"></div>
+        </div>
+    </div>
     
     <div id="tab-pdv" class="tab-content">
         <div id="pdv-floating-cart" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; max-width:500px; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900; cursor:pointer;" onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span id="pdv-float-total">R$ 0,00</span></div>
@@ -307,21 +408,28 @@
         </div>
     </div>
 
-    <div id="modal-pedido" class="modal-box" style="padding: 0; flex-direction: column;">
-        <div class="modal-header">
-            <h2 id="m-nome">Pedido</h2>
-            <button onclick="fecharTodosModais()" class="modal-fechar-btn">×</button>
+    <div id="modal-pedido" class="modal-box" style="padding: 0; flex-direction: column; max-height: 90vh;">
+        <div class="modal-header" style="background:transparent; border:none; position:absolute; right:10px; top:10px; z-index:10;">
+            <button onclick="fecharTodosModais()" class="modal-fechar-btn" style="font-size:2rem; padding:0;">×</button>
         </div>
-        <div style="padding: 25px; overflow-y: auto;">
-            <div id="detalhes-pedido" style="margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 25px; border-radius: 20px; border: 1px solid #222; line-height: 1.6; font-size: 0.9rem;"></div>
-            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Alterar Status:</label>
-            <select id="m-status">
-                <option value="Novo Pedido">Novo Pedido</option>
-                <option value="Concluído">Concluído</option>
-                <option value="Cancelado">Cancelado</option>
-                <option value="EXCLUIR">EXCLUIR</option>
-            </select>
-            <button onclick="salvarStatus()" class="btn-status">ATUALIZAR STATUS</button>
+        <div style="padding: 20px; overflow-y: auto;">
+            <h2 id="m-nome" style="font-size:1.2rem; margin-bottom:15px; color:var(--text-gold); border-bottom:1px solid #222; padding-bottom:10px; padding-right:40px;"></h2>
+            <div id="detalhes-pedido" style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid #222; line-height: 1.4; font-size: 0.85rem;"></div>
+            
+            <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; border: 1px solid #222;">
+                <label style="font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; display:block; margin-bottom:5px;">Mudar Status:</label>
+                <select id="m-status" style="padding:12px; font-size:0.8rem !important; margin-bottom:10px;">
+                    <option value="Novo Pedido">Novo Pedido</option>
+                    <option value="Confirmado">Confirmado</option>
+                    <option value="Em Preparo">Em Preparo</option>
+                    <option value="Saiu para Entrega">Saiu para Entrega</option>
+                    <option value="Concluído">Concluído</option>
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="EXCLUIR">⚠️ EXCLUIR PEDIDO</option>
+                </select>
+                <button onclick="salvarStatus()" class="btn-status" style="padding:15px; font-size:0.75rem;">ATUALIZAR STATUS</button>
+                <button onclick="fecharTodosModais()" style="width:100%; padding:10px; background:transparent; border:none; color:#555; font-weight:700; margin-top:5px; cursor:pointer; font-size:0.65rem; text-transform:uppercase;">FECHAR JANELA</button>
+            </div>
         </div>
     </div>
 
@@ -332,14 +440,97 @@
         </div>
         <div style="padding: 25px; overflow-y: auto; flex: 1;">
             <div id="pdv-itens"></div>
+            <input type="tel" id="pdv-telefone" placeholder="Telefone do Cliente" oninput="mascaraTelefone(this)" onblur="buscarClientePDV()">
             <input type="text" id="pdv-cliente" placeholder="Nome do Cliente">
+            <select id="pdv-entrega" onchange="togglePdvEndereco()"><option value="Balcão">Balcão / Retirada</option><option value="Tele">Entrega (Tele)</option></select>
+            
+            <div id="pdv-bloco-endereco" style="display:none;">
+                <input type="text" id="pdv-cep" placeholder="CEP" style="width:48%; display:inline-block; margin-right:2%;">
+                <input type="text" id="pdv-bairro" placeholder="Bairro" style="width:48%; display:inline-block;">
+                <input type="text" id="pdv-rua" placeholder="Rua" style="width:70%; display:inline-block; margin-right:2%;">
+                <input type="text" id="pdv-numero" placeholder="Nº" style="width:26%; display:inline-block;">
+            </div>
+
             <input type="number" id="pdv-frete" placeholder="Valor do Frete R$ (Opcional)" step="0.01">
             <select id="pdv-pagamento"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select>
         </div>
         <div style="padding: 25px; background: #000; border-top: 1px solid #222;"><h3 id="pdv-total" style="color:var(--gold); text-align:center; margin-bottom:20px; font-weight: 900; font-size: 1.6rem;">R$ 0,00</h3><button onclick="finalizarVendaPDV()" style="width:100%; padding:22px; background:var(--green); border:none; color:#000; border-radius:18px; font-weight:900;">CONCLUIR VENDA</button></div>
     </div>
 
+    <div id="modal-cliente" class="modal-box" style="padding: 0; flex-direction: column;">
+        <div class="modal-header">
+            <h2>Novo Cadastro</h2>
+            <button onclick="fecharTodosModais()" class="modal-fechar-btn">×</button>
+        </div>
+        <div style="padding: 25px; overflow-y: auto;">
+            <input type="tel" id="nc-telefone" placeholder="Telefone (WhatsApp)" oninput="mascaraTelefone(this)">
+            <input type="text" id="nc-nome" placeholder="Nome Completo">
+            <input type="text" id="nc-cep" placeholder="CEP">
+            <input type="text" id="nc-rua" placeholder="Rua">
+            <input type="text" id="nc-numero" placeholder="Nº">
+            <input type="text" id="nc-bairro" placeholder="Bairro">
+            <button onclick="salvarNovoCliente()" class="btn-status">SALVAR CLIENTE</button>
+        </div>
+    </div>
+
+    <!-- Novo Modal: Detalhe do Cliente -->
+    <div id="modal-detalhe-cliente" class="modal-box" style="padding: 0; flex-direction: column; max-height: 80vh;">
+        <div class="modal-header" style="background:transparent; border:none; position:absolute; right:10px; top:10px; z-index:10;">
+            <button onclick="fecharTodosModais()" class="modal-fechar-btn" style="font-size:2rem; padding:0;">×</button>
+        </div>
+        <div style="padding: 20px; overflow-y: auto;">
+            <h2 id="dc-nome" style="font-size:1.2rem; margin-bottom:15px; color:var(--text-gold); border-bottom:1px solid #222; padding-bottom:10px; padding-right:40px; text-align:left;"></h2>
+            <div id="dc-conteudo" style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid #222; line-height: 1.6; font-size: 0.85rem;"></div>
+            
+            <div id="dc-acoes"></div>
+            <button onclick="fecharTodosModais()" style="width:100%; padding:10px; background:transparent; border:none; color:#555; font-weight:700; margin-top:5px; cursor:pointer; font-size:0.65rem; text-transform:uppercase;">VOLTAR</button>
+        </div>
+    </div>
+
     <script>
+        // --- SISTEMA DE GESTOS (SWIPE) COM TRAVA DE DIREÇÃO ---
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isSwiping = false;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            isSwiping = false;
+        }, {passive: true});
+
+        document.addEventListener('touchmove', e => {
+            const touchMoveX = e.changedTouches[0].screenX;
+            const touchMoveY = e.changedTouches[0].screenY;
+            
+            const diffX = touchStartX - touchMoveX;
+            const diffY = Math.abs(touchStartY - touchMoveY);
+
+            // Se o movimento começou na borda (últimos 60px) e é predominantemente horizontal
+            if (touchStartX > window.innerWidth - 60 && diffX > 5 && diffX > diffY) {
+                isSwiping = true;
+                if (e.cancelable) e.preventDefault(); // Trava a rolagem da página
+            }
+        }, {passive: false});
+
+        document.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            const sidebar = document.getElementById('sidebar');
+            const isActive = sidebar.classList.contains('active');
+            
+            // Abrir (Swipe Left)
+            if (isSwiping && touchStartX - touchEndX > 50 && !isActive) {
+                toggleMenu();
+            }
+            
+            // Fechar (Swipe Right - simplificado para fechar fácil)
+            if (isActive && touchEndX - touchStartX > 70) {
+                toggleMenu();
+            }
+            isSwiping = false;
+        }, {passive: true});
+
         // --- SISTEMA DE LOGIN ---
         function verificarSessao() {
             if (sessionStorage.getItem('tioNanAdminLogado') === 'true') {
@@ -356,7 +547,7 @@
             const p = document.getElementById('login-pass').value.trim();
             
             // USUÁRIO E SENHA DEFINIDOS AQUI
-            if (u === 'admin' && p === 'Pietr@10') { 
+            if (u.toLowerCase() === 'admin' && p.toLowerCase() === 'pietr@10') { 
                 sessionStorage.setItem('tioNanAdminLogado', 'true');
                 document.getElementById('login-screen').style.display = 'none';
                 document.body.style.overflow = 'auto';
@@ -406,12 +597,157 @@
 
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); if(n.getAttribute('onclick').includes(id)) n.classList.add('active'); });
+            document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); if (n.getAttribute('onclick').includes(id)) n.classList.add('active'); });
             document.getElementById(id).classList.add('active');
-            if(window.innerWidth < 800 && document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+            if (window.innerWidth < 800 && document.getElementById('sidebar').classList.contains('active')) toggleMenu();
             const float = document.getElementById('pdv-floating-cart');
-            if(float) float.style.display = (id === 'tab-pdv' && adminCart.length > 0) ? 'flex' : 'none';
+            if (float) float.style.display = (id === 'tab-pdv' && adminCart.length > 0) ? 'flex' : 'none';
             localStorage.setItem('abaAtivaTioNan', id);
+            if (id === 'tab-clientes') carregarClientes();
+        }
+
+        function mascaraTelefone(t) {
+            let v = t.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.substring(0, 11);
+            if (v.length > 10) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7, 11)}`;
+            } else if (v.length > 6) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2, 6)}-${v.substring(6, 10)}`;
+            } else if (v.length > 2) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2)}`;
+            } else if (v.length > 0) {
+                t.value = `(${v}`;
+            }
+        }
+
+        async function buscarClientePDV() {
+            const telInput = document.getElementById('pdv-telefone');
+            if (!telInput) return;
+            const tel = telInput.value.replace(/\D/g, "");
+            if (tel.length >= 10) {
+                try {
+                    const { data, error } = await db.from('clientes').select('*').eq('telefone', tel).limit(1);
+                    if (data && data.length > 0 && !error) {
+                        const cli = data[0];
+                        document.getElementById('pdv-cliente').value = cli.nome || "";
+                        document.getElementById('pdv-cep').value = cli.cep || "";
+                        document.getElementById('pdv-rua').value = cli.rua || "";
+                        document.getElementById('pdv-numero').value = cli.numero || "";
+                        document.getElementById('pdv-bairro').value = cli.bairro || "";
+                    }
+                } catch (e) { console.log("Erro busca PDV"); }
+            }
+        }
+
+        function togglePdvEndereco() {
+            const ent = document.getElementById('pdv-entrega').value;
+            document.getElementById('pdv-bloco-endereco').style.display = (ent === 'Tele') ? 'block' : 'none';
+        }
+
+        let listaClientesOriginal = [];
+        async function carregarClientes() {
+            const { data, error } = await db.from('clientes').select('*').order('nome', { ascending: true });
+            if (data) {
+                listaClientesOriginal = data;
+                renderizarClientes(data);
+            }
+        }
+
+        function filtrarClientes() {
+            const termo = document.getElementById('search-clientes').value.toLowerCase();
+            const filtrados = listaClientesOriginal.filter(c => 
+                (c.nome && c.nome.toLowerCase().includes(termo)) || 
+                (c.telefone && c.telefone.includes(termo))
+            );
+            renderizarClientes(filtrados);
+        }
+
+        async function renderizarClientes(data) {
+            const container = document.getElementById('corpo-clientes');
+            container.innerHTML = '<div class="loading">Buscando base de dados...</div>';
+            
+            if (!data) { container.innerHTML = "Erro ao carregar clientes."; return; }
+            
+            if (data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; opacity:0.5; padding:20px;'>Nenhum cliente cadastrado.</p>";
+                return;
+            }
+
+            container.innerHTML = data.map(c => {
+                const safeC = btoa(unescape(encodeURIComponent(JSON.stringify(c))));
+                return `
+                    <div class="order-row" onclick="abrirDetalheCliente('${safeC}')">
+                        <div class="order-info">
+                            <span class="order-name">${c.nome ? c.nome.toUpperCase() : "SEM NOME"}</span>
+                            <span class="order-details">${c.telefone || 'Sem telefone'}</span>
+                        </div>
+                        <div class="status-container">
+                             <button onclick="event.stopPropagation(); excluirCliente('${c.id}')" style="background:transparent; border:none; color:#ff4444; font-size:0.7rem; cursor:pointer;">EXCLUIR</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function abrirDetalheCliente(safeC) {
+            const c = JSON.parse(decodeURIComponent(escape(atob(safeC))));
+            
+            document.getElementById('dc-nome').innerText = (c.nome || "SEM NOME").toUpperCase();
+            
+            const endereco = `${c.rua || ''}, ${c.numero || ''} - ${c.bairro || ''}`;
+            const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+            
+            // Limpeza de telefone para WhatsApp (Sem mensagem)
+            let telClean = c.telefone ? c.telefone.replace(/\D/g, '') : '';
+            if (telClean.startsWith('0')) telClean = telClean.substring(1);
+            if (telClean.startsWith('55') && telClean.length > 11) telClean = telClean.substring(2);
+            if (telClean.length === 10) telClean = telClean.substring(0, 2) + "9" + telClean.substring(2);
+            
+            const btnWhats = telClean ? `<a href="https://api.whatsapp.com/send/?phone=55${telClean}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-bottom:10px; font-size:0.8rem;">CHAMAR NO WHATSAPP</a>` : '';
+
+            document.getElementById('dc-conteudo').innerHTML = `
+                <div style="font-size:0.9rem; line-height:1.6;">
+                    <b>📱 TELEFONE:</b> ${c.telefone || 'Não informado'}<br><br>
+                    <b>📍 ENDEREÇO:</b><br>
+                    <a href="${urlMaps}" target="_blank" style="color:var(--text-gold); text-decoration:none; border-bottom:1px dashed var(--text-gold); display:block; padding-top:5px;">${endereco} 📍</a>
+                </div>
+            `;
+            
+            document.getElementById('dc-acoes').innerHTML = btnWhats;
+            
+            document.getElementById('modal-detalhe-cliente').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function abrirModalCliente() {
+            document.getElementById('modal-cliente').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        async function salvarNovoCliente() {
+            const tel = document.getElementById('nc-telefone').value.replace(/\D/g, "");
+            const nome = document.getElementById('nc-nome').value;
+            if (!tel || !nome) return alert("Nome e Telefone são obrigatórios!");
+            showToast("Salvando...");
+            await db.from('clientes').upsert([{
+                telefone: tel,
+                nome: nome,
+                cep: document.getElementById('nc-cep').value,
+                rua: document.getElementById('nc-rua').value,
+                numero: document.getElementById('nc-numero').value,
+                bairro: document.getElementById('nc-bairro').value
+            }], { onConflict: 'telefone' });
+            fecharTodosModais();
+            carregarClientes();
+            document.getElementById('nc-telefone').value = '';
+            document.getElementById('nc-nome').value = '';
+        }
+
+        async function excluirCliente(id) {
+            if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
+            showToast("Excluindo...");
+            await db.from('clientes').delete().eq('id', id);
+            carregarClientes();
         }
 
         function extrairMesAno(dtStr) {
@@ -472,8 +808,8 @@
                                 <span class="order-name">${exibirNome.toUpperCase()}</span>
                                 <span class="order-details">IP: ${ip} • Último: ${formatarDataHora(data.ultimo)}</span>
                             </div>
-                            <div style="text-align: right;">
-                                <span class="status Novo">${data.cont} AÇÕES</span>
+                            <div class="status-container">
+                                <span class="status-badge Novo">${data.cont} AÇÕES</span>
                             </div>
                             <div id="detalhe-${index}" style="display:none; grid-column: span 2; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 10px; font-size: 0.8rem; color: #aaa;">
                                 <ul style="list-style: none;">${listaItens}</ul>
@@ -507,15 +843,48 @@
                             lucG += (val - cus - frt);
                         }
 
+                        // Extração e Limpeza Definitiva para WhatsApp Business
+                        let telLimpo = "";
+                        let nomeLimpo = p.cliente;
+                        
+                        let numBruto = p.cliente.replace(/\D/g, '');
+                        if (numBruto.startsWith('0')) numBruto = numBruto.substring(1);
+                        if (numBruto.startsWith('55') && numBruto.length > 11) numBruto = numBruto.substring(2);
+                        if (numBruto.length === 10) numBruto = numBruto.substring(0, 2) + "9" + numBruto.substring(2);
+                        
+                        if (numBruto.length >= 11) {
+                            telLimpo = numBruto;
+                            if (p.cliente.includes('(')) nomeLimpo = p.cliente.split('(')[0].trim();
+                        }
+
+                        const btnWhats = telLimpo ? `<a href="https://api.whatsapp.com/send/?phone=55${telLimpo}" target="_blank" onclick="event.stopPropagation()" class="btn-whats-mini">WHATSAPP</a>` : '';
+                        const classeStatus = st.split(' ')[0];
+
                         const cardPedido = `
-                            <div class="order-row" onclick="abrirPedido('${safeData}')">
+                            <div class="order-row" 
+                                 onclick="handleOrderClick(event, '${safeData}')"
+                                 onmousedown="startLongPress(event, '${p.id}')" 
+                                 onmouseup="cancelLongPress()" 
+                                 onmouseleave="cancelLongPress()"
+                                 ontouchstart="startLongPress(event, '${p.id}')" 
+                                 ontouchend="cancelLongPress()">
+                                <div style="display:flex; align-items:center;">
+                                    <input type="checkbox" class="order-checkbox" value="${p.id}" onclick="event.stopPropagation(); toggleBulkBar()" style="accent-color:var(--text-gold);">
+                                </div>
                                 <div class="order-info">
-                                    <span class="order-name">${p.cliente.toUpperCase()}</span>
+                                    <span class="order-name">${nomeLimpo.toUpperCase()}</span>
                                     <span class="order-details">${dtF}</span>
                                 </div>
-                                <div style="text-align: right; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end;">
-                                    <span class="status ${st.split(' ')[0]}">${st}</span>
-                                    <div class="order-price" style="margin-top: 10px;">R$ ${val.toFixed(2)}</div>
+                                <div class="status-container">
+                                    <select class="status-badge ${classeStatus}" onclick="event.stopPropagation()" onchange="mudarStatusRapido('${p.id}', this.value, '${safeData}')">
+                                        <option value="Novo Pedido" ${p.status === 'Novo Pedido' ? 'selected' : ''}>NOVO</option>
+                                        <option value="Confirmado" ${p.status === 'Confirmado' ? 'selected' : ''}>CONFIRM.</option>
+                                        <option value="Em Preparo" ${p.status === 'Em Preparo' ? 'selected' : ''}>PREPARO</option>
+                                        <option value="Saiu para Entrega" ${p.status === 'Saiu para Entrega' ? 'selected' : ''}>ENTREGA</option>
+                                        <option value="Concluído" ${p.status === 'Concluído' ? 'selected' : ''}>CONCLUÍDO</option>
+                                        <option value="Cancelado" ${p.status === 'Cancelado' ? 'selected' : ''}>CANCEL.</option>
+                                    </select>
+                                    ${btnWhats}
                                 </div>
                             </div>`;
 
@@ -671,19 +1040,32 @@
             const enderecoOriginal = p.endereco || 'Balcão';
             let htmlEndereco = enderecoOriginal;
             if (enderecoOriginal.toLowerCase() !== 'balcão' && enderecoOriginal.trim() !== '') {
-                // Link otimizado para abrir o APP do Google Maps com maior precisão
                 const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoOriginal)}`;
                 htmlEndereco = `<a href="${urlMaps}" target="_blank" style="color:var(--text-gold); font-weight:700; text-decoration:none; border-bottom:1px dashed var(--text-gold); padding-bottom:2px;">${enderecoOriginal} 📍</a>`;
             }
 
-            document.getElementById('m-nome').innerText = p.cliente; 
+            // Extração e Limpeza Definitiva (Modal)
+            let telLimpo = "";
+            let numBruto = p.cliente.replace(/\D/g, '');
+            if (numBruto.startsWith('0')) numBruto = numBruto.substring(1);
+            if (numBruto.startsWith('55') && numBruto.length > 11) numBruto = numBruto.substring(2);
+            if (numBruto.length === 10) numBruto = numBruto.substring(0, 2) + "9" + numBruto.substring(2);
+            if (numBruto.length >= 11) telLimpo = numBruto;
+            
+            const btnWhatsModal = telLimpo ? `<a href="https://api.whatsapp.com/send/?phone=55${telLimpo}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-top:15px; font-size:0.8rem; box-shadow:0 5px 15px rgba(37,211,102,0.3);">CHAMAR NO WHATSAPP</a>` : '';
+
+            const nomeLimpo = p.cliente.split('(')[0].trim();
+            document.getElementById('m-nome').innerText = nomeLimpo.toUpperCase(); 
             document.getElementById('detalhes-pedido').innerHTML = `
-                <b>📦 ITENS:</b><br>${p.itens}<br><br>
-                <b>💰 PAGTO:</b> ${p.pagamento}<br>
-                <b>🚚 LOCAL:</b> ${htmlEndereco}<br><br>
-                <b>📦 FRETE:</b> ${htmlFrete}<br>
-                <b>⏰ FEITO EM:</b> ${dtF}
-                <div style="text-align:right; font-size:1.8rem; font-weight:900; color:var(--gold); margin-top:15px; border-top:1px solid #333; padding-top:15px;">R$ ${parseFloat(p.total).toFixed(2)}</div>`; 
+                <div style="font-size:0.85rem; line-height:1.4;">
+                    <b>📦 ITENS:</b><br>${p.itens}<br><br>
+                    <b>💰 PAGTO:</b> ${p.pagamento}<br>
+                    <b>🚚 LOCAL:</b> ${htmlEndereco}<br><br>
+                    <b>📦 FRETE:</b> ${htmlFrete}<br>
+                    <b>⏰ FEITO EM:</b> ${dtF}
+                </div>
+                ${btnWhatsModal}
+                <div style="text-align:right; font-size:1.5rem; font-weight:900; color:var(--gold); margin-top:12px; border-top:1px solid #222; padding-top:12px;">R$ ${parseFloat(p.total).toFixed(2)}</div>`; 
             
             document.getElementById('m-status').value = p.status || "Novo Pedido"; 
             document.getElementById('modal-pedido').style.display = 'block'; 
@@ -692,13 +1074,68 @@
 
         async function salvarStatus() { 
             const st = document.getElementById('m-status').value; 
-            fecharTodosModais(); showToast("Atualizando..."); 
+            const pedidoLocal = sel; 
+            
             if (st === "EXCLUIR") {
-                await db.from('pedidos').delete().eq('id', sel.id);
-            } else {
-                await db.from('pedidos').update({ status: st }).eq('id', sel.id);
+                if(!confirm("Excluir este pedido permanentemente?")) return;
+                fecharTodosModais(); showToast("Excluindo...");
+                await db.from('pedidos').delete().eq('id', pedidoLocal.id);
+                carregar();
+                return;
             }
+
+            // Notificação Automática (Tiro Curto)
+            if (st !== "Novo Pedido") {
+                enviarMensagemStatus(pedidoLocal, st);
+            }
+
+            fecharTodosModais(); 
+            showToast("Atualizando..."); 
+            await db.from('pedidos').update({ status: st }).eq('id', pedidoLocal.id);
             carregar(); 
+        }
+
+        async function mudarStatusRapido(id, novoStatus, pJsonBase64) {
+            const p = JSON.parse(atob(pJsonBase64));
+            
+            // Notificação automática
+            if (novoStatus !== "Novo Pedido") {
+                enviarMensagemStatus(p, novoStatus);
+            }
+
+            showToast("Atualizando...");
+            const { error } = await db.from('pedidos').update({ status: novoStatus }).eq('id', id);
+            
+            if (error) {
+                showToast("Erro ao atualizar!");
+            } else {
+                carregar(); // Recarrega a lista para atualizar as cores
+            }
+        }
+
+        function enviarMensagemStatus(p, st) {
+            let telFinal = "";
+            let numBruto = p.cliente.replace(/\D/g, '');
+            if (numBruto.startsWith('0')) numBruto = numBruto.substring(1);
+            if (numBruto.startsWith('55') && numBruto.length > 11) numBruto = numBruto.substring(2);
+            if (numBruto.length === 10) numBruto = numBruto.substring(0, 2) + "9" + numBruto.substring(2);
+            if (numBruto.length >= 11) telFinal = numBruto;
+            
+            if (!telFinal) return; 
+
+            const mensagens = {
+                "Confirmado": "Olá! Passando para avisar que seu pedido na *Tio Nan* foi confirmado e já está sendo processado. 🥃",
+                "Em Preparo": "Seu pedido já está em fase de preparo! ✨ Em breve sairá para entrega.",
+                "Saiu para Entrega": "Notícia boa! Seu pedido *acabou de sair para entrega* e logo chegará até você. 🚚💨",
+                "Concluído": "Pedido entregue! Esperamos que aprecie sua Tio Nan. Se puder, nos conte o que achou! Saúde! 🥃",
+                "Cancelado": "Olá, seu pedido foi cancelado. Se tiver qualquer dúvida, estamos à disposição por aqui."
+            };
+
+            const msg = mensagens[st];
+            if (msg) {
+                const url = `https://api.whatsapp.com/send/?phone=55${telFinal}&text=${encodeURIComponent(msg)}`;
+                window.open(url, '_blank');
+            }
         }
 
         function addPDV(id, n, p, c) { let i = adminCart.find(x => x.id === id); if(i) i.qtd++; else adminCart.push({id, name: n, price: p, cost: c, qtd:1}); updatePDVCart(); showToast("Na sacola"); }
@@ -717,21 +1154,52 @@
         function abrirSacolaPDV() { document.getElementById('modal-sacola-pdv').style.display = 'flex'; document.getElementById('overlay').style.display = 'block'; }
         
         async function finalizarVendaPDV() {
-            if(!confirm("Finalizar venda?")) return;
+            if (!confirm("Finalizar venda?")) return;
+            const telPdv = document.getElementById('pdv-telefone').value;
+            const nomePdv = document.getElementById('pdv-cliente').value || "Balcão";
+            const entregaPdv = document.getElementById('pdv-entrega').value;
             const fretePdv = parseFloat(document.getElementById('pdv-frete').value || 0);
             const totalProdutos = adminCart.reduce((a, b) => a + (b.price * b.qtd), 0);
-            const payload = { 
-                cliente: document.getElementById('pdv-cliente').value || "Balcão", 
-                itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', '), 
-                total: parseFloat((totalProdutos + fretePdv).toFixed(2)), 
-                custo: parseFloat((adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0)).toFixed(2)), 
-                pagamento: document.getElementById('pdv-pagamento').value, 
-                status: "Concluído", 
+
+            let enderecoFinal = "Balcão";
+            if (entregaPdv === 'Tele') {
+                const rua = document.getElementById('pdv-rua').value;
+                const num = document.getElementById('pdv-numero').value;
+                const bai = document.getElementById('pdv-bairro').value;
+                enderecoFinal = `${rua}, ${num} - ${bai}`;
+            }
+
+            const payload = {
+                cliente: nomePdv + (telPdv ? ` (${telPdv})` : ""),
+                itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', '),
+                total: parseFloat((totalProdutos + fretePdv).toFixed(2)),
+                custo: parseFloat((adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0)).toFixed(2)),
+                pagamento: document.getElementById('pdv-pagamento').value,
+                status: "Concluído",
                 frete: fretePdv,
-                endereco: "Balcão"
+                endereco: enderecoFinal
             };
-            fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Enviando..."); 
+            fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Enviando...");
             await db.from('pedidos').insert([payload]);
+
+            // Salva/Atualiza cliente se houver telefone
+            if (telPdv && telPdv.length >= 14) {
+                const dadosCli = {
+                    telefone: telPdv.replace(/\D/g, ""),
+                    nome: nomePdv
+                };
+
+                // Só salva endereço se for Tele, para não apagar o endereço existente em vendas de balcão
+                if (entregaPdv === 'Tele') {
+                    dadosCli.cep = document.getElementById('pdv-cep').value || "";
+                    dadosCli.rua = document.getElementById('pdv-rua').value || "";
+                    dadosCli.numero = document.getElementById('pdv-numero').value || "";
+                    dadosCli.bairro = document.getElementById('pdv-bairro').value || "";
+                }
+
+                db.from('clientes').upsert([dadosCli], { onConflict: 'telefone' }).then(() => console.log("Cliente PDV salvo")).catch(e => console.log(e));
+            }
+
             carregar();
         }
 
@@ -797,6 +1265,77 @@
 
         verificarPermissaoNotificacao();
         setInterval(carregar, 120000); // Backup de refresh a cada 2 min
+        // --- LÓGICA DE SELEÇÃO POR SEGURAR (LONG PRESS) ---
+        let pressTimer;
+        let isSelectionMode = false;
+
+        function startLongPress(e, id) {
+            if (isSelectionMode) return;
+            pressTimer = window.setTimeout(() => ativarModoSelecao(id), 600);
+        }
+
+        function cancelLongPress() {
+            clearTimeout(pressTimer);
+        }
+
+        function ativarModoSelecao(firstId) {
+            isSelectionMode = true;
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('selection-mode'));
+            const cb = document.querySelector(`.order-checkbox[value="${firstId}"]`);
+            if (cb) {
+                cb.checked = true;
+                toggleBulkBar();
+                showToast("Modo de seleção ativado");
+            }
+        }
+
+        function handleOrderClick(e, safeData) {
+            if (isSelectionMode) {
+                const cb = e.currentTarget.querySelector('.order-checkbox');
+                cb.checked = !cb.checked;
+                toggleBulkBar();
+            } else {
+                abrirPedido(safeData);
+            }
+        }
+
+        function toggleBulkBar() {
+            const checks = document.querySelectorAll('.order-checkbox:checked');
+            const bar = document.getElementById('bulk-actions-bar');
+            const count = document.getElementById('bulk-count');
+            
+            if (checks.length > 0) {
+                bar.style.display = 'flex';
+                count.innerText = `${checks.length} SELECIONADOS`;
+                isSelectionMode = true;
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('selection-mode'));
+            } else {
+                bar.style.display = 'none';
+                isSelectionMode = false;
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('selection-mode'));
+            }
+        }
+
+        function selecionarTodos(val) {
+            document.querySelectorAll('.order-checkbox').forEach(c => c.checked = val);
+            toggleBulkBar();
+        }
+
+        async function aplicarBulkStatus() {
+            const status = document.getElementById('bulk-status').value;
+            if (!status) return alert("Selecione um status!");
+            
+            const checks = document.querySelectorAll('.order-checkbox:checked');
+            const ids = Array.from(checks).map(c => c.value);
+            
+            if (!confirm(`Mudar status de ${ids.length} pedidos para "${status}"?`)) return;
+            
+            showToast("Atualizando...");
+            await db.from('pedidos').update({ status: status }).in('id', ids);
+            
+            document.getElementById('bulk-actions-bar').style.display = 'none';
+            carregar();
+        }
     </script>
 </body>
 </html>
