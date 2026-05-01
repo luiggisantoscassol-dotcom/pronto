@@ -736,13 +736,15 @@
             width: 100%;
             max-width: 450px;
             height: 100vh;
-            background: var(--bg-card);
-            z-index: 7000;
-            transition: 0.4s ease;
+            background: rgba(8, 10, 15, 0.98); /* Fundo quase sólido para máxima leitura */
+            z-index: 8000; /* Acima de tudo */
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 30px;
             overflow-y: auto;
             text-align: center;
             overscroll-behavior: contain;
+            border-left: 1px solid rgba(197, 160, 89, 0.1);
+            box-shadow: -20px 0 50px rgba(0,0,0,0.8);
         }
 
         .cart-overlay.active {
@@ -876,22 +878,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
             text-align: left;
         }
 
         .qty-btn {
-            background: #222;
+            background: #151515;
             color: var(--gold-soft);
             border: 1px solid #333;
-            width: 35px;
-            height: 35px;
-            border-radius: 5px;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             transition: transform 0.1s ease, background 0.1s;
         }
 
@@ -1212,7 +1214,7 @@
     </div>
 
     <div class="backdrop" id="backdrop" onclick="toggleCart()"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: none;">
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7500; display: none; backdrop-filter: blur(5px);">
     </div>
 
     <aside class="cart-overlay" id="cart-overlay">
@@ -1832,8 +1834,22 @@
             else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
 
             itemsCont.innerHTML = cart.map(i => {
-                const imgHtml = i.foto ? `<img src="${i.foto}" style="width:40px; height:40px; object-fit:contain; border-radius:6px; background:rgba(255,255,255,0.02); margin-right:10px;">` : '';
-                return `<div class="cart-item-row"><div style="display:flex; align-items:center;">${imgHtml}<div><b>${i.name}</b><br><small>R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</small></div></div><div style="display:flex; align-items:center; gap:10px;"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><span style="font-weight:bold;">${i.qtd}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`;
+                const imgHtml = i.foto ? `<img src="${i.foto}" style="width:55px; height:55px; object-fit:contain; border-radius:10px; background:rgba(255,255,255,0.03); margin-right:15px; border:1px solid rgba(197,160,89,0.1);">` : '';
+                return `
+                <div class="cart-item-row">
+                    <div style="display:flex; align-items:center;">
+                        ${imgHtml}
+                        <div>
+                            <div style="font-weight:800; font-size:1rem; color:#fff; margin-bottom:4px;">${i.name}</div>
+                            <div style="color:var(--gold-soft); font-size:0.9rem; font-weight:600;">R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
+                        <span style="font-weight:900; font-size:1.1rem; min-width:20px; text-align:center;">${i.qtd}</span>
+                        <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
+                    </div>
+                </div>`;
             }).join('');
 
             // Removido o update do badge daqui para sincronizar com a animação
