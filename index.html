@@ -1028,8 +1028,9 @@
             if (sourceImg && cartBtn) {
                 const rect = sourceImg.getBoundingClientRect();
                 const cartRect = cartBtn.getBoundingClientRect();
-                const clone = sourceImg.cloneNode(true);
-                clone.removeAttribute('loading'); // FIX SAFARI: Remove o lazy loading para a animação aparecer imediatamente no iPhone
+                const clone = new Image();
+                clone.src = sourceImg.src;
+                // FIX SAFARI DEFINITIVO: Criar uma nova imagem do zero evita que o iPhone herde qualquer bug de CSS ou lazy-loading da vitrine
                 
                 clone.className = 'garrafa-voando';
                 clone.style.width = rect.width + 'px';
