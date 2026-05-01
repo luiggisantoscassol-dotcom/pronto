@@ -1854,8 +1854,12 @@
 
             // Removido o update do badge daqui para sincronizar com a animação
             let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-            if (entrega === 'tele' && totalGarrafas < 3) total += 15;
-            document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.', ',')}`;
+            let freteInclusoText = "";
+            if (entrega === 'tele' && totalGarrafas < 3) {
+                total += 15;
+                freteInclusoText = " (frete incluso)";
+            }
+            document.getElementById('cart-total-display').innerText = `Total: R$ ${total.toFixed(2).replace('.', ',')}${freteInclusoText}`;
         }
 
         function handlePagamentoChange() {
@@ -1928,11 +1932,10 @@
                 let valorTotalComFrete = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0) + valorFrete;
 
                 const itensMsg = cart.map(i => `${i.name} (x${i.qtd})`).join(', ');
-                const totalMsg = `R$ ${valorTotalComFrete.toFixed(2)}`;
+                const totalMsg = `R$ ${valorTotalComFrete.toFixed(2).replace('.', ',')}${valorFrete > 0 ? ' (frete incluso)' : ''}`;
 
                 let beneficioMsg = "";
-                if (entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n🚚 FRETE GRÁTIS ATIVADO!";
-                else if (valorFrete > 0) beneficioMsg = `\n🚚 Frete: R$ ${valorFrete.toFixed(2).replace('.', ',')}`;
+                if (entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n\ud83d\ude9a FRETE GR\u00c1TIS ATIVADO!";
 
                 // Envia para o Supabase em segundo plano
                 const dbDados = {
@@ -1952,7 +1955,7 @@
                     nome: nome
                 };
 
-                // Só salva o endereço se for entrega, para não sobrescrever com vazio se for retirada
+                // S\u00f3 salva o endere\u00e7o se for entrega, para n\u00e3o sobrescrever com vazio se for retirada
                 if (entrega === 'tele') {
                     dadosCliente.cep = document.getElementById('cep').value;
                     dadosCliente.rua = document.getElementById('rua').value;
@@ -1968,26 +1971,26 @@
                 let trocoMsg = "";
                 if (pag === "Dinheiro") {
                     const trocoVal = document.getElementById('troco').value;
-                    if (trocoVal) trocoMsg = `\n💵 Troco para: R$ ${trocoVal}`;
+                    if (trocoVal) trocoMsg = `\n\ud83d\udcb5 Troco para: R$ ${trocoVal}`;
                 }
 
-                // Disparo para o BARK (Notificação Nativa iOS - Super Estável)
+                // Disparo para o BARK (Notifica\u00e7\u00e3o Nativa iOS - Super Est\u00e1vel)
                 try {
                     const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname.replace('index.html', '');
                     const adminUrl = baseUrl + (baseUrl.endsWith('/') ? '' : '/') + 'admin.html';
-                    const barkTitle = encodeURIComponent(`🥃 NOVO PEDIDO: ${nome.toUpperCase()}`);
+                    const barkTitle = encodeURIComponent(`\ud83e\udd43 NOVO PEDIDO: ${nome.toUpperCase()}`);
                     const barkBody = encodeURIComponent(`Valor: ${totalMsg}\nItens: ${itensMsg}`);
-                    const barkUrl = `https://api.day.app/nrsU2kcUcKiCA3zqQ3nzYY/${barkTitle}/${barkBody}?url=${encodeURIComponent(adminUrl)}&icon=https://eegqobqhrfdkmjyjnqvp.supabase.co/storage/v1/object/public/fotos/favicon.png&sound=telegraph`;
+                    const barkUrl = `https://api.day.app/Jk7w8aEYetUowZ9xUJGEiQ/${barkTitle}/${barkBody}?url=${encodeURIComponent(adminUrl)}&icon=https://eegqobqhrfdkmjyjnqvp.supabase.co/storage/v1/object/public/fotos/favicon.png&sound=telegraph`;
 
                     fetch(barkUrl).catch(e => console.log("Bark offline ou bloqueado"));
                 } catch (e) { }
 
                 // Redireciona imediatamente (mais seguro para mobile)
-                const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 " + nome + "\n📱 " + telefone + "\n📦 " + itensMsg + "\n📍 " + endereco + "\n💳 Pagamento: " + pag + trocoMsg + "\n💰 " + totalMsg + beneficioMsg)}`;
+                const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n\ud83d\udc64 " + nome + "\n\ud83d\udcf1 " + telefone + "\n\ud83d\udce6 " + itensMsg + "\n\ud83d\udccd " + endereco + "\n\ud83d\udcb3 Pagamento: " + pag + trocoMsg + "\n\ud83d\udcb0 " + totalMsg + beneficioMsg)}`;
                 window.location.href = waUrl;
             } catch (e) {
                 console.error(e);
-                alert("Ops! Verifique se todos os campos estão preenchidos corretamente.");
+                alert("Ops! Verifique se todos os campos est\u00e3o preenchidos corretamente.");
             }
         }
 
