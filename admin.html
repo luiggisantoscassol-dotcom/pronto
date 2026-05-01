@@ -620,6 +620,15 @@
             }
         }
 
+        function limparTelefoneWhatsApp(tel) {
+            if (!tel) return "";
+            let limpo = tel.replace(/\D/g, '');
+            if (limpo.startsWith('0')) limpo = limpo.substring(1);
+            if (limpo.startsWith('55') && limpo.length > 11) limpo = limpo.substring(2);
+            if (limpo.length === 10) limpo = limpo.substring(0, 2) + "9" + limpo.substring(2);
+            return limpo.length >= 11 ? limpo : "";
+        }
+
         async function buscarClientePDV() {
             const telInput = document.getElementById('pdv-telefone');
             if (!telInput) return;
@@ -698,12 +707,8 @@
             const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
             
             // Limpeza de telefone para WhatsApp (Sem mensagem)
-            let telClean = c.telefone ? c.telefone.replace(/\D/g, '') : '';
-            if (telClean.startsWith('0')) telClean = telClean.substring(1);
-            if (telClean.startsWith('55') && telClean.length > 11) telClean = telClean.substring(2);
-            if (telClean.length === 10) telClean = telClean.substring(0, 2) + "9" + telClean.substring(2);
-            
-            const btnWhats = telClean ? `<a href="https://api.whatsapp.com/send/?phone=55${telClean}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-bottom:10px; font-size:0.8rem;">CHAMAR NO WHATSAPP</a>` : '';
+            const telClean = limparTelefoneWhatsApp(c.telefone);
+            const btnWhats = telClean ? `<a href="https://wa.me/55${telClean}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-bottom:10px; font-size:0.8rem;">CHAMAR NO WHATSAPP</a>` : '';
 
             document.getElementById('dc-conteudo').innerHTML = `
                 <div style="font-size:0.9rem; line-height:1.6;">
@@ -844,20 +849,11 @@
                         }
 
                         // Extração e Limpeza Definitiva para WhatsApp Business
-                        let telLimpo = "";
+                        const telLimpo = limparTelefoneWhatsApp(p.cliente);
                         let nomeLimpo = p.cliente;
-                        
-                        let numBruto = p.cliente.replace(/\D/g, '');
-                        if (numBruto.startsWith('0')) numBruto = numBruto.substring(1);
-                        if (numBruto.startsWith('55') && numBruto.length > 11) numBruto = numBruto.substring(2);
-                        if (numBruto.length === 10) numBruto = numBruto.substring(0, 2) + "9" + numBruto.substring(2);
-                        
-                        if (numBruto.length >= 11) {
-                            telLimpo = numBruto;
-                            if (p.cliente.includes('(')) nomeLimpo = p.cliente.split('(')[0].trim();
-                        }
+                        if (p.cliente.includes('(')) nomeLimpo = p.cliente.split('(')[0].trim();
 
-                        const btnWhats = telLimpo ? `<a href="https://api.whatsapp.com/send/?phone=55${telLimpo}" target="_blank" onclick="event.stopPropagation()" class="btn-whats-mini">WHATSAPP</a>` : '';
+                        const btnWhats = telLimpo ? `<a href="https://wa.me/55${telLimpo}" target="_blank" onclick="event.stopPropagation()" class="btn-whats-mini">WHATSAPP</a>` : '';
                         const classeStatus = st.split(' ')[0];
 
                         const cardPedido = `
@@ -1045,14 +1041,8 @@
             }
 
             // Extração e Limpeza Definitiva (Modal)
-            let telLimpo = "";
-            let numBruto = p.cliente.replace(/\D/g, '');
-            if (numBruto.startsWith('0')) numBruto = numBruto.substring(1);
-            if (numBruto.startsWith('55') && numBruto.length > 11) numBruto = numBruto.substring(2);
-            if (numBruto.length === 10) numBruto = numBruto.substring(0, 2) + "9" + numBruto.substring(2);
-            if (numBruto.length >= 11) telLimpo = numBruto;
-            
-            const btnWhatsModal = telLimpo ? `<a href="https://api.whatsapp.com/send/?phone=55${telLimpo}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-top:15px; font-size:0.8rem; box-shadow:0 5px 15px rgba(37,211,102,0.3);">CHAMAR NO WHATSAPP</a>` : '';
+            const telLimpo = limparTelefoneWhatsApp(p.cliente);
+            const btnWhatsModal = telLimpo ? `<a href="https://wa.me/55${telLimpo}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-top:15px; font-size:0.8rem; box-shadow:0 5px 15px rgba(37,211,102,0.3);">CHAMAR NO WHATSAPP</a>` : '';
 
             const nomeLimpo = p.cliente.split('(')[0].trim();
             document.getElementById('m-nome').innerText = nomeLimpo.toUpperCase(); 
@@ -1114,13 +1104,7 @@
         }
 
         function enviarMensagemStatus(p, st) {
-            let telFinal = "";
-            let numBruto = p.cliente.replace(/\D/g, '');
-            if (numBruto.startsWith('0')) numBruto = numBruto.substring(1);
-            if (numBruto.startsWith('55') && numBruto.length > 11) numBruto = numBruto.substring(2);
-            if (numBruto.length === 10) numBruto = numBruto.substring(0, 2) + "9" + numBruto.substring(2);
-            if (numBruto.length >= 11) telFinal = numBruto;
-            
+            const telFinal = limparTelefoneWhatsApp(p.cliente);
             if (!telFinal) return; 
 
             const mensagens = {
@@ -1133,8 +1117,14 @@
 
             const msg = mensagens[st];
             if (msg) {
-                const url = `https://api.whatsapp.com/send/?phone=55${telFinal}&text=${encodeURIComponent(msg)}`;
-                window.open(url, '_blank');
+                const url = `https://wa.me/55${telFinal}?text=${encodeURIComponent(msg)}`;
+                // Simula clique em link para melhor compatibilidade com WhatsApp Business no mobile
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
 
