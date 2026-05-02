@@ -181,6 +181,30 @@
             cursor: pointer; transition: 0.3s;
         }
         .pdv-btn-add:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(197,160,89,0.3); }
+        
+        .pdv-card-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #e74c3c;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 900;
+            border: 3px solid var(--blue-navy);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            z-index: 10;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         .estoque-row { background: rgba(255,255,255,0.02); padding: 25px; border-radius: var(--radius-sm); margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .estoque-controles { display: flex; align-items: center; background: #000; border-radius: 12px; border: 1px solid #222; height: 60px; margin-top: 15px; overflow: hidden; }
@@ -303,7 +327,7 @@
         <button class="nav-item" onclick="switchTab('tab-estoque')">Estoque 📦</button>
         <button class="nav-item" onclick="switchTab('tab-stats')">Resultados 📊</button>
         <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastro ➕</button>
-        <button class="nav-item" onclick="switchTab('tab-rastreio')">Rastreio 👁️</button>
+        <button class="nav-item" onclick="switchTab('tab-rastreio')">Visitantes 👁️</button>
     </nav>
 
     <div id="tab-pedidos" class="tab-content">
@@ -336,7 +360,7 @@
         <button onclick="aplicarBulkStatus()" style="background:#000; color:#fff; border:none; padding:12px 20px; border-radius:12px; font-weight:900; cursor:pointer; font-size:0.75rem; letter-spacing:1px;">APLICAR</button>
     </div>
     <div id="tab-historico" class="tab-content"><div class="card"><h2>Histórico Total</h2><div id="corpo-historico"></div></div></div>
-    <div id="tab-rastreio" class="tab-content"><div class="card"><h2>Rastreio de Adições (IP)</h2><div id="corpo-rastreio"></div></div></div>
+    <div id="tab-rastreio" class="tab-content"><div class="card"><h2>Atividade dos Visitantes</h2><div id="corpo-rastreio"></div></div></div>
     <div id="tab-clientes" class="tab-content">
         <div class="card">
             <h2>Base de Clientes</h2>
@@ -440,8 +464,13 @@
         </div>
         <div style="padding: 25px; overflow-y: auto; flex: 1;">
             <div id="pdv-itens"></div>
-            <input type="tel" id="pdv-telefone" placeholder="Telefone do Cliente" oninput="mascaraTelefone(this)" onblur="buscarClientePDV()">
-            <input type="text" id="pdv-cliente" placeholder="Nome do Cliente">
+            <input type="tel" id="pdv-telefone" placeholder="Telefone do Cliente (Auto-preenchido)" oninput="mascaraTelefone(this)" readonly style="opacity:0.6; background:#111;">
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <select id="pdv-cliente" style="margin-bottom:0;" onchange="selecionarClientePorNome(this.value)">
+                    <option value="">Selecione um Cliente...</option>
+                </select>
+                <button onclick="abrirModalCliente()" title="Cadastrar Novo Cliente" style="width:50px; height:50px; flex-shrink:0; background:var(--gold); color:#000; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size:1.5rem;">+</button>
+            </div>
             <select id="pdv-entrega" onchange="togglePdvEndereco()"><option value="Balcão">Balcão / Retirada</option><option value="Tele">Entrega (Tele)</option></select>
             
             <div id="pdv-bloco-endereco" style="display:none;">
@@ -734,22 +763,42 @@
         }
 
         async function salvarNovoCliente() {
-            const tel = document.getElementById('nc-telefone').value.replace(/\D/g, "");
-            const nome = document.getElementById('nc-nome').value;
-            if (!tel || !nome) return alert("Nome e Telefone são obrigatórios!");
-            showToast("Salvando...");
-            await db.from('clientes').upsert([{
-                telefone: tel,
-                nome: nome,
-                cep: document.getElementById('nc-cep').value,
-                rua: document.getElementById('nc-rua').value,
-                numero: document.getElementById('nc-numero').value,
-                bairro: document.getElementById('nc-bairro').value
-            }], { onConflict: 'telefone' });
-            fecharTodosModais();
-            carregarClientes();
-            document.getElementById('nc-telefone').value = '';
-            document.getElementById('nc-nome').value = '';
+            try {
+                const tel = document.getElementById('nc-telefone').value.replace(/\D/g, "");
+                const nome = document.getElementById('nc-nome').value;
+                if (!nome) return alert("O Nome é obrigatório!");
+                showToast("Salvando...");
+                
+                const payload = {
+                    nome: nome,
+                    cep: document.getElementById('nc-cep').value,
+                    rua: document.getElementById('nc-rua').value,
+                    numero: document.getElementById('nc-numero').value,
+                    bairro: document.getElementById('nc-bairro').value
+                };
+
+                let res;
+                if (tel) {
+                    payload.telefone = tel;
+                    res = await db.from('clientes').upsert([payload], { onConflict: 'telefone' });
+                } else {
+                    res = await db.from('clientes').insert([payload]);
+                }
+
+                if (res.error) throw res.error;
+
+                fecharTodosModais();
+                await carregarClientes();
+                // Se estiver no PDV, atualiza a lista de lá também
+                if (document.getElementById('pdv-cliente')) carregarDatalistPDV();
+
+                document.getElementById('nc-telefone').value = '';
+                document.getElementById('nc-nome').value = '';
+                showToast("Cliente salvo com sucesso!");
+            } catch (e) {
+                console.error(e);
+                alert("Erro ao salvar cliente: " + (e.message || "Verifique os dados."));
+            }
         }
 
         async function excluirCliente(id) {
@@ -789,36 +838,38 @@
                 // Carregar Rastreio
                 const { data: rastreio } = await db.from('rastreio_carrinho').select('*').order('created_at', { ascending: false });
 
-                // Processar Rastreio de IP
-                let ipMap = {};
+                // Processar Rastreio (Visitantes por Dispositivo)
+                let trackerMap = {};
                 if (rastreio) {
                     rastreio.forEach(r => {
-                        const chave = r.ip;
+                        const chave = r.device_id || r.ip;
                         const nomeCliente = r.cliente_nome && r.cliente_nome !== 'Anônimo' ? r.cliente_nome : null;
-                        if(!ipMap[chave]) ipMap[chave] = { cont: 0, items: [], ultimo: r.created_at, nome: nomeCliente };
-                        // Atualiza o nome se achou um que não é Anônimo
-                        if (nomeCliente && !ipMap[chave].nome) ipMap[chave].nome = nomeCliente;
+                        if(!trackerMap[chave]) trackerMap[chave] = { cont: 0, items: [], ultimo: r.created_at, nome: nomeCliente, ip: r.ip };
                         
-                        ipMap[chave].cont++;
-                        ipMap[chave].items.push(`${r.produto_nome} (${formatarDataHora(r.created_at)})`);
+                        // Atualiza o nome se achou um que não é Anônimo
+                        if (nomeCliente && !trackerMap[chave].nome) trackerMap[chave].nome = nomeCliente;
+                        
+                        trackerMap[chave].cont++;
+                        trackerMap[chave].items.push(`${r.produto_nome} (${formatarDataHora(r.created_at)})`);
                     });
                 }
                 
-                // Rastreio (Visitantes)
                 let htmlRastreio = '';
-                Object.keys(ipMap).forEach((ip, index) => {
-                    const data = ipMap[ip];
-                    const exibirNome = data.nome ? data.nome : "Visitante Anônimo";
-                    const listaItens = data.items.map(i => `<li>• ${i}</li>`).join('');
+                Object.keys(trackerMap).forEach((id, index) => {
+                    const d = trackerMap[id];
+                    const exibirNome = d.nome ? d.nome : "Visitante Anônimo";
+                    const listaItens = d.items.map(i => `<li>• ${i}</li>`).join('');
+                    const isDevice = id.startsWith('dev-');
                     
                     htmlRastreio += `
                         <div class="order-row" onclick="document.getElementById('detalhe-${index}').style.display = document.getElementById('detalhe-${index}').style.display === 'none' ? 'block' : 'none'">
                             <div class="order-info">
                                 <span class="order-name">${exibirNome.toUpperCase()}</span>
-                                <span class="order-details">IP: ${ip} • Último: ${formatarDataHora(data.ultimo)}</span>
+                                <span class="order-details">${isDevice ? '📱 DISPOSITIVO ÚNICO' : '🌐 IP: ' + id} • IP: ${d.ip}</span>
+                                <span class="order-details">Último: ${formatarDataHora(d.ultimo)}</span>
                             </div>
                             <div class="status-container">
-                                <span class="status-badge Novo">${data.cont} AÇÕES</span>
+                                <span class="status-badge Novo">${d.cont} AÇÕES</span>
                             </div>
                             <div id="detalhe-${index}" style="display:none; grid-column: span 2; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 10px; font-size: 0.8rem; color: #aaa;">
                                 <ul style="list-style: none;">${listaItens}</ul>
@@ -951,6 +1002,7 @@
                         
                         htmlPDV += `
                             <div class="pdv-card" style="${esgotado ? 'opacity:0.4' : ''}">
+                                <div id="pdv-badge-${id}" class="pdv-card-badge">0</div>
                                 <button class="btn-edit-product" onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')">✏️</button>
                                 <img src="${f1 || 'https://via.placeholder.com/150'}">
                                 <div class="pdv-name">${n.toUpperCase()}</div>
@@ -1142,17 +1194,68 @@
         function addPDV(id, n, p, c) { let i = adminCart.find(x => x.id === id); if(i) i.qtd++; else adminCart.push({id, name: n, price: p, cost: c, qtd:1}); updatePDVCart(); showToast("Na sacola"); }
         function updatePDVCart() {
             const float = document.getElementById('pdv-floating-cart'); if(!float) return;
+            
+            // Limpa todos os badges antes de reaplicar
+            document.querySelectorAll('.pdv-card-badge').forEach(b => {
+                b.innerText = '0';
+                b.style.display = 'none';
+            });
+
             if(adminCart.length === 0) { float.style.display = 'none'; fecharTodosModais(); return; }
             if (document.querySelector('.nav-item.active').getAttribute('onclick').includes('tab-pdv')) float.style.display = 'flex';
             let tq = 0, tv = 0;
             document.getElementById('pdv-itens').innerHTML = adminCart.map(i => {
                 tq += i.qtd; tv += (i.price * i.qtd);
+                
+                // Atualiza o badge no card do produto
+                const badge = document.getElementById(`pdv-badge-${i.id}`);
+                if (badge) {
+                    badge.innerText = i.qtd;
+                    badge.style.display = 'flex';
+                }
+
                 return `<div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center; border-bottom: 1px solid #1a1a1a; padding-bottom: 15px;"><div style="flex:1;"><span style="font-weight:700;">${i.name}</span><br><b style="color:var(--gold);">R$ ${(i.price * i.qtd).toFixed(2)}</b></div><div class="estoque-controles" style="height:45px; width:120px; margin-top:0;"><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', -1)">−</button><span style="width:40px;text-align:center;font-weight:900;">${i.qtd}</span><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', 1)">+</button></div></div>`;
             }).join('');
             document.getElementById('pdv-float-qtd').innerText = tq; document.getElementById('pdv-float-total').innerText = `R$ ${tv.toFixed(2)}`; document.getElementById('pdv-total').innerText = `Total: R$ ${tv.toFixed(2)}`;
         }
         function changePDV(id, d) { let i = adminCart.find(x => x.id === id); if(i) { i.qtd += d; if(i.qtd <= 0) adminCart = adminCart.filter(x => x.id !== id); } updatePDVCart(); }
-        function abrirSacolaPDV() { document.getElementById('modal-sacola-pdv').style.display = 'flex'; document.getElementById('overlay').style.display = 'block'; }
+        function abrirSacolaPDV() { 
+            carregarDatalistPDV();
+            document.getElementById('modal-sacola-pdv').style.display = 'flex'; 
+            document.getElementById('overlay').style.display = 'block'; 
+        }
+
+        async function carregarDatalistPDV() {
+            const { data } = await db.from('clientes').select('nome, telefone, rua, numero, bairro, cep').order('nome');
+            if (data) {
+                const select = document.getElementById('pdv-cliente');
+                const valorAtual = select.value;
+                select.innerHTML = '<option value="">Selecione um Cliente...</option>' + 
+                    data.map(c => `<option value="${c.nome}" ${c.nome === valorAtual ? 'selected' : ''}>${c.nome.toUpperCase()}</option>`).join('');
+                window.clientesCachePDV = data; 
+            }
+        }
+
+        function selecionarClientePorNome(nome) {
+            if (!window.clientesCachePDV) return;
+            const c = window.clientesCachePDV.find(x => x.nome === nome);
+            const inputTel = document.getElementById('pdv-telefone');
+            
+            if (c) {
+                inputTel.value = c.telefone || "";
+                if (c.telefone) mascaraTelefone(inputTel);
+            } else {
+                inputTel.value = "";
+            }
+
+            // Reseta para Balcão e limpa os campos de endereço ao selecionar cliente
+            document.getElementById('pdv-entrega').value = 'Balcão';
+            togglePdvEndereco();
+            document.getElementById('pdv-rua').value = "";
+            document.getElementById('pdv-numero').value = "";
+            document.getElementById('pdv-bairro').value = "";
+            document.getElementById('pdv-cep').value = "";
+        }
         
         async function finalizarVendaPDV() {
             if (!confirm("Finalizar venda?")) return;
@@ -1183,14 +1286,15 @@
             fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Enviando...");
             await db.from('pedidos').insert([payload]);
 
-            // Salva/Atualiza cliente se houver telefone
-            if (telPdv && telPdv.length >= 14) {
+            // Salva/Atualiza cliente (mesmo sem telefone, se houver nome válido)
+            if (nomePdv && nomePdv !== "Balcão") {
+                const telLimpo = telPdv ? telPdv.replace(/\D/g, "") : "";
                 const dadosCli = {
-                    telefone: telPdv.replace(/\D/g, ""),
                     nome: nomePdv
                 };
+                if (telLimpo) dadosCli.telefone = telLimpo;
 
-                // Só salva endereço se for Tele, para não apagar o endereço existente em vendas de balcão
+                // Só salva endereço se for Tele
                 if (entregaPdv === 'Tele') {
                     dadosCli.cep = document.getElementById('pdv-cep').value || "";
                     dadosCli.rua = document.getElementById('pdv-rua').value || "";
@@ -1198,7 +1302,11 @@
                     dadosCli.bairro = document.getElementById('pdv-bairro').value || "";
                 }
 
-                db.from('clientes').upsert([dadosCli], { onConflict: 'telefone' }).then(() => console.log("Cliente PDV salvo")).catch(e => console.log(e));
+                if (telLimpo) {
+                    db.from('clientes').upsert([dadosCli], { onConflict: 'telefone' }).then(() => { console.log("Cliente PDV salvo"); carregarClientes(); }).catch(e => { console.error(e); alert("Erro ao salvar cliente com telefone: " + e.message); });
+                } else {
+                    db.from('clientes').insert([dadosCli]).then(() => { console.log("Cliente PDV (sem tel) salvo"); carregarClientes(); }).catch(e => { console.error(e); alert("Erro ao salvar cliente sem telefone: " + (e.message || "Verifique se o telefone é obrigatório no banco de dados.")); });
+                }
             }
 
             carregar();
