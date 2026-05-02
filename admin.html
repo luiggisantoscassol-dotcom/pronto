@@ -469,7 +469,7 @@
                 <select id="pdv-cliente" style="margin-bottom:0;" onchange="selecionarClientePorNome(this.value)">
                     <option value="">Selecione um Cliente...</option>
                 </select>
-                <button onclick="abrirModalCliente()" title="Cadastrar Novo Cliente" style="width:50px; height:50px; flex-shrink:0; background:var(--gold); color:#000; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size:1.5rem;">+</button>
+                <button id="pdv-add-cliente-btn" onclick="abrirModalCliente(true)" title="Cadastrar Novo Cliente" style="width:50px; height:50px; flex-shrink:0; background:var(--gold); color:#000; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size:1.5rem;">+</button>
             </div>
             <select id="pdv-entrega" onchange="togglePdvEndereco()"><option value="Balcão">Balcão / Retirada</option><option value="Tele">Entrega (Tele)</option></select>
             
@@ -480,20 +480,23 @@
                 <input type="text" id="pdv-numero" placeholder="Nº" style="width:26%; display:inline-block;">
             </div>
 
-            <input type="number" id="pdv-frete" placeholder="Valor do Frete R$ (Opcional)" step="0.01">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input type="number" id="pdv-frete" placeholder="Frete R$" step="0.01" oninput="updatePDVCart()" style="margin-bottom:0;">
+                <input type="number" id="pdv-desconto" placeholder="Desconto R$" step="0.01" oninput="updatePDVCart()" style="margin-bottom:0;">
+            </div>
             <select id="pdv-pagamento"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select>
-            <select id="pdv-status">
+            <select id="pdv-status" onchange="updatePdvBtnText()">
                 <option value="Concluído" selected>CONCLUÍDO (JÁ PAGO)</option>
                 <option value="Novo Pedido">EM ABERTO (NÃO PAGO)</option>
             </select>
         </div>
-        <div style="padding: 25px; background: #000; border-top: 1px solid #222;"><h3 id="pdv-total" style="color:var(--gold); text-align:center; margin-bottom:20px; font-weight: 900; font-size: 1.6rem;">R$ 0,00</h3><button onclick="finalizarVendaPDV()" style="width:100%; padding:22px; background:var(--green); border:none; color:#000; border-radius:18px; font-weight:900;">CONCLUIR VENDA</button></div>
+        <div style="padding: 25px; background: #000; border-top: 1px solid #222;"><h3 id="pdv-total" style="color:var(--gold); text-align:center; margin-bottom:20px; font-weight: 900; font-size: 1.6rem;">R$ 0,00</h3><button id="btn-finalizar-pdv" onclick="finalizarVendaPDV()" style="width:100%; padding:22px; background:var(--green); border:none; color:#000; border-radius:18px; font-weight:900; text-transform: uppercase;">CONCLUIR VENDA</button></div>
     </div>
 
     <div id="modal-cliente" class="modal-box" style="padding: 0; flex-direction: column;">
         <div class="modal-header">
             <h2>Novo Cadastro</h2>
-            <button onclick="fecharTodosModais()" class="modal-fechar-btn">×</button>
+            <button onclick="fecharModalCliente()" class="modal-fechar-btn">×</button>
         </div>
         <div style="padding: 25px; overflow-y: auto;">
             <input type="tel" id="nc-telefone" placeholder="Telefone (WhatsApp)" oninput="mascaraTelefone(this)">
@@ -595,6 +598,9 @@
         const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+        let veioDoPdv = false;
+        let editandoPedidoId = null;
+        let allProducts = [];
 
         let sel = null; let adminCart = []; let statsMensal = {};
 
@@ -757,16 +763,29 @@
             document.getElementById('overlay').style.display = 'block';
         }
 
-        function abrirModalCliente() {
+        function abrirModalCliente(fromPdv = false) {
+            veioDoPdv = fromPdv;
             document.getElementById('modal-cliente').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
+        }
+
+        function fecharModalCliente() {
+            if (veioDoPdv) {
+                document.getElementById('modal-cliente').style.display = 'none';
+                abrirSacolaPDV();
+                veioDoPdv = false;
+            } else {
+                fecharTodosModais();
+            }
         }
 
         async function salvarNovoCliente() {
             try {
                 const tel = document.getElementById('nc-telefone').value.replace(/\D/g, "");
-                const nome = document.getElementById('nc-nome').value;
-                if (!nome) return alert("O Nome é obrigatório!");
+                const nomeInput = document.getElementById('nc-nome').value;
+                if (!nomeInput) return alert("O Nome é obrigatório!");
+                const nome = nomeInput.trim();
+                
                 showToast("Salvando...");
                 
                 const payload = {
@@ -776,6 +795,12 @@
                     numero: document.getElementById('nc-numero').value,
                     bairro: document.getElementById('nc-bairro').value
                 };
+
+                // VERIFICAÇÃO DE NOME ÚNICO
+                const { data: existente } = await db.from('clientes').select('nome').eq('nome', nome).limit(1);
+                if (existente && existente.length > 0) {
+                    return alert("Erro: Já existe um cliente cadastrado com este nome!");
+                }
 
                 let res;
                 if (tel) {
@@ -787,10 +812,21 @@
 
                 if (res.error) throw res.error;
 
+                const novoNome = document.getElementById('nc-nome').value;
                 fecharTodosModais();
                 await carregarClientes();
                 // Se estiver no PDV, atualiza a lista de lá também
                 if (document.getElementById('pdv-cliente')) carregarDatalistPDV();
+
+                if (veioDoPdv) {
+                    abrirSacolaPDV();
+                    // Pequeno atraso para garantir que o datalist foi atualizado
+                    setTimeout(() => {
+                        document.getElementById('pdv-cliente').value = novoNome;
+                        selecionarClientePorNome(novoNome);
+                        veioDoPdv = false;
+                    }, 300);
+                }
 
                 document.getElementById('nc-telefone').value = '';
                 document.getElementById('nc-nome').value = '';
@@ -831,6 +867,7 @@
             try {
                 // Carregar Produtos
                 const { data: produtos } = await db.from('produtos').select('*').eq('excluido', false).order('nome');
+                allProducts = produtos || [];
                 
                 // Carregar Pedidos
                 const { data: pedidos } = await db.from('pedidos').select('*').order('created_at', { ascending: false });
@@ -1001,13 +1038,13 @@
                             </div>`;
                         
                         htmlPDV += `
-                            <div class="pdv-card" style="${esgotado ? 'opacity:0.4' : ''}">
+                            <div class="pdv-card" style="${esgotado ? 'opacity:0.4' : 'cursor:pointer;'}" onclick="${esgotado ? '' : `addPDV('${id}', '${nS}', ${pr}, ${cus})`}">
                                 <div id="pdv-badge-${id}" class="pdv-card-badge">0</div>
-                                <button class="btn-edit-product" onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')">✏️</button>
+                                <button class="btn-edit-product" onclick="event.stopPropagation(); abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')">✏️</button>
                                 <img src="${f1 || 'https://via.placeholder.com/150'}">
                                 <div class="pdv-name">${n.toUpperCase()}</div>
                                 <div class="pdv-price">R$ ${pr.toFixed(2)}</div>
-                                <button class="pdv-btn-add" ${esgotado ? 'disabled' : ''} onclick="addPDV('${id}', '${nS}', ${pr}, ${cus})">
+                                <button class="pdv-btn-add" ${esgotado ? 'disabled' : ''}>
                                     ${esgotado ? 'ESGOTADO' : 'ADICIONAR'}
                                 </button>
                             </div>`;
@@ -1095,6 +1132,11 @@
             } else {
                 htmlFrete = '<b>📦 FRETE:</b> ' + htmlFrete + '<br>';
             }
+
+            let htmlDesconto = '';
+            if (p.desconto && parseFloat(p.desconto) > 0) {
+                htmlDesconto = `<b style="color:var(--red-premium)">💰 DESCONTO:</b> - R$ ${parseFloat(p.desconto).toFixed(2)}<br>`;
+            }
             
             const enderecoOriginal = p.endereco || 'Balcão';
             let htmlEndereco = enderecoOriginal;
@@ -1115,9 +1157,13 @@
                     <b>💰 PAGTO:</b> ${p.pagamento}<br>
                     <b>🚚 LOCAL:</b> ${htmlEndereco}<br><br>
                     ${htmlFrete}
+                    ${htmlDesconto}
                     <b>⏰ FEITO EM:</b> ${dtF}
                 </div>
                 ${btnWhatsModal}
+                ${p.status !== 'Concluído' && p.status !== 'Cancelado' ? `
+                    <button onclick="editarPedidoNoPdv()" style="width:100%; margin-top:10px; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; cursor:pointer; color:#000;">✏️ EDITAR NO PDV</button>
+                ` : ''}
                 <div style="text-align:right; font-size:1.5rem; font-weight:900; color:var(--gold); margin-top:12px; border-top:1px solid #222; padding-top:12px;">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}${freteInclusoText}</div>`; 
             
             document.getElementById('m-status').value = p.status || "Novo Pedido"; 
@@ -1148,8 +1194,8 @@
             carregar(); 
         }
 
-        async function mudarStatusRapido(id, novoStatus, pJsonBase64) {
-            const p = JSON.parse(atob(pJsonBase64));
+        async function mudarStatusRapido(id, novoStatus, pJsonEncoded) {
+            const p = JSON.parse(decodeURIComponent(pJsonEncoded));
             
             // Notificação automática
             if (novoStatus !== "Novo Pedido") {
@@ -1180,6 +1226,9 @@
 
             const msg = mensagens[st];
             if (msg) {
+                // Pergunta antes de abrir o WhatsApp
+                if (!confirm(`Deseja enviar a notificação de "${st.toUpperCase()}" para o cliente via WhatsApp?`)) return;
+
                 const url = `https://wa.me/55${telFinal}?text=${encodeURIComponent(msg)}`;
                 // Simula clique em link para melhor compatibilidade com WhatsApp Business no mobile
                 const link = document.createElement('a');
@@ -1201,7 +1250,16 @@
                 b.style.display = 'none';
             });
 
-            if(adminCart.length === 0) { float.style.display = 'none'; fecharTodosModais(); return; }
+            if(adminCart.length === 0) { 
+                float.style.display = 'none'; 
+                fecharTodosModais(); 
+                editandoPedidoId = null; 
+                document.getElementById('pdv-cliente').disabled = false;
+                document.getElementById('pdv-add-cliente-btn').disabled = false;
+                document.getElementById('pdv-add-cliente-btn').style.opacity = "1";
+                document.getElementById('pdv-add-cliente-btn').style.cursor = "pointer";
+                return; 
+            }
             if (document.querySelector('.nav-item.active').getAttribute('onclick').includes('tab-pdv')) float.style.display = 'flex';
             let tq = 0, tv = 0;
             document.getElementById('pdv-itens').innerHTML = adminCart.map(i => {
@@ -1216,7 +1274,12 @@
 
                 return `<div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center; border-bottom: 1px solid #1a1a1a; padding-bottom: 15px;"><div style="flex:1;"><span style="font-weight:700;">${i.name}</span><br><b style="color:var(--gold);">R$ ${(i.price * i.qtd).toFixed(2)}</b></div><div class="estoque-controles" style="height:45px; width:120px; margin-top:0;"><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', -1)">−</button><span style="width:40px;text-align:center;font-weight:900;">${i.qtd}</span><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', 1)">+</button></div></div>`;
             }).join('');
-            document.getElementById('pdv-float-qtd').innerText = tq; document.getElementById('pdv-float-total').innerText = `R$ ${tv.toFixed(2)}`; document.getElementById('pdv-total').innerText = `Total: R$ ${tv.toFixed(2)}`;
+            const frete = parseFloat(document.getElementById('pdv-frete').value || 0);
+            const desconto = parseFloat(document.getElementById('pdv-desconto').value || 0);
+            const totalFinal = (tv + frete - desconto);
+            document.getElementById('pdv-float-qtd').innerText = tq; 
+            document.getElementById('pdv-float-total').innerText = `R$ ${totalFinal.toFixed(2)}`; 
+            document.getElementById('pdv-total').innerText = `Total: R$ ${totalFinal.toFixed(2)}`;
         }
         function changePDV(id, d) { let i = adminCart.find(x => x.id === id); if(i) { i.qtd += d; if(i.qtd <= 0) adminCart = adminCart.filter(x => x.id !== id); } updatePDVCart(); }
         function abrirSacolaPDV() { 
@@ -1255,14 +1318,28 @@
             document.getElementById('pdv-numero').value = "";
             document.getElementById('pdv-bairro').value = "";
             document.getElementById('pdv-cep').value = "";
+            updatePdvBtnText(); // Reseta o texto do botão
+        }
+
+        function updatePdvBtnText() {
+            const st = document.getElementById('pdv-status').value;
+            const btn = document.getElementById('btn-finalizar-pdv');
+            if (st === "Novo Pedido") {
+                btn.innerText = "SALVAR PEDIDO";
+                btn.style.background = "var(--gold)";
+            } else {
+                btn.innerText = "CONCLUIR VENDA";
+                btn.style.background = "var(--green)";
+            }
         }
         
         async function finalizarVendaPDV() {
-            if (!confirm("Finalizar venda?")) return;
+            const statusPdv = document.getElementById('pdv-status').value;
             const telPdv = document.getElementById('pdv-telefone').value;
             const nomePdv = document.getElementById('pdv-cliente').value || "Balcão";
             const entregaPdv = document.getElementById('pdv-entrega').value;
             const fretePdv = parseFloat(document.getElementById('pdv-frete').value || 0);
+            const descontoPdv = parseFloat(document.getElementById('pdv-desconto').value || 0);
             const totalProdutos = adminCart.reduce((a, b) => a + (b.price * b.qtd), 0);
 
             let enderecoFinal = "Balcão";
@@ -1275,16 +1352,58 @@
 
             const payload = {
                 cliente: nomePdv + (telPdv ? ` (${telPdv})` : ""),
-                itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', '),
-                total: parseFloat((totalProdutos + fretePdv).toFixed(2)),
+                itens: adminCart.map(i => `${i.name} (x${i.qtd})`).join(', ') + (descontoPdv > 0 ? ` [DESCONTO: R$ ${descontoPdv.toFixed(2)}]` : ""),
+                total: parseFloat((totalProdutos + fretePdv - descontoPdv).toFixed(2)),
                 custo: parseFloat((adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0)).toFixed(2)),
                 pagamento: document.getElementById('pdv-pagamento').value,
                 status: document.getElementById('pdv-status').value,
                 frete: fretePdv,
                 endereco: enderecoFinal
             };
-            fecharTodosModais(); adminCart = []; updatePDVCart(); showToast("Enviando...");
-            await db.from('pedidos').insert([payload]);
+            fecharTodosModais(); showToast("Enviando...");
+            
+            let res;
+            if (editandoPedidoId) {
+                // MODO EDIÇÃO: Atualiza o pedido existente
+                res = await db.from('pedidos').update(payload).eq('id', editandoPedidoId);
+                editandoPedidoId = null; // Limpa após editar
+            } else {
+                // MODO NOVO: Insere um novo pedido
+                res = await db.from('pedidos').insert([payload]);
+            }
+            
+            const insertError = res.error;
+            
+            if (insertError) {
+                console.error(insertError);
+                showToast("Erro ao salvar!");
+            } else {
+                const msgSucesso = (statusPdv === "Novo Pedido") ? "Pedido salvo!" : "Venda realizada!";
+                showToast(msgSucesso);
+                adminCart = []; // Limpa a sacola agora
+                updatePDVCart(); // Reseta os campos e o ID de edição
+                carregar(); // Recarrega as abas de Pedidos e Histórico
+                
+                // RESET TOTAL DOS CAMPOS PDV
+                document.getElementById('pdv-telefone').value = "";
+                document.getElementById('pdv-cliente').value = "";
+                document.getElementById('pdv-cliente').disabled = false;
+                document.getElementById('pdv-add-cliente-btn').disabled = false;
+                document.getElementById('pdv-add-cliente-btn').style.opacity = "1";
+                document.getElementById('pdv-add-cliente-btn').style.cursor = "pointer";
+                
+                document.getElementById('pdv-entrega').value = "Balcão";
+                document.getElementById('pdv-frete').value = "";
+                document.getElementById('pdv-desconto').value = "";
+                document.getElementById('pdv-pagamento').value = "Pix";
+                document.getElementById('pdv-status').value = "Concluído";
+                
+                document.getElementById('pdv-cep').value = "";
+                document.getElementById('pdv-bairro').value = "";
+                document.getElementById('pdv-rua').value = "";
+                document.getElementById('pdv-numero').value = "";
+                document.getElementById('pdv-bloco-endereco').style.display = "none";
+            }
 
             // Salva/Atualiza cliente (mesmo sem telefone, se houver nome válido)
             if (nomePdv && nomePdv !== "Balcão") {
@@ -1303,13 +1422,152 @@
                 }
 
                 if (telLimpo) {
-                    db.from('clientes').upsert([dadosCli], { onConflict: 'telefone' }).then(() => { console.log("Cliente PDV salvo"); carregarClientes(); }).catch(e => { console.error(e); alert("Erro ao salvar cliente com telefone: " + e.message); });
+                    await db.from('clientes').upsert([dadosCli], { onConflict: 'telefone' });
+                    carregarClientes();
                 } else {
-                    db.from('clientes').insert([dadosCli]).then(() => { console.log("Cliente PDV (sem tel) salvo"); carregarClientes(); }).catch(e => { console.error(e); alert("Erro ao salvar cliente sem telefone: " + (e.message || "Verifique se o telefone é obrigatório no banco de dados.")); });
+                    // Sem telefone: verifica se já existe por nome para não clonar (LIMPA O NOME DE POSSÍVEIS TELEFONES ENTRE PARÊNTESES)
+                    let nomeLimpoPdv = nomePdv.trim();
+                    if (nomeLimpoPdv.includes('(')) {
+                        nomeLimpoPdv = nomeLimpoPdv.split('(')[0].trim();
+                    }
+                    
+                    const { data } = await db.from('clientes').select('nome').eq('nome', nomeLimpoPdv);
+                    
+                    if (!data || data.length === 0) {
+                        await db.from('clientes').insert([{ ...dadosCli, nome: nomeLimpoPdv }]);
+                        carregarClientes();
+                    }
                 }
             }
 
             carregar();
+        }
+
+        async function editarPedidoNoPdv() {
+            try {
+                const p = sel; // Usa o pedido selecionado globalmente
+                if (!p) return;
+                editandoPedidoId = p.id;
+                
+                // GARANTE QUE TEMOS OS PRODUTOS CARREGADOS (Pega todos, inclusive excluídos, para poder editar)
+                if (!allProducts || allProducts.length === 0) {
+                    const { data, error } = await db.from('produtos').select('*').order('nome');
+                    if (error) throw new Error("Erro ao buscar produtos: " + error.message);
+                    allProducts = data || [];
+                }
+                
+                // Limpa o PDV atual
+                adminCart = [];
+                
+                // Bloqueia alteração de cliente durante a edição
+                document.getElementById('pdv-cliente').disabled = true;
+                document.getElementById('pdv-add-cliente-btn').disabled = true;
+                document.getElementById('pdv-add-cliente-btn').style.opacity = "0.3";
+                document.getElementById('pdv-add-cliente-btn').style.cursor = "not-allowed";
+
+                // Extrai o nome puro do cliente
+                let nomePuro = p.cliente.split(' (')[0].trim();
+                
+                // BUSCA A OPÇÃO CORRETA NO SELECT (Pode estar como "Nome (Tel)")
+                const selectCli = document.getElementById('pdv-cliente');
+                let encontrouOpcao = false;
+                for (let i = 0; i < selectCli.options.length; i++) {
+                    const textoOpcao = selectCli.options[i].text.trim().toUpperCase();
+                    if (textoOpcao.startsWith(nomePuro.toUpperCase())) {
+                        selectCli.selectedIndex = i;
+                        encontrouOpcao = true;
+                        break;
+                    }
+                }
+                
+                if (encontrouOpcao) {
+                    selecionarClientePorNome(nomePuro);
+                } else {
+                    selectCli.value = ""; // Caso não ache, deixa limpo
+                }
+                
+                const telMatch = p.cliente.match(/\(([^)]+)\)/);
+                if (telMatch && !document.getElementById('pdv-telefone').value) {
+                    document.getElementById('pdv-telefone').value = telMatch[1];
+                }
+                
+                document.getElementById('pdv-frete').value = p.frete || "";
+                document.getElementById('pdv-status').value = p.status;
+                document.getElementById('pdv-pagamento').value = p.pagamento || "Pix";
+                
+                if (p.itens && p.itens.includes('[DESCONTO: R$')) {
+                    const descMatch = p.itens.match(/\[DESCONTO: R\$ ([\d.]+)\]/);
+                    if (descMatch) document.getElementById('pdv-desconto').value = descMatch[1];
+                }
+
+                if (p.endereco && p.endereco !== "Balcão") {
+                    document.getElementById('pdv-entrega').value = "Tele";
+                    document.getElementById('pdv-bloco-endereco').style.display = "block";
+                    const partes = p.endereco.split(', ');
+                    if (partes.length >= 2) {
+                        document.getElementById('pdv-rua').value = partes[0];
+                        const resto = partes[1].split(' - ');
+                        document.getElementById('pdv-numero').value = resto[0];
+                        document.getElementById('pdv-bairro').value = resto[1] || "";
+                    }
+                } else {
+                    document.getElementById('pdv-entrega').value = "Balcão";
+                    document.getElementById('pdv-bloco-endereco').style.display = "none";
+                }
+
+                // RECONSTRÓI A SACOLA
+                let itensLimpos = (p.itens || "").split(' [DESCONTO:')[0].trim();
+                const itensArray = itensLimpos.split(/\s*,\s*/);
+                let totalEncontrado = 0;
+                let primeiroErro = "";
+                
+                // Função para normalizar nomes (remove tudo que não é letra/número)
+                const normalizar = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                itensArray.forEach(itemStr => {
+                    const matchQtd = itemStr.match(/\(x\s*(\d+)\)\s*$/);
+                    if (matchQtd) {
+                        const qtdItem = parseInt(matchQtd[1]);
+                        const nomeItem = itemStr.replace(matchQtd[0], "").trim();
+                        const nomeItemNormal = normalizar(nomeItem);
+
+                        // Busca por correspondência exata ou parcial
+                        const prodOriginal = allProducts.find(prod => {
+                            const nomeEstoqueNormal = normalizar(prod.nome);
+                            return nomeEstoqueNormal === nomeItemNormal || 
+                                   nomeEstoqueNormal.includes(nomeItemNormal) || 
+                                   nomeItemNormal.includes(nomeEstoqueNormal);
+                        });
+                        
+                        if (prodOriginal) {
+                            adminCart.push({
+                                id: prodOriginal.id,
+                                name: prodOriginal.nome,
+                                price: prodOriginal.preco,
+                                cost: prodOriginal.cost || prodOriginal.custo || 0,
+                                qtd: qtdItem
+                            });
+                            totalEncontrado++;
+                        } else {
+                            if(!primeiroErro) primeiroErro = nomeItem;
+                        }
+                    }
+                });
+
+                fecharTodosModais();
+                switchTab('tab-pdv');
+                updatePDVCart();
+                updatePdvBtnText();
+                
+                if (totalEncontrado > 0) {
+                    showToast(primeiroErro ? `Atenção: Não achei "${primeiroErro}"` : "Sacola carregada!");
+                } else {
+                    showToast(`Erro: Não achei "${primeiroErro || "item"}" entre os ${allProducts.length} produtos do estoque.`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao carregar edição: " + err.message);
+            }
         }
 
         async function stepStock(id, d) { 
