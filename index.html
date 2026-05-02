@@ -1000,7 +1000,9 @@
             text-transform: uppercase;
             font-size: 1.1rem;
             position: relative;
-            z-index: 5;
+            z-index: 10;
+            pointer-events: auto;
+            touch-action: manipulation;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden;
             letter-spacing: 2px;
@@ -1008,9 +1010,11 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .btn-adicionar:hover {
-            transform: scale(1.02) translateY(-2px);
-            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.4);
+        @media (hover: hover) {
+            .btn-adicionar:hover {
+                transform: scale(1.02) translateY(-2px);
+                box-shadow: 0 8px 25px rgba(197, 160, 89, 0.4);
+            }
         }
 
         .btn-adicionar:disabled {
@@ -2064,7 +2068,11 @@
             }
 
             if (cart.length === 0) {
-                itemsCont.innerHTML = `<div style="padding:40px 10px; opacity:0.8; text-align:center;"><p>Sua sacola está vazia. 🥃</p></div>`;
+                itemsCont.innerHTML = `
+                    <div style="padding:60px 10px; text-align:center;">
+                        <p style="opacity:0.6; font-size:1.1rem; margin-bottom:25px;">Sua sacola está vazia. 🥃</p>
+                        <button class="btn-continuar" onclick="toggleCart()" style="display:inline-block; width:auto; padding:15px 40px; background:rgba(255,255,255,0.05); border:1px solid rgba(197,160,89,0.3); color:var(--gold-soft);">Voltar para a loja</button>
+                    </div>`;
                 document.getElementById('checkout-form').style.display = 'none';
                 const btnEsvaziar = document.getElementById('container-btn-esvaziar');
                 if (btnEsvaziar) btnEsvaziar.style.display = 'none';
