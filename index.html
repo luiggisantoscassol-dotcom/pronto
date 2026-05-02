@@ -210,6 +210,83 @@
             }
         }
 
+        /* --- RODAPÉ PREMIUM --- */
+        footer {
+            background: #050505;
+            padding: 60px 20px 40px;
+            text-align: center;
+            border-top: 1px solid #111;
+            margin-top: 50px;
+        }
+
+        .footer-brand {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .footer-desc {
+            color: #888;
+            font-size: 0.9rem;
+            max-width: 500px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+
+        .footer-socials {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-link {
+            color: var(--gold-soft);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            border-radius: 50px;
+        }
+
+        .footer-link:hover {
+            background: var(--gold-antique);
+            color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2);
+        }
+
+        .footer-legal {
+            font-size: 0.7rem;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+            border-top: 1px solid #111;
+            padding-top: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-address {
+            color: #444;
+            font-size: 0.75rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
         .age-logo {
             font-family: var(--font-premium);
             font-size: 2rem;
@@ -1144,7 +1221,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.92);
-            z-index: 5000;
+            z-index: 11000; /* Aumentado para sobrepor o menu fixo */
             display: none;
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
@@ -1348,7 +1425,7 @@
     </div>
 
     <div class="backdrop" id="backdrop" onclick="toggleCart()"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7500; display: none; backdrop-filter: blur(5px);">
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9500; display: none; backdrop-filter: blur(5px);">
     </div>
 
     <aside class="cart-overlay" id="cart-overlay">
@@ -1462,21 +1539,39 @@
     </main>
 
     <footer>
-        <span
-            style="font-family: var(--font-premium); font-size: 1.5rem; color: var(--gold-soft); margin-bottom: 15px; display: block;">Cachaçaria
-            Tio Nan</span>
-        <p style="color: #555; font-size: 0.85rem; max-width: 600px; margin: 0 auto 25px; line-height: 1.8;">
+        <span class="footer-brand">Tio Nan</span>
+        <p class="footer-desc">
             Produzindo as melhores cachaças artesanais do Rio Grande do Sul. Tradição, pureza e um sabor inigualável em
             cada dose.
-            <br><br>
-            Av. Bento Gonçalves, 4321 - Porto Alegre/RS
         </p>
-        <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;">
-            <a href="#" style="color: #888; text-decoration: none; font-size: 0.9rem;">Instagram</a>
-            <a href="#" style="color: #888; text-decoration: none; font-size: 0.9rem;">WhatsApp</a>
+
+        <div class="footer-socials">
+            <a href="https://www.instagram.com/cachacinhadotionan" target="_blank" class="footer-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                Instagram
+            </a>
+            <a href="https://wa.me/5551989067003" target="_blank" class="footer-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.5 8.5 0 0 1 7 4.2z"></path>
+                    <path d="M16 16.5l-3-2-2 2-2-3 3-2"></path>
+                </svg>
+                WhatsApp
+            </a>
         </div>
-        <div style="text-transform: uppercase; letter-spacing: 4px; font-size: 0.7rem; color: #333; font-weight: 900;">
-            Beba com moderação. Venda proibida para menores de 18 anos.</div>
+
+        <span class="footer-address">Av. Bento Gonçalves, 4321 - Porto Alegre/RS</span>
+
+        <div class="footer-legal">
+            Beba com moderação. Venda proibida para menores de 18 anos.
+            <br>
+            © 2026 TIO NAN. Todos os direitos reservados.
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
