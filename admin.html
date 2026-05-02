@@ -145,6 +145,60 @@
             .order-checkbox { width: 20px !important; height: 20px !important; }
         }
 
+        /* Monitoramento Real-Time Premium */
+        .visitor-row {
+            display: block !important; /* Muda de Grid para Block para dar espaço */
+            padding: 15px 20px !important;
+        }
+        .visitor-main {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        .temp-icon {
+            font-size: 1.4rem;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+            min-width: 35px;
+            text-align: center;
+        }
+        .visitor-name-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+        .visitor-geo {
+            font-size: 0.7rem;
+            color: var(--text-gold);
+            opacity: 0.9;
+            font-weight: 600;
+            text-transform: uppercase;
+            /* Permite que nomes longos de cidades apareçam por inteiro */
+            white-space: normal;
+            word-break: break-word;
+        }
+        .visitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+        }
+        .visitor-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            min-width: fit-content;
+        }
+        .visitor-device {
+            font-size: 0.6rem;
+            opacity: 0.4;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
         /* PDV GRID E CARDS - LUXO */
         .pdv-grid { 
             display: grid; 
@@ -932,13 +986,19 @@
                                 items: [], 
                                 ultimo: r.created_at, 
                                 nome: nomeCliente, 
-                                ip: r.ip 
+                                ip: r.ip,
+                                local: r.local || null
                             };
                         }
                         
                         // Prefere o nome mais recente que não seja Anônimo
                         if (nomeCliente && (!trackerMap[chave].nome || trackerMap[chave].nome === 'Anônimo')) {
                             trackerMap[chave].nome = nomeCliente;
+                        }
+
+                        // Mantém a localização mais recente encontrada nos logs
+                        if (r.local && !trackerMap[chave].local) {
+                            trackerMap[chave].local = r.local;
                         }
                         
                         trackerMap[chave].cont++;
@@ -965,29 +1025,59 @@
                 let htmlRastreio = '';
                 Object.keys(trackerMap).forEach((id, index) => {
                     const d = trackerMap[id];
-                    const exibirNome = d.nome ? d.nome : "Visitante Anônimo";
+                    const safeId = id.replace(/'/g, "\\'");
                     const listaItens = d.items.map(i => `<li>• ${i}</li>`).join('');
-                    const isDevice = id.startsWith('dev-');
                     
-                    const isOnline = onlineDevices[id] !== undefined;
-                    
-                    const badgeOnline = isOnline ? `<span class="status-badge" style="background:#25D366; color:#000; animation: pulse-online 2s infinite; font-size:0.6rem; padding: 2px 6px; margin-left:8px;">ONLINE</span>` : '';
-                    
-                    const idEscapado = id.replace(/'/g, "\\'");
-                    const estaAberto = (trackingAberto === id);
+                    // Extrair dados da Presença Online (Real-time) ou usar o do Banco (Histórico)
+                    let isOnline = false;
+                    let local = d.local || "Localização...";
+                    let device = d.ip;
+
+                    if (onlineDevices[id]) {
+                        isOnline = true;
+                        const p = onlineDevices[id][0];
+                        if (p.local) local = p.local;
+                        if (p.device) device = p.device;
+                    }
+
+                    // Cálculo da Temperatura (Lead Score)
+                    function getTemp(items) {
+                        let score = 0;
+                        const logs = items.join(" ");
+                        if (logs.includes("Viu")) score += 1;
+                        if (logs.includes("Adicionou")) score += 2;
+                        if (logs.includes("Buscou")) score += 1;
+                        if (logs.includes("Abriu Checkout")) score += 3;
+                        if (logs.includes("Preencheu")) score += 4;
+                        if (logs.includes("(cliente salvo)")) score += 5;
+                        
+                        if (score >= 10) return "☄️"; // Fervendo
+                        if (score >= 6) return "🔥";  // Quente
+                        if (score >= 3) return "☀️";  // Morno
+                        return "❄️";                 // Frio
+                    }
+
+                    const temp = getTemp(d.items);
+                    const statusClass = isOnline ? 'status-online' : 'status-offline';
+                    const badgeOnline = isOnline ? `<span class="status-badge" style="background:#25D366; color:#000; animation: pulse-online 2s infinite; font-size:0.5rem; padding: 2px 4px; margin-left:5px; height:18px !important; width:auto !important; min-width:unset !important;">ONLINE</span>` : '';
                     
                     htmlRastreio += `
-                        <div class="order-row" onclick="toggleRastreioDetalhe('${idEscapado}', ${index})">
-                            <div class="order-info">
-                                <span class="order-name" style="display:flex; align-items:center;">${exibirNome.toUpperCase()} ${badgeOnline}</span>
-                                <span class="order-details">${isDevice ? '📱 DISPOSITIVO ÚNICO' : '🌐 IP: ' + id} • IP: ${d.ip}</span>
-                                <span class="order-details">Último: ${formatarDataHora(d.ultimo)}</span>
+                        <div class="order-row visitor-row" onclick="toggleRastreioDetalhe('${safeId}', ${index})" style="cursor:pointer;">
+                            <div class="visitor-header">
+                                <div class="visitor-main">
+                                    <span class="temp-icon">${temp}</span>
+                                    <div class="visitor-name-group">
+                                        <span class="order-name" style="display:flex; align-items:center;">${(d.nome || "Anônimo").toUpperCase()} ${badgeOnline}</span>
+                                        <span class="visitor-geo">📍 ${local}</span>
+                                    </div>
+                                </div>
+                                <div class="visitor-meta">
+                                    <span class="visitor-device">${device}</span>
+                                    <span class="order-details" style="font-size:0.6rem;">Último: ${formatarDataHora(d.ultimo)}</span>
+                                </div>
                             </div>
-                            <div class="status-container">
-                                <span class="status-badge Novo">${d.cont} AÇÕES</span>
-                            </div>
-                            <div id="detalhe-${index}" style="display:${estaAberto ? 'block' : 'none'}; grid-column: span 2; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 10px; font-size: 0.8rem; color: #aaa;">
-                                <ul style="list-style: none;">${listaItens}</ul>
+                            <div id="detalhe-${index}" style="display:${trackingAberto === id ? 'block' : 'none'}; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 10px; font-size: 0.8rem; color: #aaa;">
+                                <ul style="list-style: none; padding:0;">${listaItens}</ul>
                             </div>
                         </div>`;
                 });
