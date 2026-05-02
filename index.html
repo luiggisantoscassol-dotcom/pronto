@@ -1867,12 +1867,31 @@
             const ua = navigator.userAgent;
             const params = new URLSearchParams(window.location.search);
             
+            // 1. Prioridade para links com UTM (ex: ?utm_source=whatsapp)
             if (params.get('utm_source')) return params.get('utm_source').toUpperCase();
-            if (ua.includes('WhatsApp')) return "WHATSAPP"; // Detecta o navegador interno do WhatsApp
-            if (ref.includes('instagram.com')) return "INSTAGRAM";
-            if (ref.includes('facebook.com')) return "FACEBOOK";
+            
+            // 2. Detecção de WHATSAPP (Mobile app, Web e Android Protocol)
+            if (ua.includes('WhatsApp') || ref.includes('whatsapp.com') || ref.includes('android-app://com.whatsapp')) {
+                return "WHATSAPP";
+            }
+            
+            // 3. Detecção de INSTAGRAM
+            if (ref.includes('instagram.com') || ref.includes('android-app://com.instagram.android')) {
+                return "INSTAGRAM";
+            }
+
+            // 4. Detecção de FACEBOOK
+            if (ref.includes('facebook.com') || ref.includes('android-app://com.facebook.katana')) {
+                return "FACEBOOK";
+            }
+
+            // 5. Detecção de GOOGLE
             if (ref.includes('google.com')) return "GOOGLE";
+
+            // 6. Se não houver nada, mas for um clique vindo de "fora" (referrer vazio)
+            // No mobile, clicar em link de app costuma vir com referrer vazio.
             if (ref === "" || ref.includes(window.location.hostname)) return "DIRETO";
+            
             return "OUTRO";
         }
 
