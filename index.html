@@ -1397,7 +1397,6 @@
             user-select: none;
             -webkit-user-select: none;
         }
-
         .modal-fechar:active {
             transform: scale(0.85);
         }
@@ -1421,6 +1420,47 @@
             margin-bottom: 8px;
             display: block;
             opacity: 0.9;
+        }
+
+        /* --- SEARCH BAR --- */
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto 40px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 50;
+        }
+        .search-container input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(197,160,89,0.3);
+            padding: 16px 25px 16px 55px;
+            border-radius: 50px;
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: block;
+        }
+        .search-container input:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--gold-antique);
+            box-shadow: 0 15px 40px rgba(197,160,89,0.25);
+            transform: translateY(-2px);
+        }
+        .search-icon {
+            position: absolute;
+            left: 38px;
+            top: 50%;
+            transform: translateY(-50%);
+            fill: var(--gold-antique);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            opacity: 0.7;
+            z-index: 60;
         }
     </style>
 </head>
@@ -1630,6 +1670,12 @@
         <section class="hero-section">
             <h1 id="hero-title">Cachaça do Tio Nan</h1>
         </section>
+
+        <div class="search-container">
+            <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" id="search-input" placeholder="Pesquisar por sabor ou nome..." oninput="searchProducts()">
+        </div>
+
         <div id="vitrine" class="vitrine"></div>
     </main>
 
@@ -1706,10 +1752,15 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('ageVerified') === 'true') {
+            const isVerified = localStorage.getItem('ageVerified') === 'true';
+            const hasName = localStorage.getItem('visitorName') && localStorage.getItem('visitorName').trim() !== '';
+
+            if (isVerified && hasName) {
                 document.getElementById('age-verification-overlay').style.display = 'none';
                 updateWelcome();
             } else {
+                // Se falta o nome ou não verificou a idade, mostra o overlay
+                document.getElementById('age-verification-overlay').style.display = 'flex';
                 const video = document.getElementById('loading-video');
                 if (video) video.pause();
 
@@ -1718,11 +1769,16 @@
                 const btnYes = document.querySelector('.btn-yes');
                 const btnNo = document.querySelector('.btn-no');
                 if (nameInput && btnYes && btnNo) {
-                    nameInput.addEventListener('input', () => {
+                    // Se já tiver um nome parcial salvo mas caiu aqui, preenche
+                    if (localStorage.getItem('visitorName')) nameInput.value = localStorage.getItem('visitorName');
+                    
+                    const validate = () => {
                         const isValid = nameInput.value.trim().length >= 2;
                         btnYes.disabled = !isValid;
                         btnNo.disabled = !isValid;
-                    });
+                    };
+                    nameInput.addEventListener('input', validate);
+                    validate(); // Valida inicialmente
                 }
             }
         });
@@ -1753,7 +1809,38 @@
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         let userIP = 'Desconhecido';
-        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => userIP = data.ip).catch(e => console.error('Erro ao pegar IP:', e));
+        fetch('https://api.ipify.org?format=json')
+            .then(r => r.json())
+            .then(data => {
+                userIP = data.ip;
+                // Se já estiver verificado, rastreia a entrada agora que temos o IP
+                if (localStorage.getItem('ageVerified') === 'true') {
+                    rastrearAcao("Site", "👋 Entrou");
+                }
+            })
+            .catch(e => console.error('Erro ao pegar IP:', e));
+
+        // --- SISTEMA DE PRESENÇA EM TEMPO REAL ---
+        const canalPresenca = db.channel('online_users', { config: { presence: { key: getDeviceId() } } });
+        
+        canalPresenca.subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
+                await canalPresenca.track({
+                    nome: visitorName,
+                    online_at: new Date().toISOString()
+                });
+            }
+        });
+
+        // Atualiza a presença quando o nome muda (ex: no checkout)
+        function atualizarPresenca() {
+            const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
+            canalPresenca.track({
+                nome: visitorName,
+                online_at: new Date().toISOString()
+            });
+        }
 
         // Sistema de ID de Dispositivo Único
         function getDeviceId() {
@@ -1766,14 +1853,60 @@
         }
         const deviceId = getDeviceId();
 
+        function getDeviceInfo() {
+            const ua = navigator.userAgent;
+            if (/iPhone|iPad|iPod/i.test(ua)) return "iPhone/iPad";
+            if (/Android/i.test(ua)) return "Android";
+            if (/Windows/i.test(ua)) return "Windows PC";
+            if (/Macintosh/i.test(ua)) return "Mac";
+            return "Mobile/Desktop";
+        }
+
+        function getReferrer() {
+            const ref = document.referrer;
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('utm_source')) return params.get('utm_source').toUpperCase();
+            if (ref.includes('instagram.com')) return "INSTAGRAM";
+            if (ref.includes('facebook.com')) return "FACEBOOK";
+            if (ref.includes('google.com')) return "GOOGLE";
+            if (ref === "" || ref.includes(window.location.hostname)) return "DIRETO";
+            return "OUTRO";
+        }
+
         function rastrearAcao(produto, acao = "Adicionou") {
             const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
+            const device = getDeviceInfo();
+            const source = getReferrer();
+            
+            let label = `${acao}: ${produto}`;
+            if (acao === "👋 Entrou") {
+                label = `👋 Entrou (Via: ${source} | ${device})`;
+            }
+
             db.from('rastreio_carrinho').insert([{
                 ip: userIP,
                 device_id: deviceId,
-                produto_nome: `${acao}: ${produto}`,
+                produto_nome: label,
                 cliente_nome: visitorName
             }]).then(({ error }) => { if (error) console.warn("Erro no rastreio:", error.message); }).catch(e => { });
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            if (query.length > 2) {
+                rastrearAcao(query, "🔍 Buscou");
+            }
+            
+            // Filtra os produtos na vitrine
+            const cards = document.querySelectorAll('.card-produto');
+            cards.forEach(card => {
+                const nome = card.querySelector('.prod-nome').innerText.toLowerCase();
+                if (nome.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
@@ -1810,7 +1943,12 @@
                     const { data, error } = await db.from('clientes').select('*').eq('telefone', tel).limit(1);
                     if (data && data.length > 0 && !error) {
                         const cli = data[0];
-                        document.getElementById('cliente-nome').value = cli.nome || "";
+                        if (cli.nome) {
+                            document.getElementById('cliente-nome').value = cli.nome;
+                            localStorage.setItem('visitorName', cli.nome);
+                            updateWelcome();
+                            atualizarPresenca();
+                        }
                         if (cli.cep) {
                             document.getElementById('cep').value = cli.cep;
                             document.getElementById('rua').value = cli.rua || "";
@@ -2115,6 +2253,9 @@
 
         function abrirModalProduto(dadosEncoded) {
             const p = JSON.parse(decodeURIComponent(dadosEncoded));
+            document.getElementById('modal-details').style.display = 'block';
+            document.getElementById('modal-overlay').style.display = 'block';
+            rastrearAcao(p.nome, "👁️ Viu");
             document.getElementById('modal-foto').src = p.foto1;
             document.getElementById('modal-nome').innerText = p.nome;
             document.getElementById('modal-preco').innerText = `R$ ${parseFloat(p.precoNum).toFixed(2).replace('.', ',')}`;
@@ -2307,6 +2448,11 @@
                 }
                 if (!pag || pag === "none") return showError('metodo-pagamento');
 
+                // Sincroniza o nome do visitante para rastreios futuros
+                localStorage.setItem('visitorName', nome);
+                updateWelcome();
+                atualizarPresenca();
+
                 let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
                 const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
 
@@ -2387,7 +2533,16 @@
 
         let isCartOpen = false;
         function toggleCart() { if (isCartOpen) { closeCart(false); } else { openCart(); } }
-        function openCart() { isCartOpen = true; const overlay = document.getElementById('cart-overlay'); const backdrop = document.getElementById('backdrop'); overlay.classList.add('active'); document.body.classList.add('stop-scroll'); backdrop.style.display = 'block'; history.pushState({ sacolaAberta: true }, "", "#sacola"); }
+        function openCart() { 
+            isCartOpen = true; 
+            const overlay = document.getElementById('cart-overlay'); 
+            const backdrop = document.getElementById('backdrop'); 
+            overlay.classList.add('active'); 
+            document.body.classList.add('stop-scroll'); 
+            backdrop.style.display = 'block'; 
+            history.pushState({ sacolaAberta: true }, "", "#sacola"); 
+            rastrearAcao("Sacola", "💳 Abriu Checkout");
+        }
         function closeCart(veioDoBotaoVoltar = false) { isCartOpen = false; const overlay = document.getElementById('cart-overlay'); const backdrop = document.getElementById('backdrop'); overlay.classList.remove('active'); document.body.classList.remove('stop-scroll'); backdrop.style.display = 'none'; if (!veioDoBotaoVoltar) { history.back(); } }
         window.addEventListener("popstate", (event) => { if (isCartOpen) { closeCart(true); } });
 
