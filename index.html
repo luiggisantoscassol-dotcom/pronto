@@ -2511,7 +2511,8 @@
                 if (pag === "none" || !pag) faltou.push("Pagamento");
 
                 if (faltou.length > 0) {
-                    rastrearAcao(faltou.join(", "), "⚠️ Saiu sem");
+                    let sufixo = (nome && telefone.length >= 10) ? " (cliente salvo)" : "";
+                    rastrearAcao(faltou.join(", ") + sufixo, "⚠️ Saiu sem");
                 }
             } else if (document.visibilityState === 'visible' && isCartOpen) {
                 // Se ele voltar para a aba, avisamos no painel
@@ -2670,9 +2671,10 @@
                     if (pag === "none" || !pag) faltou.push("Pagamento");
 
                     if (faltou.length > 0) {
-                        rastrearAcao(faltou.join(", "), "⚠️ Abandonou sem");
+                        let sufixo = (nome && telefone.length >= 10) ? " (cliente salvo)" : "";
+                        rastrearAcao(faltou.join(", ") + sufixo, "⚠️ Abandonou sem");
                     } else {
-                        rastrearAcao("Pronto p/ WhatsApp", "⚠️ Abandonou (Preencheu Tudo)");
+                        rastrearAcao("Pronto p/ WhatsApp (cliente salvo)", "⚠️ Abandonou (Preencheu Tudo)");
                     }
                 }
             } catch(e) {}
