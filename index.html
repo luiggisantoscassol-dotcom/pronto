@@ -1864,8 +1864,11 @@
 
         function getReferrer() {
             const ref = document.referrer;
+            const ua = navigator.userAgent;
             const params = new URLSearchParams(window.location.search);
+            
             if (params.get('utm_source')) return params.get('utm_source').toUpperCase();
+            if (ua.includes('WhatsApp')) return "WHATSAPP"; // Detecta o navegador interno do WhatsApp
             if (ref.includes('instagram.com')) return "INSTAGRAM";
             if (ref.includes('facebook.com')) return "FACEBOOK";
             if (ref.includes('google.com')) return "GOOGLE";
