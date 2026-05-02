@@ -483,30 +483,43 @@
         /* ---- ANIMAÇÃO DE SERVIR PREMIUM ---- */
         .loader-serving-container {
             position: relative;
-            width: 120px;
-            height: 180px;
-            margin-bottom: 30px;
+            width: 110px;
+            height: 110px;
+            margin-bottom: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
         }
 
+        /* O contorno do vidro (base grossa) */
         .loader-glass-bg {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 160"><path d="M20 10 L40 10 L40 40 L50 60 L50 150 A 5 5 0 0 1 45 155 L15 155 A 5 5 0 0 1 10 150 L10 60 L20 40 Z" fill="none" stroke="%23c5a059" stroke-width="3"/></svg>') center/contain no-repeat;
-            opacity: 0.2;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 5 L90 5 L80 85 Q 80 95 50 95 Q 20 95 20 85 Z" fill="none" stroke="%23c5a059" stroke-width="2" opacity="0.4"/><path d="M22 80 L78 80 Q 75 88 50 88 Q 25 88 22 80 Z" fill="%23c5a059" opacity="0.2"/></svg>') center/contain no-repeat;
         }
 
+        /* O brilho do vidro (glare) */
+        .loader-glass-shine {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M30 10 L40 10 L30 85 L20 85 Z" fill="white" opacity="0.1"/><path d="M75 15 L78 15 L75 40 L72 40 Z" fill="white" opacity="0.05"/></svg>') center/contain no-repeat;
+            z-index: 2;
+        }
+
+        /* O líquido dourado preenchendo */
         .loader-glass-fill {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 160"><path d="M20 10 L40 10 L40 40 L50 60 L50 150 A 5 5 0 0 1 45 155 L15 155 A 5 5 0 0 1 10 150 L10 60 L20 40 Z" fill="%23c5a059"/></svg>') center/contain no-repeat;
+            /* Gradiente para parecer cachaça envelhecida */
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="liquido" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23f1d3a1"/><stop offset="100%" stop-color="%23c5a059"/></linearGradient></defs><path d="M10 5 L90 5 L80 85 Q 80 95 50 95 Q 20 95 20 85 Z" fill="url(%23liquido)"/></svg>') center/contain no-repeat;
             clip-path: inset(100% 0 0 0);
             animation: fillingGlass 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
             will-change: clip-path;
+            z-index: 1;
         }
 
         @keyframes fillingGlass {
@@ -1519,6 +1532,7 @@
         <div class="loader-serving-container">
             <div class="loader-glass-bg"></div>
             <div class="loader-glass-fill"></div>
+            <div class="loader-glass-shine"></div>
         </div>
         <div class="loading-text">Servindo a verdadeira...</div>
         <div class="loader-bar-container">
@@ -1867,30 +1881,23 @@
             const ua = navigator.userAgent;
             const params = new URLSearchParams(window.location.search);
             
-            // 1. Prioridade para links com UTM (ex: ?utm_source=whatsapp)
+            // 1. Prioridade total para o seu link personalizado (?utm_source=...)
             if (params.get('utm_source')) return params.get('utm_source').toUpperCase();
             
-            // 2. Detecção de WHATSAPP (Mobile app, Web e Android Protocol)
+            // 2. Detecção confirmada de WHATSAPP (Web ou Protocolo)
             if (ua.includes('WhatsApp') || ref.includes('whatsapp.com') || ref.includes('android-app://com.whatsapp')) {
                 return "WHATSAPP";
             }
             
-            // 3. Detecção de INSTAGRAM
-            if (ref.includes('instagram.com') || ref.includes('android-app://com.instagram.android')) {
-                return "INSTAGRAM";
-            }
-
-            // 4. Detecção de FACEBOOK
-            if (ref.includes('facebook.com') || ref.includes('android-app://com.facebook.katana')) {
-                return "FACEBOOK";
-            }
-
-            // 5. Detecção de GOOGLE
+            // 3. Detecção confirmada de INSTAGRAM / FACEBOOK / GOOGLE
+            if (ref.includes('instagram.com') || ref.includes('android-app://com.instagram.android')) return "INSTAGRAM";
+            if (ref.includes('facebook.com') || ref.includes('android-app://com.facebook.katana')) return "FACEBOOK";
             if (ref.includes('google.com')) return "GOOGLE";
 
-            // 6. Se não houver nada, mas for um clique vindo de "fora" (referrer vazio)
-            // No mobile, clicar em link de app costuma vir com referrer vazio.
-            if (ref === "" || ref.includes(window.location.hostname)) return "DIRETO";
+            // 4. Sem informação confirmada = DIRETO
+            if (ref === "" || ref.includes(window.location.hostname)) {
+                return "DIRETO";
+            }
             
             return "OUTRO";
         }
@@ -2275,9 +2282,10 @@
 
         function abrirModalProduto(dadosEncoded) {
             const p = JSON.parse(decodeURIComponent(dadosEncoded));
-            document.getElementById('modal-details').style.display = 'block';
-            document.getElementById('modal-overlay').style.display = 'block';
-            rastrearAcao(p.nome, "👁️ Viu");
+            
+            // Rastreio de Visualização
+            rastrearAcao(p.nome, "👀 Viu");
+
             document.getElementById('modal-foto').src = p.foto1;
             document.getElementById('modal-nome').innerText = p.nome;
             document.getElementById('modal-preco').innerText = `R$ ${parseFloat(p.precoNum).toFixed(2).replace('.', ',')}`;
