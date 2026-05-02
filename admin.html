@@ -873,8 +873,16 @@
         async function excluirCliente(id) {
             if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
             showToast("Excluindo...");
-            await db.from('clientes').delete().eq('id', id);
-            carregarClientes();
+            
+            const { error } = await db.from('clientes').delete().eq('id', id);
+            
+            if (error) {
+                console.error("Erro ao excluir:", error);
+                alert("Erro ao excluir: " + error.message);
+            } else {
+                showToast("Cliente excluído!");
+                carregarClientes();
+            }
         }
 
         function extrairMesAno(dtStr) {
@@ -944,6 +952,11 @@
                         if (label.includes("✨ Voltou")) label = `<span style="color:#00f2fe; font-weight:bold;">${label}</span>`;
                         if (label.includes("👁️ Viu")) label = `<span style="color:#888;">${label}</span>`;
                         if (label.includes("👋 Entrou")) label = `<span style="color:var(--gold-soft); font-style:italic; font-size:0.8rem;">${label}</span>`;
+                        
+                        // Formatação para o aviso de cliente salvo
+                        if (label.includes("(cliente salvo)")) {
+                            label = label.replace("(cliente salvo)", `<span style="color:#25D366; font-size:0.65rem; font-weight:normal; margin-left:4px;">(cliente salvo)</span>`);
+                        }
                         
                         trackerMap[chave].items.push(`${label} <small style="opacity:0.5; font-size:0.65rem;">(${formatarDataHora(r.created_at)})</small>`);
                     });
