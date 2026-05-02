@@ -1607,9 +1607,9 @@
                 Detalhes do Pedido</p>
 
             <input type="tel" id="cliente-telefone" class="cart-input" placeholder="Telefone (WhatsApp)"
-                oninput="mascaraTelefone(this)" onblur="buscarCliente()">
+                oninput="mascaraTelefone(this)" onblur="buscarCliente(); salvarRascunhoCliente()">
 
-            <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo">
+            <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo" onblur="salvarRascunhoCliente()">
 
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
                 <option value="none" selected disabled>Como quer receber?</option>
@@ -1625,14 +1625,14 @@
             </div>
 
             <div id="bloco-endereco" style="display:none;">
-                <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP()" maxlength="9"
+                <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP(); salvarRascunhoCliente()" maxlength="9"
                     oninput="mascaraCEP(this)">
-                <input type="text" id="rua" class="cart-input" placeholder="Rua">
+                <input type="text" id="rua" class="cart-input" placeholder="Rua" onblur="salvarRascunhoCliente()">
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;">
-                    <input type="text" id="apto" class="cart-input" placeholder="Apto/Opc" style="width:65%;">
+                    <input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;" onblur="salvarRascunhoCliente()">
+                    <input type="text" id="apto" class="cart-input" placeholder="Apto/Opc" style="width:65%;" onblur="salvarRascunhoCliente()">
                 </div>
-                <input type="text" id="bairro" class="cart-input" placeholder="Bairro">
+                <input type="text" id="bairro" class="cart-input" placeholder="Bairro" onblur="salvarRascunhoCliente()">
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="cidade" class="cart-input" placeholder="Cidade" readonly
                         style="width:75%; opacity:0.6;">
@@ -2447,6 +2447,78 @@
             if (badge) badge.innerText = totalGarrafas;
         }
 
+        // Salvamento automático de rascunho de cliente
+        let timeoutSalvarRascunho;
+        function salvarRascunhoCliente() {
+            clearTimeout(timeoutSalvarRascunho);
+            timeoutSalvarRascunho = setTimeout(async () => {
+                const telRaw = document.getElementById('cliente-telefone').value;
+                const nome = document.getElementById('cliente-nome').value;
+                const tel = telRaw.replace(/\D/g, "");
+
+                // Só tenta salvar se tiver pelo menos o telefone completo
+                if (tel.length >= 10 && nome.length >= 3) {
+                    const dados = {
+                        telefone: tel,
+                        nome: nome
+                    };
+                    
+                    // Só adiciona ao envio o que estiver preenchido, para não apagar dados antigos no banco
+                    const cep = document.getElementById('cep').value;
+                    if (cep) dados.cep = cep;
+                    const rua = document.getElementById('rua').value;
+                    if (rua) dados.rua = rua;
+                    const numero = document.getElementById('numero').value;
+                    if (numero) dados.numero = numero;
+                    const bairro = document.getElementById('bairro').value;
+                    if (bairro) dados.bairro = bairro;
+                    const cidade = document.getElementById('cidade').value;
+                    if (cidade) dados.cidade = cidade;
+                    const estado = document.getElementById('estado').value;
+                    if (estado) dados.estado = estado;
+                    const apto = document.getElementById('apto').value;
+                    if (apto) dados.apto = apto;
+
+                    try {
+                        await db.from('clientes').upsert([dados], { onConflict: 'telefone' });
+                        console.log("Rascunho do cliente atualizado de forma inteligente.");
+                        localStorage.setItem('visitorName', nome);
+                        updateWelcome();
+                        
+                        // NOVO: Notifica o painel que o cliente avançou no preenchimento
+                        rastrearAcao("Identificação", "✅ Preencheu");
+                    } catch (e) {
+                        console.warn("Erro ao salvar rascunho:", e.message);
+                    }
+                }
+            }, 1000); // Aguarda 1 segundo após o último blur para não sobrecarregar
+        }
+
+        // CAPTURA DE ABANDONO AO FECHAR ABA (Imediato para não perder se ele fechar a guia)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && isCartOpen) {
+                const nome = document.getElementById('cliente-nome').value;
+                const telefone = document.getElementById('cliente-telefone').value;
+                const entrega = document.getElementById('metodo-entrega').value;
+                const pag = document.getElementById('metodo-pagamento').value;
+                const rua = document.getElementById('rua').value;
+
+                let faltou = [];
+                if (!telefone) faltou.push("Telefone");
+                if (!nome) faltou.push("Nome");
+                if (entrega === "none" || !entrega) faltou.push("Entrega");
+                if (entrega === "tele" && !rua) faltou.push("Endereço");
+                if (pag === "none" || !pag) faltou.push("Pagamento");
+
+                if (faltou.length > 0) {
+                    rastrearAcao(faltou.join(", "), "⚠️ Saiu sem");
+                }
+            } else if (document.visibilityState === 'visible' && isCartOpen) {
+                // Se ele voltar para a aba, avisamos no painel
+                rastrearAcao("Sacola", "✨ Voltou");
+            }
+        });
+
         async function checkout() {
             try {
                 const nome = document.getElementById('cliente-nome').value;
@@ -2463,6 +2535,13 @@
                         el.classList.add('input-error');
                         el.focus();
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        let campoNome = el.placeholder || elementId;
+                        if (elementId === "metodo-entrega") campoNome = "Forma de Entrega";
+                        if (elementId === "metodo-pagamento") campoNome = "Forma de Pagamento";
+                        
+                        console.log("Rastreando erro:", campoNome);
+                        rastrearAcao(campoNome, "❌ Faltou");
                     }
                 }
 
@@ -2573,7 +2652,39 @@
             history.pushState({ sacolaAberta: true }, "", "#sacola"); 
             rastrearAcao("Sacola", "💳 Abriu Checkout");
         }
-        function closeCart(veioDoBotaoVoltar = false) { isCartOpen = false; const overlay = document.getElementById('cart-overlay'); const backdrop = document.getElementById('backdrop'); overlay.classList.remove('active'); document.body.classList.remove('stop-scroll'); backdrop.style.display = 'none'; if (!veioDoBotaoVoltar) { history.back(); } }
+        function closeCart(veioDoBotaoVoltar = false) { 
+            // RASTREIO DE ABANDONO: Verifica o que faltou antes de fechar
+            try {
+                const nome = document.getElementById('cliente-nome').value;
+                const telefone = document.getElementById('cliente-telefone').value;
+                const entrega = document.getElementById('metodo-entrega').value;
+                const pag = document.getElementById('metodo-pagamento').value;
+                const rua = document.getElementById('rua').value;
+
+                if (cart.length > 0) {
+                    let faltou = [];
+                    if (!telefone) faltou.push("Telefone");
+                    if (!nome) faltou.push("Nome");
+                    if (entrega === "none" || !entrega) faltou.push("Entrega");
+                    if (entrega === "tele" && !rua) faltou.push("Endereço");
+                    if (pag === "none" || !pag) faltou.push("Pagamento");
+
+                    if (faltou.length > 0) {
+                        rastrearAcao(faltou.join(", "), "⚠️ Abandonou sem");
+                    } else {
+                        rastrearAcao("Pronto p/ WhatsApp", "⚠️ Abandonou (Preencheu Tudo)");
+                    }
+                }
+            } catch(e) {}
+
+            isCartOpen = false; 
+            const overlay = document.getElementById('cart-overlay'); 
+            const backdrop = document.getElementById('backdrop'); 
+            overlay.classList.remove('active'); 
+            document.body.classList.remove('stop-scroll'); 
+            backdrop.style.display = 'none'; 
+            if (!veioDoBotaoVoltar) { history.back(); } 
+        }
         window.addEventListener("popstate", (event) => { if (isCartOpen) { closeCart(true); } });
 
         // Remove erro visual ao digitar ou alterar campo
