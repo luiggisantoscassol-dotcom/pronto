@@ -384,9 +384,9 @@
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 style="margin:0;">Atividade dos Visitantes</h2>
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <small style="color:var(--text-gold); font-size:0.6rem; opacity:0.6; letter-spacing:1px;">⚡ TEMPO REAL</small>
-                    <button onclick="limparRastreio()" class="btn-refresh-mini" style="background:rgba(255,68,68,0.1); border-color:rgba(255,68,68,0.2); color:#ff4444;">🗑️ LIMPAR</button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button onclick="copiarLinkWhatsapp()" class="btn-refresh-mini" style="background:rgba(37, 211, 102, 0.1); color:#25D366; border-color:rgba(37, 211, 102, 0.3); font-size:0.6rem; padding:4px 8px;">🔗 LINK WHATS</button>
+                    <button onclick="limparRastreio()" class="btn-refresh-mini" style="background:rgba(255,68,68,0.1); border-color:rgba(255,68,68,0.2); color:#ff4444; font-size:0.6rem; padding:4px 8px;">🗑️ LIMPAR</button>
                 </div>
             </div>
             <div id="corpo-rastreio"></div>
@@ -939,6 +939,9 @@
                         let label = r.produto_nome;
                         if (label.includes("🔍 Buscou")) label = `<span style="color:#f1d3a1;">${label}</span>`;
                         if (label.includes("💳 Abriu Checkout")) label = `<span style="color:#ff6b6b; font-weight:bold;">${label}</span>`;
+                        if (label.includes("❌ Faltou")) label = `<span style="color:#ff4444; font-weight:900;">${label}</span>`;
+                        if (label.includes("⚠️ Abandonou")) label = `<span style="color:#ffae42; font-weight:bold;">${label}</span>`;
+                        if (label.includes("✨ Voltou")) label = `<span style="color:#00f2fe; font-weight:bold;">${label}</span>`;
                         if (label.includes("👁️ Viu")) label = `<span style="color:#888;">${label}</span>`;
                         if (label.includes("👋 Entrou")) label = `<span style="color:var(--gold-soft); font-style:italic; font-size:0.8rem;">${label}</span>`;
                         
@@ -1138,7 +1141,7 @@
             showToast("Limpando histórico...");
             try {
                 // Remove todos os registros da tabela de rastreio
-                const { error } = await db.from('rastreio_carrinho').delete().neq('cliente_nome', '___FORCAR_DELETE_TOTAL___'); 
+                const { error } = await db.from('rastreio_carrinho').delete().neq('ip', '___FORCAR_DELETE_TOTAL___'); 
                 if (error) throw error;
                 
                 trackingAberto = null;
@@ -1148,6 +1151,22 @@
                 console.error(e);
                 alert("Erro ao limpar histórico: " + e.message);
             }
+        }
+
+        function copiarLinkWhatsapp() {
+            const url = "https://tionan.com.br?utm_source=whatsapp";
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("Link WhatsApp copiado! 🔗✅");
+            }).catch(err => {
+                // Fallback caso clipboard falhe
+                const el = document.createElement('textarea');
+                el.value = url;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast("Link WhatsApp copiado! 🔗✅");
+            });
         }
 
         function abrirEdicao(id, n, p, c, desc, teor, harm) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('edit-descricao').value = desc || ''; document.getElementById('edit-teor').value = teor || ''; document.getElementById('edit-harmonizacao').value = harm || ''; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
