@@ -23,7 +23,7 @@
         content="A verdadeira cachaça premium. Escolha a sua, faça o pedido e aproveite o frete grátis na compra de 3 garrafas!">
     <meta name="twitter:image" content="https://www.tionan.com.br/imagem-compartilhamento.jpg">
     <link
-        href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600&family=Barlow+Condensed:wght@500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
@@ -57,6 +57,97 @@
             touch-action: manipulation;
             -webkit-text-size-adjust: 100%;
             -webkit-tap-highlight-color: transparent;
+            padding-top: 100px;
+            /* Colado: 30px (barra) + 70px (header) */
+        }
+
+        /* --- ANNOUNCEMENT BAR --- */
+        .announcement-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            /* Altura confortável */
+            background: var(--gold-metallic);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9000;
+            /* De volta ao topo para rolagem normal */
+            font-size: 0.75rem;
+            /* Fonte legível */
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #000;
+            overflow: hidden;
+        }
+
+        .announcement-bar span {
+            white-space: nowrap;
+            text-align: center;
+            font-size: 0.75rem;
+            /* Aumentado para dar mais destaque à frase curta */
+            font-weight: 900;
+            padding: 0 10px;
+        }
+
+        /* --- HEADER PRINCIPAL --- */
+        .header-main {
+            position: fixed;
+            top: 30px;
+            /* Logo abaixo da barra de 30px */
+            left: 0;
+            width: 100%;
+            height: 70px;
+            /* Altura premium robusta */
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            z-index: 8500;
+            /* De volta ao topo para rolagem normal */
+            border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+        }
+
+        .header-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.6rem;
+            /* Logo de volta ao tamanho de destaque */
+            color: var(--gold-antique);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .header-location {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            margin-top: 8px;
+            /* Deslocando levemente para baixo */
+        }
+
+        .loc-user {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .loc-city {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold-soft);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         body.stop-scroll {
@@ -81,6 +172,19 @@
             text-align: center;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+        }
+
+        .modal-produto {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 11000;
+            display: none;
+            overflow-y: auto;
+            padding: 30px 20px;
         }
 
         .age-box {
@@ -474,11 +578,17 @@
             opacity: 1 !important;
         }
 
+        .swiper-hero .swiper-pagination {
+            bottom: 30px !important;
+            /* Subindo as bolinhas */
+        }
+
         .swiper-hero {
             width: 100%;
             max-width: 700px;
-            padding: 20px 0;
-            margin: 0 auto;
+            padding: 0 0 10px 0;
+            margin: -100px auto 0;
+            /* Container agora começa no topo absoluto por baixo do menu */
             background: transparent;
         }
 
@@ -495,14 +605,15 @@
         .hero-section {
             width: 100%;
             text-align: center;
-            padding: 40px 20px;
+            padding: 20px 10px;
+            /* Reduzido pela metade */
         }
 
         .hero-section h1 {
-            font-family: var(--font-premium);
-            font-size: clamp(1.8rem, 8vw, 3.5rem);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(2rem, 8vw, 3.8rem);
             color: var(--gold-antique);
-            font-weight: 700;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-top: -10px;
@@ -514,7 +625,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 60px 35px;
-            padding: 20px 20px 150px;
+            padding: 10px 20px 150px;
+            /* Reduzido top padding pela metade */
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -736,15 +848,17 @@
             width: 100%;
             max-width: 450px;
             height: 100vh;
-            background: rgba(8, 10, 15, 0.98); /* Fundo quase sólido para máxima leitura */
-            z-index: 8000; /* Acima de tudo */
+            background: rgba(8, 10, 15, 0.98);
+            /* Fundo quase sólido para máxima leitura */
+            z-index: 10000;
+            /* Agora sobrepõe o menu e a barra superior */
             transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 30px;
             overflow-y: auto;
             text-align: center;
             overscroll-behavior: contain;
             border-left: 1px solid rgba(197, 160, 89, 0.1);
-            box-shadow: -20px 0 50px rgba(0,0,0,0.8);
+            box-shadow: -20px 0 50px rgba(0, 0, 0, 0.8);
         }
 
         .cart-overlay.active {
@@ -1147,6 +1261,26 @@
 
 <body>
 
+    <!-- ANNOUNCEMENT BAR -->
+    <div class="announcement-bar">
+        <span>FRETE GRÁTIS ACIMA DE 3 GARRAFAS 🚚</span>
+    </div>
+
+    <!-- HEADER PRINCIPAL -->
+    <header class="header-main">
+        <a href="#" class="header-logo">Tio Nan</a>
+        <div class="header-location">
+            <span class="loc-user" id="header-user-welcome">Bem-vindo</span>
+            <span class="loc-city">
+                <svg viewBox="0 0 24 24" style="width:12px; fill:currentColor;">
+                    <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                </svg>
+                <span id="header-city-name">Porto Alegre, RS</span>
+            </span>
+        </div>
+    </header>
+
     <div id="age-verification-overlay">
         <div class="age-box">
             <span class="age-logo">Cachaça do<br>Tio Nan</span>
@@ -1220,7 +1354,8 @@
     <aside class="cart-overlay" id="cart-overlay">
         <button class="btn-fechar" onclick="toggleCart()">×</button>
         <h3 id="cart-title"
-            style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua Sacola
+            style="color:var(--gold-soft); font-size:1.8rem; margin-bottom:30px; font-family: var(--font-premium);">Sua
+            Sacola
         </h3>
 
         <div id="container-frete">
@@ -1232,11 +1367,12 @@
 
         <div id="cart-items"></div>
 
-        <div id="container-btn-esvaziar" style="text-align: center; margin-top: 15px; margin-bottom: 25px; display: none;">
+        <div id="container-btn-esvaziar"
+            style="text-align: center; margin-top: 15px; margin-bottom: 25px; display: none;">
             <button id="btn-esvaziar-sacola" onclick="esvaziarSacola()"
                 style="background:#000000; border:1px solid #333; color:#ffffff; border-radius:20px; font-size:0.75rem; font-weight:600; letter-spacing: 0.5px; cursor:pointer; padding:8px 20px; transition: all 0.3s;"
-                onmouseover="this.style.background='#222222'"
-                onmouseout="this.style.background='#000000'">🗑️ ESVAZIAR LIXEIRA</button>
+                onmouseover="this.style.background='#222222'" onmouseout="this.style.background='#000000'">🗑️ ESVAZIAR
+                LIXEIRA</button>
         </div>
 
         <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:30px;">
@@ -1415,6 +1551,9 @@
             const cartTitle = document.getElementById('cart-title');
             if (cartTitle && visitorName) cartTitle.innerText = `Sacola de ${visitorName}`;
 
+            const welcomeHeader = document.getElementById('header-user-welcome');
+            if (welcomeHeader && visitorName) welcomeHeader.innerText = `Olá, ${visitorName}`;
+
             const inputNome = document.getElementById('cliente-nome');
             if (inputNome && !inputNome.value) inputNome.value = visitorName;
         }
@@ -1425,6 +1564,27 @@
 
         let userIP = 'Desconhecido';
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => userIP = data.ip).catch(e => console.error('Erro ao pegar IP:', e));
+
+        // Sistema de ID de Dispositivo Único
+        function getDeviceId() {
+            let id = localStorage.getItem('tioNanDeviceId');
+            if (!id) {
+                id = 'dev-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
+                localStorage.setItem('tioNanDeviceId', id);
+            }
+            return id;
+        }
+        const deviceId = getDeviceId();
+
+        function rastrearAcao(produto, acao = "Adicionou") {
+            const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
+            db.from('rastreio_carrinho').insert([{
+                ip: userIP,
+                device_id: deviceId,
+                produto_nome: `${acao}: ${produto}`,
+                cliente_nome: visitorName
+            }]).then(({ error }) => { if (error) console.warn("Erro no rastreio:", error.message); }).catch(e => { });
+        }
 
         const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
 
@@ -1661,8 +1821,8 @@
                     btnAdicionar.classList.add('animating');
                     btnAdicionar.textContent = "Adicionado! ✓";
                     clearTimeout(btnAdicionar.resetTimeout);
-                    btnAdicionar.resetTimeout = setTimeout(() => { 
-                        btnAdicionar.textContent = "Adicionar à sacola"; 
+                    btnAdicionar.resetTimeout = setTimeout(() => {
+                        btnAdicionar.textContent = "Adicionar à sacola";
                         btnAdicionar.classList.remove('animating');
                     }, 1500);
                 }
@@ -1729,11 +1889,8 @@
                 };
             }
 
-            // 5. Rastreio de IP no Supabase (por último, sem bloquear nada)
-            const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
-            db.from('rastreio_carrinho').insert([{ ip: userIP, produto_nome: name, cliente_nome: visitorName }])
-                .then(({ error }) => { if (error) console.warn("Erro no rastreio:", error.message); })
-                .catch(e => { });
+            // 5. Rastreio no Supabase
+            rastrearAcao(name, "🛒 Adicionou");
         }
 
         function abrirModalProduto(dadosEncoded) {
@@ -1747,6 +1904,9 @@
             document.getElementById('modal-tags').innerHTML = tagsHtml;
 
             document.getElementById('modal-desc').innerText = p.descricao || 'Uma cachaça artesanal feita com muito carinho pelo Tio Nan.';
+
+            // Rastreio de Visualização
+            rastrearAcao(p.nome, "👀 Viu");
 
             const harmWrapper = document.getElementById('modal-harm-wrapper');
             if (p.harmonizacao) {
@@ -1965,7 +2125,7 @@
                     dadosCliente.estado = document.getElementById('estado').value;
                     dadosCliente.apto = document.getElementById('apto').value;
                 }
-                
+
                 db.from('clientes').upsert([dadosCliente], { onConflict: 'telefone' }).then(() => console.log("Cliente atualizado")).catch(e => console.log(e));
 
                 let trocoMsg = "";
@@ -1984,6 +2144,9 @@
 
                     fetch(barkUrl).catch(e => console.log("Bark offline ou bloqueado"));
                 } catch (e) { }
+
+                // Rastreio de Clique Final
+                rastrearAcao(itensMsg, "🚀 Clicou WhatsApp");
 
                 // Redireciona imediatamente (mais seguro para mobile)
                 const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n\ud83d\udc64 " + nome + "\n\ud83d\udcf1 " + telefone + "\n\ud83d\udce6 " + itensMsg + "\n\ud83d\udccd " + endereco + "\n\ud83d\udcb3 Pagamento: " + pag + trocoMsg + "\n\ud83d\udcb0 " + totalMsg + beneficioMsg)}`;
