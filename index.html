@@ -2229,9 +2229,23 @@
                 produtos.forEach(p => {
                     const id = p.id;
                     const nome = p.nome;
-                    const foto1 = (p.foto_1 && p.foto_1.length > 5) ? p.foto_1 : "https://via.placeholder.com/300x300?text=Sem+Foto";
-                    const temFoto2 = (p.foto_2 && p.foto_2.length > 5);
-                    const foto2 = temFoto2 ? p.foto_2 : foto1;
+
+                    // Conversor via Thumbnail (Alta Resolução) - O mais resiliente
+                    const fixDrive = (url) => {
+                        if (!url || typeof url !== 'string' || !url.includes('drive.google')) return url.trim();
+                        const idMatch = url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
+                        if (idMatch && idMatch[1]) {
+                            // Gera uma miniatura de 1000px de largura, o que é perfeito para a vitrine
+                            return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                        }
+                        return url.trim();
+                    };
+
+                    const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
+                    const foto1 = fixDrive(foto1Raw);
+                    
+                    const temFoto2 = (p.foto_2 && p.foto_2.trim().length > 5);
+                    const foto2 = temFoto2 ? fixDrive(p.foto_2.trim()) : foto1;
 
                     const precoNum = parseFloat(p.preco);
                     const estoque = parseInt(p.estoque) || 0;
