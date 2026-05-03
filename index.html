@@ -1978,17 +1978,28 @@
 
         async function getGeoLocation() {
             return new Promise((resolve) => {
+                const now = Date.now();
                 const cachedRaw = localStorage.getItem('visitorGeo');
+                
                 if (cachedRaw) {
                     const p = JSON.parse(cachedRaw);
-                    if (p.estado.toUpperCase() === "RI" || p.cidade === "Desconhecida" || p.cidade === "Localização..." || p.cidade === "Cidade Oculta") {
-                        localStorage.removeItem('visitorGeo');
-                    } else {
+                    const age = now - (p.timestamp || 0);
+                    const umasHora = 60 * 60 * 1000;
+
+                    // Se a localização for válida e tiver menos de 1 hora, usa ela sem pedir GPS
+                    if (age < umasHora && p.cidade !== "Cidade Oculta" && p.cidade !== "Localização...") {
                         return resolve(p);
                     }
                 }
 
+                // Se já pedimos GPS nesta carga de página, não pede de novo para não irritar
+                if (window.alreadyAskedGPS) {
+                    if (cachedRaw) return resolve(JSON.parse(cachedRaw));
+                    return resolve({ cidade: "Localização...", estado: "" });
+                }
+
                 if ("geolocation" in navigator) {
+                    window.alreadyAskedGPS = true;
                     navigator.geolocation.getCurrentPosition(async (position) => {
                         try {
                             const lat = position.coords.latitude;
@@ -2006,18 +2017,25 @@
 
                             const geo = {
                                 cidade: data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.municipality || data.address.county || "Cidade Oculta",
-                                estado: estadoSigla
+                                estado: estadoSigla,
+                                timestamp: now
                             };
                             localStorage.setItem('visitorGeo', JSON.stringify(geo));
                             resolve(geo);
                         } catch (e) {
-                            resolve(fetchFallbackGeo());
+                            const fallback = await fetchFallbackGeo();
+                            fallback.timestamp = now;
+                            localStorage.setItem('visitorGeo', JSON.stringify(fallback));
+                            resolve(fallback);
                         }
-                    }, (error) => {
-                        resolve(fetchFallbackGeo());
-                    }, { timeout: 3000 });
+                    }, async (err) => {
+                        const fallback = await fetchFallbackGeo();
+                        fallback.timestamp = now;
+                        localStorage.setItem('visitorGeo', JSON.stringify(fallback));
+                        resolve(fallback);
+                    }, { timeout: 10000, maximumAge: 3600000 }); // Cache de 1 hora no GPS nativo também
                 } else {
-                    resolve(fetchFallbackGeo());
+                    fetchFallbackGeo().then(resolve);
                 }
             });
         }
