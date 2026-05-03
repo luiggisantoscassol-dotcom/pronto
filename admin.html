@@ -185,6 +185,22 @@
             width: 100%;
             gap: 10px;
         }
+        @media (max-width: 600px) {
+            .visitor-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .visitor-meta {
+                align-items: flex-start !important;
+                padding-left: 50px; /* Alinha com o início do nome, após o ícone */
+                opacity: 0.7;
+            }
+            .temp-icon {
+                font-size: 1.2rem;
+                min-width: 30px;
+            }
+        }
         .visitor-meta {
             display: flex;
             flex-direction: column;
@@ -996,8 +1012,8 @@
                             trackerMap[chave].nome = nomeCliente;
                         }
 
-                        // Mantém a localização mais recente encontrada nos logs
-                        if (r.local && !trackerMap[chave].local) {
+                        // Mantém a localização mais recente encontrada nos logs (que não seja o texto de carregamento ou erro)
+                        if (r.local && r.local !== "Localização..." && r.local !== "Cidade Oculta" && (!trackerMap[chave].local || trackerMap[chave].local === "Localização..." || trackerMap[chave].local === "Cidade Oculta")) {
                             trackerMap[chave].local = r.local;
                         }
                         
@@ -1031,12 +1047,12 @@
                     // Extrair dados da Presença Online (Real-time) ou usar o do Banco (Histórico)
                     let isOnline = false;
                     let local = d.local || "Localização...";
-                    let device = d.ip;
+                    let device = d.ip || "Oculto";
 
                     if (onlineDevices[id]) {
                         isOnline = true;
                         const p = onlineDevices[id][0];
-                        if (p.local) local = p.local;
+                        if (p.local && p.local !== "Localização..." && p.local !== "Cidade Oculta") local = p.local;
                         if (p.device) device = p.device;
                     }
 
@@ -1068,7 +1084,7 @@
                                     <span class="temp-icon">${temp}</span>
                                     <div class="visitor-name-group">
                                         <span class="order-name" style="display:flex; align-items:center;">${(d.nome || "Anônimo").toUpperCase()} ${badgeOnline}</span>
-                                        <span class="visitor-geo">📍 ${local}</span>
+                                        <span class="visitor-geo">📍 ${local.replace(', RI', ', RS')}</span>
                                     </div>
                                 </div>
                                 <div class="visitor-meta">
