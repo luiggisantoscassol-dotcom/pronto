@@ -1521,7 +1521,7 @@
                     <path
                         d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                 </svg>
-                <span id="header-city-name">Porto Alegre, RS</span>
+                <span id="header-city-name">Localização...</span>
             </span>
         </div>
     </header>
@@ -1922,6 +1922,9 @@
             const localBase = geo.cidade + (geo.estado ? ", " + geo.estado : "");
             const localComAparelho = localBase.includes('(') ? localBase : `${localBase} (${getDeviceInfo()})`;
 
+            const cityEl = document.getElementById('header-city-name');
+            if (cityEl) cityEl.innerText = localBase;
+
             if (canalPresenca) {
                 canalPresenca.track({
                     nome: visitorName,
@@ -2074,12 +2077,14 @@
                 const localBase = geo.cidade + (geo.estado ? ", " + geo.estado : "");
                 const infoAparelho = `DISP_${getDeviceInfo()}`;
                 const localStr = `${infoAparelho} ${localBase}`;
+                const origem = getReferrer();
+                const prefixoOrigem = (origem && origem !== "DIRETO") ? `[${origem}] ` : "";
 
                 if (db) {
                     const { error } = await db.from('rastreio_carrinho').insert([{
                         device_id: deviceId,
                         produto_nome: acao ? `${acao}: ${label}` : label,
-                        cliente_nome: visitorName === 'Anônimo' ? `${infoAparelho} Anônimo` : visitorName,
+                        cliente_nome: prefixoOrigem + (visitorName === 'Anônimo' ? `${infoAparelho} Anônimo` : visitorName),
                         ip: `${infoAparelho} ${userIP}`,
                         local: localStr
                     }]);
