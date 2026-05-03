@@ -1822,17 +1822,28 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        let userIP = 'Desconhecido';
-        fetch('https://api.ipify.org?format=json')
-            .then(r => r.json())
-            .then(data => {
-                userIP = data.ip;
-                // Se já estiver verificado, rastreia a entrada agora que temos o IP
-                if (localStorage.getItem('ageVerified') === 'true') {
-                    rastrearAcao("Site", "👋 Entrou");
+        let userIP = 'Oculto';
+        async function fetchIP() {
+            try {
+                // Tenta IPify
+                const r1 = await fetch('https://api.ipify.org?format=json');
+                const d1 = await r1.json();
+                userIP = d1.ip;
+            } catch (e) {
+                try {
+                    // Fallback Cloudflare
+                    const r2 = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+                    const text = await r2.text();
+                    const ipLine = text.split('\n').find(l => l.startsWith('ip='));
+                    if (ipLine) userIP = ipLine.split('=')[1];
+                } catch (e2) {
+                    console.warn('Não foi possível obter o IP.');
                 }
-            })
-            .catch(e => console.error('Erro ao pegar IP:', e));
+            }
+            // Rastreia a entrada agora que temos o IP (mesmo antes de verificar idade)
+            rastrearAcao("Site", "👋 Entrou");
+        }
+        fetchIP();
 
         // --- SISTEMA DE PRESENÇA EM TEMPO REAL ---
         const canalPresenca = db.channel('online_users', { config: { presence: { key: getDeviceId() } } });
@@ -1842,19 +1853,39 @@
                 const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
                 await canalPresenca.track({
                     nome: visitorName,
+                    device: getDeviceInfo(),
+                    ip: userIP,
+                    device_id: deviceId,
                     online_at: new Date().toISOString()
                 });
             }
         });
 
+        // Sinal de vida constante (Heartbeat) a cada 20 segundos
+        let heartbeatCount = 0;
+        setInterval(() => {
+            if (canalPresenca) {
+                atualizarPresenca();
+                heartbeatCount++;
+                // A cada 6 heartbeats (2 minutos), força um registro no banco
+                if (heartbeatCount >= 6) {
+                    rastrearAcao("Site", "💓 Pulso");
+                    heartbeatCount = 0;
+                }
+            }
+        }, 20000);
+
         // Atualiza a presença quando o nome muda (ex: no checkout)
         async function atualizarPresenca() {
             const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
             const geo = await getGeoLocation();
+            const localBase = geo.cidade + (geo.estado ? ", " + geo.estado : "");
+            const localComAparelho = localBase.includes('(') ? localBase : `${localBase} (${getDeviceInfo()})`;
+            
             canalPresenca.track({
                 nome: visitorName,
                 device: getDeviceInfo(),
-                local: geo.cidade + (geo.estado ? ", " + geo.estado : ""),
+                local: localComAparelho,
                 online_at: new Date().toISOString()
             });
         }
@@ -1879,20 +1910,33 @@
             return "Mobile/Desktop";
         }
 
+        function converterEstadoParaSigla(nome) {
+            if (!nome) return "";
+            if (nome.length === 2) return nome.toUpperCase();
+            
+            const estadosBR = {
+                "Acre": "AC", "Alagoas": "AL", "Amapá": "AP", "Amazonas": "AM", "Bahia": "BA", "Ceará": "CE",
+                "Distrito Federal": "DF", "Espírito Santo": "ES", "Goiás": "GO", "Maranhão": "MA", "Mato Grosso": "MT",
+                "Mato Grosso do Sul": "MS", "Minas Gerais": "MG", "Pará": "PA", "Paraíba": "PB", "Paraná": "PR",
+                "Pernambuco": "PE", "Piauí": "PI", "Rio de Janeiro": "RJ", "Rio Grande do Norte": "RN",
+                "Rio Grande do Sul": "RS", "Rondônia": "RO", "Roraima": "RR", "Santa Catarina": "SC",
+                "São Paulo": "SP", "Sergipe": "SE", "Tocantins": "TO"
+            };
+            return estadosBR[nome] || nome.substring(0,2).toUpperCase();
+        }
+
         async function getGeoLocation() {
             return new Promise((resolve) => {
-                // Limpa o erro "RI" ou "Desconhecida" do cache para forçar a correção
                 const cachedRaw = localStorage.getItem('visitorGeo');
                 if (cachedRaw) {
                     const p = JSON.parse(cachedRaw);
-                    if (p.estado === "RI" || p.cidade === "Desconhecida") {
+                    if (p.estado.toUpperCase() === "RI" || p.cidade === "Desconhecida" || p.cidade === "Localização..." || p.cidade === "Cidade Oculta") {
                         localStorage.removeItem('visitorGeo');
                     } else {
                         return resolve(p);
                     }
                 }
 
-                // Tenta localização precisa do navegador (GPS/Rede)
                 if ("geolocation" in navigator) {
                     navigator.geolocation.getCurrentPosition(async (position) => {
                         try {
@@ -1901,26 +1945,16 @@
                             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                             const data = await res.json();
                             
-                            let estadoSigla = "";
                             const iso = data.address["ISO3166-2-lvl4"] || "";
+                            let estadoSigla = "";
                             if (iso.includes("-")) {
                                 estadoSigla = iso.split("-")[1].toUpperCase();
                             } else {
-                                // Dicionário Robusto para Estados Brasileiros
-                                const estadosBR = {
-                                    "Acre": "AC", "Alagoas": "AL", "Amapá": "AP", "Amazonas": "AM", "Bahia": "BA", "Ceará": "CE",
-                                    "Distrito Federal": "DF", "Espírito Santo": "ES", "Goiás": "GO", "Maranhão": "MA", "Mato Grosso": "MT",
-                                    "Mato Grosso do Sul": "MS", "Minas Gerais": "MG", "Pará": "PA", "Paraíba": "PB", "Paraná": "PR",
-                                    "Pernambuco": "PE", "Piauí": "PI", "Rio de Janeiro": "RJ", "Rio Grande do Norte": "RN",
-                                    "Rio Grande do Sul": "RS", "Rondônia": "RO", "Roraima": "RR", "Santa Catarina": "SC",
-                                    "São Paulo": "SP", "Sergipe": "SE", "Tocantins": "TO"
-                                };
-                                const nomeEstado = data.address.state || "";
-                                estadoSigla = estadosBR[nomeEstado] || nomeEstado.substring(0,2).toUpperCase();
+                                estadoSigla = converterEstadoParaSigla(data.address.state);
                             }
 
                             const geo = { 
-                                cidade: data.address.city || data.address.town || data.address.village || "Desconhecida", 
+                                cidade: data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.municipality || data.address.county || "Cidade Oculta", 
                                 estado: estadoSigla
                             };
                             localStorage.setItem('visitorGeo', JSON.stringify(geo));
@@ -1930,7 +1964,7 @@
                         }
                     }, (error) => {
                         resolve(fetchFallbackGeo());
-                    }, { timeout: 5000 });
+                    }, { timeout: 3000 });
                 } else {
                     resolve(fetchFallbackGeo());
                 }
@@ -1941,13 +1975,28 @@
             try {
                 const res = await fetch('https://ipwho.is/');
                 const data = await res.json();
-                if (data.success) {
-                    return { cidade: data.city, estado: data.region_code };
-                }
-                return { cidade: "Desconhecida", estado: "" };
-            } catch (e) {
-                return { cidade: "Desconhecida", estado: "" };
-            }
+                if (data.success) return { cidade: data.city, estado: converterEstadoParaSigla(data.region_code) };
+            } catch (e) {}
+
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                if (data.city) return { cidade: data.city, estado: converterEstadoParaSigla(data.region) };
+            } catch (e) {}
+
+            try {
+                const res = await fetch('https://freeipapi.com/api/json');
+                const data = await res.json();
+                if (data.cityName) return { cidade: data.cityName, estado: converterEstadoParaSigla(data.regionName) };
+            } catch (e) {}
+
+            try {
+                const res = await fetch('https://ipinfo.io/json');
+                const data = await res.json();
+                if (data.city) return { cidade: data.city, estado: converterEstadoParaSigla(data.region) };
+            } catch (e) {}
+            
+            return { cidade: "Cidade Oculta", estado: "" };
         }
 
         function getReferrer() {
@@ -1980,13 +2029,15 @@
             try {
                 const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
                 const geo = await getGeoLocation();
-                const localStr = geo.cidade + (geo.estado ? ", " + geo.estado : "");
+                const localBase = geo.cidade + (geo.estado ? ", " + geo.estado : "");
+                const infoAparelho = `DISP_${getDeviceInfo()}`;
+                const localStr = `${infoAparelho} ${localBase}`;
 
                 const { error } = await db.from('rastreio_carrinho').insert([{
                     device_id: deviceId,
                     produto_nome: acao ? `${acao}: ${label}` : label,
-                    cliente_nome: visitorName,
-                    ip: userIP,
+                    cliente_nome: visitorName === 'Anônimo' ? `${infoAparelho} Anônimo` : visitorName,
+                    ip: `${infoAparelho} ${userIP}`,
                     local: localStr
                 }]);
                 
