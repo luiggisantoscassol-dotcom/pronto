@@ -1003,12 +1003,13 @@
                                 ultimo: r.created_at, 
                                 nome: nomeCliente, 
                                 ip: r.ip,
-                                local: r.local || null
+                                local: r.local || null,
+                                origem: r.origem || null
                             };
                         }
                         
-                        // Prefere o nome mais recente que não seja Anônimo
-                        if (nomeCliente && (!trackerMap[chave].nome || trackerMap[chave].nome === 'Anônimo')) {
+                        // Prefere o nome mais recente que tenha origem [ ] ou que não seja Anônimo
+                        if (nomeCliente && (!trackerMap[chave].nome || trackerMap[chave].nome.includes('Anônimo') || nomeCliente.includes('['))) {
                             trackerMap[chave].nome = nomeCliente;
                         }
 
@@ -1028,10 +1029,18 @@
                                 trackerMap[chave].aparelhoFixado = match[1].replace('[', '').replace(']', '').replace('DISP_', '');
                             } else if (rawData.includes('[')) {
                                 const bracketMatch = rawData.match(/\[(.*?)\]/);
-                                if (bracketMatch) trackerMap[chave].aparelhoFixado = bracketMatch[1];
+                                if (bracketMatch && !['INSTAGRAM', 'WHATSAPP', 'FACEBOOK', 'GOOGLE', 'DIRETO'].includes(bracketMatch[1])) {
+                                    trackerMap[chave].aparelhoFixado = bracketMatch[1];
+                                }
                             }
                         }
-                        
+
+                        // Extração de Origem se estiver embutida no nome (Ex: [INSTAGRAM] Visitante)
+                        if (!trackerMap[chave].origem && r.cliente_nome && r.cliente_nome.startsWith('[')) {
+                            const matchOrigem = r.cliente_nome.match(/^\[(.*?)\]/);
+                            if (matchOrigem) trackerMap[chave].origem = matchOrigem[1];
+                        }
+
                         trackerMap[chave].cont++;
                         
                         // Formatação especial para as ações
@@ -1083,9 +1092,10 @@
 
                         if (lastSign && Math.abs(diffMin) < 0.85) {
                             isOnline = true;
-                            // Tenta extrair o aparelho do sinal online
+                            // Tenta extrair dados do sinal online
                             if (p.device) device = p.device;
                             if (p.local) local = p.local;
+                            if (p.origem) d.origem = p.origem; // <--- CAPTURA A ORIGEM ONLINE
                         }
                     }
 
@@ -1113,6 +1123,7 @@
                     const temp = getTemp(d.items);
                     const statusClass = isOnline ? 'status-online' : 'status-offline';
                     const badgeOnline = isOnline ? `<span class="status-badge" style="background:#25D366; color:#000; animation: pulse-online 2s infinite; font-size:0.5rem; padding: 2px 4px; margin-left:5px; height:18px !important; width:auto !important; min-width:unset !important;">ONLINE</span>` : '';
+                    const tagOrigem = d.origem ? `<span style="font-size: 0.5rem; background: rgba(197, 160, 89, 0.2); color: var(--gold-soft); padding: 2px 5px; border-radius: 4px; font-weight: 900; margin-left: 6px; border: 1px solid rgba(197,160,89,0.4); text-transform: uppercase; letter-spacing: 0.5px;">${d.origem}</span>` : '';
                     
                     htmlRastreio += `
                         <div class="order-row visitor-row" onclick="toggleRastreioDetalhe('${safeId}', ${index})" style="cursor:pointer;">
@@ -1120,7 +1131,7 @@
                                 <div class="visitor-main">
                                     <span class="temp-icon">${temp}</span>
                                     <div class="visitor-name-group">
-                                        <span class="order-name" style="display:flex; align-items:center;">${(d.nome || "Anônimo").replace(/DISP_[A-Z0-9_]+/gi, "").replace(/\[.*?\]/g, "").trim().toUpperCase() || "ANÔNIMO"} ${badgeOnline}</span>
+                                        <span class="order-name" style="display:flex; align-items:center;">${(d.nome || "Anônimo").replace(/DISP_[A-Z0-9_]+/gi, "").replace(/\[.*?\]/g, "").trim().toUpperCase() || "ANÔNIMO"} ${badgeOnline} ${tagOrigem}</span>
                                         <span class="visitor-geo">📍 ${String(local || "Localização...").replace(', RI', ', RS').replace(/DISP_[A-Z0-9_]+/gi, "").replace(/\[.*?\]/g, "").trim() || "Localização..."}</span>
                                     </div>
                                 </div>
