@@ -489,7 +489,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
         }
 
         /* O contorno do vidro (base grossa) */
@@ -942,7 +942,7 @@
             font-size: 0.85rem;
             font-weight: 800;
             z-index: 12001;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             opacity: 0;
             transform: scale(0.5) translateY(20px);
             pointer-events: none;
@@ -970,19 +970,41 @@
         }
 
         @keyframes popNudge {
-            0% { transform: scale(0.5) translateY(20px); opacity: 0; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
+            0% {
+                transform: scale(0.5) translateY(20px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
         }
 
         @keyframes bounceCart {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
         }
 
         @keyframes popBadge {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.5) translateY(-5px); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.5) translateY(-5px);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .cart-overlay {
@@ -1081,7 +1103,7 @@
 
         .btn-adicionar:active {
             transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         @media (hover: hover) {
@@ -1410,6 +1432,7 @@
             user-select: none;
             -webkit-user-select: none;
         }
+
         .modal-fechar:active {
             transform: scale(0.85);
         }
@@ -1443,10 +1466,11 @@
             position: relative;
             z-index: 50;
         }
+
         .search-container input {
             width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(197,160,89,0.3);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(197, 160, 89, 0.3);
             padding: 16px 25px 16px 55px;
             border-radius: 50px;
             color: #fff;
@@ -1454,15 +1478,17 @@
             font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             display: block;
         }
+
         .search-container input:focus {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             border-color: var(--gold-antique);
-            box-shadow: 0 15px 40px rgba(197,160,89,0.25);
+            box-shadow: 0 15px 40px rgba(197, 160, 89, 0.25);
             transform: translateY(-2px);
         }
+
         .search-icon {
             position: absolute;
             left: 38px;
@@ -1609,7 +1635,8 @@
             <input type="tel" id="cliente-telefone" class="cart-input" placeholder="Telefone (WhatsApp)"
                 oninput="mascaraTelefone(this)" onblur="buscarCliente(); salvarRascunhoCliente()">
 
-            <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo" onblur="salvarRascunhoCliente()">
+            <input type="text" id="cliente-nome" class="cart-input" placeholder="Nome Completo"
+                onblur="salvarRascunhoCliente()">
 
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
                 <option value="none" selected disabled>Como quer receber?</option>
@@ -1625,12 +1652,14 @@
             </div>
 
             <div id="bloco-endereco" style="display:none;">
-                <input type="text" id="cep" class="cart-input" placeholder="CEP" onblur="buscaCEP(); salvarRascunhoCliente()" maxlength="9"
-                    oninput="mascaraCEP(this)">
+                <input type="text" id="cep" class="cart-input" placeholder="CEP"
+                    onblur="buscaCEP(); salvarRascunhoCliente()" maxlength="9" oninput="mascaraCEP(this)">
                 <input type="text" id="rua" class="cart-input" placeholder="Rua" onblur="salvarRascunhoCliente()">
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;" onblur="salvarRascunhoCliente()">
-                    <input type="text" id="apto" class="cart-input" placeholder="Apto/Opc" style="width:65%;" onblur="salvarRascunhoCliente()">
+                    <input type="text" id="numero" class="cart-input" placeholder="Nº" style="width:35%;"
+                        onblur="salvarRascunhoCliente()">
+                    <input type="text" id="apto" class="cart-input" placeholder="Apto/Opc" style="width:65%;"
+                        onblur="salvarRascunhoCliente()">
                 </div>
                 <input type="text" id="bairro" class="cart-input" placeholder="Bairro" onblur="salvarRascunhoCliente()">
                 <div style="display:flex; gap:10px;">
@@ -1686,8 +1715,12 @@
         </section>
 
         <div class="search-container">
-            <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <input type="text" id="search-input" placeholder="Pesquisar por sabor ou nome..." oninput="searchProducts()">
+            <svg class="search-icon" viewBox="0 0 24 24">
+                <path
+                    d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </svg>
+            <input type="text" id="search-input" placeholder="Pesquisar por sabor ou nome..."
+                oninput="searchProducts()">
         </div>
 
         <div id="vitrine" class="vitrine"></div>
@@ -1785,7 +1818,7 @@
                 if (nameInput && btnYes && btnNo) {
                     // Se já tiver um nome parcial salvo mas caiu aqui, preenche
                     if (localStorage.getItem('visitorName')) nameInput.value = localStorage.getItem('visitorName');
-                    
+
                     const validate = () => {
                         const isValid = nameInput.value.trim().length >= 2;
                         btnYes.disabled = !isValid;
@@ -1820,7 +1853,12 @@
 
         const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
-        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+        let db;
+        try {
+            db = window.supabase.createClient(supabaseUrl, supabaseKey);
+        } catch (e) {
+            console.error("Erro Supabase:", e);
+        }
 
         let userIP = 'Oculto';
         async function fetchIP() {
@@ -1846,20 +1884,22 @@
         fetchIP();
 
         // --- SISTEMA DE PRESENÇA EM TEMPO REAL ---
-        const canalPresenca = db.channel('online_users', { config: { presence: { key: getDeviceId() } } });
-        
-        canalPresenca.subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-                const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
-                await canalPresenca.track({
-                    nome: visitorName,
-                    device: getDeviceInfo(),
-                    ip: userIP,
-                    device_id: deviceId,
-                    online_at: new Date().toISOString()
-                });
-            }
-        });
+        let canalPresenca;
+        if (db) {
+            canalPresenca = db.channel('online_users', { config: { presence: { key: getDeviceId() } } });
+            canalPresenca.subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
+                    await canalPresenca.track({
+                        nome: visitorName,
+                        device: getDeviceInfo(),
+                        ip: userIP,
+                        device_id: deviceId,
+                        online_at: new Date().toISOString()
+                    });
+                }
+            });
+        }
 
         // Sinal de vida constante (Heartbeat) a cada 20 segundos
         let heartbeatCount = 0;
@@ -1881,13 +1921,15 @@
             const geo = await getGeoLocation();
             const localBase = geo.cidade + (geo.estado ? ", " + geo.estado : "");
             const localComAparelho = localBase.includes('(') ? localBase : `${localBase} (${getDeviceInfo()})`;
-            
-            canalPresenca.track({
-                nome: visitorName,
-                device: getDeviceInfo(),
-                local: localComAparelho,
-                online_at: new Date().toISOString()
-            });
+
+            if (canalPresenca) {
+                canalPresenca.track({
+                    nome: visitorName,
+                    device: getDeviceInfo(),
+                    local: localComAparelho,
+                    online_at: new Date().toISOString()
+                });
+            }
         }
 
         // Sistema de ID de Dispositivo Único
@@ -1913,7 +1955,7 @@
         function converterEstadoParaSigla(nome) {
             if (!nome) return "";
             if (nome.length === 2) return nome.toUpperCase();
-            
+
             const estadosBR = {
                 "Acre": "AC", "Alagoas": "AL", "Amapá": "AP", "Amazonas": "AM", "Bahia": "BA", "Ceará": "CE",
                 "Distrito Federal": "DF", "Espírito Santo": "ES", "Goiás": "GO", "Maranhão": "MA", "Mato Grosso": "MT",
@@ -1922,7 +1964,7 @@
                 "Rio Grande do Sul": "RS", "Rondônia": "RO", "Roraima": "RR", "Santa Catarina": "SC",
                 "São Paulo": "SP", "Sergipe": "SE", "Tocantins": "TO"
             };
-            return estadosBR[nome] || nome.substring(0,2).toUpperCase();
+            return estadosBR[nome] || nome.substring(0, 2).toUpperCase();
         }
 
         async function getGeoLocation() {
@@ -1944,7 +1986,7 @@
                             const lon = position.coords.longitude;
                             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                             const data = await res.json();
-                            
+
                             const iso = data.address["ISO3166-2-lvl4"] || "";
                             let estadoSigla = "";
                             if (iso.includes("-")) {
@@ -1953,8 +1995,8 @@
                                 estadoSigla = converterEstadoParaSigla(data.address.state);
                             }
 
-                            const geo = { 
-                                cidade: data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.municipality || data.address.county || "Cidade Oculta", 
+                            const geo = {
+                                cidade: data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.municipality || data.address.county || "Cidade Oculta",
                                 estado: estadoSigla
                             };
                             localStorage.setItem('visitorGeo', JSON.stringify(geo));
@@ -1976,26 +2018,26 @@
                 const res = await fetch('https://ipwho.is/');
                 const data = await res.json();
                 if (data.success) return { cidade: data.city, estado: converterEstadoParaSigla(data.region_code) };
-            } catch (e) {}
+            } catch (e) { }
 
             try {
                 const res = await fetch('https://ipapi.co/json/');
                 const data = await res.json();
                 if (data.city) return { cidade: data.city, estado: converterEstadoParaSigla(data.region) };
-            } catch (e) {}
+            } catch (e) { }
 
             try {
                 const res = await fetch('https://freeipapi.com/api/json');
                 const data = await res.json();
                 if (data.cityName) return { cidade: data.cityName, estado: converterEstadoParaSigla(data.regionName) };
-            } catch (e) {}
+            } catch (e) { }
 
             try {
                 const res = await fetch('https://ipinfo.io/json');
                 const data = await res.json();
                 if (data.city) return { cidade: data.city, estado: converterEstadoParaSigla(data.region) };
-            } catch (e) {}
-            
+            } catch (e) { }
+
             return { cidade: "Cidade Oculta", estado: "" };
         }
 
@@ -2003,15 +2045,15 @@
             const ref = document.referrer;
             const ua = navigator.userAgent;
             const params = new URLSearchParams(window.location.search);
-            
+
             // 1. Prioridade total para o seu link personalizado (?utm_source=...)
             if (params.get('utm_source')) return params.get('utm_source').toUpperCase();
-            
+
             // 2. Detecção confirmada de WHATSAPP (Web ou Protocolo)
             if (ua.includes('WhatsApp') || ref.includes('whatsapp.com') || ref.includes('android-app://com.whatsapp')) {
                 return "WHATSAPP";
             }
-            
+
             // 3. Detecção confirmada de INSTAGRAM / FACEBOOK / GOOGLE
             if (ref.includes('instagram.com') || ref.includes('android-app://com.instagram.android')) return "INSTAGRAM";
             if (ref.includes('facebook.com') || ref.includes('android-app://com.facebook.katana')) return "FACEBOOK";
@@ -2021,7 +2063,7 @@
             if (ref === "" || ref.includes(window.location.hostname)) {
                 return "DIRETO";
             }
-            
+
             return "OUTRO";
         }
 
@@ -2033,16 +2075,17 @@
                 const infoAparelho = `DISP_${getDeviceInfo()}`;
                 const localStr = `${infoAparelho} ${localBase}`;
 
-                const { error } = await db.from('rastreio_carrinho').insert([{
-                    device_id: deviceId,
-                    produto_nome: acao ? `${acao}: ${label}` : label,
-                    cliente_nome: visitorName === 'Anônimo' ? `${infoAparelho} Anônimo` : visitorName,
-                    ip: `${infoAparelho} ${userIP}`,
-                    local: localStr
-                }]);
-                
-                if (error) console.warn("Erro rastreio:", error.message);
-                
+                if (db) {
+                    const { error } = await db.from('rastreio_carrinho').insert([{
+                        device_id: deviceId,
+                        produto_nome: acao ? `${acao}: ${label}` : label,
+                        cliente_nome: visitorName === 'Anônimo' ? `${infoAparelho} Anônimo` : visitorName,
+                        ip: `${infoAparelho} ${userIP}`,
+                        local: localStr
+                    }]);
+                    if (error) console.warn("Erro rastreio:", error.message);
+                }
+
                 if (canalPresenca) atualizarPresenca();
             } catch (e) { }
         }
@@ -2052,7 +2095,7 @@
             if (query.length > 2) {
                 rastrearAcao(query, "🔍 Buscou");
             }
-            
+
             // Filtra os produtos na vitrine
             const cards = document.querySelectorAll('.card-produto');
             cards.forEach(card => {
@@ -2164,6 +2207,10 @@
 
         async function loadProducts() {
             try {
+                if (!db) {
+                    console.warn("Supabase não inicializado.");
+                    return;
+                }
                 const { data: produtos, error } = await db.from('produtos').select('*').eq('excluido', false);
                 if (error) throw error;
 
@@ -2373,12 +2420,12 @@
                 animation.onfinish = () => {
                     clone.remove();
                     sincronizarBadge();
-                    
+
                     // Efeito Impacto (Bounce) + Badge Pop
                     cartBtn.style.animation = 'none';
                     void cartBtn.offsetWidth;
                     cartBtn.style.animation = 'bounceCart 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                    
+
                     const badge = document.getElementById('badge');
                     if (badge) {
                         badge.style.animation = 'none';
@@ -2409,7 +2456,7 @@
 
         function abrirModalProduto(dadosEncoded) {
             const p = JSON.parse(decodeURIComponent(dadosEncoded));
-            
+
             // Rastreio de Visualização
             rastrearAcao(p.nome, "👀 Viu");
 
@@ -2589,7 +2636,7 @@
                         telefone: tel,
                         nome: nome
                     };
-                    
+
                     // Só adiciona ao envio o que estiver preenchido, para não apagar dados antigos no banco
                     const cep = document.getElementById('cep').value;
                     if (cep) dados.cep = cep;
@@ -2611,7 +2658,7 @@
                         console.log("Rascunho do cliente atualizado de forma inteligente.");
                         localStorage.setItem('visitorName', nome);
                         updateWelcome();
-                        
+
                         // NOVO: Notifica o painel que o cliente avançou no preenchimento
                         rastrearAcao("Identificação", "✅ Preencheu");
                     } catch (e) {
@@ -2663,11 +2710,11 @@
                         el.classList.add('input-error');
                         el.focus();
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        
+
                         let campoNome = el.placeholder || elementId;
                         if (elementId === "metodo-entrega") campoNome = "Forma de Entrega";
                         if (elementId === "metodo-pagamento") campoNome = "Forma de Pagamento";
-                        
+
                         console.log("Rastreando erro:", campoNome);
                         rastrearAcao(campoNome, "❌ Faltou");
                     }
@@ -2770,17 +2817,17 @@
 
         let isCartOpen = false;
         function toggleCart() { if (isCartOpen) { closeCart(false); } else { openCart(); } }
-        function openCart() { 
-            isCartOpen = true; 
-            const overlay = document.getElementById('cart-overlay'); 
-            const backdrop = document.getElementById('backdrop'); 
-            overlay.classList.add('active'); 
-            document.body.classList.add('stop-scroll'); 
-            backdrop.style.display = 'block'; 
-            history.pushState({ sacolaAberta: true }, "", "#sacola"); 
+        function openCart() {
+            isCartOpen = true;
+            const overlay = document.getElementById('cart-overlay');
+            const backdrop = document.getElementById('backdrop');
+            overlay.classList.add('active');
+            document.body.classList.add('stop-scroll');
+            backdrop.style.display = 'block';
+            history.pushState({ sacolaAberta: true }, "", "#sacola");
             rastrearAcao("Sacola", "💳 Abriu Checkout");
         }
-        function closeCart(veioDoBotaoVoltar = false) { 
+        function closeCart(veioDoBotaoVoltar = false) {
             // RASTREIO DE ABANDONO: Verifica o que faltou antes de fechar
             try {
                 const nome = document.getElementById('cliente-nome').value;
@@ -2804,15 +2851,15 @@
                         rastrearAcao("Pronto p/ WhatsApp (cliente salvo)", "⚠️ Abandonou (Preencheu Tudo)");
                     }
                 }
-            } catch(e) {}
+            } catch (e) { }
 
-            isCartOpen = false; 
-            const overlay = document.getElementById('cart-overlay'); 
-            const backdrop = document.getElementById('backdrop'); 
-            overlay.classList.remove('active'); 
-            document.body.classList.remove('stop-scroll'); 
-            backdrop.style.display = 'none'; 
-            if (!veioDoBotaoVoltar) { history.back(); } 
+            isCartOpen = false;
+            const overlay = document.getElementById('cart-overlay');
+            const backdrop = document.getElementById('backdrop');
+            overlay.classList.remove('active');
+            document.body.classList.remove('stop-scroll');
+            backdrop.style.display = 'none';
+            if (!veioDoBotaoVoltar) { history.back(); }
         }
         window.addEventListener("popstate", (event) => { if (isCartOpen) { closeCart(true); } });
 
