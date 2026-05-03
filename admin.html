@@ -1012,9 +1012,24 @@
                             trackerMap[chave].nome = nomeCliente;
                         }
 
-                        // Mantém a localização mais recente encontrada nos logs (que não seja o texto de carregamento ou erro)
-                        if (r.local && r.local !== "Localização..." && r.local !== "Cidade Oculta" && (!trackerMap[chave].local || trackerMap[chave].local === "Localização..." || trackerMap[chave].local === "Cidade Oculta")) {
-                            trackerMap[chave].local = r.local;
+                        // Mantém a localização mais recente e extrai o dispositivo se existir
+                        if (r.local && r.local !== "Localização..." && r.local !== "Cidade Oculta") {
+                            // Prioriza a localização que já tem o aparelho entre colchetes
+                            if (!trackerMap[chave].local || (!trackerMap[chave].local.includes('[') && r.local.includes('['))) {
+                                trackerMap[chave].local = r.local;
+                            }
+                        }
+                        
+                        // Busca exaustiva pela palavra-chave DISP_ no histórico
+                        if (!trackerMap[chave].aparelhoFixado) {
+                            const rawData = [r.local, r.cliente_nome, r.ip].join(" ").toUpperCase();
+                            const match = rawData.match(/DISP_([A-Z0-9_]+)/i);
+                            if (match) {
+                                trackerMap[chave].aparelhoFixado = match[1].replace('[', '').replace(']', '').replace('DISP_', '');
+                            } else if (rawData.includes('[')) {
+                                const bracketMatch = rawData.match(/\[(.*?)\]/);
+                                if (bracketMatch) trackerMap[chave].aparelhoFixado = bracketMatch[1];
+                            }
                         }
                         
                         trackerMap[chave].cont++;
@@ -1049,11 +1064,33 @@
                     let local = d.local || "Localização...";
                     let device = d.ip || "Oculto";
 
-                    if (onlineDevices[id]) {
-                        isOnline = true;
-                        const p = onlineDevices[id][0];
-                        if (p.local && p.local !== "Localização..." && p.local !== "Cidade Oculta") local = p.local;
-                        if (p.device) device = p.device;
+                    // Recupera o aparelho: Prioridade 1 (Online), Prioridade 2 (Histórico Fixado), Prioridade 3 (IP)
+                    // Tenta achar nos dados online (pode estar sob o ID ou sob o IP)
+                    let onlineData = onlineDevices[id] ? onlineDevices[id][0] : null;
+                    
+                    // Se não achou pelo ID, tenta procurar se algum usuário online tem este mesmo IP ou ID de dispositivo
+                    if (!onlineData) {
+                        Object.values(onlineDevices).forEach(arr => {
+                            const p = arr[0];
+                            if (p.ip === d.ip || p.device_id === id) onlineData = p;
+                        });
+                    }
+
+                    if (onlineData) {
+                        const p = onlineData;
+                        const lastSign = p.online_at ? new Date(p.online_at) : null;
+                        const diffMin = lastSign ? (new Date() - lastSign) / 1000 / 60 : 999;
+
+                        if (lastSign && Math.abs(diffMin) < 0.85) {
+                            isOnline = true;
+                            // Tenta extrair o aparelho do sinal online
+                            if (p.device) device = p.device;
+                            if (p.local) local = p.local;
+                        }
+                    }
+
+                    if (!isOnline && d.aparelhoFixado) {
+                        device = d.aparelhoFixado;
                     }
 
                     // Cálculo da Temperatura (Lead Score)
@@ -1083,12 +1120,12 @@
                                 <div class="visitor-main">
                                     <span class="temp-icon">${temp}</span>
                                     <div class="visitor-name-group">
-                                        <span class="order-name" style="display:flex; align-items:center;">${(d.nome || "Anônimo").toUpperCase()} ${badgeOnline}</span>
-                                        <span class="visitor-geo">📍 ${local.replace(', RI', ', RS')}</span>
+                                        <span class="order-name" style="display:flex; align-items:center;">${(d.nome || "Anônimo").replace(/DISP_[A-Z0-9_]+/gi, "").replace(/\[.*?\]/g, "").trim().toUpperCase() || "ANÔNIMO"} ${badgeOnline}</span>
+                                        <span class="visitor-geo">📍 ${String(local || "Localização...").replace(', RI', ', RS').replace(/DISP_[A-Z0-9_]+/gi, "").replace(/\[.*?\]/g, "").trim() || "Localização..."}</span>
                                     </div>
                                 </div>
                                 <div class="visitor-meta">
-                                    <span class="visitor-device">${device}</span>
+                                    <span class="visitor-device">${device.includes('DISP_') ? device.split('DISP_')[1].split(' ')[0] : (device.includes('[') ? device.split('[')[1].split(']')[0] : device)}</span>
                                     <span class="order-details" style="font-size:0.6rem;">Último: ${formatarDataHora(d.ultimo)}</span>
                                 </div>
                             </div>
@@ -1890,7 +1927,7 @@
                 carregar(true);
             })
             .subscribe();
-        setInterval(carregar, 60000); // Backup a cada 1 minuto
+        setInterval(carregar, 15000); 
         // --- LÓGICA DE SELEÇÃO POR SEGURAR (LONG PRESS) ---
         let pressTimer;
         let isSelectionMode = false;
