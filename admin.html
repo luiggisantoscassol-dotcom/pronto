@@ -581,6 +581,11 @@
             </div>
             <select id="pdv-entrega" onchange="togglePdvEndereco()"><option value="Balcão">Balcão / Retirada</option><option value="Tele">Entrega (Tele)</option></select>
             
+            <div id="pdv-info-entrega-imediata" style="display:none; padding:12px; background:rgba(197,160,89,0.1); border-radius:15px; margin:15px 0; border:1px solid rgba(197,160,89,0.25); text-align:center; flex-direction:column; gap:2px;">
+                <span style="font-size:0.55rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); font-weight:800;">Prazo de Entrega</span>
+                <span style="font-size:1rem; color:var(--text-gold); font-weight:900;">🚛 1 A 3 DIAS ÚTEIS</span>
+            </div>
+            
             <div id="pdv-bloco-endereco" style="display:none;">
                 <input type="text" id="pdv-cep" placeholder="CEP" style="width:48%; display:inline-block; margin-right:2%;">
                 <input type="text" id="pdv-bairro" placeholder="Bairro" style="width:48%; display:inline-block;">
@@ -632,6 +637,17 @@
     </div>
 
     <script>
+        function fixDrive(url) {
+            if (!url) return '';
+            const reg = /https:\/\/drive\.google\.com\/file\/d\/(.*?)\/view\?usp=sharing|https:\/\/drive\.google\.com\/open\?id=(.*?)|https:\/\/drive\.google\.com\/file\/d\/(.*?)\//;
+            const match = url.match(reg);
+            if (match) {
+                const id = match[1] || match[2] || match[3];
+                return `https://lh3.googleusercontent.com/d/${id}=s1000?authuser=0`;
+            }
+            return url;
+        }
+
         // --- SISTEMA DE GESTOS (SWIPE) COM TRAVA DE DIREÇÃO ---
         let touchStartX = 0;
         let touchStartY = 0;
@@ -800,6 +816,7 @@
         function togglePdvEndereco() {
             const ent = document.getElementById('pdv-entrega').value;
             document.getElementById('pdv-bloco-endereco').style.display = (ent === 'Tele') ? 'block' : 'none';
+            document.getElementById('pdv-info-entrega-imediata').style.display = (ent === 'Tele') ? 'flex' : 'none';
         }
 
         let listaClientesOriginal = [];
@@ -1280,7 +1297,7 @@
                             <div class="pdv-card" style="${esgotado ? 'opacity:0.4' : 'cursor:pointer;'}" onclick="${esgotado ? '' : `addPDV('${id}', '${nS}', ${pr}, ${cus})`}">
                                 <div id="pdv-badge-${id}" class="pdv-card-badge">0</div>
                                 <button class="btn-edit-product" onclick="event.stopPropagation(); abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')">✏️</button>
-                                <img src="${f1 || 'https://via.placeholder.com/150'}">
+                                <img src="${fixDrive(f1) || 'https://via.placeholder.com/150'}">
                                 <div class="pdv-name">${n.toUpperCase()}</div>
                                 <div class="pdv-price">R$ ${pr.toFixed(2)}</div>
                                 <button class="pdv-btn-add" ${esgotado ? 'disabled' : ''}>
