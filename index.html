@@ -22,9 +22,12 @@
     <meta name="twitter:description"
         content="A verdadeira cachaça premium. Escolha a sua, faça o pedido e aproveite o frete grátis na compra de 3 garrafas!">
     <meta name="twitter:image" content="https://www.tionan.com.br/imagem-compartilhamento.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600&family=Barlow+Condensed:wght@500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <!-- ÍCONES (Apenas para Atalho Mobile) -->
@@ -120,14 +123,14 @@
         }
 
         .header-logo {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
             font-size: 1.6rem;
             /* Logo de volta ao tamanho de destaque */
             color: #000000;
             text-decoration: none;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-weight: 700;
         }
 
         .header-location {
@@ -295,16 +298,23 @@
         }
 
         .age-logo {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
             font-size: 3.8rem;
             color: #000000;
             margin-bottom: 25px;
             display: block;
-            letter-spacing: 8px;
+            letter-spacing: 3px;
             line-height: 1.1;
             text-transform: uppercase;
             font-weight: 700;
             text-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            /* Proteção contra flicker: começa invisível e aparece quando a fonte carrega */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .fonts-loaded .age-logo {
+            opacity: 1;
         }
 
         .age-text {
@@ -763,8 +773,13 @@
         @media (max-width: 768px) {
             .swiper-hero .swiper-button-next,
             .swiper-hero .swiper-button-prev {
-                transform: scale(0.7);
+                display: flex !important;
+                transform: scale(0.6) !important;
+                opacity: 1 !important;
+                visibility: visible !important;
             }
+            .swiper-hero .swiper-button-next { right: 5px !important; }
+            .swiper-hero .swiper-button-prev { left: 5px !important; }
         }
         .hero-section {
             width: 100%;
@@ -1960,6 +1975,16 @@
                     <button onclick="location.reload()" class="btn-age btn-no" style="width: 100%; margin-top: 10px;">Voltar</button>
                 `;
             }
+        }
+
+        // Proteção Global de Fontes para evitar flicker na logo
+        if ("fonts" in document) {
+            document.fonts.ready.then(() => {
+                document.body.classList.add('fonts-loaded');
+            });
+        } else {
+            // Fallback para navegadores antigos
+            window.onload = () => document.body.classList.add('fonts-loaded');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
