@@ -200,7 +200,7 @@
             border: 1px solid var(--gold-antique);
             background: #FFFFFF;
             border-radius: 40px;
-            box-shadow: 0 50px 120px rgba(27, 54, 93, 0.25), 0 10px 40px rgba(166, 124, 55, 0.15);
+            box-shadow: 0 50px 120px rgba(27, 54, 93, 0.25), 0 10px 40px rgba(0, 0, 0, 0.05);
             animation: modalPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
@@ -297,16 +297,14 @@
         .age-logo {
             font-family: 'Barlow Condensed', sans-serif;
             font-size: 3.8rem;
-            background: var(--gold-metallic);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #000000;
             margin-bottom: 25px;
             display: block;
             letter-spacing: 8px;
             line-height: 1.1;
             text-transform: uppercase;
             font-weight: 700;
-            text-shadow: 0 10px 20px rgba(166, 124, 55, 0.15);
+            text-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         .age-text {
@@ -322,13 +320,20 @@
         .age-text small {
             display: block;
             margin-top: 15px;
-            font-size: 0.8rem;
-            opacity: 0.7;
+            font-size: 0.95rem;
+            opacity: 0.9;
             font-weight: 400;
             text-transform: none;
-            letter-spacing: 0;
+            letter-spacing: 0.5px;
+            font-style: italic;
+            color: var(--blue-navy);
         }
 
+        .age-text small b {
+            color: var(--gold-antique);
+            font-weight: 700;
+            font-style: normal;
+        }
         .age-buttons {
             display: flex;
             gap: 15px;
@@ -391,30 +396,31 @@
 
         .visitor-input {
             width: 100%;
-            padding: 22px;
-            border-radius: 18px;
+            padding: 20px;
+            border-radius: 15px;
             border: 2px solid rgba(166, 124, 55, 0.3);
-            background: var(--blue-navy);
-            color: #FFFFFF;
+            background: #f9f9f9;
+            color: var(--blue-navy);
             font-family: var(--font-body);
             font-size: 1.1rem;
             text-align: center;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 30px rgba(27, 54, 93, 0.2);
             outline: none;
+            animation: goldPulse 2.5s infinite ease-in-out;
         }
 
         .visitor-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 300;
-            letter-spacing: 1px;
+            color: rgba(27, 54, 93, 0.3);
+            font-weight: 400;
+            letter-spacing: 0.5px;
         }
 
         .visitor-input:focus {
             border-color: var(--gold-antique);
-            background: #152a4a;
-            box-shadow: 0 15px 40px rgba(166, 124, 55, 0.2);
+            background: #ffffff;
+            box-shadow: 0 15px 40px rgba(166, 124, 55, 0.1);
             transform: scale(1.02);
+            animation: none;
         }
 
         .age-input-label {
@@ -429,20 +435,19 @@
             opacity: 0.8;
         }
 
-        @keyframes inputPulse {
+        @keyframes goldPulse {
             0% {
-                box-shadow: 0 0 8px rgba(197, 160, 89, 0.1), inset 0 2px 15px rgba(0, 0, 0, 0.6);
-                border-color: rgba(197, 160, 89, 0.3);
+                border-color: rgba(166, 124, 55, 0.3);
+                box-shadow: 0 0 0 rgba(166, 124, 55, 0);
             }
-
             50% {
-                box-shadow: 0 0 25px rgba(197, 160, 89, 0.5), inset 0 2px 15px rgba(0, 0, 0, 0.6);
-                border-color: rgba(197, 160, 89, 1);
+                border-color: var(--gold-antique);
+                box-shadow: 0 0 25px rgba(166, 124, 55, 0.4);
+                transform: scale(1.01);
             }
-
             100% {
-                box-shadow: 0 0 8px rgba(197, 160, 89, 0.1), inset 0 2px 15px rgba(0, 0, 0, 0.6);
-                border-color: rgba(197, 160, 89, 0.3);
+                border-color: rgba(166, 124, 55, 0.3);
+                box-shadow: 0 0 0 rgba(166, 124, 55, 0);
             }
         }
 
@@ -727,6 +732,40 @@
             background: transparent;
         }
 
+        /* Setas do Carrossel Hero */
+        .swiper-hero .swiper-button-next,
+        .swiper-hero .swiper-button-prev {
+            color: var(--gold-antique);
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .swiper-hero .swiper-button-next::after,
+        .swiper-hero .swiper-button-prev::after {
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .swiper-hero .swiper-button-next:hover,
+        .swiper-hero .swiper-button-prev:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: var(--gold-soft);
+            transform: scale(1.1);
+            border-color: var(--gold-antique);
+        }
+
+        @media (max-width: 768px) {
+            .swiper-hero .swiper-button-next,
+            .swiper-hero .swiper-button-prev {
+                display: none;
+            }
+        }
         .hero-section {
             width: 100%;
             text-align: center;
@@ -1571,23 +1610,27 @@
 
         .search-container input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(197, 160, 89, 0.3);
+            background: #fdfdfd;
+            border: 1px solid rgba(197, 160, 89, 0.4);
             padding: 16px 25px 16px 55px;
             border-radius: 50px;
-            color: #fff;
+            color: var(--blue-navy);
             font-family: var(--font-body);
             font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             display: block;
         }
 
+        .search-container input::placeholder {
+            color: rgba(27, 54, 93, 0.4);
+        }
+
         .search-container input:focus {
-            background: rgba(255, 255, 255, 0.08);
+            background: #ffffff;
             border-color: var(--gold-antique);
-            box-shadow: 0 15px 40px rgba(197, 160, 89, 0.25);
+            box-shadow: 0 15px 40px rgba(197, 160, 89, 0.15);
             transform: translateY(-2px);
         }
 
@@ -1633,7 +1676,7 @@
             <span class="age-logo">Tio Nan</span>
             <p class="age-text">
                 Você tem mais de 18 anos?
-                <small>A apreciação de uma boa cachaça é um prazer reservado a adultos.</small>
+                <small>A apreciação de uma <b>boa cachaça</b> é um prazer reservado a adultos.</small>
             </p>
 
             <div class="age-input-group">
@@ -1824,8 +1867,10 @@
                 <div class="swiper-slide"><img src="passo3_v10.png"></div>
                 <div class="swiper-slide"><img src="passo4_v10.png"></div>
             </div>
+            <div class="swiper-pagination hero-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
         </div>
-        <div class="swiper-pagination hero-pagination"></div>
 
         <section class="hero-section">
             <h1 id="hero-title">Cachaça do Tio Nan</h1>
@@ -1896,7 +1941,7 @@
                 localStorage.setItem('visitorName', nameInput);
                 localStorage.setItem('ageVerified', 'true');
                 document.getElementById('age-verification-overlay').style.display = 'none';
-                updateWelcome();
+                window.scrollTo(0, 0);                updateWelcome();
                 const video = document.getElementById('loading-video');
                 if (video) video.play();
                 // Rastreia a entrada APENAS agora que temos o nome
@@ -1924,7 +1969,7 @@
             if (isVerified && hasName) {
                 document.getElementById('age-verification-overlay').style.display = 'none';
                 updateWelcome();
-                // Visitante recorrente, já temos o nome, rastreia a entrada
+                window.scrollTo(0, 0);                // Visitante recorrente, já temos o nome, rastreia a entrada
                 rastrearAcao("Site", "👋 Entrou");
             } else {
                 // Se falta o nome ou não verificou a idade, mostra o overlay
@@ -2257,7 +2302,12 @@
 
         const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
 
-        new Swiper('.swiper-hero', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 } });
+        new Swiper('.swiper-hero', {
+            loop: true,
+            pagination: { el: '.hero-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+            autoplay: { delay: 5000, disableOnInteraction: false }
+        });
         let cart = [];
 
         function mascaraCEP(t) {
