@@ -57,7 +57,8 @@
 
         .bio-logo {
             font-family: 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
-            font-size: 2.5rem; /* Um pouco maior que o header por ser página de bio, mas com o mesmo estilo */
+            font-size: 2.5rem;
+            /* Um pouco maior que o header por ser página de bio, mas com o mesmo estilo */
             color: #000000;
             text-decoration: none;
             text-transform: uppercase;
@@ -110,9 +111,20 @@
         }
 
         @keyframes pulsePrimary {
-            0% { transform: scale(1); box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2); }
-            50% { transform: scale(1.02); box-shadow: 0 15px 30px rgba(166, 124, 55, 0.4); }
-            100% { transform: scale(1); box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2); }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2);
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 15px 30px rgba(166, 124, 55, 0.4);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2);
+            }
         }
 
         .link-btn.secondary {
@@ -195,7 +207,8 @@
             gap: 10px;
         }
 
-        .faq-title::before, .faq-title::after {
+        .faq-title::before,
+        .faq-title::after {
             content: "";
             flex: 1;
             height: 1px;
@@ -275,7 +288,8 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-weight: 900;
-            color: #C5A059; /* Dourado mais brilhante para contraste */
+            color: #C5A059;
+            /* Dourado mais brilhante para contraste */
             margin-top: 5px;
             display: block;
         }
@@ -290,8 +304,15 @@
         }
 
         @keyframes fadeInDown {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* --- DECORATION --- */
@@ -302,7 +323,7 @@
             transform: translateX(-50%);
             width: 150%;
             height: 40%;
-            background: radial-gradient(circle, rgba(197,160,89,0.05) 0%, rgba(255,255,255,0) 70%);
+            background: radial-gradient(circle, rgba(197, 160, 89, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
             z-index: -1;
         }
     </style>
@@ -319,12 +340,18 @@
 
         <section class="links-wrapper">
             <a href="index.html" class="link-btn primary">
-                <svg class="link-icon" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                <svg class="link-icon" viewBox="0 0 24 24">
+                    <path
+                        d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
                 Comprar Agora
             </a>
 
             <a href="https://wa.me/5551989067003" target="_blank" class="link-btn secondary">
-                <svg class="link-icon" viewBox="0 0 24 24"><path d="M20.447 3.552a12 12 0 1 0-16.894 16.894l-1.353 4.94 5.056-1.328a11.954 11.954 0 0 0 5.744 1.488h.005a12 12 0 0 0 12-12 11.933 11.933 0 0 0-3.552-8.506zM12 21.993a9.944 9.944 0 0 1-5.07-1.387l-.364-.216-3.013.791.805-2.94-.237-.377a9.957 9.957 0 1 1 7.879 4.129zm5.474-7.48c-.3-.15-1.77-.874-2.045-.973s-.474-.15-.675.15-.774.974-.95 1.173-.35.225-.65.075a8.216 8.216 0 0 1-2.413-1.492 9.07 9.07 0 0 1-1.671-2.079c-.175-.3-.02-.463.13-.612s.3-.35.45-.525.2-.3.3-.5-.05-.375-.125-.525-.675-1.625-.925-2.225c-.244-.588-.492-.509-.675-.518h-.575c-.2 0-.525.075-.8.375s-1.05 1.025-1.05 2.5 1.075 2.9 1.225 3.1 2.112 3.225 5.112 4.522c.714.308 1.27.492 1.705.631a4.093 4.093 0 0 0 1.884.118c.579-.086 1.775-.726 2.025-1.425s.25-1.3.175-1.425-.275-.2-.575-.35z"/></svg>
+                <svg class="link-icon" viewBox="0 0 24 24">
+                    <path
+                        d="M20.447 3.552a12 12 0 1 0-16.894 16.894l-1.353 4.94 5.056-1.328a11.954 11.954 0 0 0 5.744 1.488h.005a12 12 0 0 0 12-12 11.933 11.933 0 0 0-3.552-8.506zM12 21.993a9.944 9.944 0 0 1-5.07-1.387l-.364-.216-3.013.791.805-2.94-.237-.377a9.957 9.957 0 1 1 7.879 4.129zm5.474-7.48c-.3-.15-1.77-.874-2.045-.973s-.474-.15-.675.15-.774.974-.95 1.173-.35.225-.65.075a8.216 8.216 0 0 1-2.413-1.492 9.07 9.07 0 0 1-1.671-2.079c-.175-.3-.02-.463.13-.612s.3-.35.45-.525.2-.3.3-.5-.05-.375-.125-.525-.675-1.625-.925-2.225c-.244-.588-.492-.509-.675-.518h-.575c-.2 0-.525.075-.8.375s-1.05 1.025-1.05 2.5 1.075 2.9 1.225 3.1 2.112 3.225 5.112 4.522c.714.308 1.27.492 1.705.631a4.093 4.093 0 0 0 1.884.118c.579-.086 1.775-.726 2.025-1.425s.25-1.3.175-1.425-.275-.2-.575-.35z" />
+                </svg>
                 Dúvidas no WhatsApp
             </a>
 
@@ -350,50 +377,63 @@
 
         <section class="faq-section">
             <h3 class="faq-title">Dúvidas Frequentes</h3>
-            
+
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
                     Como funciona o pedido e entrega?
-                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    <svg class="faq-arrow" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                    </svg>
                 </div>
                 <div class="faq-answer">
-                    É muito simples! Você escolhe seus sabores favoritos no site, adiciona à sacola e finaliza via WhatsApp. Nós enviamos para você em até 1 a 3 dias úteis (Porto Alegre e região). 
+                    É muito simples! Você escolhe seus sabores favoritos no site, adiciona à sacola e finaliza via
+                    WhatsApp. Nós enviamos para você em até 1 a 3 dias úteis (Porto Alegre e região).
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
                     É seguro comprar pelo WhatsApp?
-                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    <svg class="faq-arrow" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                    </svg>
                 </div>
                 <div class="faq-answer">
-                    Totalmente! O WhatsApp é apenas o canal para combinarmos a entrega. O pagamento pode ser feito via Pix ou Cartão no momento da entrega, garantindo que você só paga quando receber seu produto.
+                    Totalmente! O WhatsApp é apenas o canal para combinarmos a entrega. O pagamento pode ser feito via
+                    Pix ou Cartão no momento da entrega, garantindo que você só paga quando receber seu produto.
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
                     As cachaças são muito fortes?
-                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    <svg class="faq-arrow" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                    </svg>
                 </div>
                 <div class="faq-answer">
-                    Trabalhamos com duas linhas: as <b>Puras e Envelhecidas</b>, que possuem maior intensidade alcoólica, porém com uma pureza e destilação superior às cachaças comuns de "segunda linha"; e as nossas <b>Bebidas Mistas</b>, que são extremamente equilibradas, focadas no sabor e feitas à base de nossa cachaça premium, ideais para quem busca suavidade.
+                    Trabalhamos com duas linhas principais: nossas famosas <b>Bebidas Mistas</b>, que são o nosso forte — extremamente equilibradas, ricas em sabor e ideais para quem busca suavidade; e também a linha de <b>Puras e Envelhecidas</b>, que possuem maior intensidade alcoólica, mas com uma pureza e destilação muito superior às cachaças comuns de "segunda linha".
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
                     Qual o diferencial da Tio Nan?
-                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    <svg class="faq-arrow" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                    </svg>
                 </div>
                 <div class="faq-answer">
-                    Trabalhamos apenas com destilação de alta qualidade e ingredientes selecionados. Não usamos essências artificiais — o sabor que você sente vem da própria fruta e do mel puro. É cachaça de verdade.
+                    Trabalhamos apenas com destilação de alta qualidade e ingredientes selecionados. Não usamos
+                    essências artificiais — o sabor que você sente vem da própria fruta e do mel puro. É cachaça de
+                    verdade.
                 </div>
             </div>
         </section>
 
         <section class="testimonials">
-            <p class="testi-quote">"Essa de gengibre, guaco e mel é a minha favorita. Muito saborosa e desce macio, qualidade nota 10!"</p>
+            <p class="testi-quote">"Essa de gengibre, guaco e mel é a minha favorita. Muito saborosa e desce macio,
+                qualidade nota 10!"</p>
             <p class="testi-author">— Ricardo M., Porto Alegre</p>
         </section>
 
