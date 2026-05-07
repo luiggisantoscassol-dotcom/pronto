@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tio Nan | Links Oficiais</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600;800&family=Barlow+Condensed:wght@500;600;700;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --blue-navy: #1B365D;
+            --gold-antique: #A67C37;
+            --gold-metallic: linear-gradient(135deg, #8A662E 0%, #C5A059 50%, #8A662E 100%);
+            --gold-soft: #8A662E;
+            --font-premium: 'Zilla Slab', serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-condensed: 'Barlow Condensed', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            color: var(--blue-navy);
+            font-family: var(--font-body);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .bio-container {
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        /* --- HEADER --- */
+        .bio-header {
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .bio-logo {
+            font-family: 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
+            font-size: 2.5rem; /* Um pouco maior que o header por ser página de bio, mas com o mesmo estilo */
+            color: #000000;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .bio-tagline {
+            font-size: 0.9rem;
+            color: var(--gold-soft);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 800;
+        }
+
+        /* --- LINKS --- */
+        .links-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.9rem;
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-btn.primary {
+            background: var(--gold-metallic);
+            color: #FFF;
+            border: none;
+            box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2);
+            animation: pulsePrimary 2s infinite;
+        }
+
+        @keyframes pulsePrimary {
+            0% { transform: scale(1); box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 30px rgba(166, 124, 55, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2); }
+        }
+
+        .link-btn.secondary {
+            background: #FFF;
+            color: var(--blue-navy);
+        }
+
+        .link-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .link-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* --- TRUST SECTION --- */
+        .trust-section {
+            background: #F9F9F9;
+            padding: 30px 20px;
+            border-radius: 30px;
+            margin-bottom: 40px;
+            border: 1px solid #EEE;
+        }
+
+        .trust-title {
+            font-family: var(--font-premium);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--blue-navy);
+        }
+
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .trust-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trust-icon {
+            font-size: 1.8rem;
+        }
+
+        .trust-text {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--gold-soft);
+        }
+
+        /* --- FAQ --- */
+        .faq-section {
+            text-align: left;
+            margin-bottom: 40px;
+            background: #fdfaf5;
+            padding: 30px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(166, 124, 55, 0.15);
+        }
+
+        .faq-title {
+            font-family: var(--font-condensed);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            text-align: center;
+            color: var(--blue-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .faq-title::before, .faq-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(166, 124, 55, 0.3);
+        }
+
+        .faq-item {
+            background: #FFF;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #EEE;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active {
+            border-color: var(--gold-antique);
+            box-shadow: 0 5px 15px rgba(166, 124, 55, 0.1);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 18px 20px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--blue-navy);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding-bottom: 20px;
+        }
+
+        .faq-arrow {
+            transition: transform 0.3s;
+            width: 14px;
+            fill: var(--gold-soft);
+        }
+
+        .faq-item.active .faq-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* --- TESTIMONIALS --- */
+        .testimonials {
+            margin-bottom: 40px;
+            background: var(--blue-navy);
+            color: #FFF;
+            padding: 30px 20px;
+            border-radius: 30px;
+            position: relative;
+        }
+
+        .testi-quote {
+            font-family: var(--font-premium);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .testi-author {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 900;
+            color: #C5A059; /* Dourado mais brilhante para contraste */
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* --- FOOTER --- */
+        .bio-footer {
+            margin-top: auto;
+            font-size: 0.7rem;
+            color: #AAA;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- DECORATION --- */
+        .bg-glow {
+            position: fixed;
+            top: -10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(197,160,89,0.05) 0%, rgba(255,255,255,0) 70%);
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-glow"></div>
+
+    <div class="bio-container">
+        <header class="bio-header">
+            <span class="bio-logo">Tio Nan</span>
+            <span class="bio-tagline">Tradição & Sabor Inigualável</span>
+        </header>
+
+        <section class="links-wrapper">
+            <a href="index.html" class="link-btn primary">
+                <svg class="link-icon" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                Comprar Agora
+            </a>
+
+            <a href="https://wa.me/5551989067003" target="_blank" class="link-btn secondary">
+                <svg class="link-icon" viewBox="0 0 24 24"><path d="M20.447 3.552a12 12 0 1 0-16.894 16.894l-1.353 4.94 5.056-1.328a11.954 11.954 0 0 0 5.744 1.488h.005a12 12 0 0 0 12-12 11.933 11.933 0 0 0-3.552-8.506zM12 21.993a9.944 9.944 0 0 1-5.07-1.387l-.364-.216-3.013.791.805-2.94-.237-.377a9.957 9.957 0 1 1 7.879 4.129zm5.474-7.48c-.3-.15-1.77-.874-2.045-.973s-.474-.15-.675.15-.774.974-.95 1.173-.35.225-.65.075a8.216 8.216 0 0 1-2.413-1.492 9.07 9.07 0 0 1-1.671-2.079c-.175-.3-.02-.463.13-.612s.3-.35.45-.525.2-.3.3-.5-.05-.375-.125-.525-.675-1.625-.925-2.225c-.244-.588-.492-.509-.675-.518h-.575c-.2 0-.525.075-.8.375s-1.05 1.025-1.05 2.5 1.075 2.9 1.225 3.1 2.112 3.225 5.112 4.522c.714.308 1.27.492 1.705.631a4.093 4.093 0 0 0 1.884.118c.579-.086 1.775-.726 2.025-1.425s.25-1.3.175-1.425-.275-.2-.575-.35z"/></svg>
+                Dúvidas no WhatsApp
+            </a>
+
+        </section>
+
+        <section class="trust-section">
+            <h3 class="trust-title">Por que escolher Tio Nan?</h3>
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <span class="trust-icon">🍯</span>
+                    <span class="trust-text">100% Artesanal</span>
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">🚚</span>
+                    <span class="trust-text">Entrega Rápida</span>
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">🛡️</span>
+                    <span class="trust-text">Compra Segura</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section">
+            <h3 class="faq-title">Dúvidas Frequentes</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Como funciona o pedido e entrega?
+                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </div>
+                <div class="faq-answer">
+                    É muito simples! Você escolhe seus sabores favoritos no site, adiciona à sacola e finaliza via WhatsApp. Nós enviamos para você em até 1 a 3 dias úteis (Porto Alegre e região). 
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    É seguro comprar pelo WhatsApp?
+                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Totalmente! O WhatsApp é apenas o canal para combinarmos a entrega. O pagamento pode ser feito via Pix ou Cartão no momento da entrega, garantindo que você só paga quando receber seu produto.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    As cachaças são muito fortes?
+                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Trabalhamos com duas linhas: as <b>Puras e Envelhecidas</b>, que possuem maior intensidade alcoólica, porém com uma pureza e destilação superior às cachaças comuns de "segunda linha"; e as nossas <b>Bebidas Mistas</b>, que são extremamente equilibradas, focadas no sabor e feitas à base de nossa cachaça premium, ideais para quem busca suavidade.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Qual o diferencial da Tio Nan?
+                    <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Trabalhamos apenas com destilação de alta qualidade e ingredientes selecionados. Não usamos essências artificiais — o sabor que você sente vem da própria fruta e do mel puro. É cachaça de verdade.
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <p class="testi-quote">"Essa de gengibre, guaco e mel é a minha favorita. Muito saborosa e desce macio, qualidade nota 10!"</p>
+            <p class="testi-author">— Ricardo M., Porto Alegre</p>
+        </section>
+
+        <footer class="bio-footer">
+            Beba com moderação. +18 anos.
+            <br>
+            © 2026 Tio Nan
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="links.js"></script>
+</body>
+
+</html>
