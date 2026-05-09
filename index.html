@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tio Nan</title>
+    <title>Tio Nan | Cachaça Premium Artesanal</title>
+    <meta name="description" content="A verdadeira cachaça premium artesanal do Rio Grande do Sul. Escolha entre sabores exclusivos, faça seu pedido e receba em casa. Tradição e sabor inigualável.">
+    <link rel="canonical" href="https://www.tionan.com.br/">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.tionan.com.br/">
@@ -33,9 +35,41 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <!-- ÍCONES (Apenas para Atalho Mobile) -->
-    <link rel="apple-touch-icon" href="logo-app.svg">
+    <link rel="apple-touch-icon" href="chapeu-premium.png">
+    <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="styles.css?v=1.8">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Tio Nan",
+      "url": "https://www.tionan.com.br/",
+      "logo": "https://www.tionan.com.br/logo-app.svg",
+      "description": "A verdadeira cachaça premium artesanal. Escolha a sua, faça o pedido e aproveite o sabor inigualável em cada dose.",
+      "image": "https://www.tionan.com.br/imagem-compartilhamento.jpg",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Bento Gonçalves, 4321",
+        "addressLocality": "Porto Alegre",
+        "addressRegion": "RS",
+        "postalCode": "90650-003",
+        "addressCountry": "BR"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+55-51-98906-7003",
+        "contactType": "sales",
+        "areaServed": "BR",
+        "availableLanguage": "Portuguese"
+      },
+      "sameAs": [
+        "https://www.instagram.com/cachacinhadotionan"
+      ]
+    }
+    </script>
 </head>
 
 <body>
@@ -47,7 +81,7 @@
 
     <!-- HEADER PRINCIPAL -->
     <header class="header-main">
-        <a href="#" class="header-logo">Tio Nan</a>
+        <a href="#" class="header-logo" title="Tio Nan - Início">Tio Nan</a>
         <div class="header-location">
             <span class="loc-user" id="header-user-welcome">Bem-vindo</span>
             <span class="loc-city">
@@ -173,7 +207,6 @@
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
                 <option value="none" selected disabled>Como quer receber?</option>
                 <option value="tele">Entrega em Casa (Tele)</option>
-                <option value="retirada">Retirar na Loja</option>
             </select>
 
             <div id="info-entrega-imediata"
@@ -190,7 +223,7 @@
 
             <div id="bloco-retirada"
                 style="display:none; padding:15px; background:rgba(212,175,55,0.05); border-radius:10px; margin:15px 0; border:1px solid rgba(212,175,55,0.1); font-size:0.85rem; color:#aaa; text-align:left;">
-                📍 Retirada na <a href="https://maps.app.goo.gl/9U6D1r5WJjM9X6aU8" target="_blank"
+                📍 Retirada na <a href="https://www.google.com/maps/place/Av.+Bento+Gon%C3%A7alves,+4321+-+Partenon,+Porto+Alegre+-+RS,+90650-003/@-30.061903,-51.1754231,17z/data=!3m1!4b1!4m6!3m5!1s0x95199d563f94c077:0x7eff562e1f95c679!8m2!3d-30.0619077!4d-51.1728428!16s%2Fg%2F11c1nygt4n?entry=ttu&g_ep=EgoyMDI2MDUwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank"
                     style="color:var(--gold-soft); font-weight:bold; text-decoration:underline;">Av. Bento Gonçalves,
                     4321</a>. Horário a combinar via WhatsApp.
             </div>
@@ -249,7 +282,7 @@
         <!-- ÍCONE DECORATIVO TOPO (VERSÃO LARGA) -->
         <div
             style="text-align: center; padding: 0 0 40px 0; margin-top: -20px; transform: translateY(-55px); position: relative; z-index: 5;">
-            <img src="chapeu-premium.png" style="width: 100%; max-width: 300px; height: auto; display: inline-block;">
+            <img src="chapeu-premium.png" alt="Chapéu Premium Tio Nan - Cachaça Artesanal" style="width: 100%; max-width: 300px; height: auto; display: inline-block;">
         </div>
         <div class="swiper swiper-hero">
             <div class="swiper-wrapper">
@@ -306,7 +339,6 @@
             </a>
         </div>
 
-        <span class="footer-address">Av. Bento Gonçalves, 4321 - Porto Alegre/RS</span>
 
         <div class="footer-legal">
             Beba com moderação. Venda proibida para menores de 18 anos.

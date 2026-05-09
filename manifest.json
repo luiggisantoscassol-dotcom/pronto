@@ -1,0 +1,21 @@
+{
+  "name": "Tio Nan - Cachaça Premium",
+  "short_name": "Tio Nan",
+  "description": "A verdadeira cachaça premium artesanal.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1B365D",
+  "icons": [
+    {
+      "src": "chapeu-premium.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "chapeu-premium.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

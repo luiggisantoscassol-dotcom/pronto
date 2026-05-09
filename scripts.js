@@ -1,95 +1,57 @@
 
-function checkAgeValidation() {
-    const nameInput = document.getElementById('visitor-name');
-    const btnYes = document.querySelector('.btn-yes');
-    const btnNo = document.querySelector('.btn-no');
-    if (nameInput && btnYes && btnNo) {
-        const isValid = nameInput.value.trim().length >= 2;
-        btnYes.disabled = !isValid;
-        btnNo.disabled = false;
-    }
-}
 document.addEventListener('touchstart', function (event) { if (event.touches.length > 1) { event.preventDefault(); } }, { passive: false });
 document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
 
-// --- FUNÇÕES DE VERIFICAÇÃO DE IDADE ---
-function verifyAge(isAdult) {
-    if (isAdult) {
-        const nameInput = document.getElementById('visitor-name').value.trim();
-        if (!nameInput) {
-            alert("Por favor, preencha como gostaria de ser chamado para prosseguir.");
-            return;
-        }
-        localStorage.setItem('visitorName', nameInput);
-        localStorage.setItem('ageVerified', 'true');
-        document.getElementById('age-verification-overlay').style.display = 'none';
-        window.scrollTo(0, 0);
-        updateWelcome();
-        const video = document.getElementById('loading-video');
-        if (video) video.play();
-        // Rastreia a entrada APENAS agora que temos o nome
-        rastrearAcao("Site", "👋 Entrou");
-    } else {
-        const ageBox = document.querySelector('.age-box');
-        ageBox.style.animation = 'none';
-        void ageBox.offsetWidth;
-        ageBox.style.animation = 'modalPop 0.4s ease';
-        ageBox.innerHTML = `
-            <span class="age-logo">Tio Nan</span>
-            <p class="age-text" style="color:#ff4444; margin-bottom: 10px;">Acesso Restrito</p>
-            <p style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 30px; opacity: 0.8;">
-                Sentimos muito, mas nosso conteúdo é exclusivo para maiores de 18 anos.
-            </p>
-            <button onclick="location.reload()" class="btn-age btn-no" style="width: 100%; margin-top: 10px;">Voltar</button>
-        `;
-    }
-}
-
-// Proteção Global de Fontes para evitar flicker na logo
+// Proteção Global de Fontes
 if ("fonts" in document) {
     document.fonts.ready.then(() => {
         document.body.classList.add('fonts-loaded');
     });
 } else {
-    // Fallback para navegadores antigos
     window.onload = () => document.body.classList.add('fonts-loaded');
 }
 
-function initAgeVerification() {
-    const isVerified = localStorage.getItem('ageVerified') === 'true';
-    const hasName = localStorage.getItem('visitorName') && localStorage.getItem('visitorName').trim() !== '';
-
-    if (isVerified && hasName) {
-        document.getElementById('age-verification-overlay').style.display = 'none';
-        updateWelcome();
-        window.scrollTo(0, 0);
-        rastrearAcao("Site", "👋 Entrou");
-    } else {
-        document.getElementById('age-verification-overlay').style.display = 'flex';
-        
+function verifyAge(isMajor) {
+    if (isMajor) {
         const nameInput = document.getElementById('visitor-name');
-        const btnYes = document.querySelector('.btn-yes');
-        const btnNo = document.querySelector('.btn-no');
-
-        if (nameInput && btnYes && btnNo) {
-            if (localStorage.getItem('visitorName')) nameInput.value = localStorage.getItem('visitorName');
-
-            const validate = () => {
-                const isValid = nameInput.value.trim().length >= 2;
-                btnYes.disabled = !isValid;
-                btnNo.disabled = false;
-            };
-            nameInput.addEventListener('input', validate);
-            validate();
+        const name = nameInput ? nameInput.value.trim() : '';
+        if (name.length < 2) return;
+        
+        localStorage.setItem('visitorName', name);
+        localStorage.setItem('ageVerified', 'true');
+        
+        const overlay = document.getElementById('age-verification-overlay');
+        if (overlay) overlay.style.display = 'none';
+        
+        updateWelcome();
+        rastrearAcao("Idade Verificada", "🔞");
+        
+        // Esconde o loader após verificar a idade
+        const loader = document.getElementById('loader-wrapper');
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.add('hidden');
+            }, 500);
         }
+    } else {
+        alert("A apreciação de uma boa cachaça é um prazer reservado a adultos. 🔞");
+        window.location.href = "https://www.google.com";
     }
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAgeVerification);
-} else {
-    initAgeVerification();
-}
+// Verifica se já foi verificado ao carregar
+document.addEventListener('DOMContentLoaded', () => {
+    const isVerified = localStorage.getItem('ageVerified');
+    const overlay = document.getElementById('age-verification-overlay');
+    const visitorName = localStorage.getItem('visitorName');
+    
+    if (isVerified === 'true' && visitorName) {
+        if (overlay) overlay.style.display = 'none';
+        // Se já verificou, o loader pode sumir direto pelo loadProducts()
+    } else {
+        if (overlay) overlay.style.display = 'flex';
+    }
+});
 
 function updateWelcome() {
     const visitorName = localStorage.getItem('visitorName') || '';
@@ -582,7 +544,7 @@ async function loadProducts() {
                         <h3 class="prod-nome">${nome}</h3>
                         <span class="preco">R$ ${precoNum.toFixed(2).replace('.', ',')}</span>
                     </div>
-                    ${temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum})">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
+                    ${temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum}, event)">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
                 </div>`;
 
             if (temEstoque) htmlDisp += card; else htmlEsg += card;
@@ -608,18 +570,26 @@ async function loadProducts() {
 
         document.querySelectorAll('.swiper-produto').forEach(el => swiperObserver.observe(el));
 
+        
         const highlightObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                // Se o elemento entra na área central, damos a ele o foco
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                    // Remove de todos antes para garantir que só um brilhe por vez
+                    document.querySelectorAll('.card-produto.active-scroll').forEach(el => {
+                        if (el !== entry.target) el.classList.remove('active-scroll');
+                    });
                     entry.target.classList.add('active-scroll');
-                } else {
+                } else if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
+                    // Só remove se ele realmente sair bastante da área para evitar o tremor
                     entry.target.classList.remove('active-scroll');
                 }
             });
         }, {
-            threshold: 0.6,
-            rootMargin: '-10% 0px -10% 0px'
+            threshold: [0.2, 0.5, 0.8],
+            rootMargin: '-25% 0px -25% 0px'
         });
+
 
         document.querySelectorAll('.card-produto').forEach(card => highlightObserver.observe(card));
 
@@ -627,7 +597,10 @@ async function loadProducts() {
         console.error("Erro ao carregar produtos:", error);
     } finally {
         const loader = document.getElementById("loader-wrapper");
-        if (loader) loader.classList.add("hidden");
+        const isVerified = localStorage.getItem('ageVerified') === 'true';
+        if (loader && isVerified) { 
+            loader.classList.add("hidden"); 
+        }
     }
 }
 
@@ -675,7 +648,41 @@ function lancarEmojiDaSacola(nomeSabor) {
 }
 
 
-function add(id, name, price, cost) {
+
+function createParticles(x, y) {
+    const particleCount = 30; // Mais partículas
+    for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        
+        // Tamanho GRANDE para visibilidade
+        const size = Math.random() * 12 + 6; 
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        
+        // Posição inicial
+        p.style.left = (x || window.innerWidth/2) + 'px';
+        p.style.top = (y || window.innerHeight/2) + 'px';
+        
+        // Explosão mais ampla
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = Math.random() * 150 + 80;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        
+        p.style.setProperty('--tx', tx + 'px');
+        p.style.setProperty('--ty', ty + 'px');
+        
+        const duration = Math.random() * 0.8 + 0.6;
+        p.style.animation = `particleExplosion ${duration}s cubic-bezier(0.1, 1, 0.1, 1) forwards`;
+        
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), duration * 1000);
+    }
+}
+
+function add(id, name, price, cost, event) {
+        if (event) { createParticles(event.clientX, event.clientY); event.stopPropagation(); }
     const card = document.getElementById(`card-${id}`);
     const modalOverlay = document.getElementById('modal-produto-overlay');
     const isModalOpen = modalOverlay && modalOverlay.classList.contains('active');
@@ -825,8 +832,8 @@ function abrirModalProduto(dadosEncoded) {
     if (p.temEstoque) {
         btnAdd.disabled = false;
         btnAdd.innerText = "Adicionar à Sacola";
-        btnAdd.onclick = () => {
-            add(p.id, p.nome, p.precoNum, p.custoNum);
+        btnAdd.onclick = (event) => {
+            add(p.id, p.nome, p.precoNum, p.custoNum, event);
         };
     } else {
         btnAdd.disabled = true;
@@ -881,7 +888,7 @@ function updateCart() {
         if (itemsCont) {
             itemsCont.innerHTML = `
                 <div style="padding:80px 20px; text-align:center; animation: fadeIn 0.5s ease-out;">
-                    <img src="icon-sacola.png" style="width:180px; height:180px; margin-bottom:25px; opacity:0.9; object-fit:contain;">
+                    <img src="icon-sacola.webp" style="width:180px; height:180px; margin-bottom:25px; opacity:0.9; object-fit:contain;">
                     <p style="opacity:0.7; font-size:1.3rem; font-weight:700; margin-bottom:40px; color:var(--blue-navy); letter-spacing:1px;">Sua sacola está vazia.</p>
                     <button class="btn-continuar" onclick="toggleCart()" style="display:inline-block; width:auto; padding:20px 50px; background:var(--blue-navy); border:none; color:#fff; border-radius:50px; font-weight:800; text-transform:uppercase; letter-spacing:2px; font-size:0.85rem; box-shadow:0 15px 30px rgba(27,54,93,0.3); cursor:pointer; transition:all 0.3s;">Voltar para a loja</button>
                 </div>`;
@@ -967,13 +974,16 @@ function changeQty(id, delta) {
     }
 }
 
-function esvaziarSacola() {
+
+function esvaziarSacola(event) {
+    if (event) event.stopPropagation();
     if (cart.length === 0) return;
     if (!confirm("Deseja realmente esvaziar toda a sua sacola? 🛍️")) return;
     cart = [];
     updateCart();
     sincronizarBadge();
 }
+
 
 function sincronizarBadge() {
     const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
@@ -1149,7 +1159,17 @@ async function checkout() {
 loadProducts(); updateCart(); sincronizarBadge(); updateWelcome();
 
 let isCartOpen = false;
-function toggleCart() { if (isCartOpen) { closeCart(false); } else { openCart(); } }
+
+function toggleCart() {
+    const overlay = document.getElementById('cart-overlay');
+    const isActive = overlay && overlay.classList.contains('active');
+    if (isActive) {
+        closeCart(false);
+    } else {
+        openCart();
+    }
+}
+
 function openCart() {
     isCartOpen = true;
     const overlay = document.getElementById('cart-overlay');
@@ -1205,3 +1225,5 @@ document.addEventListener('change', function (e) {
         e.target.classList.remove('input-error');
     }
 });
+
+

@@ -1654,3 +1654,18 @@
         @keyframes shimmer {
             100% { left: 200%; }
         }
+
+        /* --- EXPLOSÃO DE PARTÍCULAS DOURADAS --- */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999999; /* Z-index máximo */
+            border-radius: 50%;
+            background: #FFD700; /* Dourado Sólido */
+            box-shadow: 0 0 15px #FFD700, 0 0 30px #C5A059;
+        }
+
+        @keyframes particleExplosion {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
+        }
