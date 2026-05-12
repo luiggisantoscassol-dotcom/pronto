@@ -406,18 +406,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const message = `🔥 *NOVO AGENDAMENTO - TFBOX* 🔥\n\nOlá! Acabei de agendar minha aula experimental pelo site:\n\n👤 *NOME:* ${name}\n📱 *CONTATO:* ${phone}\n🎯 *FOCO:* ${selectedGoal}\n📅 *DATA:* ${selectedDate}\n🕒 *HORÁRIO:* ${selectedTime}\n👨‍🏫 *PROFESSOR:* ${selectedProfessor}\n\nAguardo a confirmação! 🚀`;
         
-        // Dispara o evento de Lead no Meta Pixel antes de redirecionar
-        if (typeof fbq === 'function') {
-            fbq('track', 'Lead', {
+        // Dispara o evento de Lead no Meta Pixel
+        if (window.fbq) {
+            window.fbq('track', 'Lead', {
                 content_name: selectedGoal,
                 content_category: 'Agendamento Experimental'
             });
         }
         
-        // Pequeno atraso para garantir que o pixel seja disparado antes de sair da página
-        setTimeout(() => {
-            window.location.href = `https://wa.me/555192438029?text=${encodeURIComponent(message)}`;
-        }, 300);
+        // Redirecionamento síncrono para evitar bloqueio de pop-up/redirect pelo navegador
+        window.location.href = `https://wa.me/555192438029?text=${encodeURIComponent(message)}`;
         
         whatsappBtn.innerText = 'RESERVA CONCLUÍDA!';
     } catch (err) { alert('Erro no agendamento.'); whatsappBtn.innerText = 'RESERVAR MINHA VAGA'; whatsappBtn.disabled = false; }
