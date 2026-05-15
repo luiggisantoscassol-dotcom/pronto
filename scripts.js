@@ -912,7 +912,7 @@ function updateCart() {
         if (itemsCont) {
             itemsCont.innerHTML = `
                 <div style="padding:80px 20px; text-align:center; animation: fadeIn 0.5s ease-out;">
-                    <img src="icon-sacola.webp" style="width:180px; height:180px; margin-bottom:25px; opacity:0.9; object-fit:contain;">
+                    <img src="fotos/icon-sacola.webp" style="width:180px; height:180px; margin-bottom:25px; opacity:0.9; object-fit:contain;">
                     <p style="opacity:0.7; font-size:1.3rem; font-weight:700; margin-bottom:40px; color:var(--blue-navy); letter-spacing:1px;">Sua sacola está vazia.</p>
                     <button class="btn-continuar" onclick="toggleCart()" style="display:inline-block; width:auto; padding:20px 50px; background:var(--blue-navy); border:none; color:#fff; border-radius:50px; font-weight:800; text-transform:uppercase; letter-spacing:2px; font-size:0.85rem; box-shadow:0 15px 30px rgba(27,54,93,0.3); cursor:pointer; transition:all 0.3s;">Voltar para a loja</button>
                 </div>`;
