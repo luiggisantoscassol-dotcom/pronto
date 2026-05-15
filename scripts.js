@@ -490,15 +490,8 @@ async function loadProducts() {
         const { data: produtos, error } = await query;
         if (error) throw error;
 
-        // Auto-open modal if ID is provided and product found
-        if (productId && produtos.length > 0) {
-            setTimeout(() => {
-                abrirModalProduto(encodeURIComponent(JSON.stringify(produtos[0])));
-            }, 1000);
-        }
-
-
         let htmlDisp = ''; let htmlEsg = '';
+        let autoOpenData = null;
 
         produtos.forEach(p => {
             const id = p.id;
@@ -536,6 +529,8 @@ async function loadProducts() {
             const harmonizacao = p.harmonizacao || '';
 
             const dadosModal = encodeURIComponent(JSON.stringify({ id, nome, foto1, precoNum, custoNum, descricao, teor, harmonizacao, temEstoque, estoque }));
+            if (productId && id == productId) autoOpenData = dadosModal;
+
             const tagEstoque = (temEstoque && estoque <= 5) ? `<span class="tag-estoque-discreta">🔥 Apenas ${estoque} unidades</span>` : '';
 
             const card = `
@@ -569,6 +564,12 @@ async function loadProducts() {
             if (temEstoque) htmlDisp += card; else htmlEsg += card;
         });
         document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
+
+        if (autoOpenData) {
+            setTimeout(() => {
+                abrirModalProduto(autoOpenData);
+            }, 1000);
+        }
 
         const swiperObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
