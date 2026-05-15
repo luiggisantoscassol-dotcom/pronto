@@ -545,7 +545,11 @@ async function loadProducts() {
             const dadosModal = encodeURIComponent(JSON.stringify({ id, nome, foto1, precoNum, custoNum, descricao, teor, harmonizacao, temEstoque, estoque }));
             
             const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-            if ((pId && id == pId) || (pSlug && slug == pSlug)) autoOpenData = dadosModal;
+            const matches = (pId && id == pId) || (pSlug && slug == pSlug);
+            if (matches) autoOpenData = dadosModal;
+
+            // No modo VIP (p ou id presente), não mostramos os outros produtos da vitrine
+            if ((pId || pSlug) && !matches) return;
 
             const tagEstoque = (temEstoque && estoque <= 5) ? `<span class="tag-estoque-discreta">🔥 Apenas ${estoque} unidades</span>` : '';
 
@@ -914,9 +918,16 @@ function updateCart() {
             textoFrete.innerText = "Busque seu pedido na loja sem taxas! 📍";
             if (barra) barra.style.width = "100%";
         } else {
-            if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para FRETE GRÁTIS";
-            else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para FRETE GRÁTIS!`;
-            else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
+            const isVip = urlParams.get('v') === '1';
+            if (isVip) {
+                textoFrete.innerText = "OFERTA EXCLUSIVA - FRETE FIXO";
+                if (barra) barra.parentElement.style.display = 'none';
+            } else {
+                if (totalGarrafas === 0) textoFrete.innerText = "Adicione 3 garrafas para FRETE GRÁTIS";
+                else if (totalGarrafas < 3) textoFrete.innerText = `Faltam ${3 - totalGarrafas} garrafas para FRETE GRÁTIS!`;
+                else textoFrete.innerText = "PARABÉNS! VOCÊ GANHOU FRETE GRÁTIS! 🚚";
+                if (barra) barra.parentElement.style.display = 'block';
+            }
         }
     }
 
