@@ -547,8 +547,10 @@ async function loadProducts() {
             const matches = (pId && id == pId) || (pSlug && slug == pSlug);
             if (matches) autoOpenData = dadosModal;
 
-            // No modo VIP (p ou id presente), não mostramos os outros produtos da vitrine
-            if ((pId || pSlug) && !matches) return;
+            // No modo VIP (p ou id presente), mostramos apenas o produto do link + outros produtos OCULTOS
+            if (pId || pSlug) {
+                if (!matches && p.visivel !== false) return;
+            }
 
             const tagEstoque = (temEstoque && estoque <= 5) ? `<span class="tag-estoque-discreta">🔥 Apenas ${estoque} unidades</span>` : '';
 
