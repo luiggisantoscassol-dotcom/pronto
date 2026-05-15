@@ -1825,7 +1825,7 @@
                                         <small style="color:rgba(197,160,89,0.5);">R$ ${pr.toFixed(2)}</small>
                                     </div>
                                     <div style="display:flex; gap: 8px;">
-                                        <button onclick="copiarLinkVIP('${id}')" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: #888; cursor:pointer; font-size: 1.1rem;" title="Copiar Link VIP">🔗</button>
+                                        <button onclick="copiarLinkVIP('${id}', '${nS}')" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: #888; cursor:pointer; font-size: 1.1rem;" title="Copiar Link VIP">🔗</button>
                                         <button onclick="toggleVisibilidade('${id}', ${visivel})" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: ${visivel ? 'var(--text-gold)' : '#555'}; cursor:pointer; font-size: 1.2rem;" title="${visivel ? 'Visível no Catálogo' : 'Oculto no Catálogo'}">${visivel ? '👁️' : '👁️‍🗨️'}</button>
                                         <button onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: var(--text-gold); cursor:pointer;">✏️</button>
                                     </div>
@@ -1910,8 +1910,9 @@
             });
         }
 
-        function copiarLinkVIP(id) {
-            const url = window.location.origin + window.location.pathname.replace('admin.html', 'index.html') + '?id=' + id;
+        function copiarLinkVIP(id, nome) {
+            const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+            const url = window.location.origin + window.location.pathname.replace('admin.html', '') + '?p=' + slug;
             navigator.clipboard.writeText(url).then(() => {
                 showToast("Link VIP copiado! 🔗✅");
             }).catch(err => {
