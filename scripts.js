@@ -16,16 +16,16 @@ function verifyAge(isMajor) {
         const nameInput = document.getElementById('visitor-name');
         const name = nameInput ? nameInput.value.trim() : '';
         if (name.length < 2) return;
-        
+
         localStorage.setItem('visitorName', name);
         localStorage.setItem('ageVerified', 'true');
-        
+
         const overlay = document.getElementById('age-verification-overlay');
         if (overlay) overlay.style.display = 'none';
-        
+
         updateWelcome();
         rastrearAcao("Idade Verificada", "🔞");
-        
+
         // Esconde o loader após verificar a idade
         const loader = document.getElementById('loader-wrapper');
         if (loader) {
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isVerified = localStorage.getItem('ageVerified');
     const overlay = document.getElementById('age-verification-overlay');
     const visitorName = localStorage.getItem('visitorName');
-    
+
     if (isVerified === 'true' && visitorName) {
         if (overlay) overlay.style.display = 'none';
         // Se já verificou, o loader pode sumir direto pelo loadProducts()
@@ -465,7 +465,7 @@ function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
     // 3. Tenta encontrar por padrão de nome (slug) - Ex: Cachaça de Limão -> fotos/limao.webp
     // Nota: Como não podemos checar se o arquivo existe via JS sem request, 
     // mantemos o mapeamento ou o link original do Drive como prioridade segura.
-    
+
     return currentUrl;
 }
 
@@ -476,8 +476,27 @@ async function loadProducts() {
             console.warn("Supabase não inicializado.");
             return;
         }
-        const { data: produtos, error } = await db.from('produtos').select('*').eq('excluido', false);
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        let query = db.from('produtos').select('*').eq('excluido', false);
+        
+        if (productId) {
+            query = query.eq('id', productId);
+        } else {
+            query = query.or('visivel.eq.true,visivel.is.null');
+        }
+
+        const { data: produtos, error } = await query;
         if (error) throw error;
+
+        // Auto-open modal if ID is provided and product found
+        if (productId && produtos.length > 0) {
+            setTimeout(() => {
+                abrirModalProduto(encodeURIComponent(JSON.stringify(produtos[0])));
+            }, 1000);
+        }
+
 
         let htmlDisp = ''; let htmlEsg = '';
 
@@ -570,7 +589,7 @@ async function loadProducts() {
 
         document.querySelectorAll('.swiper-produto').forEach(el => swiperObserver.observe(el));
 
-        
+
         const highlightObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 // Se o elemento entra na área central, damos a ele o foco
@@ -598,8 +617,8 @@ async function loadProducts() {
     } finally {
         const loader = document.getElementById("loader-wrapper");
         const isVerified = localStorage.getItem('ageVerified') === 'true';
-        if (loader && isVerified) { 
-            loader.classList.add("hidden"); 
+        if (loader && isVerified) {
+            loader.classList.add("hidden");
         }
     }
 }
@@ -616,7 +635,7 @@ const SABOR_EMOJIS = {
 };
 
 function lancarEmojiDaSacola(nomeSabor) {
-    let emojis = ["✨"]; 
+    let emojis = ["✨"];
     const nomeNorm = nomeSabor.trim().toLowerCase();
     for (const [key, value] of Object.entries(SABOR_EMOJIS)) {
         if (key.toLowerCase() === nomeNorm) {
@@ -654,35 +673,35 @@ function createParticles(x, y) {
     for (let i = 0; i < particleCount; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
-        
+
         // Tamanho GRANDE para visibilidade
-        const size = Math.random() * 12 + 6; 
+        const size = Math.random() * 12 + 6;
         p.style.width = size + 'px';
         p.style.height = size + 'px';
-        
+
         // Posição inicial
-        p.style.left = (x || window.innerWidth/2) + 'px';
-        p.style.top = (y || window.innerHeight/2) + 'px';
-        
+        p.style.left = (x || window.innerWidth / 2) + 'px';
+        p.style.top = (y || window.innerHeight / 2) + 'px';
+
         // Explosão mais ampla
         const angle = Math.random() * Math.PI * 2;
         const velocity = Math.random() * 150 + 80;
         const tx = Math.cos(angle) * velocity;
         const ty = Math.sin(angle) * velocity;
-        
+
         p.style.setProperty('--tx', tx + 'px');
         p.style.setProperty('--ty', ty + 'px');
-        
+
         const duration = Math.random() * 0.8 + 0.6;
         p.style.animation = `particleExplosion ${duration}s cubic-bezier(0.1, 1, 0.1, 1) forwards`;
-        
+
         document.body.appendChild(p);
         setTimeout(() => p.remove(), duration * 1000);
     }
 }
 
 function add(id, name, price, cost, event) {
-        if (event) { createParticles(event.clientX, event.clientY); event.stopPropagation(); }
+    if (event) { createParticles(event.clientX, event.clientY); event.stopPropagation(); }
     const card = document.getElementById(`card-${id}`);
     const modalOverlay = document.getElementById('modal-produto-overlay');
     const isModalOpen = modalOverlay && modalOverlay.classList.contains('active');

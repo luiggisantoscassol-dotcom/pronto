@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tio Nan - Gestão Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;400;600;800&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;400;600;800&family=Barlow+Condensed:wght@600;700&display=swap"
+        rel="stylesheet">
+
     <!-- ÍCONES (Apenas para Atalho Mobile) -->
     <link rel="apple-touch-icon" href="logo-admin.svg">
     <meta name="apple-mobile-web-app-title" content="Controle Tio Nan">
@@ -13,7 +17,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        :root { 
+        :root {
             --gold-antique: #c5a059;
             --gold-metallic: linear-gradient(135deg, #c5a059 0%, #8e6d2f 100%);
             --blue-navy: #0a0e1a;
@@ -31,150 +35,356 @@
             --green: #27ae60;
             --red: #c0392b;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            background: var(--bg); 
-            color: var(--text-main); 
-            font-family: var(--font-body); 
-            padding-top: 90px; 
-            padding-bottom: 50px; 
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            padding-top: 90px;
+            padding-bottom: 50px;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(197,160,89,0.05) 0%, transparent 50%),
-                radial-gradient(circle at 90% 90%, rgba(197,160,89,0.03) 0%, transparent 50%);
+            background-image:
+                radial-gradient(circle at 10% 10%, rgba(197, 160, 89, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 90%, rgba(197, 160, 89, 0.03) 0%, transparent 50%);
         }
 
-        header { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 80px; 
-            background: rgba(10,14,26,0.9); display: flex; align-items: center; 
-            justify-content: space-between; padding: 0 30px; z-index: 1100; 
-            border-bottom: 1px solid rgba(197,160,89,0.2); backdrop-filter: blur(25px); 
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: rgba(10, 14, 26, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1100;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+            backdrop-filter: blur(25px);
         }
-        .header-title { font-family: var(--font-premium); font-weight: 900; text-transform: uppercase; font-size: 1rem; letter-spacing: 3px; color: var(--text-gold); text-shadow: 0 0 15px rgba(197,160,89,0.3); }
-        .menu-icon { font-size: 1.8rem; color: var(--text-gold); cursor: pointer; transition: 0.3s; }
 
-        .sidebar { 
-            position: fixed; top: 0; right: -350px; width: 320px; height: 100%; 
-            background: var(--blue-navy); z-index: 2000; 
-            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); padding: 50px 30px; 
-            border-left: 1px solid rgba(197,160,89,0.2); 
+        .header-title {
+            font-family: var(--font-premium);
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            color: var(--text-gold);
+            text-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
         }
-        .sidebar.active { right: 0; box-shadow: -50px 0 100px rgba(0,0,0,0.9); }
-        .sidebar h3 { font-family: var(--font-premium); color: var(--text-gold); margin-bottom: 40px; font-weight: 900; text-transform: uppercase; font-size: 1.2rem; text-align: center; }
-        
-        .nav-item { 
-            display: flex; align-items: center; justify-content: center; gap: 15px; 
-            width: 100%; padding: 20px; color: rgba(255,255,255,0.5); 
-            font-weight: 600; border-radius: var(--radius-sm); margin-bottom: 15px; 
-            border: 1px solid transparent; background: rgba(255,255,255,0.03); 
-            cursor: pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
+
+        .menu-icon {
+            font-size: 1.8rem;
+            color: var(--text-gold);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 320px;
+            height: 100%;
+            background: var(--blue-navy);
+            z-index: 2000;
+            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            padding: 50px 30px;
+            border-left: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .sidebar.active {
+            right: 0;
+            box-shadow: -50px 0 100px rgba(0, 0, 0, 0.9);
+        }
+
+        .sidebar h3 {
+            font-family: var(--font-premium);
+            color: var(--text-gold);
+            margin-bottom: 40px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
             transition: 0.4s;
         }
-        .nav-item.active { 
-            background: var(--gold-metallic); color: var(--blue-navy); 
-            font-weight: 800; box-shadow: 0 10px 30px rgba(197,160,89,0.4); 
-        }
-        .overlay-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500; display: none; backdrop-filter: blur(10px); }
 
-        .tab-content { display: none; width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-        .tab-content.active { display: block; animation: fadeInUp 0.8s ease; }
-        
-        .card { 
-            background: var(--card-bg); padding: 30px; border-radius: var(--radius-lg); 
-            border: 1px solid rgba(197,160,89,0.1); margin-bottom: 30px; 
+        .nav-item.active {
+            background: var(--gold-metallic);
+            color: var(--blue-navy);
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.4);
+        }
+
+        .overlay-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1500;
+            display: none;
             backdrop-filter: blur(10px);
         }
-        h2 { font-family: var(--font-premium); color: var(--text-gold); margin-bottom: 30px; text-transform: uppercase; font-size: 1.2rem; letter-spacing: 2px; text-align: center; font-weight: 900; }
+
+        .tab-content {
+            display: none;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(197, 160, 89, 0.1);
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            font-family: var(--font-premium);
+            color: var(--text-gold);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            text-align: center;
+            font-weight: 900;
+        }
 
         /* TABELAS MODERNAS (ESTILO CARD) */
-        .order-row { 
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-            padding: 20px; border-radius: var(--radius-sm); margin-bottom: 15px;
-            display: grid; grid-template-columns: auto 1fr auto; gap: 15px;
+        .order-row {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 15px;
             transition: 0.3s;
             align-items: center;
         }
-        .order-row:hover { border-color: rgba(197,160,89,0.3); background: rgba(255,255,255,0.04); }
-        .order-info { display: flex; flex-direction: column; gap: 5px; }
-        .order-name { font-weight: 800; font-size: 1rem; color: #fff; }
-        .order-details { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
-        .order-price { font-weight: 900; color: var(--text-gold); font-size: 1.1rem; }
-        
-        .order-checkbox { 
-            display: none; /* Escondido por padrão */
-            width: 20px; height: 20px; accent-color: var(--text-gold); cursor: pointer; 
+
+        .order-row:hover {
+            border-color: rgba(197, 160, 89, 0.3);
+            background: rgba(255, 255, 255, 0.04);
         }
-        .selection-mode .order-checkbox { display: block !important; }
-        .selection-mode .order-row { border-color: rgba(197,160,89,0.3); }
-        
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .order-name {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .order-details {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .order-price {
+            font-weight: 900;
+            color: var(--text-gold);
+            font-size: 1.1rem;
+        }
+
+        .order-checkbox {
+            display: none;
+            /* Escondido por padrão */
+            width: 20px;
+            height: 20px;
+            accent-color: var(--text-gold);
+            cursor: pointer;
+        }
+
+        .selection-mode .order-checkbox {
+            display: block !important;
+        }
+
+        .selection-mode .order-row {
+            border-color: rgba(197, 160, 89, 0.3);
+        }
+
         .status-container {
-            min-width: 100px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+            min-width: 100px;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
         }
 
-        .status-badge, .btn-whats-mini { 
-            width: 95px !important; height: 32px;
-            display: flex !important; align-items: center; justify-content: center;
-            border-radius: 8px; font-size: 0.5rem; font-weight: 900; 
-            text-transform: uppercase; letter-spacing: 0.5px; 
-            border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
-            color: #fff; transition: 0.3s; text-decoration: none;
-            padding: 0 5px; box-sizing: border-box;
+        .status-badge,
+        .btn-whats-mini {
+            width: 95px !important;
+            height: 32px;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            color: #fff;
+            transition: 0.3s;
+            text-decoration: none;
+            padding: 0 5px;
+            box-sizing: border-box;
         }
 
-        .btn-whats-mini { 
-            background: rgba(37, 211, 102, 0.1); 
+        .btn-whats-mini {
+            background: rgba(37, 211, 102, 0.1);
             border: 1px solid rgba(37, 211, 102, 0.3);
             color: #25D366;
         }
-        .btn-whats-mini:hover { background: #25D366; color: #fff; }
+
+        .btn-whats-mini:hover {
+            background: #25D366;
+            color: #fff;
+        }
 
         /* Identidade Visual GOLD para os Status */
-        select.status-badge { 
-            background: rgba(197, 160, 89, 0.1); 
-            color: var(--text-gold); 
+        select.status-badge {
+            background: rgba(197, 160, 89, 0.1);
+            color: var(--text-gold);
             border: 1px solid rgba(197, 160, 89, 0.3);
-            appearance: none; -webkit-appearance: none; text-align-last: center;
+            appearance: none;
+            -webkit-appearance: none;
+            text-align-last: center;
         }
-        
-        select.status-badge.Novo { background: var(--gold-metallic); color: #000; border-color: var(--text-gold); }
-        select.status-badge.Confirmado { background: rgba(197, 160, 89, 0.3); }
-        select.status-badge.Em { background: rgba(197, 160, 89, 0.2); }
-        select.status-badge.Saiu { background: rgba(197, 160, 89, 0.15); }
-        select.status-badge.Concluído { background: rgba(197, 160, 89, 0.5); color: #fff; }
-        select.status-badge.Cancelado { background: rgba(255, 0, 0, 0.1); color: #ff4444; border-color: rgba(255,0,0,0.3); }
+
+        select.status-badge.Novo {
+            background: var(--gold-metallic);
+            color: #000;
+            border-color: var(--text-gold);
+        }
+
+        select.status-badge.Confirmado {
+            background: rgba(197, 160, 89, 0.3);
+        }
+
+        select.status-badge.Em {
+            background: rgba(197, 160, 89, 0.2);
+        }
+
+        select.status-badge.Saiu {
+            background: rgba(197, 160, 89, 0.15);
+        }
+
+        select.status-badge.Concluído {
+            background: rgba(197, 160, 89, 0.5);
+            color: #fff;
+        }
+
+        select.status-badge.Cancelado {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff4444;
+            border-color: rgba(255, 0, 0, 0.3);
+        }
 
         @media (max-width: 600px) {
-            .order-row { padding: 12px; gap: 10px; margin-bottom: 10px; }
-            .order-name { font-size: 0.85rem; }
-            .order-details { font-size: 0.7rem; }
-            .order-price { font-size: 0.9rem; }
-            .status { padding: 4px 8px; font-size: 0.55rem; }
-            .order-checkbox { width: 20px !important; height: 20px !important; }
+            .order-row {
+                padding: 12px;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .order-name {
+                font-size: 0.85rem;
+            }
+
+            .order-details {
+                font-size: 0.7rem;
+            }
+
+            .order-price {
+                font-size: 0.9rem;
+            }
+
+            .status {
+                padding: 4px 8px;
+                font-size: 0.55rem;
+            }
+
+            .order-checkbox {
+                width: 20px !important;
+                height: 20px !important;
+            }
         }
 
         /* Monitoramento Real-Time Premium */
         .visitor-row {
-            display: block !important; /* Muda de Grid para Block para dar espaço */
+            display: block !important;
+            /* Muda de Grid para Block para dar espaço */
             padding: 15px 20px !important;
         }
+
         .visitor-main {
             display: flex;
             align-items: center;
             gap: 15px;
             flex: 1;
         }
+
         .temp-icon {
             font-size: 1.4rem;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
             min-width: 35px;
             text-align: center;
         }
+
         .visitor-name-group {
             display: flex;
             flex-direction: column;
             gap: 2px;
             overflow: hidden;
         }
+
         .visitor-geo {
             font-size: 0.7rem;
             color: var(--text-gold);
@@ -185,6 +395,7 @@
             white-space: normal;
             word-break: break-word;
         }
+
         .visitor-header {
             display: flex;
             justify-content: space-between;
@@ -192,22 +403,27 @@
             width: 100%;
             gap: 10px;
         }
+
         @media (max-width: 600px) {
             .visitor-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
             }
+
             .visitor-meta {
                 align-items: flex-start !important;
-                padding-left: 50px; /* Alinha com o início do nome, após o ícone */
+                padding-left: 50px;
+                /* Alinha com o início do nome, após o ícone */
                 opacity: 0.7;
             }
+
             .temp-icon {
                 font-size: 1.2rem;
                 min-width: 30px;
             }
         }
+
         .visitor-meta {
             display: flex;
             flex-direction: column;
@@ -215,6 +431,7 @@
             gap: 2px;
             min-width: fit-content;
         }
+
         .visitor-device {
             font-size: 0.6rem;
             opacity: 0.4;
@@ -223,43 +440,87 @@
         }
 
         /* PDV GRID E CARDS - LUXO */
-        .pdv-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 20px; 
-            padding-bottom: 30px; 
+        .pdv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding-bottom: 30px;
         }
-        .pdv-card { 
-            background: rgba(255,255,255,0.02); 
-            border: 1px solid rgba(197,160,89,0.1); 
-            border-radius: var(--radius-sm); 
-            padding: 20px; 
-            text-align: center; 
+
+        .pdv-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(197, 160, 89, 0.1);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
             transition: 0.4s;
             position: relative;
         }
-        .pdv-card:hover { transform: translateY(-5px); border-color: var(--text-gold); background: rgba(255,255,255,0.05); }
-        .pdv-card img { width: 100%; height: 110px; object-fit: contain; margin: 10px 0; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
-        
-        .btn-edit-product { 
-            position: absolute; top: 0; right: 0; width: 45px; height: 45px; 
-            display: flex; align-items: center; justify-content: center; 
-            background: rgba(197, 160, 89, 0.1); color: var(--text-gold); 
-            border-radius: 0 var(--radius-sm) 0 15px; font-size: 1rem; 
-            cursor: pointer; border: none; z-index: 5; 
+
+        .pdv-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--text-gold);
+            background: rgba(255, 255, 255, 0.05);
         }
-        .pdv-name { font-weight: 800; font-size: 0.85rem; color: #fff; margin-bottom: 8px; min-height: 40px; }
-        .pdv-price { color: var(--text-gold); font-weight: 900; font-size: 1.2rem; margin-bottom: 15px; }
-        
-        .pdv-btn-add { 
-            width: 100%; background: var(--gold-metallic); border: none; 
-            padding: 12px; border-radius: 10px; color: var(--blue-navy); 
-            font-weight: 900; text-transform: uppercase; font-size: 0.7rem; 
-            cursor: pointer; transition: 0.3s;
+
+        .pdv-card img {
+            width: 100%;
+            height: 110px;
+            object-fit: contain;
+            margin: 10px 0;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
         }
+
+        .btn-edit-product {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(197, 160, 89, 0.1);
+            color: var(--text-gold);
+            border-radius: 0 var(--radius-sm) 0 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            z-index: 5;
+        }
+
+        .pdv-name {
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: #fff;
+            margin-bottom: 8px;
+            min-height: 40px;
+        }
+
+        .pdv-price {
+            color: var(--text-gold);
+            font-weight: 900;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .pdv-btn-add {
+            width: 100%;
+            background: var(--gold-metallic);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            color: var(--blue-navy);
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
         .btn-refresh-mini {
-            background: rgba(197,160,89,0.1);
-            border: 1px solid rgba(197,160,89,0.3);
+            background: rgba(197, 160, 89, 0.1);
+            border: 1px solid rgba(197, 160, 89, 0.3);
             color: var(--text-gold);
             padding: 8px 15px;
             border-radius: 10px;
@@ -269,11 +530,29 @@
             transition: 0.3s;
             text-transform: uppercase;
         }
-        .btn-refresh-mini:hover { background: var(--text-gold); color: #000; }
-        .btn-refresh-mini.loading { animation: spin 1s linear infinite; pointer-events: none; opacity: 0.5; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .pdv-btn-add:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(197,160,89,0.3); }
-        
+
+        .btn-refresh-mini:hover {
+            background: var(--text-gold);
+            color: #000;
+        }
+
+        .btn-refresh-mini.loading {
+            animation: spin 1s linear infinite;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pdv-btn-add:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(197, 160, 89, 0.3);
+        }
+
         .pdv-card-badge {
             position: absolute;
             top: -10px;
@@ -289,71 +568,207 @@
             font-size: 0.9rem;
             font-weight: 900;
             border: 3px solid var(--blue-navy);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
             z-index: 10;
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
         @keyframes popIn {
-            0% { transform: scale(0); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
+
         @keyframes pulse-online {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.95); }
-            100% { opacity: 1; transform: scale(1); }
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        .estoque-row { background: rgba(255,255,255,0.02); padding: 25px; border-radius: var(--radius-sm); margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .estoque-controles { display: flex; align-items: center; background: #000; border-radius: 12px; border: 1px solid #222; height: 60px; margin-top: 15px; overflow: hidden; }
-        .btn-step { background: transparent; color: var(--text-gold); border: none; flex: 1; height: 100%; font-size: 1.5rem; font-weight: 900; cursor: pointer; transition: 0.2s; }
-        .btn-step:active { background: rgba(197,160,89,0.1); }
+        .estoque-row {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 25px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-        .resumo-total { 
-            background: var(--blue-navy); padding: 30px; border-radius: var(--radius-lg); 
-            margin-bottom: 30px; display: flex; justify-content: space-around; 
-            text-align: center; border: 1px solid rgba(197,160,89,0.2);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        .estoque-controles {
+            display: flex;
+            align-items: center;
+            background: #000;
+            border-radius: 12px;
+            border: 1px solid #222;
+            height: 60px;
+            margin-top: 15px;
+            overflow: hidden;
         }
-        .resumo-item span { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-bottom: 5px; }
-        .resumo-item strong { font-family: var(--font-premium); font-size: 1.3rem; color: var(--text-gold); }
-        
-        .modal-box { 
-            display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); 
-            background: var(--blue-navy); padding: 40px; border: 1px solid rgba(197,160,89,0.3); 
-            border-radius: var(--radius-lg); width:94%; max-width:500px; z-index:3000; 
-            max-height: 90vh; overflow-y: auto; box-shadow: 0 50px 100px rgba(0,0,0,0.9); 
-        }
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2900; backdrop-filter: blur(20px); }
-        
-        input, select { 
-            padding: 18px; border-radius: 12px; border: 1px solid #222; 
-            background: #000; color: #fff; font-size: 16px !important; 
-            margin-bottom: 15px; width: 100%; font-family: var(--font-body); 
-        }
-        input:focus { border-color: var(--text-gold); outline: none; }
 
-        .btn-status { 
-            width: 100%; padding: 20px; background: var(--gold-metallic); 
-            border: none; color: var(--blue-navy); font-weight: 900; 
-            border-radius: 12px; text-transform: uppercase; cursor: pointer; 
-            font-size: 0.8rem; letter-spacing: 1px; transition: 0.3s;
+        .btn-step {
+            background: transparent;
+            color: var(--text-gold);
+            border: none;
+            flex: 1;
+            height: 100%;
+            font-size: 1.5rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .btn-status:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(197,160,89,0.3); }
 
-        .modal-fechar-btn { 
-            background: none; border: none; color: var(--text-gold); 
-            font-size: 2.2rem; cursor: pointer; transition: 0.3s; 
-            padding: 10px; display: flex; align-items: center; justify-content: center;
+        .btn-step:active {
+            background: rgba(197, 160, 89, 0.1);
         }
-        .modal-fechar-btn:hover { transform: rotate(90deg); color: #fff; }
+
+        .resumo-total {
+            background: var(--blue-navy);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .resumo-item span {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .resumo-item strong {
+            font-family: var(--font-premium);
+            font-size: 1.3rem;
+            color: var(--text-gold);
+        }
+
+        .modal-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--blue-navy);
+            padding: 40px;
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: var(--radius-lg);
+            width: 94%;
+            max-width: 500px;
+            z-index: 3000;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2900;
+            backdrop-filter: blur(20px);
+        }
+
+        input,
+        select {
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #222;
+            background: #000;
+            color: #fff;
+            font-size: 16px !important;
+            margin-bottom: 15px;
+            width: 100%;
+            font-family: var(--font-body);
+        }
+
+        input:focus {
+            border-color: var(--text-gold);
+            outline: none;
+        }
+
+        .btn-status {
+            width: 100%;
+            padding: 20px;
+            background: var(--gold-metallic);
+            border: none;
+            color: var(--blue-navy);
+            font-weight: 900;
+            border-radius: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .btn-status:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(197, 160, 89, 0.3);
+        }
+
+        .modal-fechar-btn {
+            background: none;
+            border: none;
+            color: var(--text-gold);
+            font-size: 2.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-fechar-btn:hover {
+            transform: rotate(90deg);
+            color: #fff;
+        }
 
         .btn-whats-mini {
-            display:inline-block; margin-top:6px; background:#25D366; color:#fff; 
-            padding:7px 12px; border-radius:8px; font-size:0.6rem; text-decoration:none; 
-            font-weight:900; box-shadow: 0 4px 10px rgba(37,211,102,0.3); 
-            transition:0.3s; text-transform:uppercase; border: 1px solid rgba(255,255,255,0.1);
+            display: inline-block;
+            margin-top: 6px;
+            background: #25D366;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            text-decoration: none;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+            transition: 0.3s;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .btn-whats-mini:hover { transform: scale(1.05); }
+
+        .btn-whats-mini:hover {
+            transform: scale(1.05);
+        }
 
         @media (max-width: 600px) {
             #bulk-actions-bar {
@@ -364,47 +779,92 @@
                 bottom: 20px !important;
                 border-radius: 15px !important;
             }
-            #bulk-count { font-size: 0.55rem !important; padding: 6px 8px !important; }
-            #bulk-status { font-size: 0.6rem !important; padding: 8px !important; }
-            #bulk-actions-bar button { padding: 10px 12px !important; font-size: 0.6rem !important; border-radius: 10px !important; }
+
+            #bulk-count {
+                font-size: 0.55rem !important;
+                padding: 6px 8px !important;
+            }
+
+            #bulk-status {
+                font-size: 0.6rem !important;
+                padding: 8px !important;
+            }
+
+            #bulk-actions-bar button {
+                padding: 10px 12px !important;
+                font-size: 0.6rem !important;
+                border-radius: 10px !important;
+            }
         }
 
-        .modal-header { 
-            padding: 20px 25px; background: #000; border-bottom: 1px solid rgba(197,160,89,0.2); 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0; 
+        .modal-header {
+            padding: 20px 25px;
+            background: #000;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
-        .modal-header h2 { margin: 0; font-size: 1.1rem; text-align: left; }
 
-        #toast-admin { 
-            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); 
-            background: var(--gold-metallic); color: var(--blue-navy); 
-            padding: 15px 35px; border-radius: 50px; font-weight: 900; 
-            z-index: 5000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            text-align: left;
         }
-        #toast-admin.show { bottom: 100px; }
 
-        @media (max-width: 450px) { .sidebar { width: 85%; } }
+        #toast-admin {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold-metallic);
+            color: var(--blue-navy);
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 900;
+            z-index: 5000;
+            transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #toast-admin.show {
+            bottom: 100px;
+        }
+
+        @media (max-width: 450px) {
+            .sidebar {
+                width: 85%;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
 
     <div id="toast-admin">Sucesso! ✓</div>
 
     <!-- TELA DE LOGIN -->
-    <div id="login-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; background-image: radial-gradient(circle at 50% 50%, rgba(197,160,89,0.1) 0%, transparent 70%);">
-        <div class="card" style="width: 90%; max-width: 400px; text-align: center; border: 1px solid rgba(197,160,89,0.3); box-shadow: 0 30px 60px rgba(0,0,0,0.9);">
+    <div id="login-screen"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; background-image: radial-gradient(circle at 50% 50%, rgba(197,160,89,0.1) 0%, transparent 70%);">
+        <div class="card"
+            style="width: 90%; max-width: 400px; text-align: center; border: 1px solid rgba(197,160,89,0.3); box-shadow: 0 30px 60px rgba(0,0,0,0.9);">
             <h2 style="margin-bottom: 5px; font-size: 1.5rem;">Acesso Pro</h2>
-            <p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 30px; font-weight: 600;">Painel de Gestão Tio Nan</p>
-            
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 30px; font-weight: 600;">Painel de
+                Gestão Tio Nan</p>
+
             <input type="text" id="login-user" placeholder="Usuário" style="margin-bottom: 15px; text-align: center;">
             <input type="password" id="login-pass" placeholder="Senha" style="margin-bottom: 25px; text-align: center;">
-            
-            <button onclick="fazerLogin()" class="btn-status" style="width: 100%; font-size: 0.9rem; padding: 18px;">ENTRAR NO SISTEMA</button>
-            <p id="login-error" style="color: var(--red-premium); font-size: 0.8rem; margin-top: 15px; display: none; font-weight: 800;">Acesso negado. Tente novamente.</p>
+
+            <button onclick="fazerLogin()" class="btn-status"
+                style="width: 100%; font-size: 0.9rem; padding: 18px;">ENTRAR NO SISTEMA</button>
+            <p id="login-error"
+                style="color: var(--red-premium); font-size: 0.8rem; margin-top: 15px; display: none; font-weight: 800;">
+                Acesso negado. Tente novamente.</p>
         </div>
     </div>
 
@@ -412,9 +872,9 @@
         <span class="header-title">Tio Nan Gestão</span>
         <div class="menu-icon" onclick="toggleMenu()"><span>☰</span></div>
     </header>
-    
+
     <div class="overlay-menu" id="overlay-menu" onclick="toggleMenu()"></div>
-    
+
     <nav class="sidebar" id="sidebar">
         <h3>CONTROLE PRO</h3>
         <button class="nav-item" onclick="switchTab('tab-pedidos')">Pedidos 🛒</button>
@@ -429,23 +889,32 @@
 
     <div id="tab-pedidos" class="tab-content">
         <div class="card">
-            <div id="setup-notificacoes" style="padding:15px; background:rgba(212,175,55,0.1); border-radius:15px; margin-bottom:20px; text-align:center; display:none;">
+            <div id="setup-notificacoes"
+                style="padding:15px; background:rgba(212,175,55,0.1); border-radius:15px; margin-bottom:20px; text-align:center; display:none;">
                 <p style="font-size:0.8rem; margin-bottom:10px;">Deseja receber notificações no celular?</p>
-                <button onclick="ativarNotificacoes()" style="padding:10px 20px; background:var(--gold); border:none; border-radius:10px; font-weight:900; font-size:0.7rem; cursor:pointer;">ATIVAR ALERTAS</button>
+                <button onclick="ativarNotificacoes()"
+                    style="padding:10px 20px; background:var(--gold); border:none; border-radius:10px; font-weight:900; font-size:0.7rem; cursor:pointer;">ATIVAR
+                    ALERTAS</button>
             </div>
             <h2>Pedidos em Aberto</h2>
             <div style="margin-bottom:20px; display:flex; gap:10px; justify-content:center;">
-                <button onclick="selecionarTodos(true)" style="background:rgba(197,160,89,0.1); border:1px solid rgba(197,160,89,0.2); color:var(--text-gold); padding:10px 20px; border-radius:12px; font-size:0.65rem; cursor:pointer; font-weight:900; letter-spacing:1px;">SELECIONAR TODOS</button>
-                <button onclick="selecionarTodos(false)" style="background:rgba(255,0,0,0.05); border:1px solid rgba(255,0,0,0.1); color:var(--red-premium); padding:10px 20px; border-radius:12px; font-size:0.65rem; cursor:pointer; font-weight:900; letter-spacing:1px;">LIMPAR</button>
+                <button onclick="selecionarTodos(true)"
+                    style="background:rgba(197,160,89,0.1); border:1px solid rgba(197,160,89,0.2); color:var(--text-gold); padding:10px 20px; border-radius:12px; font-size:0.65rem; cursor:pointer; font-weight:900; letter-spacing:1px;">SELECIONAR
+                    TODOS</button>
+                <button onclick="selecionarTodos(false)"
+                    style="background:rgba(255,0,0,0.05); border:1px solid rgba(255,0,0,0.1); color:var(--red-premium); padding:10px 20px; border-radius:12px; font-size:0.65rem; cursor:pointer; font-weight:900; letter-spacing:1px;">LIMPAR</button>
             </div>
             <div id="corpo-pedidos"></div>
         </div>
     </div>
 
     <!-- Barra de Ações em Massa -->
-    <div id="bulk-actions-bar" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--gold-metallic); padding:10px 20px; border-radius:20px; z-index:2000; box-shadow: 0 15px 45px rgba(0,0,0,0.9); align-items:center; gap:12px; border: 1px solid rgba(0,0,0,0.3); width: max-content; min-width: 320px;">
-        <div style="background:#000; color:var(--gold); padding:8px 12px; border-radius:12px; font-weight:900; font-size:0.7rem; border:1px solid rgba(197,160,89,0.3);" id="bulk-count">0 SELECIONADOS</div>
-        <select id="bulk-status" style="padding:10px 15px; border-radius:12px; border:none; background:rgba(0,0,0,0.8); color:#fff; font-weight:800; font-size:0.7rem; margin:0; width:auto; flex:1;">
+    <div id="bulk-actions-bar"
+        style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--gold-metallic); padding:10px 20px; border-radius:20px; z-index:2000; box-shadow: 0 15px 45px rgba(0,0,0,0.9); align-items:center; gap:12px; border: 1px solid rgba(0,0,0,0.3); width: max-content; min-width: 320px;">
+        <div style="background:#000; color:var(--gold); padding:8px 12px; border-radius:12px; font-weight:900; font-size:0.7rem; border:1px solid rgba(197,160,89,0.3);"
+            id="bulk-count">0 SELECIONADOS</div>
+        <select id="bulk-status"
+            style="padding:10px 15px; border-radius:12px; border:none; background:rgba(0,0,0,0.8); color:#fff; font-weight:800; font-size:0.7rem; margin:0; width:auto; flex:1;">
             <option value="">NOVO STATUS...</option>
             <option value="Novo Pedido">Novo Pedido</option>
             <option value="Confirmado">Confirmado</option>
@@ -454,16 +923,26 @@
             <option value="Concluído">Concluído</option>
             <option value="Cancelado">Cancelado</option>
         </select>
-        <button onclick="aplicarBulkStatus()" style="background:#000; color:#fff; border:none; padding:12px 20px; border-radius:12px; font-weight:900; cursor:pointer; font-size:0.75rem; letter-spacing:1px;">APLICAR</button>
+        <button onclick="aplicarBulkStatus()"
+            style="background:#000; color:#fff; border:none; padding:12px 20px; border-radius:12px; font-weight:900; cursor:pointer; font-size:0.75rem; letter-spacing:1px;">APLICAR</button>
     </div>
-    <div id="tab-historico" class="tab-content"><div class="card"><h2>Histórico Total</h2><div id="corpo-historico"></div></div></div>
+    <div id="tab-historico" class="tab-content">
+        <div class="card">
+            <h2>Histórico Total</h2>
+            <div id="corpo-historico"></div>
+        </div>
+    </div>
     <div id="tab-rastreio" class="tab-content">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 style="margin:0;">Atividade dos Visitantes</h2>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <button onclick="copiarLinkWhatsapp()" class="btn-refresh-mini" style="background:rgba(37, 211, 102, 0.1); color:#25D366; border-color:rgba(37, 211, 102, 0.3); font-size:0.6rem; padding:4px 8px;">🔗 LINK WHATS</button>
-                    <button onclick="limparRastreio()" class="btn-refresh-mini" style="background:rgba(255,68,68,0.1); border-color:rgba(255,68,68,0.2); color:#ff4444; font-size:0.6rem; padding:4px 8px;">🗑️ LIMPAR</button>
+                    <button onclick="copiarLinkWhatsapp()" class="btn-refresh-mini"
+                        style="background:rgba(37, 211, 102, 0.1); color:#25D366; border-color:rgba(37, 211, 102, 0.3); font-size:0.6rem; padding:4px 8px;">🔗
+                        LINK WHATS</button>
+                    <button onclick="limparRastreio()" class="btn-refresh-mini"
+                        style="background:rgba(255,68,68,0.1); border-color:rgba(255,68,68,0.2); color:#ff4444; font-size:0.6rem; padding:4px 8px;">🗑️
+                        LIMPAR</button>
                 </div>
             </div>
             <div id="corpo-rastreio"></div>
@@ -472,25 +951,36 @@
     <div id="tab-clientes" class="tab-content">
         <div class="card">
             <h2>Base de Clientes</h2>
-            <button onclick="abrirModalCliente()" class="btn-status" style="margin-bottom:20px; font-size: 0.75rem;">+ ADICIONAR NOVO CLIENTE</button>
-            <input type="text" id="search-clientes" placeholder="Pesquisar por nome ou telefone..." oninput="filtrarClientes()">
+            <button onclick="abrirModalCliente()" class="btn-status" style="margin-bottom:20px; font-size: 0.75rem;">+
+                ADICIONAR NOVO CLIENTE</button>
+            <input type="text" id="search-clientes" placeholder="Pesquisar por nome ou telefone..."
+                oninput="filtrarClientes()">
             <div id="corpo-clientes"></div>
         </div>
     </div>
-    
+
     <div id="tab-pdv" class="tab-content">
-        <div id="pdv-floating-cart" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; max-width:500px; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900; cursor:pointer;" onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span id="pdv-float-total">R$ 0,00</span></div>
+        <div id="pdv-floating-cart"
+            style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; max-width:500px; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900; cursor:pointer;"
+            onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span
+                id="pdv-float-total">R$ 0,00</span></div>
         <div class="pdv-grid" id="corpo-pdv-grid"></div>
     </div>
 
-    <div id="tab-estoque" class="tab-content"><div class="card"><h2>Gestão de Estoque</h2><div id="corpo-estoque"></div></div></div>
+    <div id="tab-estoque" class="tab-content">
+        <div class="card">
+            <h2>Gestão de Estoque</h2>
+            <div id="corpo-estoque"></div>
+        </div>
+    </div>
 
     <div id="tab-stats" class="tab-content">
         <div class="card">
             <h2>Resumo Geral</h2>
             <div class="resumo-total">
                 <div class="resumo-item"><span>Total Vendas</span><b id="total-fat-geral">R$ 0,00</b></div>
-                <div class="resumo-item"><span>Lucro Real</span><b id="total-lucro-geral" style="color:var(--green)">R$ 0,00</b></div>
+                <div class="resumo-item"><span>Lucro Real</span><b id="total-lucro-geral" style="color:var(--green)">R$
+                        0,00</b></div>
             </div>
         </div>
         <div id="corpo-estatisticas"></div>
@@ -505,7 +995,8 @@
             <input type="number" id="cad-estoque" placeholder="Quantidade Inicial">
             <input type="url" id="cad-foto1" placeholder="Link da Foto 1">
             <input type="url" id="cad-foto2" placeholder="Link da Foto 2">
-            <textarea id="cad-descricao" placeholder="Descrição da Cachaça (Sommelier)" style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 18px; margin-bottom: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
+            <textarea id="cad-descricao" placeholder="Descrição da Cachaça (Sommelier)"
+                style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 18px; margin-bottom: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
             <input type="text" id="cad-teor" placeholder="Teor Alcoólico (ex: 38% Vol)">
             <input type="text" id="cad-harmonizacao" placeholder="Harmonização (ex: Queijos curados)">
             <button onclick="cadastrarProduto()" class="btn-status">SALVAR NOVO PRODUTO</button>
@@ -513,7 +1004,7 @@
     </div>
 
     <div class="overlay" id="overlay" onclick="fecharTodosModais()"></div>
-    
+
     <div id="modal-mes-detalhe" class="modal-box" style="padding: 0; flex-direction: column;">
         <div class="modal-header">
             <h2 id="mes-titulo-detalhe">Mês</h2>
@@ -529,27 +1020,49 @@
         </div>
         <div style="padding: 25px; overflow-y: auto;">
             <input type="hidden" id="edit-id">
-            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Nome:</label><input type="text" id="edit-nome">
-            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Venda:</label><input type="number" id="edit-preco" step="0.01">
-            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Custo:</label><input type="number" id="edit-custo" step="0.01">
-            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Descrição:</label><textarea id="edit-descricao" style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
-            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Teor Alcoólico:</label><input type="text" id="edit-teor">
-            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Harmonização:</label><input type="text" id="edit-harmonizacao">
+            <label
+                style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Nome:</label><input
+                type="text" id="edit-nome">
+            <label
+                style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Venda:</label><input
+                type="number" id="edit-preco" step="0.01">
+            <label
+                style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Custo:</label><input
+                type="number" id="edit-custo" step="0.01">
+            <label
+                style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Descrição:</label><textarea
+                id="edit-descricao"
+                style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 12px; font-family: inherit; resize: vertical; min-height: 80px;"></textarea>
+            <label style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Teor
+                Alcoólico:</label><input type="text" id="edit-teor">
+            <label
+                style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Harmonização:</label><input
+                type="text" id="edit-harmonizacao">
             <button onclick="salvarEdicao()" class="btn-status">SALVAR ALTERAÇÕES</button>
-            <button onclick="excluirProduto(document.getElementById('edit-id').value)" style="background:transparent; color:var(--red-premium); border:none; margin-top:20px; width:100%; font-weight:800; cursor:pointer; font-size: 0.8rem;">EXCLUIR PRODUTO</button>
+            <button onclick="excluirProduto(document.getElementById('edit-id').value)"
+                style="background:transparent; color:var(--red-premium); border:none; margin-top:20px; width:100%; font-weight:800; cursor:pointer; font-size: 0.8rem;">EXCLUIR
+                PRODUTO</button>
         </div>
     </div>
 
     <div id="modal-pedido" class="modal-box" style="padding: 0; flex-direction: column; max-height: 90vh;">
-        <div class="modal-header" style="background:transparent; border:none; position:absolute; right:10px; top:10px; z-index:10;">
+        <div class="modal-header"
+            style="background:transparent; border:none; position:absolute; right:10px; top:10px; z-index:10;">
             <button onclick="fecharTodosModais()" class="modal-fechar-btn" style="font-size:2rem; padding:0;">×</button>
         </div>
         <div style="padding: 20px; overflow-y: auto;">
-            <h2 id="m-nome" style="font-size:1.2rem; margin-bottom:15px; color:var(--text-gold); border-bottom:1px solid #222; padding-bottom:10px; padding-right:40px;"></h2>
-            <div id="detalhes-pedido" style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid #222; line-height: 1.4; font-size: 0.85rem;"></div>
-            
-            <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; border: 1px solid #222;">
-                <label style="font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; display:block; margin-bottom:5px;">Mudar Status:</label>
+            <h2 id="m-nome"
+                style="font-size:1.2rem; margin-bottom:15px; color:var(--text-gold); border-bottom:1px solid #222; padding-bottom:10px; padding-right:40px;">
+            </h2>
+            <div id="detalhes-pedido"
+                style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid #222; line-height: 1.4; font-size: 0.85rem;">
+            </div>
+
+            <div
+                style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; border: 1px solid #222;">
+                <label
+                    style="font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; display:block; margin-bottom:5px;">Mudar
+                    Status:</label>
                 <select id="m-status" style="padding:12px; font-size:0.8rem !important; margin-bottom:10px;">
                     <option value="Novo Pedido">Novo Pedido</option>
                     <option value="Confirmado">Confirmado</option>
@@ -559,8 +1072,11 @@
                     <option value="Cancelado">Cancelado</option>
                     <option value="EXCLUIR">⚠️ EXCLUIR PEDIDO</option>
                 </select>
-                <button onclick="salvarStatus()" class="btn-status" style="padding:15px; font-size:0.75rem;">ATUALIZAR STATUS</button>
-                <button onclick="fecharTodosModais()" style="width:100%; padding:10px; background:transparent; border:none; color:#555; font-weight:700; margin-top:5px; cursor:pointer; font-size:0.65rem; text-transform:uppercase;">FECHAR JANELA</button>
+                <button onclick="salvarStatus()" class="btn-status" style="padding:15px; font-size:0.75rem;">ATUALIZAR
+                    STATUS</button>
+                <button onclick="fecharTodosModais()"
+                    style="width:100%; padding:10px; background:transparent; border:none; color:#555; font-weight:700; margin-top:5px; cursor:pointer; font-size:0.65rem; text-transform:uppercase;">FECHAR
+                    JANELA</button>
             </div>
         </div>
     </div>
@@ -572,38 +1088,60 @@
         </div>
         <div style="padding: 25px; overflow-y: auto; flex: 1;">
             <div id="pdv-itens"></div>
-            <input type="tel" id="pdv-telefone" placeholder="Telefone do Cliente (Auto-preenchido)" oninput="mascaraTelefone(this)" readonly style="opacity:0.6; background:#111;">
+            <input type="tel" id="pdv-telefone" placeholder="Telefone do Cliente (Auto-preenchido)"
+                oninput="mascaraTelefone(this)" readonly style="opacity:0.6; background:#111;">
             <div style="display:flex; gap:10px; margin-bottom:15px;">
                 <select id="pdv-cliente" style="margin-bottom:0;" onchange="selecionarClientePorNome(this.value)">
                     <option value="">Selecione um Cliente...</option>
                 </select>
-                <button id="pdv-add-cliente-btn" onclick="abrirModalCliente(true)" title="Cadastrar Novo Cliente" style="width:50px; height:50px; flex-shrink:0; background:var(--gold); color:#000; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size:1.5rem;">+</button>
+                <button id="pdv-add-cliente-btn" onclick="abrirModalCliente(true)" title="Cadastrar Novo Cliente"
+                    style="width:50px; height:50px; flex-shrink:0; background:var(--gold); color:#000; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size:1.5rem;">+</button>
             </div>
-            <select id="pdv-entrega" onchange="togglePdvEndereco()"><option value="Balcão">Balcão / Retirada</option><option value="Tele">Entrega (Tele)</option></select>
-            
-            <div id="pdv-info-entrega-imediata" style="display:none; padding:12px; background:rgba(197,160,89,0.1); border-radius:15px; margin:15px 0; border:1px solid rgba(197,160,89,0.25); text-align:center; flex-direction:column; gap:2px;">
-                <span style="font-size:0.55rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); font-weight:800;">Prazo de Entrega</span>
+            <select id="pdv-entrega" onchange="togglePdvEndereco()">
+                <option value="Balcão">Balcão / Retirada</option>
+                <option value="Tele">Entrega (Tele)</option>
+            </select>
+
+            <div id="pdv-info-entrega-imediata"
+                style="display:none; padding:12px; background:rgba(197,160,89,0.1); border-radius:15px; margin:15px 0; border:1px solid rgba(197,160,89,0.25); text-align:center; flex-direction:column; gap:2px;">
+                <span
+                    style="font-size:0.55rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); font-weight:800;">Prazo
+                    de Entrega</span>
                 <span style="font-size:1rem; color:var(--text-gold); font-weight:900;">🚛 1 A 3 DIAS ÚTEIS</span>
             </div>
-            
+
             <div id="pdv-bloco-endereco" style="display:none;">
-                <input type="text" id="pdv-cep" placeholder="CEP" style="width:48%; display:inline-block; margin-right:2%;">
+                <input type="text" id="pdv-cep" placeholder="CEP"
+                    style="width:48%; display:inline-block; margin-right:2%;">
                 <input type="text" id="pdv-bairro" placeholder="Bairro" style="width:48%; display:inline-block;">
-                <input type="text" id="pdv-rua" placeholder="Rua" style="width:70%; display:inline-block; margin-right:2%;">
+                <input type="text" id="pdv-rua" placeholder="Rua"
+                    style="width:70%; display:inline-block; margin-right:2%;">
                 <input type="text" id="pdv-numero" placeholder="Nº" style="width:26%; display:inline-block;">
             </div>
 
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <input type="number" id="pdv-frete" placeholder="Frete R$" step="0.01" oninput="updatePDVCart()" style="margin-bottom:0;">
-                <input type="number" id="pdv-desconto" placeholder="Desconto R$" step="0.01" oninput="updatePDVCart()" style="margin-bottom:0;">
+                <input type="number" id="pdv-frete" placeholder="Frete R$" step="0.01" oninput="updatePDVCart()"
+                    style="margin-bottom:0;">
+                <input type="number" id="pdv-desconto" placeholder="Desconto R$" step="0.01" oninput="updatePDVCart()"
+                    style="margin-bottom:0;">
             </div>
-            <select id="pdv-pagamento"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select>
+            <select id="pdv-pagamento">
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão">Cartão</option>
+            </select>
             <select id="pdv-status" onchange="updatePdvBtnText()">
                 <option value="Concluído" selected>CONCLUÍDO (JÁ PAGO)</option>
                 <option value="Novo Pedido">EM ABERTO (NÃO PAGO)</option>
             </select>
         </div>
-        <div style="padding: 25px; background: #000; border-top: 1px solid #222;"><h3 id="pdv-total" style="color:var(--gold); text-align:center; margin-bottom:20px; font-weight: 900; font-size: 1.6rem;">R$ 0,00</h3><button id="btn-finalizar-pdv" onclick="finalizarVendaPDV()" style="width:100%; padding:22px; background:var(--green); border:none; color:#000; border-radius:18px; font-weight:900; text-transform: uppercase;">CONCLUIR VENDA</button></div>
+        <div style="padding: 25px; background: #000; border-top: 1px solid #222;">
+            <h3 id="pdv-total"
+                style="color:var(--gold); text-align:center; margin-bottom:20px; font-weight: 900; font-size: 1.6rem;">
+                R$ 0,00</h3><button id="btn-finalizar-pdv" onclick="finalizarVendaPDV()"
+                style="width:100%; padding:22px; background:var(--green); border:none; color:#000; border-radius:18px; font-weight:900; text-transform: uppercase;">CONCLUIR
+                VENDA</button>
+        </div>
     </div>
 
     <div id="modal-cliente" class="modal-box" style="padding: 0; flex-direction: column;">
@@ -624,15 +1162,21 @@
 
     <!-- Novo Modal: Detalhe do Cliente -->
     <div id="modal-detalhe-cliente" class="modal-box" style="padding: 0; flex-direction: column; max-height: 80vh;">
-        <div class="modal-header" style="background:transparent; border:none; position:absolute; right:10px; top:10px; z-index:10;">
+        <div class="modal-header"
+            style="background:transparent; border:none; position:absolute; right:10px; top:10px; z-index:10;">
             <button onclick="fecharTodosModais()" class="modal-fechar-btn" style="font-size:2rem; padding:0;">×</button>
         </div>
         <div style="padding: 20px; overflow-y: auto;">
-            <h2 id="dc-nome" style="font-size:1.2rem; margin-bottom:15px; color:var(--text-gold); border-bottom:1px solid #222; padding-bottom:10px; padding-right:40px; text-align:left;"></h2>
-            <div id="dc-conteudo" style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid #222; line-height: 1.6; font-size: 0.85rem;"></div>
-            
+            <h2 id="dc-nome"
+                style="font-size:1.2rem; margin-bottom:15px; color:var(--text-gold); border-bottom:1px solid #222; padding-bottom:10px; padding-right:40px; text-align:left;">
+            </h2>
+            <div id="dc-conteudo"
+                style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid #222; line-height: 1.6; font-size: 0.85rem;">
+            </div>
+
             <div id="dc-acoes"></div>
-            <button onclick="fecharTodosModais()" style="width:100%; padding:10px; background:transparent; border:none; color:#555; font-weight:700; margin-top:5px; cursor:pointer; font-size:0.65rem; text-transform:uppercase;">VOLTAR</button>
+            <button onclick="fecharTodosModais()"
+                style="width:100%; padding:10px; background:transparent; border:none; color:#555; font-weight:700; margin-top:5px; cursor:pointer; font-size:0.65rem; text-transform:uppercase;">VOLTAR</button>
         </div>
     </div>
 
@@ -657,12 +1201,12 @@
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
             isSwiping = false;
-        }, {passive: true});
+        }, { passive: true });
 
         document.addEventListener('touchmove', e => {
             const touchMoveX = e.changedTouches[0].screenX;
             const touchMoveY = e.changedTouches[0].screenY;
-            
+
             const diffX = touchStartX - touchMoveX;
             const diffY = Math.abs(touchStartY - touchMoveY);
 
@@ -671,25 +1215,25 @@
                 isSwiping = true;
                 if (e.cancelable) e.preventDefault(); // Trava a rolagem da página
             }
-        }, {passive: false});
+        }, { passive: false });
 
         document.addEventListener('touchend', e => {
             const touchEndX = e.changedTouches[0].screenX;
             const touchEndY = e.changedTouches[0].screenY;
             const sidebar = document.getElementById('sidebar');
             const isActive = sidebar.classList.contains('active');
-            
+
             // Abrir (Swipe Left)
             if (isSwiping && touchStartX - touchEndX > 50 && !isActive) {
                 toggleMenu();
             }
-            
+
             // Fechar (Swipe Right - simplificado para fechar fácil)
             if (isActive && touchEndX - touchStartX > 70) {
                 toggleMenu();
             }
             isSwiping = false;
-        }, {passive: true});
+        }, { passive: true });
 
         // --- SISTEMA DE LOGIN ---
         function verificarSessao() {
@@ -705,9 +1249,9 @@
         function fazerLogin() {
             const u = document.getElementById('login-user').value.trim();
             const p = document.getElementById('login-pass').value.trim();
-            
+
             // USUÁRIO E SENHA DEFINIDOS AQUI
-            if (u.toLowerCase() === 'admin' && p.toLowerCase() === 'tionan123') { 
+            if (u.toLowerCase() === 'admin' && p.toLowerCase() === 'tionan123') {
                 sessionStorage.setItem('tioNanAdminLogado', 'true');
                 document.getElementById('login-screen').style.display = 'none';
                 document.body.style.overflow = 'auto';
@@ -716,7 +1260,7 @@
                 document.getElementById('login-error').style.display = 'block';
             }
         }
-        
+
         verificarSessao();
 
         const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
@@ -725,7 +1269,7 @@
         let veioDoPdv = false;
         let editandoPedidoId = null;
         let allProducts = [];
-        let trackingAberto = null; 
+        let trackingAberto = null;
         let onlineDevices = {}; // Armazena quem está com o site aberto agora
 
         let sel = null; let adminCart = []; let statsMensal = {};
@@ -742,7 +1286,7 @@
                 }
             }
         }
-        
+
         async function ativarNotificacoes() {
             const permission = await Notification.requestPermission();
             if (permission === "granted") {
@@ -830,8 +1374,8 @@
 
         function filtrarClientes() {
             const termo = document.getElementById('search-clientes').value.toLowerCase();
-            const filtrados = listaClientesOriginal.filter(c => 
-                (c.nome && c.nome.toLowerCase().includes(termo)) || 
+            const filtrados = listaClientesOriginal.filter(c =>
+                (c.nome && c.nome.toLowerCase().includes(termo)) ||
                 (c.telefone && c.telefone.includes(termo))
             );
             renderizarClientes(filtrados);
@@ -840,9 +1384,9 @@
         async function renderizarClientes(data) {
             const container = document.getElementById('corpo-clientes');
             container.innerHTML = '<div class="loading">Buscando base de dados...</div>';
-            
+
             if (!data) { container.innerHTML = "Erro ao carregar clientes."; return; }
-            
+
             if (data.length === 0) {
                 container.innerHTML = "<p style='text-align:center; opacity:0.5; padding:20px;'>Nenhum cliente cadastrado.</p>";
                 return;
@@ -866,12 +1410,12 @@
 
         function abrirDetalheCliente(safeC) {
             const c = JSON.parse(decodeURIComponent(escape(atob(safeC))));
-            
+
             document.getElementById('dc-nome').innerText = (c.nome || "SEM NOME").toUpperCase();
-            
+
             const endereco = `${c.rua || ''}, ${c.numero || ''} - ${c.bairro || ''}`;
             const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
-            
+
             // Limpeza de telefone para WhatsApp (Sem mensagem)
             const telClean = limparTelefoneWhatsApp(c.telefone);
             const btnWhats = telClean ? `<a href="https://wa.me/55${telClean}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-bottom:10px; font-size:0.8rem;">CHAMAR NO WHATSAPP</a>` : '';
@@ -883,9 +1427,9 @@
                     <a href="${urlMaps}" target="_blank" style="color:var(--text-gold); text-decoration:none; border-bottom:1px dashed var(--text-gold); display:block; padding-top:5px;">${endereco} 📍</a>
                 </div>
             `;
-            
+
             document.getElementById('dc-acoes').innerHTML = btnWhats;
-            
+
             document.getElementById('modal-detalhe-cliente').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
@@ -912,9 +1456,9 @@
                 const nomeInput = document.getElementById('nc-nome').value;
                 if (!nomeInput) return alert("O Nome é obrigatório!");
                 const nome = nomeInput.trim();
-                
+
                 showToast("Salvando...");
-                
+
                 const payload = {
                     nome: nome,
                     cep: document.getElementById('nc-cep').value,
@@ -967,9 +1511,9 @@
         async function excluirCliente(id) {
             if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
             showToast("Excluindo...");
-            
+
             const { error } = await db.from('clientes').delete().eq('id', id);
-            
+
             if (error) {
                 console.error("Erro ao excluir:", error);
                 alert("Erro ao excluir: " + error.message);
@@ -989,13 +1533,13 @@
         function formatarDataHora(dtStr) {
             if (!dtStr) return "";
             const dt = new Date(dtStr);
-            return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth()+1).padStart(2, '0')}/${dt.getFullYear()} às ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+            return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()} às ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
         }
-        
+
         function formatarData(dtStr) {
             if (!dtStr) return "";
             const dt = new Date(dtStr);
-            return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth()+1).padStart(2, '0')}/${dt.getFullYear()}`;
+            return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
         }
 
         async function carregar(silencioso = false) {
@@ -1005,7 +1549,7 @@
                 // Carregar Produtos
                 const { data: produtos } = await db.from('produtos').select('*').eq('excluido', false).order('nome');
                 allProducts = produtos || [];
-                
+
                 // Carregar Pedidos
                 const { data: pedidos } = await db.from('pedidos').select('*').order('created_at', { ascending: false });
 
@@ -1019,19 +1563,19 @@
                     rastreio.forEach(r => {
                         const chave = r.device_id || r.ip;
                         const nomeCliente = r.cliente_nome && r.cliente_nome !== 'Anônimo' ? r.cliente_nome : null;
-                        
-                        if(!trackerMap[chave]) {
-                            trackerMap[chave] = { 
-                                cont: 0, 
-                                items: [], 
-                                ultimo: r.created_at, 
-                                nome: nomeCliente, 
+
+                        if (!trackerMap[chave]) {
+                            trackerMap[chave] = {
+                                cont: 0,
+                                items: [],
+                                ultimo: r.created_at,
+                                nome: nomeCliente,
                                 ip: r.ip,
                                 local: r.local || null,
                                 origem: r.origem || null
                             };
                         }
-                        
+
                         // Prefere o nome mais recente que tenha origem [ ] ou que não seja Anônimo
                         if (nomeCliente && (!trackerMap[chave].nome || trackerMap[chave].nome.includes('Anônimo') || nomeCliente.includes('['))) {
                             trackerMap[chave].nome = nomeCliente;
@@ -1044,7 +1588,7 @@
                                 trackerMap[chave].local = r.local;
                             }
                         }
-                        
+
                         // Busca exaustiva pela palavra-chave DISP_ no histórico
                         if (!trackerMap[chave].aparelhoFixado) {
                             const rawData = [r.local, r.cliente_nome, r.ip].join(" ").toUpperCase();
@@ -1066,7 +1610,7 @@
                         }
 
                         trackerMap[chave].cont++;
-                        
+
                         // Formatação especial para as ações
                         let label = r.produto_nome;
                         if (label.includes("🔍 Buscou")) label = `<span style="color:#f1d3a1;">${label}</span>`;
@@ -1076,22 +1620,22 @@
                         if (label.includes("✨ Voltou")) label = `<span style="color:#00f2fe; font-weight:bold;">${label}</span>`;
                         if (label.includes("👁️ Viu")) label = `<span style="color:#888;">${label}</span>`;
                         if (label.includes("👋 Entrou")) label = `<span style="color:var(--gold-soft); font-style:italic; font-size:0.8rem;">${label}</span>`;
-                        
+
                         // Formatação para o aviso de cliente salvo
                         if (label.includes("(cliente salvo)")) {
                             label = label.replace("(cliente salvo)", `<span style="color:#25D366; font-size:0.65rem; font-weight:normal; margin-left:4px;">(cliente salvo)</span>`);
                         }
-                        
+
                         trackerMap[chave].items.push(`${label} <small style="opacity:0.5; font-size:0.65rem;">(${formatarDataHora(r.created_at)})</small>`);
                     });
                 }
-                
+
                 let htmlRastreio = '';
                 Object.keys(trackerMap).forEach((id, index) => {
                     const d = trackerMap[id];
                     const safeId = id.replace(/'/g, "\\'");
                     const listaItens = d.items.map(i => `<li>• ${i}</li>`).join('');
-                    
+
                     // Extrair dados da Presença Online (Real-time) ou usar o do Banco (Histórico)
                     let isOnline = false;
                     let local = d.local || "Localização...";
@@ -1100,7 +1644,7 @@
                     // Recupera o aparelho: Prioridade 1 (Online), Prioridade 2 (Histórico Fixado), Prioridade 3 (IP)
                     // Tenta achar nos dados online (pode estar sob o ID ou sob o IP)
                     let onlineData = onlineDevices[id] ? onlineDevices[id][0] : null;
-                    
+
                     // Se não achou pelo ID, tenta procurar se algum usuário online tem este mesmo IP ou ID de dispositivo
                     if (!onlineData) {
                         Object.values(onlineDevices).forEach(arr => {
@@ -1137,7 +1681,7 @@
                         if (logs.includes("Abriu Checkout")) score += 3;
                         if (logs.includes("Preencheu")) score += 4;
                         if (logs.includes("(cliente salvo)")) score += 5;
-                        
+
                         if (score >= 10) return "☄️"; // Fervendo
                         if (score >= 6) return "🔥";  // Quente
                         if (score >= 3) return "☀️";  // Morno
@@ -1148,7 +1692,7 @@
                     const statusClass = isOnline ? 'status-online' : 'status-offline';
                     const badgeOnline = isOnline ? `<span class="status-badge" style="background:#25D366; color:#000; animation: pulse-online 2s infinite; font-size:0.5rem; padding: 2px 4px; margin-left:5px; height:18px !important; width:auto !important; min-width:unset !important;">ONLINE</span>` : '';
                     const tagOrigem = d.origem ? `<span style="font-size: 0.5rem; background: rgba(197, 160, 89, 0.2); color: var(--gold-soft); padding: 2px 5px; border-radius: 4px; font-weight: 900; margin-left: 6px; border: 1px solid rgba(197,160,89,0.4); text-transform: uppercase; letter-spacing: 0.5px;">${d.origem}</span>` : '';
-                    
+
                     htmlRastreio += `
                         <div class="order-row visitor-row" onclick="toggleRastreioDetalhe('${safeId}', ${index})" style="cursor:pointer;">
                             <div class="visitor-header">
@@ -1172,7 +1716,7 @@
                 document.getElementById('corpo-rastreio').innerHTML = htmlRastreio || "<p style='text-align:center; opacity:0.5;'>Ninguém no site agora.</p>";
 
                 // Processar Pedidos
-                let htmlV = ''; let htmlH = ''; 
+                let htmlV = ''; let htmlH = '';
                 statsMensal = {}; let fatG = 0; let lucG = 0;
 
                 if (pedidos) {
@@ -1182,17 +1726,17 @@
                         const frt = parseFloat(p.frete || 0);
                         const st = p.status || "Novo Pedido";
                         const isA = (st === "Concluído" || st === "Cancelado");
-                        const dtF = `${formatarData(p.created_at)} às ${new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-                        
+                        const dtF = `${formatarData(p.created_at)} às ${new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
                         const safeData = encodeURIComponent(JSON.stringify(p));
 
-                        if(st === "Concluído") {
+                        if (st === "Concluído") {
                             let mesAno = extrairMesAno(p.created_at);
-                            if(!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, orders: [] };
-                            statsMensal[mesAno].f += val; 
+                            if (!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, orders: [] };
+                            statsMensal[mesAno].f += val;
                             statsMensal[mesAno].l += (val - cus - frt);
                             statsMensal[mesAno].orders.push(p);
-                            fatG += val; 
+                            fatG += val;
                             lucG += (val - cus - frt);
                         }
 
@@ -1235,11 +1779,11 @@
                         if (isA) htmlH += cardPedido; else htmlV += cardPedido;
                     });
                 }
-                
+
                 document.getElementById('corpo-pedidos').innerHTML = htmlV || "<p style='text-align:center; opacity:0.5; padding: 20px;'>Nenhum pedido em aberto.</p>";
                 document.getElementById('corpo-historico').innerHTML = htmlH || "<p style='text-align:center; opacity:0.5; padding: 20px;'>Histórico vazio.</p>";
-                document.getElementById('total-fat-geral').innerText = `R$ ${fatG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
-                document.getElementById('total-lucro-geral').innerText = `R$ ${lucG.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+                document.getElementById('total-fat-geral').innerText = `R$ ${fatG.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                document.getElementById('total-lucro-geral').innerText = `R$ ${lucG.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
                 // Processar Estatísticas Mensais
                 let htmlStats = "";
@@ -1251,11 +1795,11 @@
                             </div>
                             <div style="display:flex; justify-content: space-between; font-size: 0.85rem;">
                                 <span style="color:rgba(255,255,255,0.4);">FATURAMENTO</span>
-                                <b style="color:#fff;">R$ ${statsMensal[mes].f.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b>
+                                <b style="color:#fff;">R$ ${statsMensal[mes].f.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
                             </div>
                             <div style="display:flex; justify-content: space-between; font-size: 0.85rem; margin-top: 8px;">
                                 <span style="color:rgba(255,255,255,0.4);">LUCRO LÍQUIDO</span>
-                                <b style="color:var(--text-gold);">R$ ${statsMensal[mes].l.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b>
+                                <b style="color:var(--text-gold);">R$ ${statsMensal[mes].l.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
                             </div>
                         </div>`;
                 });
@@ -1265,11 +1809,13 @@
                 let htmlE = ''; let htmlPDV = '';
                 if (produtos) {
                     produtos.forEach(p => {
-                        const id = p.id, n = p.nome, nS = n.replace(/'/g, "\\'"), pr = parseFloat(p.preco||0), cus = parseFloat(p.custo||0), e = p.estoque || 0, f1 = p.foto_1;
+                        const id = p.id, n = p.nome, nS = n.replace(/'/g, "\\'"), pr = parseFloat(p.preco || 0), cus = parseFloat(p.custo || 0), e = p.estoque || 0, f1 = p.foto_1;
                         const desc = (p.descricao || '').replace(/'/g, "\\'").replace(/\n/g, "\\n");
                         const teor = (p.teor_alcoolico || '').replace(/'/g, "\\'");
                         const harm = (p.harmonizacao || '').replace(/'/g, "\\'");
+                        const visivel = p.visivel !== false; // Default true
                         const esgotado = e <= 0;
+
 
                         htmlE += `
                             <div class="estoque-row">
@@ -1278,7 +1824,11 @@
                                         <b style="font-size: 1rem; color: #fff;">${n.toUpperCase()}</b><br>
                                         <small style="color:rgba(197,160,89,0.5);">R$ ${pr.toFixed(2)}</small>
                                     </div>
-                                    <button onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: var(--text-gold); cursor:pointer;">✏️</button>
+                                    <div style="display:flex; gap: 8px;">
+                                        <button onclick="copiarLinkVIP('${id}')" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: #888; cursor:pointer; font-size: 1.1rem;" title="Copiar Link VIP">🔗</button>
+                                        <button onclick="toggleVisibilidade('${id}', ${visivel})" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: ${visivel ? 'var(--text-gold)' : '#555'}; cursor:pointer; font-size: 1.2rem;" title="${visivel ? 'Visível no Catálogo' : 'Oculto no Catálogo'}">${visivel ? '👁️' : '👁️‍🗨️'}</button>
+                                        <button onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')" style="background:rgba(255,255,255,0.05); border:none; border-radius: 50%; width: 40px; height: 40px; color: var(--text-gold); cursor:pointer;">✏️</button>
+                                    </div>
                                 </div>
                                 <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: flex-end;">
                                     <div class="estoque-controles" style="width: 150px; margin-top: 0;">
@@ -1292,7 +1842,7 @@
                                     </div>
                                 </div>
                             </div>`;
-                        
+
                         htmlPDV += `
                             <div class="pdv-card" style="${esgotado ? 'opacity:0.4' : 'cursor:pointer;'}" onclick="${esgotado ? '' : `addPDV('${id}', '${nS}', ${pr}, ${cus})`}">
                                 <div id="pdv-badge-${id}" class="pdv-card-badge">0</div>
@@ -1306,8 +1856,8 @@
                             </div>`;
                     });
                 }
-                document.getElementById('corpo-estoque').innerHTML = htmlE; 
-                document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV; 
+                document.getElementById('corpo-estoque').innerHTML = htmlE;
+                document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV;
                 updatePDVCart();
             } catch (err) { console.error(err); }
             finally {
@@ -1332,9 +1882,9 @@
             showToast("Limpando histórico...");
             try {
                 // Remove todos os registros da tabela de rastreio
-                const { error } = await db.from('rastreio_carrinho').delete().neq('ip', '___FORCAR_DELETE_TOTAL___'); 
+                const { error } = await db.from('rastreio_carrinho').delete().neq('ip', '___FORCAR_DELETE_TOTAL___');
                 if (error) throw error;
-                
+
                 trackingAberto = null;
                 await carregar(true);
                 showToast("Histórico limpo com sucesso!");
@@ -1360,9 +1910,35 @@
             });
         }
 
+        function copiarLinkVIP(id) {
+            const url = window.location.origin + window.location.pathname.replace('admin.html', 'index.html') + '?id=' + id;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("Link VIP copiado! 🔗✅");
+            }).catch(err => {
+                const el = document.createElement('textarea');
+                el.value = url;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast("Link VIP copiado! 🔗✅");
+            });
+        }
+
+        async function toggleVisibilidade(id, estadoAtual) {
+            showToast("Alterando visibilidade...");
+            const { error } = await db.from('produtos').update({ visivel: !estadoAtual }).eq('id', id);
+            if (error) {
+                console.error(error);
+                alert("Erro ao alterar visibilidade. Verifique se a coluna 'visivel' (boolean) existe na tabela 'produtos' no Supabase.");
+            } else {
+                carregar();
+            }
+        }
+
         function abrirEdicao(id, n, p, c, desc, teor, harm) { document.getElementById('edit-id').value = id; document.getElementById('edit-nome').value = n; document.getElementById('edit-preco').value = p; document.getElementById('edit-custo').value = c; document.getElementById('edit-descricao').value = desc || ''; document.getElementById('edit-teor').value = teor || ''; document.getElementById('edit-harmonizacao').value = harm || ''; document.getElementById('modal-editar').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-        
-        async function salvarEdicao() { 
+
+        async function salvarEdicao() {
             const id = document.getElementById('edit-id').value;
             const n = document.getElementById('edit-nome').value;
             const p = parseFloat(document.getElementById('edit-preco').value);
@@ -1370,12 +1946,12 @@
             const desc = document.getElementById('edit-descricao').value;
             const teor = document.getElementById('edit-teor').value;
             const harm = document.getElementById('edit-harmonizacao').value;
-            fecharTodosModais(); showToast("Salvando..."); 
+            fecharTodosModais(); showToast("Salvando...");
             await db.from('produtos').update({ nome: n, preco: p, custo: c, descricao: desc, teor_alcoolico: teor, harmonizacao: harm }).eq('id', id);
-            carregar(); 
+            carregar();
         }
 
-        async function cadastrarProduto() { 
+        async function cadastrarProduto() {
             const n = document.getElementById('cad-nome').value;
             const p = parseFloat(document.getElementById('cad-preco').value);
             const c = parseFloat(document.getElementById('cad-custo').value || 0);
@@ -1385,23 +1961,23 @@
             const desc = document.getElementById('cad-descricao').value;
             const teor = document.getElementById('cad-teor').value;
             const harm = document.getElementById('cad-harmonizacao').value;
-            
-            if(!n || !p) return alert("Erro!"); 
-            showToast("Cadastrando..."); 
-            
+
+            if (!n || !p) return alert("Erro!");
+            showToast("Cadastrando...");
+
             await db.from('produtos').insert([{
                 nome: n, preco: p, custo: c, estoque: e, foto_1: f1, foto_2: f2, descricao: desc, teor_alcoolico: teor, harmonizacao: harm
             }]);
-            
+
             document.getElementById('cad-nome').value = ''; document.getElementById('cad-preco').value = ''; document.getElementById('cad-custo').value = ''; document.getElementById('cad-estoque').value = ''; document.getElementById('cad-foto1').value = ''; document.getElementById('cad-foto2').value = ''; document.getElementById('cad-descricao').value = ''; document.getElementById('cad-teor').value = ''; document.getElementById('cad-harmonizacao').value = '';
-            switchTab('tab-estoque'); carregar(); 
+            switchTab('tab-estoque'); carregar();
         }
 
-        async function excluirProduto(id) { 
-            if(!confirm("Excluir para sempre?")) return; 
-            fecharTodosModais(); showToast("Excluindo..."); 
+        async function excluirProduto(id) {
+            if (!confirm("Excluir para sempre?")) return;
+            fecharTodosModais(); showToast("Excluindo...");
             await db.from('produtos').update({ excluido: true }).eq('id', id);
-            carregar(); 
+            carregar();
         }
 
         function verDetalhesMes(mesAno) {
@@ -1409,7 +1985,7 @@
             document.getElementById('mes-titulo-detalhe').innerText = `Vendas de ${mesAno}`;
             let html = "<table>";
             data.orders.forEach(p => {
-                const dtF = `${formatarData(p.created_at)} <small style="color:#888;">${new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>`;
+                const dtF = `${formatarData(p.created_at)} <small style="color:#888;">${new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>`;
                 const safeData = encodeURIComponent(JSON.stringify(p));
                 html += `<tr onclick="abrirPedido('${safeData}')"><td><b>${p.cliente}</b><br><small>${dtF}</small></td><td><b style="color:var(--gold);">R$ ${parseFloat(p.total).toFixed(2)}</b></td></tr>`;
             });
@@ -1417,19 +1993,19 @@
             document.getElementById('modal-mes-detalhe').style.display = 'flex'; document.getElementById('overlay').style.display = 'block';
         }
 
-        function abrirPedido(safeData) { 
+        function abrirPedido(safeData) {
             const p = JSON.parse(decodeURIComponent(safeData));
             sel = p; // Guarda o pedido selecionado
-            
+
             const dtF = formatarDataHora(p.created_at);
-            
+
             let htmlFrete = '<span style="color:#888;">Não registrado</span>';
             let freteInclusoText = "";
             if (p.frete !== undefined && p.frete !== null) {
                 const freteVal = parseFloat(p.frete);
-                if (freteVal === 0) { 
-                    htmlFrete = '<b>📦 FRETE:</b> <span style="color:var(--green)">Grátis</span><br>'; 
-                } else { 
+                if (freteVal === 0) {
+                    htmlFrete = '<b>📦 FRETE:</b> <span style="color:var(--green)">Grátis</span><br>';
+                } else {
                     htmlFrete = ''; // Oculta a linha se estiver incluso no total
                     freteInclusoText = ' <small style="font-size:0.8rem; opacity:0.7;">(frete incluso)</small>';
                 }
@@ -1441,7 +2017,7 @@
             if (p.desconto && parseFloat(p.desconto) > 0) {
                 htmlDesconto = `<b style="color:var(--red-premium)">💰 DESCONTO:</b> - R$ ${parseFloat(p.desconto).toFixed(2)}<br>`;
             }
-            
+
             const enderecoOriginal = p.endereco || 'Balcão';
             let htmlEndereco = enderecoOriginal;
             if (enderecoOriginal.toLowerCase() !== 'balcão' && enderecoOriginal.trim() !== '') {
@@ -1454,7 +2030,7 @@
             const btnWhatsModal = telLimpo ? `<a href="https://wa.me/55${telLimpo}" target="_blank" style="display:block; width:100%; text-align:center; background:#25D366; color:#fff; padding:15px; border-radius:12px; text-decoration:none; font-weight:900; margin-top:15px; font-size:0.8rem; box-shadow:0 5px 15px rgba(37,211,102,0.3);">CHAMAR NO WHATSAPP</a>` : '';
 
             const nomeLimpo = p.cliente.split('(')[0].trim();
-            document.getElementById('m-nome').innerText = nomeLimpo.toUpperCase(); 
+            document.getElementById('m-nome').innerText = nomeLimpo.toUpperCase();
             document.getElementById('detalhes-pedido').innerHTML = `
                 <div style="font-size:0.85rem; line-height:1.4;">
                     <b>📦 ITENS:</b><br>${p.itens}<br><br>
@@ -1468,19 +2044,19 @@
                 ${p.status !== 'Concluído' && p.status !== 'Cancelado' ? `
                     <button onclick="editarPedidoNoPdv()" style="width:100%; margin-top:10px; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; cursor:pointer; color:#000;">✏️ EDITAR NO PDV</button>
                 ` : ''}
-                <div style="text-align:right; font-size:1.5rem; font-weight:900; color:var(--gold); margin-top:12px; border-top:1px solid #222; padding-top:12px;">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}${freteInclusoText}</div>`; 
-            
-            document.getElementById('m-status').value = p.status || "Novo Pedido"; 
-            document.getElementById('modal-pedido').style.display = 'block'; 
-            document.getElementById('overlay').style.display = 'block'; 
+                <div style="text-align:right; font-size:1.5rem; font-weight:900; color:var(--gold); margin-top:12px; border-top:1px solid #222; padding-top:12px;">R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}${freteInclusoText}</div>`;
+
+            document.getElementById('m-status').value = p.status || "Novo Pedido";
+            document.getElementById('modal-pedido').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
         }
 
-        async function salvarStatus() { 
-            const st = document.getElementById('m-status').value; 
-            const pedidoLocal = sel; 
-            
+        async function salvarStatus() {
+            const st = document.getElementById('m-status').value;
+            const pedidoLocal = sel;
+
             if (st === "EXCLUIR") {
-                if(!confirm("Excluir este pedido permanentemente?")) return;
+                if (!confirm("Excluir este pedido permanentemente?")) return;
                 fecharTodosModais(); showToast("Excluindo...");
                 await db.from('pedidos').delete().eq('id', pedidoLocal.id);
                 carregar();
@@ -1492,15 +2068,15 @@
                 enviarMensagemStatus(pedidoLocal, st);
             }
 
-            fecharTodosModais(); 
-            showToast("Atualizando..."); 
+            fecharTodosModais();
+            showToast("Atualizando...");
             await db.from('pedidos').update({ status: st }).eq('id', pedidoLocal.id);
-            carregar(); 
+            carregar();
         }
 
         async function mudarStatusRapido(id, novoStatus, pJsonEncoded) {
             const p = JSON.parse(decodeURIComponent(pJsonEncoded));
-            
+
             // Notificação automática
             if (novoStatus !== "Novo Pedido") {
                 enviarMensagemStatus(p, novoStatus);
@@ -1508,7 +2084,7 @@
 
             showToast("Atualizando...");
             const { error } = await db.from('pedidos').update({ status: novoStatus }).eq('id', id);
-            
+
             if (error) {
                 showToast("Erro ao atualizar!");
             } else {
@@ -1518,7 +2094,7 @@
 
         function enviarMensagemStatus(p, st) {
             const telFinal = limparTelefoneWhatsApp(p.cliente);
-            if (!telFinal) return; 
+            if (!telFinal) return;
 
             const mensagens = {
                 "Confirmado": "Olá! Passando para avisar que seu pedido na *Tio Nan* foi confirmado e já está sendo processado. 🥃",
@@ -1544,31 +2120,31 @@
             }
         }
 
-        function addPDV(id, n, p, c) { let i = adminCart.find(x => x.id === id); if(i) i.qtd++; else adminCart.push({id, name: n, price: p, cost: c, qtd:1}); updatePDVCart(); showToast("Na sacola"); }
+        function addPDV(id, n, p, c) { let i = adminCart.find(x => x.id === id); if (i) i.qtd++; else adminCart.push({ id, name: n, price: p, cost: c, qtd: 1 }); updatePDVCart(); showToast("Na sacola"); }
         function updatePDVCart() {
-            const float = document.getElementById('pdv-floating-cart'); if(!float) return;
-            
+            const float = document.getElementById('pdv-floating-cart'); if (!float) return;
+
             // Limpa todos os badges antes de reaplicar
             document.querySelectorAll('.pdv-card-badge').forEach(b => {
                 b.innerText = '0';
                 b.style.display = 'none';
             });
 
-            if(adminCart.length === 0) { 
-                float.style.display = 'none'; 
-                fecharTodosModais(); 
-                editandoPedidoId = null; 
+            if (adminCart.length === 0) {
+                float.style.display = 'none';
+                fecharTodosModais();
+                editandoPedidoId = null;
                 document.getElementById('pdv-cliente').disabled = false;
                 document.getElementById('pdv-add-cliente-btn').disabled = false;
                 document.getElementById('pdv-add-cliente-btn').style.opacity = "1";
                 document.getElementById('pdv-add-cliente-btn').style.cursor = "pointer";
-                return; 
+                return;
             }
             if (document.querySelector('.nav-item.active').getAttribute('onclick').includes('tab-pdv')) float.style.display = 'flex';
             let tq = 0, tv = 0;
             document.getElementById('pdv-itens').innerHTML = adminCart.map(i => {
                 tq += i.qtd; tv += (i.price * i.qtd);
-                
+
                 // Atualiza o badge no card do produto
                 const badge = document.getElementById(`pdv-badge-${i.id}`);
                 if (badge) {
@@ -1581,15 +2157,15 @@
             const frete = parseFloat(document.getElementById('pdv-frete').value || 0);
             const desconto = parseFloat(document.getElementById('pdv-desconto').value || 0);
             const totalFinal = (tv + frete - desconto);
-            document.getElementById('pdv-float-qtd').innerText = tq; 
-            document.getElementById('pdv-float-total').innerText = `R$ ${totalFinal.toFixed(2)}`; 
+            document.getElementById('pdv-float-qtd').innerText = tq;
+            document.getElementById('pdv-float-total').innerText = `R$ ${totalFinal.toFixed(2)}`;
             document.getElementById('pdv-total').innerText = `Total: R$ ${totalFinal.toFixed(2)}`;
         }
-        function changePDV(id, d) { let i = adminCart.find(x => x.id === id); if(i) { i.qtd += d; if(i.qtd <= 0) adminCart = adminCart.filter(x => x.id !== id); } updatePDVCart(); }
-        function abrirSacolaPDV() { 
+        function changePDV(id, d) { let i = adminCart.find(x => x.id === id); if (i) { i.qtd += d; if (i.qtd <= 0) adminCart = adminCart.filter(x => x.id !== id); } updatePDVCart(); }
+        function abrirSacolaPDV() {
             carregarDatalistPDV();
-            document.getElementById('modal-sacola-pdv').style.display = 'flex'; 
-            document.getElementById('overlay').style.display = 'block'; 
+            document.getElementById('modal-sacola-pdv').style.display = 'flex';
+            document.getElementById('overlay').style.display = 'block';
         }
 
         async function carregarDatalistPDV() {
@@ -1597,9 +2173,9 @@
             if (data) {
                 const select = document.getElementById('pdv-cliente');
                 const valorAtual = select.value;
-                select.innerHTML = '<option value="">Selecione um Cliente...</option>' + 
+                select.innerHTML = '<option value="">Selecione um Cliente...</option>' +
                     data.map(c => `<option value="${c.nome}" ${c.nome === valorAtual ? 'selected' : ''}>${c.nome.toUpperCase()}</option>`).join('');
-                window.clientesCachePDV = data; 
+                window.clientesCachePDV = data;
             }
         }
 
@@ -1607,7 +2183,7 @@
             if (!window.clientesCachePDV) return;
             const c = window.clientesCachePDV.find(x => x.nome === nome);
             const inputTel = document.getElementById('pdv-telefone');
-            
+
             if (c) {
                 inputTel.value = c.telefone || "";
                 if (c.telefone) mascaraTelefone(inputTel);
@@ -1636,7 +2212,7 @@
                 btn.style.background = "var(--green)";
             }
         }
-        
+
         async function finalizarVendaPDV() {
             const statusPdv = document.getElementById('pdv-status').value;
             const telPdv = document.getElementById('pdv-telefone').value;
@@ -1665,7 +2241,7 @@
                 endereco: enderecoFinal
             };
             fecharTodosModais(); showToast("Enviando...");
-            
+
             let res;
             if (editandoPedidoId) {
                 // MODO EDIÇÃO: Atualiza o pedido existente
@@ -1675,9 +2251,9 @@
                 // MODO NOVO: Insere um novo pedido
                 res = await db.from('pedidos').insert([payload]);
             }
-            
+
             const insertError = res.error;
-            
+
             if (insertError) {
                 console.error(insertError);
                 showToast("Erro ao salvar!");
@@ -1687,7 +2263,7 @@
                 adminCart = []; // Limpa a sacola agora
                 updatePDVCart(); // Reseta os campos e o ID de edição
                 carregar(); // Recarrega as abas de Pedidos e Histórico
-                
+
                 // RESET TOTAL DOS CAMPOS PDV
                 document.getElementById('pdv-telefone').value = "";
                 document.getElementById('pdv-cliente').value = "";
@@ -1695,13 +2271,13 @@
                 document.getElementById('pdv-add-cliente-btn').disabled = false;
                 document.getElementById('pdv-add-cliente-btn').style.opacity = "1";
                 document.getElementById('pdv-add-cliente-btn').style.cursor = "pointer";
-                
+
                 document.getElementById('pdv-entrega').value = "Balcão";
                 document.getElementById('pdv-frete').value = "";
                 document.getElementById('pdv-desconto').value = "";
                 document.getElementById('pdv-pagamento').value = "Pix";
                 document.getElementById('pdv-status').value = "Concluído";
-                
+
                 document.getElementById('pdv-cep').value = "";
                 document.getElementById('pdv-bairro').value = "";
                 document.getElementById('pdv-rua').value = "";
@@ -1734,9 +2310,9 @@
                     if (nomeLimpoPdv.includes('(')) {
                         nomeLimpoPdv = nomeLimpoPdv.split('(')[0].trim();
                     }
-                    
+
                     const { data } = await db.from('clientes').select('nome').eq('nome', nomeLimpoPdv);
-                    
+
                     if (!data || data.length === 0) {
                         await db.from('clientes').insert([{ ...dadosCli, nome: nomeLimpoPdv }]);
                         carregarClientes();
@@ -1752,17 +2328,17 @@
                 const p = sel; // Usa o pedido selecionado globalmente
                 if (!p) return;
                 editandoPedidoId = p.id;
-                
+
                 // GARANTE QUE TEMOS OS PRODUTOS CARREGADOS (Pega todos, inclusive excluídos, para poder editar)
                 if (!allProducts || allProducts.length === 0) {
                     const { data, error } = await db.from('produtos').select('*').order('nome');
                     if (error) throw new Error("Erro ao buscar produtos: " + error.message);
                     allProducts = data || [];
                 }
-                
+
                 // Limpa o PDV atual
                 adminCart = [];
-                
+
                 // Bloqueia alteração de cliente durante a edição
                 document.getElementById('pdv-cliente').disabled = true;
                 document.getElementById('pdv-add-cliente-btn').disabled = true;
@@ -1771,7 +2347,7 @@
 
                 // Extrai o nome puro do cliente
                 let nomePuro = p.cliente.split(' (')[0].trim();
-                
+
                 // BUSCA A OPÇÃO CORRETA NO SELECT (Pode estar como "Nome (Tel)")
                 const selectCli = document.getElementById('pdv-cliente');
                 let encontrouOpcao = false;
@@ -1783,22 +2359,22 @@
                         break;
                     }
                 }
-                
+
                 if (encontrouOpcao) {
                     selecionarClientePorNome(nomePuro);
                 } else {
                     selectCli.value = ""; // Caso não ache, deixa limpo
                 }
-                
+
                 const telMatch = p.cliente.match(/\(([^)]+)\)/);
                 if (telMatch && !document.getElementById('pdv-telefone').value) {
                     document.getElementById('pdv-telefone').value = telMatch[1];
                 }
-                
+
                 document.getElementById('pdv-frete').value = p.frete || "";
                 document.getElementById('pdv-status').value = p.status;
                 document.getElementById('pdv-pagamento').value = p.pagamento || "Pix";
-                
+
                 if (p.itens && p.itens.includes('[DESCONTO: R$')) {
                     const descMatch = p.itens.match(/\[DESCONTO: R\$ ([\d.]+)\]/);
                     if (descMatch) document.getElementById('pdv-desconto').value = descMatch[1];
@@ -1824,7 +2400,7 @@
                 const itensArray = itensLimpos.split(/\s*,\s*/);
                 let totalEncontrado = 0;
                 let primeiroErro = "";
-                
+
                 // Função para normalizar nomes (remove tudo que não é letra/número)
                 const normalizar = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
 
@@ -1838,11 +2414,11 @@
                         // Busca por correspondência exata ou parcial
                         const prodOriginal = allProducts.find(prod => {
                             const nomeEstoqueNormal = normalizar(prod.nome);
-                            return nomeEstoqueNormal === nomeItemNormal || 
-                                   nomeEstoqueNormal.includes(nomeItemNormal) || 
-                                   nomeItemNormal.includes(nomeEstoqueNormal);
+                            return nomeEstoqueNormal === nomeItemNormal ||
+                                nomeEstoqueNormal.includes(nomeItemNormal) ||
+                                nomeItemNormal.includes(nomeEstoqueNormal);
                         });
-                        
+
                         if (prodOriginal) {
                             adminCart.push({
                                 id: prodOriginal.id,
@@ -1853,7 +2429,7 @@
                             });
                             totalEncontrado++;
                         } else {
-                            if(!primeiroErro) primeiroErro = nomeItem;
+                            if (!primeiroErro) primeiroErro = nomeItem;
                         }
                     }
                 });
@@ -1862,7 +2438,7 @@
                 switchTab('tab-pdv');
                 updatePDVCart();
                 updatePdvBtnText();
-                
+
                 if (totalEncontrado > 0) {
                     showToast(primeiroErro ? `Atenção: Não achei "${primeiroErro}"` : "Sacola carregada!");
                 } else {
@@ -1874,32 +2450,32 @@
             }
         }
 
-        async function stepStock(id, d) { 
-            const display = document.getElementById(`st-display-${id}`); 
-            if(display) { 
-                const nv = parseInt(display.innerText) + d; 
-                display.innerText = nv; 
+        async function stepStock(id, d) {
+            const display = document.getElementById(`st-display-${id}`);
+            if (display) {
+                const nv = parseInt(display.innerText) + d;
+                display.innerText = nv;
                 await db.from('produtos').update({ estoque: nv }).eq('id', id);
-            } 
+            }
         }
 
         let touchstartX = 0; let touchendX = 0;
-        document.body.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
-        document.body.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, {passive: true});
+        document.body.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, { passive: true });
+        document.body.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, { passive: true });
         function handleGesture() {
             const deltaX = touchendX - touchstartX;
             const threshold = 50; // Mais sensível (antes era 80)
             const edgeThreshold = 100; // Área de borda maior (antes era 60)
-            
+
             if (Math.abs(deltaX) > threshold && document.getElementById('overlay').style.display !== 'block') {
-                if (deltaX > 0) { 
+                if (deltaX > 0) {
                     // Deslizar para a DIREITA (Fechar menu ou voltar aba)
-                    if (document.getElementById('sidebar').classList.contains('active')) toggleMenu(); 
-                    else navigateTabs(-1); 
-                } else { 
+                    if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+                    else navigateTabs(-1);
+                } else {
                     // Deslizar para a ESQUERDA (Abrir menu ou avançar aba)
-                    if (touchstartX > (window.innerWidth - edgeThreshold)) toggleMenu(); 
-                    else navigateTabs(1); 
+                    if (touchstartX > (window.innerWidth - edgeThreshold)) toggleMenu();
+                    else navigateTabs(1);
                 }
             }
         }
@@ -1917,35 +2493,35 @@
         // Nota: Para funcionar, as tabelas 'pedidos' e 'rastreio_carrinho' 
         // devem estar com o "Realtime" ativado no Dashboard do Supabase.
         const canalRealtime = db.channel('tionan_updates');
-        
+
         canalRealtime
-          .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'pedidos' },
-            (payload) => {
-                const p = payload.new;
-                if (p.status === "Novo Pedido") {
-                    showToast(`🔔 NOVO PEDIDO: ${p.cliente.toUpperCase()}! 🥃`);
-                    dispararNotificacaoNativa(p.cliente.toUpperCase());
-                    try {
-                        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                        audio.play();
-                    } catch(e) {}
-                    carregar(); 
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'pedidos' },
+                (payload) => {
+                    const p = payload.new;
+                    if (p.status === "Novo Pedido") {
+                        showToast(`🔔 NOVO PEDIDO: ${p.cliente.toUpperCase()}! 🥃`);
+                        dispararNotificacaoNativa(p.cliente.toUpperCase());
+                        try {
+                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                            audio.play();
+                        } catch (e) { }
+                        carregar();
+                    }
                 }
-            }
-          )
-          .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'rastreio_carrinho' },
-            () => {
-                console.log("Rastreio em tempo real recebido!");
-                carregar(true); 
-            }
-          )
-          .subscribe((status) => {
-              console.log("Status da conexão em tempo real:", status);
-          });
+            )
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'rastreio_carrinho' },
+                () => {
+                    console.log("Rastreio em tempo real recebido!");
+                    carregar(true);
+                }
+            )
+            .subscribe((status) => {
+                console.log("Status da conexão em tempo real:", status);
+            });
 
         verificarPermissaoNotificacao();
 
@@ -1954,7 +2530,7 @@
         canalPresenca
             .on('presence', { event: 'sync' }, () => {
                 onlineDevices = canalPresenca.presenceState();
-                carregar(true); 
+                carregar(true);
             })
             .on('presence', { event: 'leave' }, () => {
                 // Quando alguém sai, atualiza o estado e a tela
@@ -1962,7 +2538,7 @@
                 carregar(true);
             })
             .subscribe();
-        setInterval(carregar, 15000); 
+        setInterval(carregar, 15000);
         // --- LÓGICA DE SELEÇÃO POR SEGURAR (LONG PRESS) ---
         let pressTimer;
         let isSelectionMode = false;
@@ -2001,7 +2577,7 @@
             const checks = document.querySelectorAll('.order-checkbox:checked');
             const bar = document.getElementById('bulk-actions-bar');
             const count = document.getElementById('bulk-count');
-            
+
             if (checks.length > 0) {
                 bar.style.display = 'flex';
                 count.innerText = `${checks.length} SELECIONADOS`;
@@ -2022,18 +2598,19 @@
         async function aplicarBulkStatus() {
             const status = document.getElementById('bulk-status').value;
             if (!status) return alert("Selecione um status!");
-            
+
             const checks = document.querySelectorAll('.order-checkbox:checked');
             const ids = Array.from(checks).map(c => c.value);
-            
+
             if (!confirm(`Mudar status de ${ids.length} pedidos para "${status}"?`)) return;
-            
+
             showToast("Atualizando...");
             await db.from('pedidos').update({ status: status }).in('id', ids);
-            
+
             document.getElementById('bulk-actions-bar').style.display = 'none';
             carregar();
         }
     </script>
 </body>
+
 </html>
