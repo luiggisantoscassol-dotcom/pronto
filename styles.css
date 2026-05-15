@@ -31,6 +31,22 @@
             /* Colado: 30px (barra) + 70px (header) */
         }
 
+        body.vip-mode {
+            padding-top: 70px !important;
+        }
+
+        body.vip-mode .announcement-bar {
+            display: none !important;
+        }
+
+        body.vip-mode .header-main {
+            top: 0 !important;
+        }
+
+        body.vip-mode .swiper-hero {
+            margin-top: -70px !important;
+        }
+
         /* --- ANNOUNCEMENT BAR --- */
         .announcement-bar {
             position: fixed;

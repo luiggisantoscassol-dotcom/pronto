@@ -484,10 +484,9 @@ async function loadProducts() {
         const pSlug = urlParams.get('p');
         const isVip = urlParams.get('v') === '1';
 
-        // Hide free shipping incentives for VIPs
+        // Hide free shipping incentives and adjust layout for VIPs
         if (isVip) {
-            const annBar = document.querySelector('.announcement-bar');
-            if (annBar) annBar.style.display = 'none';
+            document.body.classList.add('vip-mode');
             const containerFrete = document.getElementById('container-frete');
             if (containerFrete) containerFrete.style.display = 'none';
         }
