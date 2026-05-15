@@ -480,7 +480,8 @@ async function loadProducts() {
             return;
         }
         // Detect parameters from global urlParams
-        const productId = urlParams.get('id') || urlParams.get('p');
+        const pId = urlParams.get('id');
+        const pSlug = urlParams.get('p');
         const isVip = urlParams.get('v') === '1';
 
         // Hide free shipping incentives for VIPs
@@ -494,11 +495,9 @@ async function loadProducts() {
 
         let query = db.from('produtos').select('*').eq('excluido', false);
         
-        const isUUID = productId && productId.length > 20;
-        
-        if (isUUID) {
-            query = query.eq('id', productId);
-        } else if (!productId) {
+        if (pId) {
+            query = query.eq('id', pId);
+        } else if (!pSlug) {
             query = query.or('visivel.eq.true,visivel.is.null');
         }
 
@@ -546,7 +545,7 @@ async function loadProducts() {
             const dadosModal = encodeURIComponent(JSON.stringify({ id, nome, foto1, precoNum, custoNum, descricao, teor, harmonizacao, temEstoque, estoque }));
             
             const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-            if (productId && (id == productId || productId == slug)) autoOpenData = dadosModal;
+            if ((pId && id == pId) || (pSlug && slug == pSlug)) autoOpenData = dadosModal;
 
             const tagEstoque = (temEstoque && estoque <= 5) ? `<span class="tag-estoque-discreta">🔥 Apenas ${estoque} unidades</span>` : '';
 
