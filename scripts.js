@@ -496,7 +496,7 @@ async function loadProducts() {
         
         if (pId) {
             query = query.eq('id', pId);
-        } else if (!pSlug) {
+        } else if (!pSlug && !isVip) {
             query = query.or('visivel.eq.true,visivel.is.null');
         }
 
@@ -546,9 +546,9 @@ async function loadProducts() {
             const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
             const matches = (pId && id == pId) || (pSlug && slug == pSlug);
             if (matches) autoOpenData = dadosModal;
-
-            // No modo VIP (p ou id presente), mostramos apenas o produto do link + outros produtos OCULTOS
-            if (pId || pSlug) {
+            
+            // No modo VIP (p, id ou v=1 presente), mostramos apenas o produto do link + outros produtos OCULTOS
+            if (pId || pSlug || isVip) {
                 if (!matches && p.visivel !== false) return;
             }
 

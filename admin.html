@@ -967,12 +967,16 @@
         <div class="pdv-grid" id="corpo-pdv-grid"></div>
     </div>
 
-    <div id="tab-estoque" class="tab-content">
-        <div class="card">
-            <h2>Gestão de Estoque</h2>
-            <div id="corpo-estoque"></div>
+        <div class="tab-content" id="tab-estoque">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="margin:0;">Gestão de Estoque</h2>
+                    <button onclick="copiarLinkCatalogoVIP()" 
+                        style="background:rgba(197,160,89,0.1); border:1px solid rgba(197,160,89,0.3); color:var(--text-gold); padding:8px 15px; border-radius:10px; font-size:0.65rem; cursor:pointer; font-weight:900;">✨ COPIAR LINK CATÁLOGO VIP</button>
+                </div>
+                <div id="corpo-estoque"></div>
+            </div>
         </div>
-    </div>
 
     <div id="tab-stats" class="tab-content">
         <div class="card">
