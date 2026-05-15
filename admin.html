@@ -1912,7 +1912,7 @@
 
         function copiarLinkVIP(id, nome) {
             const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-            const url = window.location.origin + window.location.pathname.replace('admin.html', '') + '?p=' + slug;
+            const url = window.location.origin + window.location.pathname.replace('admin.html', '') + '?p=' + slug + '&v=1';
             navigator.clipboard.writeText(url).then(() => {
                 showToast("Link VIP copiado! 🔗✅");
             }).catch(err => {

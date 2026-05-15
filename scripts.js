@@ -354,6 +354,9 @@ function mascaraCEP(t) {
     t.value = v;
 }
 
+// Globais
+const urlParams = new URLSearchParams(window.location.search);
+
 function mascaraTelefone(t) {
     let v = t.value.replace(/\D/g, "");
     if (v.length > 11) v = v.substring(0, 11);
@@ -476,8 +479,18 @@ async function loadProducts() {
             console.warn("Supabase não inicializado.");
             return;
         }
-        const urlParams = new URLSearchParams(window.location.search);
+        // Detect parameters from global urlParams
         const productId = urlParams.get('id') || urlParams.get('p');
+        const isVip = urlParams.get('v') === '1';
+
+        // Hide free shipping incentives for VIPs
+        if (isVip) {
+            const annBar = document.querySelector('.announcement-bar');
+            if (annBar) annBar.style.display = 'none';
+            const containerFrete = document.getElementById('container-frete');
+            if (containerFrete) containerFrete.style.display = 'none';
+        }
+
 
         let query = db.from('produtos').select('*').eq('excluido', false);
         
@@ -838,8 +851,11 @@ function abrirModalProduto(dadosEncoded) {
     document.getElementById('modal-preco').innerText = `R$ ${parseFloat(p.precoNum).toFixed(2).replace('.', ',')}`;
 
     let tagsHtml = '';
-    if (p.teor) tagsHtml += `<span class="modal-tag">🌡️ ${p.teor}</span>`;
-    if (p.temEstoque && p.estoque <= 5) tagsHtml += `<span class="modal-tag" style="background:#ff6b6b22; color:#ff6b6b; border-color:#ff6b6b;">🔥 Apenas ${p.estoque} un.</span>`;
+    if (p.teor) tagsHtml += `<span class="modal-tag">🥃 ${p.teor}</span>`;
+    if (urlParams.get('v') === '1') {
+        tagsHtml += `<span class="modal-tag" style="background:rgba(197,160,89,0.15); color:var(--gold-soft); border-color:var(--gold-soft); font-weight:700;">✨ EXCLUSIVO GRUPO VIP</span>`;
+    }
+    if (p.temEstoque && p.estoque <= 5) tagsHtml += `<span class="modal-tag" style="background:rgba(255,0,0,0.1); color:var(--red-premium); border-color:rgba(255,0,0,0.2);">🔥 ÚLTIMAS UNIDADES</span>`;
     document.getElementById('modal-tags').innerHTML = tagsHtml;
 
     document.getElementById('modal-desc').innerText = p.descricao || 'Uma cachaça artesanal feita com muito carinho pelo Tio Nan.';
@@ -974,7 +990,8 @@ function updateCart() {
 
     let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
     let freteInclusoText = "";
-    if (entrega === 'tele' && totalGarrafas < 3) {
+    const isVip = urlParams.get('v') === '1';
+    if (entrega === 'tele' && (totalGarrafas < 3 || isVip)) {
         total += 15;
         freteInclusoText = " (frete incluso)";
     }
