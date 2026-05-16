@@ -830,7 +830,7 @@ function add(id, name, price, cost, event) {
             const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
             const nudge = document.getElementById("nudge-frete");
             if (nudge) {
-                if (totalGarrafas === 2) {
+                if (totalGarrafas === 2 && urlParams.get('v') !== '1') {
                     nudge.classList.add("active");
                     clearTimeout(window.nudgeTimeout);
                     window.nudgeTimeout = setTimeout(() => {
