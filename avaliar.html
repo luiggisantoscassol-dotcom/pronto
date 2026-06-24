@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tio Nan | Avaliar Garrafas</title>
+    <meta name="description" content="Avalie as cachaças premium artesanais do Tio Nan e compartilhe sua opinião.">
+    <link rel="canonical" href="https://www.tionan.com.br/avaliar.html">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.tionan.com.br/avaliar.html">
+    <meta property="og:title" content="Tio Nan | Avaliar Garrafas">
+    <meta property="og:description" content="Avalie as cachaças premium artesanais do Tio Nan e compartilhe sua opinião.">
+    <meta property="og:image" content="https://www.tionan.com.br/fotos/obrigado-avaliar.jpg">
+    <meta property="og:image:width" content="1000">
+    <meta property="og:image:height" content="1000">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.tionan.com.br/avaliar.html">
+    <meta name="twitter:title" content="Tio Nan | Avaliar Garrafas">
+    <meta name="twitter:description" content="Avalie as cachaças premium artesanais do Tio Nan e compartilhe sua opinião.">
+    <meta name="twitter:image" content="https://www.tionan.com.br/fotos/obrigado-avaliar.jpg">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600;800&family=Barlow+Condensed:wght@500;600;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css?v=3.4">
+
+    <style>
+        /* Estilos adicionais específicos da página de avaliação */
+        body {
+            background: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 80px; /* Espaço para o cabeçalho fixo */
+        }
+
+        .header-minimal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 25px;
+            z-index: 9999;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+        }
+
+        .eval-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Progresso das Etapas */
+        .progress-bar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .progress-bar-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #EAEAEA;
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        .progress-bar-fill {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: var(--gold-soft);
+            z-index: 2;
+            transform: translateY(-50%);
+            transition: width 0.4s ease;
+        }
+
+        .progress-step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            border: 2px solid #EAEAEA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: #AAAAAA;
+            z-index: 3;
+            transition: all 0.4s ease;
+        }
+
+        .progress-step.active {
+            border-color: var(--blue-navy);
+            color: var(--blue-navy);
+            background: #FFFFFF;
+            box-shadow: 0 0 10px rgba(27, 54, 93, 0.15);
+        }
+
+        .progress-step.completed {
+            border-color: var(--gold-soft);
+            background: var(--gold-soft);
+            color: #FFFFFF;
+        }
+
+        /* Seções de Etapa */
+        .step-section {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+            flex-grow: 1;
+            flex-direction: column;
+        }
+
+        .step-section.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-family: var(--font-premium);
+            font-size: 1.8rem;
+            color: var(--blue-navy);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .step-subtitle {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Vitrine de Seleção no Passo 1 */
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .selection-card {
+            background: #FFFFFF;
+            border: 2px solid #EAEAEA;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        border-color 0.3s ease, 
+                        background-color 0.3s ease, 
+                        box-shadow 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            user-select: none;
+            min-height: 175px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .selection-card:hover {
+            border-color: rgba(197, 160, 89, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 15px rgba(197, 160, 89, 0.08);
+        }
+
+        .selection-card:active {
+            transform: scale(0.96) translateY(-2px);
+            transition: transform 0.1s ease;
+        }
+
+        .selection-card.selected {
+            background: rgba(197, 160, 89, 0.04);
+            border-color: var(--gold-soft);
+            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.15);
+            transform: scale(1.03);
+        }
+
+        .selection-card.selected:hover {
+            transform: scale(1.03) translateY(-2px);
+        }
+
+        .selection-card img {
+            height: 110px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.08));
+        }
+
+        .selection-card.selected img {
+            transform: scale(1.1) translateY(-3px);
+            filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.15));
+        }
+
+        .selection-card .product-name {
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--blue-navy);
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .selection-card.selected .product-name {
+            color: var(--gold-soft);
+        }
+
+        .selection-checkbox {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #D1D1D1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFFFF;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+
+        .selection-card.selected .selection-checkbox {
+            background: var(--gold-soft);
+            border-color: var(--gold-soft);
+            transform: scale(1.1) rotate(360deg);
+        }
+
+        .selection-checkbox svg {
+            width: 12px;
+            height: 12px;
+            fill: #FFFFFF;
+            display: block;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+        }
+
+        .selection-card.selected .selection-checkbox svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Buscador no Passo 1 */
+        .search-wrapper {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-wrapper input {
+            padding-left: 45px !important;
+        }
+
+        .search-wrapper svg {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            fill: #888;
+        }
+
+        /* Formulários no Passo 2 (Avaliação) */
+        .eval-card {
+            background: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+
+        .eval-product-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #F1F1F1;
+        }
+
+        .eval-product-header img {
+            width: 55px;
+            height: 75px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #FFFFFF;
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            padding: 5px;
+            box-shadow: 0 4px 12px rgba(166, 124, 55, 0.05);
+        }
+
+        .eval-product-header h4 {
+            font-family: var(--font-premium);
+            font-size: 1.3rem;
+            color: var(--blue-navy);
+        }
+
+        /* Estrela rating */
+        .rating-stars-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stars-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .star-icon {
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            fill: #EAEAEA;
+            transition: all 0.2s ease;
+        }
+
+        .star-icon:hover,
+        .star-icon.hovered {
+            transform: scale(1.15);
+            fill: #FFC107;
+        }
+
+        .star-icon.selected {
+            fill: #FFC107;
+            filter: drop-shadow(0 0 3px rgba(255, 193, 7, 0.4));
+        }
+
+        .rating-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold-soft);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            height: 18px;
+        }
+
+        /* Decisão da compra (Pediria de novo, etc) */
+        .decision-container {
+            margin-top: 20px;
+        }
+
+        .decision-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--blue-navy);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .decision-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .decision-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border: 2px solid #EAEAEA;
+            border-radius: 12px;
+            background: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--blue-navy);
+            text-align: left;
+            user-select: none;
+        }
+
+        .decision-btn:hover {
+            border-color: rgba(27, 54, 93, 0.3);
+            background: #FAFAFA;
+        }
+
+        .decision-btn.active {
+            border-color: var(--gold-soft);
+            background: rgba(138, 102, 46, 0.05);
+            font-weight: 700;
+        }
+
+        .decision-btn .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #D1D1D1;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .decision-btn.active .dot {
+            border-color: var(--gold-soft);
+            background: var(--gold-soft);
+        }
+
+        .decision-btn.active .dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #FFFFFF;
+        }
+
+        /* Comentários */
+        .comment-textarea {
+            width: 100%;
+            height: 100px;
+            padding: 15px;
+            border: 1px solid #EAEAEA;
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            color: var(--blue-navy);
+            resize: none;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .comment-textarea:focus {
+            border-color: var(--gold-antique);
+            outline: none;
+            background: #FAFAFA;
+        }
+
+        /* Passo 3 (Sucesso) */
+        .success-box {
+            text-align: center;
+            background: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            margin-top: 20px;
+        }
+
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 211, 102, 0.1);
+            border-radius: 50%;
+            color: #25D366;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .success-checkmark svg {
+            width: 40px;
+            height: 40px;
+            fill: currentColor;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+
+
+        /* Botões */
+        .btn-wrapper {
+            margin-top: auto;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-secondary-outline {
+            background: #FFFFFF;
+            color: var(--blue-navy);
+            border: 2px solid var(--blue-navy);
+            padding: 18px;
+            width: 100%;
+            font-weight: 800;
+            cursor: pointer;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 1.5px;
+            font-family: var(--font-premium);
+            transition: all 0.3s ease;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+        }
+
+        .btn-secondary-outline:hover {
+            background: #FAFAFA;
+            border-color: var(--gold-soft);
+            color: var(--gold-soft);
+        }
+
+        /* Skeleton e Loading */
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .skeleton-card {
+            background: #F9F9F9;
+            border: 2px solid #F1F1F1;
+            border-radius: 16px;
+            padding: 15px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skeleton-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+            animation: skeleton-slide 1.5s infinite;
+        }
+
+        @keyframes skeleton-slide {
+            to { left: 100%; }
+        }
+
+        .skeleton-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #EAEAEA;
+            margin-bottom: 15px;
+        }
+
+        .skeleton-line {
+            width: 70%;
+            height: 12px;
+            background: #EAEAEA;
+            border-radius: 4px;
+        }
+
+        /* Ocultar elementos */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- CABEÇALHO MINIMALISTA -->
+    <header class="header-minimal">
+        <a href="index.html" class="header-logo" title="Tio Nan - Início">Tio Nan</a>
+    </header>
+
+    <main class="eval-container">
+
+        <!-- BARRA DE PROGRESSO -->
+        <div class="progress-bar-container">
+            <div class="progress-bar-line"></div>
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            <div class="progress-step active" id="step-dot-1">1</div>
+            <div class="progress-step" id="step-dot-2">2</div>
+            <div class="progress-step" id="step-dot-3">3</div>
+        </div>
+
+        <!-- PASSO 1: IDENTIFICAÇÃO E SELEÇÃO DE GARRAFAS -->
+        <section id="step-section-1" class="step-section active">
+            <h1 class="step-title">Avalie sua Experiência</h1>
+            <p class="step-subtitle">Insira seus dados de contato e selecione abaixo os sabores das garrafas que você pediu para começar.</p>
+
+            <!-- Identificação -->
+            <div style="margin-bottom: 25px;">
+                <input type="text" id="eval-cliente-nome" class="cart-input" placeholder="Seu Nome Completo" required>
+                <input type="tel" id="eval-cliente-telefone" class="cart-input" placeholder="Telefone (WhatsApp)" oninput="mascaraTelefone(this)" onblur="buscarCliente()" required>
+            </div>
+
+            <h3 style="font-family: var(--font-premium); font-size: 1.3rem; color: var(--blue-navy); margin-bottom: 15px; font-weight: 700;">
+                Quais sabores você comprou?
+            </h3>
+
+            <!-- Buscador -->
+            <div class="search-wrapper">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+                <input type="text" id="eval-search" class="cart-input" placeholder="Pesquisar sabor..." oninput="filtrarProdutos()">
+            </div>
+
+            <!-- Loader Skeleton -->
+            <div id="catalog-loader" class="skeleton-grid">
+                <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line"></div></div>
+                <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line"></div></div>
+                <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line"></div></div>
+                <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line"></div></div>
+            </div>
+
+            <!-- Grade de Seleção Dinâmica -->
+            <div id="catalog-selection" class="selection-grid hidden"></div>
+
+            <div class="btn-wrapper">
+                <button class="btn-adicionar" id="btn-next-step" onclick="avancarParaAvaliacoes()" disabled>
+                    Continuar para Avaliação
+                </button>
+                <a href="index.html" class="btn-secondary-outline">Voltar para a Loja</a>
+            </div>
+        </section>
+
+        <!-- PASSO 2: AVALIAÇÃO COM ESTRELAS E DETALHES -->
+        <section id="step-section-2" class="step-section">
+            <h1 class="step-title">Diga-nos o que achou</h1>
+            <p class="step-subtitle">Dê sua nota, descreva o que achou de cada cachaça e nos conte se você pediria novamente.</p>
+
+            <div id="evaluations-wrapper">
+                <!-- Cards de avaliações gerados dinamicamente via JS -->
+            </div>
+
+            <div class="btn-wrapper">
+                <button class="btn-adicionar" id="btn-submit-eval" onclick="enviarAvaliacoes()">
+                    Finalizar e Enviar
+                </button>
+                <button class="btn-secondary-outline" onclick="voltarParaSelecao()">Voltar</button>
+            </div>
+        </section>
+
+        <!-- PASSO 3: AGRADECIMENTO E SUCESSO -->
+        <section id="step-section-3" class="step-section">
+            <div class="success-box">
+                <div class="success-checkmark">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                </div>
+                <h1 class="step-title" style="font-size: 2rem; color: var(--blue-navy); margin-bottom: 15px;">Avaliação Concluída!</h1>
+                <p class="step-subtitle" style="font-size: 1rem; margin-bottom: 30px; color: #555;">
+                    Obrigado por compartilhar seu feedback! Ele é fundamental para mantermos a qualidade do nosso produto artesanal.
+                </p>
+
+                <a href="index.html" class="btn-adicionar" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Voltar para a Vitrine</a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Supabase JS & Script de Lógica -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configurações do Supabase herdadas do site
+        const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
+        let db;
+        try {
+            db = window.supabase.createClient(supabaseUrl, supabaseKey);
+        } catch (e) {
+            console.error("Erro Supabase:", e);
+        }
+
+        // Estado Global da Página
+        let produtosCatalog = []; // Catálogo completo do Supabase
+        let produtosSelecionados = []; // Array de IDs selecionados
+        let avaliacoesData = {}; // Estrutura: { [produtoId]: { stars: X, comment: 'Y', decision: 'Z' } }
+
+
+        // Constantes de Mapeamento de Fotos (Consistência com scripts.js)
+        const DESCRICOES_METRICAS = {
+            1: "Péssimo 👎",
+            2: "Regular 😕",
+            3: "Gostoso 👍",
+            4: "Muito Bom! 🥃",
+            5: "Sensacional! 😍"
+        };
+
+        // --- SISTEMA DE MASCARAS E PRE-PREENCHIMENTO ---
+        function mascaraTelefone(t) {
+            let v = t.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.substring(0, 11);
+            if (v.length > 10) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7, 11)}`;
+            } else if (v.length > 6) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2, 6)}-${v.substring(6, 10)}`;
+            } else if (v.length > 2) {
+                t.value = `(${v.substring(0, 2)}) ${v.substring(2)}`;
+            } else if (v.length > 0) {
+                t.value = `(${v}`;
+            }
+        }
+
+        async function buscarCliente() {
+            const telInput = document.getElementById('eval-cliente-telefone');
+            if (!telInput) return;
+            const tel = telInput.value.replace(/\D/g, "");
+            if (tel.length >= 10) {
+                try {
+                    if (db) {
+                        const { data, error } = await db.from('clientes').select('*').eq('telefone', tel).limit(1);
+                        if (data && data.length > 0 && !error) {
+                            const cli = data[0];
+                            if (cli.nome) {
+                                document.getElementById('eval-cliente-nome').value = cli.nome;
+                                localStorage.setItem('visitorName', cli.nome);
+                                localStorage.setItem('cliente-telefone', telInput.value);
+                                validarBotaoAvancar();
+                            }
+                        }
+                    }
+                } catch (e) { console.log("Erro ao buscar cliente."); }
+            }
+        }
+
+        const fixDrive = (url) => {
+            if (!url || typeof url !== 'string' || !url.includes('drive.google')) return url.trim();
+            const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (idMatch && idMatch[1]) {
+                return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w600`;
+            }
+            return url.trim();
+        };
+
+        function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
+            if (currentUrl && currentUrl.startsWith('fotos/')) return currentUrl;
+            const LOCAL_PHOTOS = {
+                "gengibre, guaco e mel": { f1: "fotos/gengibre.webp", f2: "fotos/gengibre-2.webp" },
+                "café": { f1: "fotos/cafe.webp", f2: "fotos/cafe-2.webp" },
+                "butiá": { f1: "fotos/butia.webp", f2: "fotos/butia-2.png" },
+                "jabuticaba": { f1: "fotos/jabuticaba.webp", f2: "fotos/jabuticaba-2.webp" },
+                "morango": { f1: "fotos/morango.webp", f2: "fotos/morango-2.webp" },
+                "morango com pimenta": { f1: "fotos/morango-pimenta.webp", f2: "fotos/morango-pimenta-2.webp" },
+                "abacaxi": { f1: "fotos/abacaxi.webp", f2: "fotos/abacaxi-2.webp" }
+            };
+            const nomeNorm = nome.trim().toLowerCase();
+            if (LOCAL_PHOTOS[nomeNorm]) {
+                return isFoto2 ? LOCAL_PHOTOS[nomeNorm].f2 : LOCAL_PHOTOS[nomeNorm].f1;
+            }
+            return currentUrl;
+        }
+
+        // --- CARREGAR DADOS ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Pre-preencher nome/telefone salvos no LocalStorage
+            const savedName = localStorage.getItem('visitorName') || '';
+            const savedTel = localStorage.getItem('cliente-telefone') || ''; // Tenta buscar telefone também
+            
+            if (savedName) document.getElementById('eval-cliente-nome').value = savedName;
+            if (savedTel) {
+                const telInput = document.getElementById('eval-cliente-telefone');
+                telInput.value = savedTel;
+                mascaraTelefone(telInput);
+            }
+
+            // Buscar produtos no Supabase
+            try {
+                if (db) {
+                    const { data: produtos, error } = await db.from('produtos')
+                        .select('*')
+                        .eq('excluido', false)
+                        .order('nome');
+                    
+                    if (error) throw error;
+                    produtosCatalog = produtos;
+                    renderizarSelecao();
+                } else {
+                    console.warn("Supabase offline, usando catalogo em cache/vazio.");
+                    document.getElementById('catalog-loader').innerHTML = '<p style="color:red; grid-column: 1/-1; text-align:center;">Erro ao carregar o catálogo. Verifique sua conexão.</p>';
+                }
+            } catch (e) {
+                console.error("Erro ao carregar produtos:", e);
+                document.getElementById('catalog-loader').innerHTML = '<p style="color:red; grid-column: 1/-1; text-align:center;">Erro ao carregar o catálogo.</p>';
+            }
+        });
+
+        // --- RENDERIZAR VETRINE DE SELEÇÃO ---
+        function renderizarSelecao() {
+            const container = document.getElementById('catalog-selection');
+            const loader = document.getElementById('catalog-loader');
+            
+            if (produtosCatalog.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Nenhum sabor encontrado.</p>';
+                return;
+            }
+
+            let html = '';
+            produtosCatalog.forEach(p => {
+                const fotoRaw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
+                const foto = getLocalPhoto(p.nome, fixDrive(fotoRaw), false);
+                const isSelected = produtosSelecionados.includes(p.id.toString()) ? 'selected' : '';
+
+                html += `
+                    <div class="selection-card ${isSelected}" data-id="${p.id}" onclick="toggleSelecao('${p.id}')" id="sel-card-${p.id}">
+                        <div class="selection-checkbox">
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                        <img src="${foto}" alt="${p.nome}" loading="lazy">
+                        <span class="product-name">${p.nome}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            loader.classList.add('hidden');
+            container.classList.remove('hidden');
+            validarBotaoAvancar();
+        }
+
+        // --- BUSCA/FILTRO DE PRODUTOS ---
+        function filtrarProdutos() {
+            const query = document.getElementById('eval-search').value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const cards = document.querySelectorAll('.selection-card');
+            
+            cards.forEach(card => {
+                const pId = card.getAttribute('data-id');
+                const produto = produtosCatalog.find(p => p.id.toString() === pId.toString());
+                if (produto) {
+                    const nomeNorm = produto.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if (nomeNorm.includes(query)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // --- TOGGLE SELEÇÃO ---
+        function toggleSelecao(id) {
+            const index = produtosSelecionados.indexOf(id.toString());
+            const card = document.getElementById(`sel-card-${id}`);
+
+            if (index > -1) {
+                produtosSelecionados.splice(index, 1);
+                card.classList.remove('selected');
+                delete avaliacoesData[id];
+            } else {
+                produtosSelecionados.push(id.toString());
+                card.classList.add('selected');
+                // Inicializa dados de avaliação vazios para o produto
+                avaliacoesData[id] = {
+                    stars: 0,
+                    comment: '',
+                    decision: []
+                };
+            }
+            validarBotaoAvancar();
+        }
+
+        function validarBotaoAvancar() {
+            const btn = document.getElementById('btn-next-step');
+            const inputNome = document.getElementById('eval-cliente-nome').value.trim();
+            const inputTel = document.getElementById('eval-cliente-telefone').value.trim();
+            
+            if (produtosSelecionados.length > 0 && inputNome.length >= 2 && inputTel.length >= 10) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+        }
+
+        // Observa mudanças nos inputs de identificação para habilitar botão
+        document.getElementById('eval-cliente-nome').addEventListener('input', validarBotaoAvancar);
+        document.getElementById('eval-cliente-telefone').addEventListener('input', validarBotaoAvancar);
+
+        // --- MUDANÇA DE ETAPAS WIZARD ---
+        function alterarEtapaBarra(etapa) {
+            // Atualiza barra de progresso visual
+            const fill = document.getElementById('progress-bar-fill');
+            const dot2 = document.getElementById('step-dot-2');
+            const dot3 = document.getElementById('step-dot-3');
+
+            if (etapa === 1) {
+                fill.style.width = '0%';
+                dot2.classList.remove('active', 'completed');
+                dot3.classList.remove('active', 'completed');
+            } else if (etapa === 2) {
+                fill.style.width = '50%';
+                document.getElementById('step-dot-1').classList.add('completed');
+                dot2.classList.add('active');
+                dot2.classList.remove('completed');
+                dot3.classList.remove('active', 'completed');
+            } else if (etapa === 3) {
+                fill.style.width = '100%';
+                document.getElementById('step-dot-1').classList.add('completed');
+                dot2.classList.add('completed');
+                dot3.classList.add('completed', 'active');
+            }
+        }
+
+        function avancarParaAvaliacoes() {
+            // Salvar no localStorage
+            const nome = document.getElementById('eval-cliente-nome').value.trim();
+            const tel = document.getElementById('eval-cliente-telefone').value.trim();
+            localStorage.setItem('visitorName', nome);
+            localStorage.setItem('cliente-telefone', tel);
+
+            alterarEtapaBarra(2);
+            renderizarCardsAvaliacao();
+            
+            document.getElementById('step-section-1').classList.remove('active');
+            document.getElementById('step-section-2').classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function voltarParaSelecao() {
+            alterarEtapaBarra(1);
+            document.getElementById('step-section-2').classList.remove('active');
+            document.getElementById('step-section-1').classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- RENDERIZAR CARDS DE AVALIAÇÃO (PASSO 2) ---
+        function renderizarCardsAvaliacao() {
+            const wrapper = document.getElementById('evaluations-wrapper');
+            let html = '';
+
+            produtosSelecionados.forEach(pId => {
+                const produto = produtosCatalog.find(p => p.id.toString() === pId.toString());
+                if (!produto) return;
+
+                const fotoRaw = (produto.foto_1 && produto.foto_1.trim().length > 5) ? produto.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
+                const foto = getLocalPhoto(produto.nome, fixDrive(fotoRaw), false);
+                const currentData = avaliacoesData[pId] || { stars: 0, comment: '', decision: [] };
+                const decs = Array.isArray(currentData.decision) ? currentData.decision : (currentData.decision ? [currentData.decision] : []);
+
+                html += `
+                    <div class="eval-card" id="eval-card-${pId}">
+                        <div class="eval-product-header">
+                            <img src="${foto}" alt="${produto.nome}">
+                            <h4>${produto.nome}</h4>
+                        </div>
+
+                        <!-- Estrelas -->
+                        <div class="rating-stars-container">
+                            <div class="stars-row" data-id="${pId}">
+                                ${[1, 2, 3, 4, 5].map(star => `
+                                    <svg class="star-icon ${star <= currentData.stars ? 'selected' : ''}" 
+                                         data-value="${star}" 
+                                         onclick="setRating('${pId}', ${star})"
+                                         onmouseover="hoverRating('${pId}', ${star})"
+                                         onmouseout="resetRating('${pId}')"
+                                         viewBox="0 0 24 24">
+                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                    </svg>
+                                `).join('')}
+                            </div>
+                            <span class="rating-text" id="rating-text-${pId}">
+                                ${currentData.stars > 0 ? DESCRICOES_METRICAS[currentData.stars] : "Selecione as estrelas"}
+                            </span>
+                        </div>
+
+                        <!-- Opinião -->
+                        <div>
+                            <textarea class="comment-textarea" 
+                                      placeholder="O que achou deste sabor? Descreva as notas, doçura ou o aroma... (opcional)" 
+                                      oninput="updateComment('${pId}', this)">${currentData.comment}</textarea>
+                        </div>
+
+                        <!-- Decisão de Compra -->
+                        <div class="decision-container">
+                            <p class="decision-title">Seu veredito sobre o sabor:</p>
+                            <div class="decision-options">
+                                <button class="decision-btn ${decs.includes('pediria_de_novo') ? 'active' : ''}" 
+                                        onclick="setDecision('${pId}', 'pediria_de_novo')">
+                                    <div class="dot"></div>
+                                    🔄 Pediria de novo
+                                </button>
+                                <button class="decision-btn ${decs.includes('recomendaria') ? 'active' : ''}" 
+                                        onclick="setDecision('${pId}', 'recomendaria')">
+                                    <div class="dot"></div>
+                                    🤝 Recomendaria para um amigo
+                                </button>
+                                <button class="decision-btn ${decs.includes('nao_pediria') ? 'active' : ''}" 
+                                        onclick="setDecision('${pId}', 'nao_pediria')">
+                                    <div class="dot"></div>
+                                    ❌ Não pediria novamente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            wrapper.innerHTML = html;
+            validarBotaoFinalizar();
+        }
+
+        // --- SISTEMA INTERATIVO DE ESTRELAS ---
+        function setRating(pId, val) {
+            avaliacoesData[pId].stars = val;
+            const stars = document.querySelectorAll(`#eval-card-${pId} .star-icon`);
+            stars.forEach((star, index) => {
+                if (index < val) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
+            document.getElementById(`rating-text-${pId}`).innerText = DESCRICOES_METRICAS[val];
+            validarBotaoFinalizar();
+        }
+
+        function hoverRating(pId, val) {
+            const stars = document.querySelectorAll(`#eval-card-${pId} .star-icon`);
+            stars.forEach((star, index) => {
+                if (index < val) {
+                    star.classList.add('hovered');
+                } else {
+                    star.classList.remove('hovered');
+                }
+            });
+            document.getElementById(`rating-text-${pId}`).innerText = DESCRICOES_METRICAS[val];
+        }
+
+        function resetRating(pId) {
+            const stars = document.querySelectorAll(`#eval-card-${pId} .star-icon`);
+            stars.forEach(star => star.classList.remove('hovered'));
+            
+            const currentVal = avaliacoesData[pId].stars;
+            if (currentVal > 0) {
+                document.getElementById(`rating-text-${pId}`).innerText = DESCRICOES_METRICAS[currentVal];
+            } else {
+                document.getElementById(`rating-text-${pId}`).innerText = "Selecione as estrelas";
+            }
+        }
+
+        // --- DADOS DO PASSO 2 (TEXTAREA & RADIOS) ---
+        function updateComment(pId, textarea) {
+            avaliacoesData[pId].comment = textarea.value.trim();
+        }
+
+        function setDecision(pId, decType) {
+            let currentDecisions = avaliacoesData[pId].decision || [];
+            if (!Array.isArray(currentDecisions)) {
+                currentDecisions = currentDecisions ? [currentDecisions] : [];
+            }
+            
+            if (decType === 'nao_pediria') {
+                if (currentDecisions.includes('nao_pediria')) {
+                    currentDecisions = [];
+                } else {
+                    currentDecisions = ['nao_pediria'];
+                }
+            } else {
+                currentDecisions = currentDecisions.filter(d => d !== 'nao_pediria');
+                if (currentDecisions.includes(decType)) {
+                    currentDecisions = currentDecisions.filter(d => d !== decType);
+                } else {
+                    currentDecisions.push(decType);
+                }
+            }
+            
+            avaliacoesData[pId].decision = currentDecisions;
+            
+            // Atualizar classes dos botões do card específico sem re-renderizar todo o HTML
+            const card = document.getElementById(`eval-card-${pId}`);
+            if (card) {
+                const btnPediria = card.querySelector(`[onclick*="pediria_de_novo"]`);
+                const btnRecomendaria = card.querySelector(`[onclick*="recomendaria"]`);
+                const btnNaoPediria = card.querySelector(`[onclick*="nao_pediria"]`);
+                
+                if (btnPediria) {
+                    if (currentDecisions.includes('pediria_de_novo')) {
+                        btnPediria.classList.add('active');
+                    } else {
+                        btnPediria.classList.remove('active');
+                    }
+                }
+                if (btnRecomendaria) {
+                    if (currentDecisions.includes('recomendaria')) {
+                        btnRecomendaria.classList.add('active');
+                    } else {
+                        btnRecomendaria.classList.remove('active');
+                    }
+                }
+                if (btnNaoPediria) {
+                    if (currentDecisions.includes('nao_pediria')) {
+                        btnNaoPediria.classList.add('active');
+                    } else {
+                        btnNaoPediria.classList.remove('active');
+                    }
+                }
+            }
+            
+            validarBotaoFinalizar();
+        }
+ 
+        function validarBotaoFinalizar() {
+            const btn = document.getElementById('btn-submit-eval');
+            // Valida se todos os produtos selecionados têm pelo menos 1 estrela e pelo menos uma decisão selecionada
+            let valido = true;
+            produtosSelecionados.forEach(pId => {
+                const data = avaliacoesData[pId];
+                if (!data || data.stars === 0 || !data.decision || (Array.isArray(data.decision) && data.decision.length === 0)) {
+                    valido = false;
+                }
+            });
+ 
+            if (valido) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+        }
+ 
+        // --- SUBMETER AVALIAÇÕES ---
+        async function enviarAvaliacoes() {
+            const nome = document.getElementById('eval-cliente-nome').value.trim();
+            const tel = document.getElementById('eval-cliente-telefone').value.trim();
+            
+            // 1. Salvar no Supabase (se a tabela 'avaliacoes' existir, caso contrário falha silenciosamente)
+            try {
+                if (db) {
+                    const insertPromises = produtosSelecionados.map(pId => {
+                        const produto = produtosCatalog.find(p => p.id.toString() === pId.toString());
+                        const evalItem = avaliacoesData[pId];
+                        
+                        let decTexto = "Não especificado";
+                        if (evalItem.decision) {
+                            const decs = Array.isArray(evalItem.decision) ? evalItem.decision : [evalItem.decision];
+                            const partes = [];
+                            if (decs.includes('pediria_de_novo')) partes.push("Pediria de novo 🔄");
+                            if (decs.includes('recomendaria')) partes.push("Recomendaria para amigo 🤝");
+                            if (decs.includes('nao_pediria')) partes.push("Não pediria novamente ❌");
+                            
+                            if (partes.length > 0) {
+                                decTexto = partes.join(' e ');
+                            }
+                        }
+ 
+                        return db.from('avaliacoes').insert([{
+                            cliente_nome: nome,
+                            cliente_telefone: tel,
+                            produto_nome: produto.nome,
+                            estrelas: parseInt(evalItem.stars),
+                            comentario: evalItem.comment,
+                            decisao: decTexto
+                        }]);
+                    });
+
+                    // Executa todas de forma paralela e resiliente
+                    await Promise.allSettled(insertPromises);
+                }
+            } catch (err) {
+                console.warn("Erro ao salvar avaliacões no banco de dados (tabela não configurada ou erro de rede):", err);
+            }
+
+            // 3. Ir para Passo 3 (Sucesso)
+            alterarEtapaBarra(3);
+            document.getElementById('step-section-2').classList.remove('active');
+            document.getElementById('step-section-3').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>

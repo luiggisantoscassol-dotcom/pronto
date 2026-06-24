@@ -38,7 +38,7 @@
     <link rel="apple-touch-icon" href="chapeu-premium.png">
     <link rel="manifest" href="manifest.json">
 
-    <link rel="stylesheet" href="styles.css?v=1.8">
+    <link rel="stylesheet" href="styles.css?v=3.4">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -140,7 +140,11 @@
         <div id="modal-produto-box" style="position:relative;">
             <button class="modal-fechar" onclick="fecharModalProduto()">×</button>
             <img id="modal-foto" class="modal-prod-foto" src="" alt="">
-            <p class="modal-prod-nome" id="modal-nome"></p>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; flex-wrap: wrap;">
+                <p class="modal-prod-nome" id="modal-nome" style="margin-bottom: 0;"></p>
+                <button id="modal-btn-scroll-reviews" class="btn-ver-avaliacoes" onclick="scrollToReviews()" style="display: none;">(ver avaliações)</button>
+            </div>
+            <div id="modal-stars-wrapper" style="margin-bottom: 15px; display: none;"></div>
             <p class="modal-prod-preco" id="modal-preco"></p>
             <div id="modal-tags"></div>
             <p class="modal-prod-desc" id="modal-desc"></p>
@@ -151,6 +155,7 @@
             <button id="modal-btn-add" class="btn-adicionar" style="margin-bottom:12px;">Adicionar à Sacola</button>
             <button class="btn-continuar" onclick="fecharModalProduto()"
                 style="border-radius:12px; padding:15px;">Voltar para a loja</button>
+            <div id="modal-reviews-section"></div>
         </div>
     </div>
 
@@ -310,6 +315,25 @@
         </div>
 
         <div id="vitrine" class="vitrine"></div>
+
+        <!-- SEÇÃO DE DEPOIMENTOS (AVALIAÇÕES REAIS DOS CLIENTES) -->
+        <section id="homepage-testimonials" class="testimonials-section hidden">
+            <div class="section-header-premium">
+                <span class="section-subtitle-premium">Opiniões de quem provou</span>
+                <h2 class="section-title-premium">O Que Nossos Clientes Dizem</h2>
+                <div class="section-divider-premium">
+                    <span class="line"></span>
+                    <span class="star">★</span>
+                    <span class="line"></span>
+                </div>
+            </div>
+            <div class="swiper swiper-testimonials">
+                <div class="swiper-wrapper" id="testimonials-swiper-wrapper">
+                    <!-- Slides gerados dinamicamente via JS -->
+                </div>
+                <div class="swiper-pagination testimonials-pagination"></div>
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -337,6 +361,13 @@
                 </svg>
                 WhatsApp
             </a>
+            <a href="avaliar.html" class="footer-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="fill: currentColor;">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Avaliar Garrafas
+            </a>
         </div>
 
 
@@ -349,7 +380,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="scripts.js?v=2.0"></script>
+    <script src="scripts.js?v=3.0"></script>
 </body>
 
 </html>

@@ -840,6 +840,33 @@
                 width: 85%;
             }
         }
+
+        /* --- ESTILIZAÇÃO DO CARD DE AVALIAÇÃO NO ADMIN --- */
+        .review-card-admin {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px;
+            transition: 0.3s;
+        }
+
+        .review-card-admin:hover {
+            border-color: rgba(197, 160, 89, 0.3);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        @media (max-width: 600px) {
+            .review-card-admin {
+                padding: 12px;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -885,6 +912,7 @@
         <button class="nav-item" onclick="switchTab('tab-stats')">Resultados 📊</button>
         <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastro ➕</button>
         <button class="nav-item" onclick="switchTab('tab-rastreio')">Visitantes 👁️</button>
+        <button class="nav-item" onclick="switchTab('tab-avaliacoes')">Avaliações ⭐</button>
     </nav>
 
     <div id="tab-pedidos" class="tab-content">
@@ -1004,6 +1032,18 @@
             <input type="text" id="cad-teor" placeholder="Teor Alcoólico (ex: 38% Vol)">
             <input type="text" id="cad-harmonizacao" placeholder="Harmonização (ex: Queijos curados)">
             <button onclick="cadastrarProduto()" class="btn-status">SALVAR NOVO PRODUTO</button>
+        </div>
+    </div>
+
+    <div id="tab-avaliacoes" class="tab-content">
+        <div class="card">
+            <h2>Avaliações de Clientes ⭐</h2>
+            <button onclick="carregarAvaliacoes()" class="btn-status" style="margin-bottom:20px; font-size: 0.75rem;">
+                🔄 ATUALIZAR LISTA
+            </button>
+            <input type="text" id="search-avaliacoes" placeholder="Pesquisar por cliente, sabor, veredito ou comentário..."
+                oninput="filtrarAvaliacoes()">
+            <div id="corpo-avaliacoes"></div>
         </div>
     </div>
 
@@ -1317,6 +1357,7 @@
             if (float) float.style.display = (id === 'tab-pdv' && adminCart.length > 0) ? 'flex' : 'none';
             localStorage.setItem('abaAtivaTioNan', id);
             if (id === 'tab-clientes') carregarClientes();
+            if (id === 'tab-avaliacoes') carregarAvaliacoes();
         }
 
         function mascaraTelefone(t) {
@@ -1410,6 +1451,101 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // --- SISTEMA DE GESTÃO DE AVALIAÇÕES ---
+        let listaAvaliacoesOriginal = [];
+        async function carregarAvaliacoes() {
+            const container = document.getElementById('corpo-avaliacoes');
+            if (container) container.innerHTML = '<div class="loading">Carregando avaliações...</div>';
+            
+            try {
+                const { data, error } = await db.from('avaliacoes').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                listaAvaliacoesOriginal = data || [];
+                renderizarAvaliacoes(listaAvaliacoesOriginal);
+            } catch (err) {
+                console.error("Erro ao carregar avaliações:", err);
+                if (container) {
+                    container.innerHTML = `
+                        <div style="padding:20px; text-align:center; color:#ff4444;">
+                            <p><b>Aviso:</b> Para carregar as avaliações no painel, a tabela <code>avaliacoes</code> precisa estar criada no seu Supabase.</p>
+                            <p style="font-size:0.8rem; color:#888; margin-top:10px;">Erro: ${err.message}</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function filtrarAvaliacoes() {
+            const termo = document.getElementById('search-avaliacoes').value.toLowerCase();
+            const filtradas = listaAvaliacoesOriginal.filter(a =>
+                (a.cliente_nome && a.cliente_nome.toLowerCase().includes(termo)) ||
+                (a.produto_nome && a.produto_nome.toLowerCase().includes(termo)) ||
+                (a.comentario && a.comentario.toLowerCase().includes(termo)) ||
+                (a.decisao && a.decisao.toLowerCase().includes(termo))
+            );
+            renderizarAvaliacoes(filtradas);
+        }
+
+        function renderizarAvaliacoes(data) {
+            const container = document.getElementById('corpo-avaliacoes');
+            if (!container) return;
+
+            if (data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; opacity:0.5; padding:20px;'>Nenhuma avaliação encontrada.</p>";
+                return;
+            }
+
+            container.innerHTML = data.map(a => {
+                const dataFormatada = new Date(a.created_at).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const estrelas = "⭐".repeat(a.estrelas);
+                const comentario = a.comentario ? `"${a.comentario}"` : "Sem comentário escrito.";
+                
+                return `
+                    <div class="review-card-admin">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="order-name" style="font-size:0.95rem; font-weight:800; color:var(--text-gold);">${a.cliente_nome ? a.cliente_nome.toUpperCase() : "ANÔNIMO"}</span>
+                            <span style="font-size:0.75rem; color:#888;">${dataFormatada}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#aaa; margin-top:-5px;">
+                            📞 WhatsApp: <b>${a.cliente_telefone || 'Não informado'}</b>
+                        </div>
+                        <div style="margin:5px 0; border-left:3px solid var(--gold); padding-left:12px;">
+                            <div style="font-weight:700; color:#FFF; font-size:0.95rem; font-family:var(--font-premium);">${a.produto_nome}</div>
+                            <div style="margin-top:2px; font-size:1rem; letter-spacing:2px;">${estrelas}</div>
+                            <p style="font-style:italic; color:#ccc; font-size:0.85rem; margin-top:5px; line-height:1.4;">${comentario}</p>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; padding-top:10px; border-top:1px solid #222;">
+                            <span style="font-size:0.75rem; background:rgba(212,175,55,0.1); color:var(--text-gold); padding:4px 10px; border-radius:12px; font-weight:700; border:1px solid rgba(212,175,55,0.2);">
+                                ${a.decisao || 'Sem veredito'}
+                            </span>
+                            <button onclick="excluirAvaliacao('${a.id}')" style="background:rgba(255,0,0,0.05); border:1px solid rgba(255,0,0,0.15); color:var(--red-premium); font-size:0.65rem; font-weight:800; padding:6px 12px; border-radius:8px; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,0,0,0.1)'" onmouseout="this.style.background='rgba(255,0,0,0.05)'">
+                                DELETAR
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function excluirAvaliacao(id) {
+            if (confirm("Tem certeza que deseja deletar esta avaliação permanentemente?")) {
+                try {
+                    const { error } = await db.from('avaliacoes').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast("Avaliação excluída!");
+                    carregarAvaliacoes();
+                } catch (err) {
+                    alert("Erro ao excluir avaliação: " + err.message);
+                }
+            }
         }
 
         function abrirDetalheCliente(safeC) {
@@ -2512,7 +2648,7 @@
             }
         }
         function navigateTabs(direction) {
-            const abas = ['tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-stats', 'tab-cadastro', 'tab-rastreio'];
+            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-historico', 'tab-estoque', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);

@@ -445,6 +445,15 @@ const DESCRICOES_PREMIUM = {
 
 
 
+function fixDrive(url) {
+    if (!url || typeof url !== 'string' || !url.includes('drive.google')) return url.trim();
+    const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w600`;
+    }
+    return url.trim();
+}
+
 function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
     // 1. Se o link salvo no Admin já começa com fotos/, usa ele direto
     if (currentUrl && currentUrl.startsWith('fotos/')) return currentUrl;
@@ -479,6 +488,15 @@ async function loadProducts() {
             console.warn("Supabase não inicializado.");
             return;
         }
+        // Carrega todas as avaliações de uma vez para calcular médias na vitrine
+        let avaliacoesVitrine = [];
+        try {
+            const { data } = await db.from('avaliacoes').select('produto_nome, estrelas');
+            avaliacoesVitrine = data || [];
+        } catch (e) {
+            console.warn("Erro ao buscar avaliações para vitrine:", e);
+        }
+
         // Detect parameters from global urlParams
         const pId = urlParams.get('id');
         const pSlug = urlParams.get('p');
@@ -510,14 +528,28 @@ async function loadProducts() {
             const id = p.id;
             const nome = p.nome;
 
-            const fixDrive = (url) => {
-                if (!url || typeof url !== 'string' || !url.includes('drive.google')) return url.trim();
-                const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-                if (idMatch && idMatch[1]) {
-                    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w600`;
-                }
-                return url.trim();
-            };
+            // Calcula estrelas para a vitrine
+            const avaliacoesDoProduto = avaliacoesVitrine.filter(a => a.produto_nome === nome);
+            let estrelasVitrineHtml = '';
+            if (avaliacoesDoProduto.length > 0) {
+                const totalEstrelas = avaliacoesDoProduto.reduce((acc, a) => acc + a.estrelas, 0);
+                const media = Math.round(totalEstrelas / avaliacoesDoProduto.length);
+                estrelasVitrineHtml = `
+                    <div class="stars-vitrine">
+                        <span class="stars-filled">${"★".repeat(media)}</span><span class="stars-empty">${"☆".repeat(5 - media)}</span>
+                        <span class="reviews-count">(${avaliacoesDoProduto.length})</span>
+                    </div>
+                `;
+            } else {
+                estrelasVitrineHtml = `
+                    <div class="stars-vitrine">
+                        <span class="stars-empty">☆☆☆☆☆</span>
+                        <span class="reviews-count">(0)</span>
+                    </div>
+                `;
+            }
+
+
 
             const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
             let foto1 = fixDrive(foto1Raw); foto1 = getLocalPhoto(nome, foto1, false);
@@ -577,6 +609,7 @@ async function loadProducts() {
                     <div onclick="abrirModalProduto('${dadosModal}')" style="cursor:pointer;">
                         ${tagEstoque}
                         <h3 class="prod-nome">${nome}</h3>
+                        ${estrelasVitrineHtml}
                         <span class="preco">R$ ${precoNum.toFixed(2).replace('.', ',')}</span>
                     </div>
                     ${temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum}, event)">Adicionar à sacola</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`}
@@ -885,6 +918,15 @@ function abrirModalProduto(dadosEncoded) {
         btnAdd.onclick = null;
     }
 
+    // Oculta o botão de scroll e estrelas do modal inicialmente
+    const btnScroll = document.getElementById('modal-btn-scroll-reviews');
+    if (btnScroll) btnScroll.style.display = 'none';
+    const starsWrapper = document.getElementById('modal-stars-wrapper');
+    if (starsWrapper) starsWrapper.style.display = 'none';
+
+    // Carrega as avaliações deste sabor
+    carregarReviewsProduto(p.nome);
+
     document.getElementById('modal-produto-overlay').classList.add('active');
     const modalBox = document.getElementById('modal-produto-box');
     if (modalBox) {
@@ -892,6 +934,93 @@ function abrirModalProduto(dadosEncoded) {
         modalBox.scrollTop = 0;
     }
     document.body.classList.add('stop-scroll');
+}
+
+async function carregarReviewsProduto(produtoNome) {
+    const container = document.getElementById('modal-reviews-section');
+    if (!container) return;
+    container.innerHTML = '<div style="font-size:0.9rem; opacity:0.6; text-align:center; padding:20px 10px; border-top:1px solid rgba(197,160,89,0.15); margin-top:20px; font-family:var(--font-body);">Carregando avaliações...</div>';
+    
+    try {
+        if (!db) { container.innerHTML = ''; return; }
+        const { data, error } = await db.from('avaliacoes')
+            .select('*')
+            .eq('produto_nome', produtoNome)
+            .order('created_at', { ascending: false });
+            
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div style="font-size:0.85rem; opacity:0.6; text-align:center; padding:20px 10px; border-top:1px solid rgba(197,160,89,0.15); margin-top:20px; font-family:var(--font-body);">Nenhuma avaliação para este sabor ainda. Seja o primeiro a avaliar! 🥃</div>';
+            const btnScroll = document.getElementById('modal-btn-scroll-reviews');
+            if (btnScroll) btnScroll.style.display = 'none';
+            const starsWrapper = document.getElementById('modal-stars-wrapper');
+            if (starsWrapper) starsWrapper.style.display = 'none';
+            return;
+        }
+
+        const totalEstrelas = data.reduce((acc, a) => acc + a.estrelas, 0);
+        const media = (totalEstrelas / data.length).toFixed(1);
+        const numEstrelasCheias = Math.round(media);
+        const estrelasMedia = "★".repeat(numEstrelasCheias) + "☆".repeat(5 - numEstrelasCheias);
+
+        // Exibe estrelas de média no topo do modal
+        const starsWrapper = document.getElementById('modal-stars-wrapper');
+        if (starsWrapper) {
+            const starsFilled = "★".repeat(numEstrelasCheias);
+            const starsEmpty = "☆".repeat(5 - numEstrelasCheias);
+            starsWrapper.innerHTML = `
+                <div class="stars-vitrine" style="justify-content: flex-start; margin: 0; font-size: 1.05rem; cursor: pointer;" onclick="scrollToReviews()">
+                    <span class="stars-filled">${starsFilled}</span><span class="stars-empty">${starsEmpty}</span>
+                    <span class="reviews-count" style="font-size: 0.85rem; font-weight: 600; color: var(--gold-soft); margin-left: 5px;">(${data.length} avaliações)</span>
+                </div>
+            `;
+            starsWrapper.style.display = 'block';
+        }
+
+        let html = `
+            <div style="border-top:1px solid rgba(197,160,89,0.15); margin-top:20px; padding-top:20px; font-family:var(--font-body); text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap: 10px;">
+                    <h4 style="font-family:var(--font-premium); font-size:1.2rem; color:var(--blue-navy); margin:0;">Opinião dos Clientes</h4>
+                    <div style="text-align:right;">
+                        <span style="font-size:1.15rem; font-weight:800; color:var(--gold-soft);">${media} / 5</span>
+                        <div style="font-size: 0.85rem; color: #ffc107; letter-spacing: 1px;">${estrelasMedia} <span style="font-size: 0.75rem; color: #888; font-weight: 500; font-family: var(--font-body);">(${data.length})</span></div>
+                    </div>
+                </div>
+                <div class="modal-reviews-list">
+        `;
+
+        data.forEach(a => {
+            const dataF = new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            const comentario = a.comentario ? `"${a.comentario}"` : '';
+            const starsText = "★".repeat(a.estrelas) + "☆".repeat(5 - a.estrelas);
+            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().split(' ')[0].toUpperCase() : 'ANÔNIMO';
+            
+            html += `
+                <div class="modal-review-row">
+                    <div style="display:flex; justify-content:space-between; font-weight:700; color:var(--blue-navy); font-size:0.8rem; margin-bottom:3px;">
+                        <span>${nomeExibicao}</span>
+                        <span style="font-size:0.7rem; color:#888; font-weight:normal;">${dataF}</span>
+                    </div>
+                    <div style="color:#ffc107; font-size:0.85rem; margin-bottom:3px; letter-spacing:1px;">${starsText}</div>
+                    ${comentario ? `<p style="font-style:italic; color:#555; line-height:1.3; margin:0; font-size:0.8rem;">${comentario}</p>` : `<p style="font-style:italic; color:#999; margin:0; font-size:0.75rem;">Avaliou sem comentário escrito.</p>`}
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+        container.innerHTML = html;
+
+        // Exibe o botão de scroll se houver avaliações
+        const btnScroll = document.getElementById('modal-btn-scroll-reviews');
+        if (btnScroll) btnScroll.style.display = 'inline-flex';
+    } catch (e) {
+        console.error("Erro ao carregar avaliações do produto:", e);
+        container.innerHTML = '';
+    }
 }
 
 function fecharModalProduto(event) {
@@ -902,6 +1031,17 @@ function fecharModalProduto(event) {
         const box = document.getElementById('modal-produto-box');
         if (box) { box.style.scrollBehavior = 'auto'; box.scrollTop = 0; }
     }, 500);
+}
+
+function scrollToReviews() {
+    const modalBox = document.getElementById('modal-produto-box');
+    const reviewsSection = document.getElementById('modal-reviews-section');
+    if (modalBox && reviewsSection) {
+        modalBox.scrollTo({
+            top: reviewsSection.offsetTop - 20,
+            behavior: 'smooth'
+        });
+    }
 }
 
 function updateCart() {
@@ -1208,7 +1348,7 @@ async function checkout() {
     }
 }
 
-loadProducts(); updateCart(); sincronizarBadge(); updateWelcome();
+loadProducts(); updateCart(); sincronizarBadge(); updateWelcome(); carregarTestimonialsHome();
 
 let isCartOpen = false;
 
@@ -1277,5 +1417,118 @@ document.addEventListener('change', function (e) {
         e.target.classList.remove('input-error');
     }
 });
+
+async function carregarTestimonialsHome() {
+    const container = document.getElementById('testimonials-swiper-wrapper');
+    const section = document.getElementById('homepage-testimonials');
+    if (!container || !section) return;
+
+    try {
+        if (!db) return;
+        
+        // Busca as avaliações e produtos em paralelo
+        const [reviewsRes, prodsRes] = await Promise.all([
+            db.from('avaliacoes').select('*').gte('estrelas', 4).order('created_at', { ascending: false }).limit(9),
+            db.from('produtos').select('*').eq('excluido', false)
+        ]);
+
+        if (reviewsRes.error) throw reviewsRes.error;
+        const data = reviewsRes.data;
+        
+        if (!data || data.length === 0) {
+            section.classList.add('hidden');
+            return;
+        }
+
+        // Mapeia fotos e dados de produtos pelo nome para permitir abrir o modal ao clicar
+        const produtosMap = {};
+        if (prodsRes.data) {
+            prodsRes.data.forEach(p => {
+                const id = p.id;
+                const nome = p.nome;
+
+                const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
+                let foto1 = fixDrive(foto1Raw);
+                foto1 = getLocalPhoto(nome, foto1, false);
+
+                const precoNum = parseFloat(p.preco);
+                const estoque = parseInt(p.estoque) || 0;
+                const temEstoque = estoque > 0;
+                const custoNum = parseFloat(p.custo || 0);
+
+                let descricao = p.descricao || '';
+                const nomeNormalizado = nome.trim().toLowerCase();
+                const chavePremium = Object.keys(DESCRICOES_PREMIUM).find(k => k.toLowerCase() === nomeNormalizado);
+                const saboresForcados = ["gengibre, guaco e mel", "morango com pimenta"];
+                if (saboresForcados.includes(nomeNormalizado) || !descricao || descricao.includes("feita com muito carinho") || descricao.length < 10) {
+                    if (chavePremium) descricao = DESCRICOES_PREMIUM[chavePremium];
+                }
+
+                const teor = p.teor_alcoolico || '';
+                const harmonizacao = p.harmonizacao || '';
+
+                const dadosModal = encodeURIComponent(JSON.stringify({ id, nome, foto1, precoNum, custoNum, descricao, teor, harmonizacao, temEstoque, estoque }));
+
+                produtosMap[nomeNormalizado] = {
+                    fotoUrl: foto1,
+                    dadosModal: dadosModal
+                };
+            });
+        }
+
+        container.innerHTML = data.map(a => {
+            const estrelas = "★".repeat(a.estrelas) + "☆".repeat(5 - a.estrelas);
+            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().split(' ')[0].toUpperCase() : 'ANÔNIMO';
+            const comentario = a.comentario ? a.comentario : 'Excelente cachaça premium, recomendo de olhos fechados!';
+            
+            const prodNomeKey = a.produto_nome ? a.produto_nome.trim().toLowerCase() : '';
+            const prodInfo = produtosMap[prodNomeKey];
+            const fotoUrl = prodInfo ? prodInfo.fotoUrl : '';
+            const dadosModal = prodInfo ? prodInfo.dadosModal : '';
+            
+            const clickAttr = dadosModal ? `onclick="abrirModalProduto('${dadosModal}')"` : '';
+            
+            return `
+                <div class="swiper-slide" style="height: auto;">
+                    <div class="testimonial-card" ${clickAttr}>
+                        ${fotoUrl ? `<img src="${fotoUrl}" class="testimonial-product-badge" alt="${a.produto_nome}">` : ''}
+                        <div class="testimonial-stars">${estrelas}</div>
+                        <p class="testimonial-comment">${comentario}</p>
+                        <div class="testimonial-footer">
+                            <span class="testimonial-author">${nomeExibicao}</span>
+                            <span class="testimonial-product-tag">${a.produto_nome}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        section.classList.remove('hidden');
+
+        // Inicializa o Swiper para depoimentos com atraso de renderização
+        setTimeout(() => {
+            new Swiper('.swiper-testimonials', {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                loop: data.length > 3,
+                pagination: {
+                    el: '.testimonials-pagination',
+                    clickable: true,
+                },
+                breakpoints: {
+                    640: { slidesPerView: 2, spaceBetween: 20 },
+                    1024: { slidesPerView: 3, spaceBetween: 30 }
+                },
+                autoplay: {
+                    delay: 4500,
+                    disableOnInteraction: false,
+                }
+            });
+        }, 150);
+    } catch (e) {
+        console.error("Erro ao carregar depoimentos na home:", e);
+        section.classList.add('hidden');
+    }
+}
 
 
