@@ -99,6 +99,22 @@
             transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             padding: 50px 30px;
             border-left: 1px solid rgba(197, 160, 89, 0.2);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(197, 160, 89, 0.3) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: rgba(197, 160, 89, 0.3);
+            border-radius: 10px;
         }
 
         .sidebar.active {
@@ -913,6 +929,7 @@
         <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastro ➕</button>
         <button class="nav-item" onclick="switchTab('tab-rastreio')">Visitantes 👁️</button>
         <button class="nav-item" onclick="switchTab('tab-avaliacoes')">Avaliações ⭐</button>
+        <button class="nav-item" onclick="switchTab('tab-cupons')">Cupons 🏷️</button>
     </nav>
 
     <div id="tab-pedidos" class="tab-content">
@@ -1044,6 +1061,27 @@
             <input type="text" id="search-avaliacoes" placeholder="Pesquisar por cliente, sabor, veredito ou comentário..."
                 oninput="filtrarAvaliacoes()">
             <div id="corpo-avaliacoes"></div>
+        </div>
+    </div>
+
+    <div id="tab-cupons" class="tab-content">
+        <div class="card" style="margin-bottom: 25px;">
+            <h2>Cadastrar Novo Cupom 🏷️</h2>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-top: 15px; align-items: center;">
+                <input type="text" id="cupom-cad-codigo" placeholder="CÓDIGO (ex: AVALIEI20)" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+                <input type="number" id="cupom-cad-desconto" placeholder="% Desconto (ex: 20)" min="1" max="100">
+                <button onclick="cadastrarCupom()" class="btn-status" style="margin-top: 0; padding: 15px;">CRIAR CUPOM</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Gerenciar Cupons 🏷️</h2>
+            <button onclick="carregarCupons()" class="btn-status" style="margin-bottom:20px; font-size: 0.75rem;">
+                🔄 ATUALIZAR LISTA
+            </button>
+            <div id="corpo-cupons" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 15px;">
+                <!-- Lista de cupons gerada por JS -->
+            </div>
         </div>
     </div>
 
@@ -1358,6 +1396,7 @@
             localStorage.setItem('abaAtivaTioNan', id);
             if (id === 'tab-clientes') carregarClientes();
             if (id === 'tab-avaliacoes') carregarAvaliacoes();
+            if (id === 'tab-cupons') carregarCupons();
         }
 
         function mascaraTelefone(t) {
@@ -1521,6 +1560,11 @@
                             <div style="font-weight:700; color:#FFF; font-size:0.95rem; font-family:var(--font-premium);">${a.produto_nome}</div>
                             <div style="margin-top:2px; font-size:1rem; letter-spacing:2px;">${estrelas}</div>
                             <p style="font-style:italic; color:#ccc; font-size:0.85rem; margin-top:5px; line-height:1.4;">${comentario}</p>
+                            ${a.foto_cliente_url ? `
+                                <div style="margin-top: 8px;">
+                                    <img src="${a.foto_cliente_url}" alt="Foto da garrafa" style="max-width: 120px; max-height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #444; cursor: pointer;" onclick="window.open('${a.foto_cliente_url}', '_blank')">
+                                </div>
+                            ` : ''}
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; padding-top:10px; border-top:1px solid #222;">
                             <span style="font-size:0.75rem; background:rgba(212,175,55,0.1); color:var(--text-gold); padding:4px 10px; border-radius:12px; font-weight:700; border:1px solid rgba(212,175,55,0.2);">
@@ -1544,6 +1588,182 @@
                     carregarAvaliacoes();
                 } catch (err) {
                     alert("Erro ao excluir avaliação: " + err.message);
+                }
+            }
+        }
+
+        // --- SISTEMA DE GESTÃO DE CUPONS DE DESCONTO ---
+        let listaCuponsOriginal = [];
+
+        async function carregarCupons() {
+            const container = document.getElementById('corpo-cupons');
+            if (container) container.innerHTML = '<div class="loading">Carregando cupons...</div>';
+            
+            try {
+                if (!db) return;
+                const { data, error } = await db.from('cupons').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                listaCuponsOriginal = data || [];
+                renderizarCupons(listaCuponsOriginal);
+            } catch (err) {
+                console.error("Erro ao carregar cupons:", err);
+                if (container) {
+                    container.innerHTML = `
+                        <div style="padding:20px; text-align:center; color:#ff4444; grid-column: 1/-1; line-height: 1.5;">
+                            <p><b>Aviso:</b> Para carregar e gerenciar cupons no painel, a tabela <code>cupons</code> precisa estar criada no seu Supabase.</p>
+                            <p style="font-size:0.8rem; color:#888; margin-top:10px;">Erro: ${err.message}</p>
+                            <div style="background: #111; padding: 15px; border-radius: 12px; text-align: left; margin: 20px auto; max-width: 550px; border: 1px solid #333; font-family: monospace; color: #FFF; font-size: 0.8rem; overflow-x: auto;">
+                                ALTER TABLE cupons (executar no SQL Editor):<br>
+                                <pre style="margin-top:8px; color:#25d366; font-family: inherit;">CREATE TABLE cupons (
+  id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  codigo TEXT UNIQUE NOT NULL,
+  desconto_percentual NUMERIC NOT NULL,
+  ativo BOOLEAN DEFAULT true NOT NULL
+);</pre>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function renderizarCupons(data) {
+            const container = document.getElementById('corpo-cupons');
+            if (!container) return;
+
+            // Verificar se o cupom AVALIEI20 está presente nos dados vindos do banco
+            const temAvaliei20 = data.some(c => c.codigo === "AVALIEI20");
+            
+            // Criar uma cópia dos cupons para renderizar
+            let cuponsExibir = [...data];
+            
+            // Se não estiver no banco, adicionar como item virtual no início
+            if (!temAvaliei20) {
+                cuponsExibir.unshift({
+                    id: 'synthetic-avaliei20',
+                    codigo: 'AVALIEI20',
+                    desconto_percentual: 20,
+                    ativo: true,
+                    isSynthetic: true
+                });
+            }
+
+            if (cuponsExibir.length === 0) {
+                container.innerHTML = "<p style='text-align:center; opacity:0.5; padding:20px; grid-column: 1/-1;'>Nenhum cupom cadastrado.</p>";
+                return;
+            }
+
+            container.innerHTML = cuponsExibir.map(c => {
+                const statusText = c.ativo ? "ATIVO" : "INATIVO";
+                const statusClass = c.ativo ? "status-concluido" : "status-cancelado";
+                const btnToggleText = c.ativo ? "DESATIVAR" : "ATIVAR";
+                const badgeExtra = c.isSynthetic ? `<span class="order-badge" style="font-size:0.55rem; background:rgba(197, 160, 89, 0.15); color:var(--text-gold); border:1px solid rgba(197, 160, 89, 0.3); padding:2px 6px; margin-left: 5px;">PADRÃO</span>` : '';
+                const cardBorder = c.isSynthetic ? 'border: 1px solid rgba(197, 160, 89, 0.35); background: rgba(197, 160, 89, 0.02);' : 'border: 1px solid #222; background: #0c0c0c;';
+                
+                return `
+                    <div class="review-card-admin" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 155px; ${cardBorder} border-radius: 14px; padding: 18px; position: relative;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap: 8px;">
+                                <span class="order-name" style="font-size:1.1rem; font-weight:900; color:var(--text-gold); letter-spacing:1px; display:flex; align-items:center;">
+                                    ${c.codigo} ${badgeExtra}
+                                </span>
+                                <span class="order-badge ${statusClass}" style="font-size:0.65rem; padding:4px 8px;">${statusText}</span>
+                            </div>
+                            <div style="font-size:1.3rem; font-weight:800; color:#FFF; margin-top:8px; font-family:var(--font-premium);">
+                                ${c.desconto_percentual}% <span style="font-size:0.85rem; color:#aaa; font-weight:normal; font-family:var(--font-body);">de desconto</span>
+                            </div>
+                            ${c.isSynthetic ? `<p style="font-size:0.65rem; color:#888; margin-top:8px; line-height:1.3; font-weight: 500;">Cupom nativo do site para quem avalia enviando foto.</p>` : ''}
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:10px; margin-top:15px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05);">
+                            <button onclick="toggleCupom('${c.id}', ${c.ativo})" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:#FFF; font-size:0.65rem; font-weight:800; padding:6px 12px; border-radius:8px; cursor:pointer; flex: 1; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                                ${btnToggleText}
+                            </button>
+                            <button onclick="excluirCupom('${c.id}')" style="background:rgba(255,0,0,0.05); border:1px solid rgba(255,0,0,0.15); color:var(--red-premium); font-size:0.65rem; font-weight:800; padding:6px 12px; border-radius:8px; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,0,0,0.1)'" onmouseout="this.style.background='rgba(255,0,0,0.05)'">
+                                DELETAR
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function cadastrarCupom() {
+            const codInput = document.getElementById('cupom-cad-codigo');
+            const descInput = document.getElementById('cupom-cad-desconto');
+            if (!codInput || !descInput) return;
+
+            const codigo = codInput.value.trim().toUpperCase();
+            const desconto = parseInt(descInput.value);
+
+            if (!codigo || codigo.length < 3) {
+                alert("Por favor, preencha o código do cupom com pelo menos 3 caracteres.");
+                return;
+            }
+            if (isNaN(desconto) || desconto < 1 || desconto > 100) {
+                alert("O desconto deve ser um número inteiro entre 1% e 100%.");
+                return;
+            }
+
+            try {
+                if (!db) return;
+                const { error } = await db.from('cupons').insert([{
+                    codigo: codigo,
+                    desconto_percentual: desconto,
+                    ativo: true
+                }]);
+                if (error) throw error;
+                
+                showToast("Cupom cadastrado com sucesso!");
+                codInput.value = "";
+                descInput.value = "";
+                carregarCupons();
+            } catch (err) {
+                console.error("Erro ao cadastrar cupom:", err);
+                alert("Erro ao cadastrar cupom: " + err.message);
+            }
+        }
+
+        async function toggleCupom(id, statusAtual) {
+            try {
+                if (!db) return;
+                if (id === 'synthetic-avaliei20') {
+                    // Cadastra o cupom AVALIEI20 no banco já inativo
+                    const { error } = await db.from('cupons').insert([{
+                        codigo: "AVALIEI20",
+                        desconto_percentual: 20,
+                        ativo: false
+                    }]);
+                    if (error) throw error;
+                    showToast("Status do cupom atualizado!");
+                    carregarCupons();
+                    return;
+                }
+                const { error } = await db.from('cupons').update({ ativo: !statusAtual }).eq('id', id);
+                if (error) throw error;
+                showToast("Status do cupom atualizado!");
+                carregarCupons();
+            } catch (err) {
+                console.error("Erro ao atualizar cupom:", err);
+                alert("Erro ao atualizar cupom: " + err.message);
+            }
+        }
+
+        async function excluirCupom(id) {
+            if (id === 'synthetic-avaliei20') {
+                alert("Este cupom é um fallback nativo do sistema e não pode ser excluído permanentemente, mas você pode desativá-lo clicando em DESATIVAR.");
+                return;
+            }
+            if (confirm("Deseja realmente excluir este cupom permanentemente?")) {
+                try {
+                    if (!db) return;
+                    const { error } = await db.from('cupons').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast("Cupom excluído!");
+                    carregarCupons();
+                } catch (err) {
+                    console.error("Erro ao deletar cupom:", err);
+                    alert("Erro ao deletar cupom: " + err.message);
                 }
             }
         }
@@ -2564,7 +2784,7 @@
                 }
 
                 // RECONSTRÓI A SACOLA
-                let itensLimpos = (p.itens || "").split(' [DESCONTO:')[0].trim();
+                let itensLimpos = (p.itens || "").split(' [DESCONTO:')[0].split(' [CUPOM:')[0].trim();
                 const itensArray = itensLimpos.split(/\s*,\s*/);
                 let totalEncontrado = 0;
                 let primeiroErro = "";
@@ -2648,7 +2868,7 @@
             }
         }
         function navigateTabs(direction) {
-            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-historico', 'tab-estoque', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes'];
+            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-historico', 'tab-estoque', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes', 'tab-cupons'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);

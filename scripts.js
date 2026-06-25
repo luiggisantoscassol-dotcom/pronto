@@ -469,7 +469,7 @@ function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
         "abacaxi": { f1: "fotos/abacaxi.webp", f2: "fotos/abacaxi-2.webp" }
     };
 
-    const nomeNorm = nome.trim().toLowerCase();
+    const nomeNorm = nome.toLowerCase().replace(/cachaça\s+de\s+/gi, "").replace(/cachaça\s+/gi, "").trim();
     if (LOCAL_PHOTOS[nomeNorm]) {
         return isFoto2 ? LOCAL_PHOTOS[nomeNorm].f2 : LOCAL_PHOTOS[nomeNorm].f1;
     }
@@ -994,7 +994,7 @@ async function carregarReviewsProduto(produtoNome) {
             const dataF = new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             const comentario = a.comentario ? `"${a.comentario}"` : '';
             const starsText = "★".repeat(a.estrelas) + "☆".repeat(5 - a.estrelas);
-            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().split(' ')[0].toUpperCase() : 'ANÔNIMO';
+            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().toUpperCase() : 'ANÔNIMO';
             
             html += `
                 <div class="modal-review-row">
@@ -1004,6 +1004,11 @@ async function carregarReviewsProduto(produtoNome) {
                     </div>
                     <div style="color:#ffc107; font-size:0.85rem; margin-bottom:3px; letter-spacing:1px;">${starsText}</div>
                     ${comentario ? `<p style="font-style:italic; color:#555; line-height:1.3; margin:0; font-size:0.8rem;">${comentario}</p>` : `<p style="font-style:italic; color:#999; margin:0; font-size:0.75rem;">Avaliou sem comentário escrito.</p>`}
+                    ${a.foto_cliente_url ? `
+                        <div style="margin-top: 8px;">
+                            <img src="${a.foto_cliente_url}" alt="Foto da garrafa enviada pelo cliente" style="max-width: 120px; max-height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); cursor: pointer;" onclick="window.open('${a.foto_cliente_url}', '_blank')">
+                        </div>
+                    ` : ''}
                 </div>
             `;
         });
@@ -1044,12 +1049,175 @@ function scrollToReviews() {
     }
 }
 
+// --- SISTEMA DE CUPOM DE DESCONTO NA SACOLA ---
+let cupomDescontoAtivo = "";
+let descontoPercentual = 0;
+
+async function verificarCupomUsoCliente(telefone, codigo) {
+    if (!db) return false;
+    try {
+        const digitosTelefone = telefone.replace(/\D/g, "");
+        if (digitosTelefone.length < 10) return false;
+        
+        // Obter os últimos 8 dígitos do telefone para buscar de forma ampla no banco
+        const ultimos8Digitos = digitosTelefone.slice(-8);
+
+        // Buscar pedidos que tenham esses dígitos no campo cliente
+        const { data: pedidos, error } = await db.from('pedidos')
+            .select('cliente, itens')
+            .ilike('cliente', `%${ultimos8Digitos}%`);
+
+        if (error) throw error;
+        if (!pedidos || pedidos.length === 0) return false;
+
+        // Filtrar no JS para ter certeza que é o mesmo telefone (removendo formatação)
+        const jaUsou = pedidos.some(p => {
+            if (!p.cliente || !p.itens) return false;
+            const telPedido = p.cliente.replace(/\D/g, "");
+            // Verifica se o telefone do pedido é correspondente
+            const mesmoTel = telPedido.endsWith(digitosTelefone) || digitosTelefone.endsWith(telPedido);
+            
+            // E verifica se a mensagem de itens contém o cupom
+            const temCupom = p.itens.toUpperCase().includes(`[CUPOM: ${codigo.toUpperCase()}]`);
+            
+            return mesmoTel && temCupom;
+        });
+
+        return jaUsou;
+    } catch (e) {
+        console.error("Erro ao verificar uso do cupom:", e);
+        return false;
+    }
+}
+
+async function aplicarCupomSacola() {
+    const input = document.getElementById('cupom-input');
+    const mensagem = document.getElementById('cupom-mensagem-sacola');
+    if (!input || !mensagem) return;
+
+    const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+    const entrega = document.getElementById('metodo-entrega').value;
+
+    // Regra: se frete grátis estiver ativo (3 ou mais garrafas na tele), desativa o cupom
+    if (entrega === 'tele' && totalGarrafas >= 3) {
+        mensagem.style.color = "#ff4444";
+        mensagem.innerText = "Cupons não são cumulativos com Frete Grátis (3+ garrafas).";
+        mensagem.style.display = "block";
+        return;
+    }
+
+    const codigo = input.value.trim().toUpperCase();
+    if (!codigo) {
+        mensagem.style.color = "#ff4444";
+        mensagem.innerText = "Por favor, digite um cupom.";
+        mensagem.style.display = "block";
+        return;
+    }
+
+    const telInput = document.getElementById('cliente-telefone');
+    const telefone = telInput ? telInput.value.trim() : "";
+    const cleanPhone = telefone.replace(/\D/g, "");
+
+    if (cleanPhone.length < 10) {
+        mensagem.style.color = "#ff4444";
+        mensagem.innerText = "Digite seu telefone (WhatsApp) completo para validar o cupom.";
+        mensagem.style.display = "block";
+        return;
+    }
+
+    mensagem.style.color = "#888";
+    mensagem.innerText = "Validando cupom... ⏳";
+    mensagem.style.display = "block";
+
+    try {
+        // Verificar se este telefone já utilizou este cupom
+        const jaUsou = await verificarCupomUsoCliente(cleanPhone, codigo);
+        if (jaUsou) {
+            mensagem.style.color = "#ff4444";
+            mensagem.innerText = "Este cupom já foi utilizado por este número de WhatsApp.";
+            return;
+        }
+
+        let cupomValido = false;
+        let pctDesconto = 0;
+        let encontradoNoBanco = false;
+
+        if (db) {
+            const { data, error } = await db.from('cupons')
+                .select('*')
+                .eq('codigo', codigo)
+                .limit(1);
+
+            if (!error && data && data.length > 0) {
+                encontradoNoBanco = true;
+                if (data[0].ativo) {
+                    cupomValido = true;
+                    pctDesconto = parseFloat(data[0].desconto_percentual) / 100;
+                } else {
+                    cupomValido = false;
+                }
+            }
+        }
+
+        // Fallback local
+        if (!encontradoNoBanco && codigo === "AVALIEI20") {
+            cupomValido = true;
+            pctDesconto = 0.20;
+        }
+
+        if (cupomValido) {
+            cupomDescontoAtivo = codigo;
+            descontoPercentual = pctDesconto;
+            mensagem.style.color = "#25d366";
+            mensagem.innerText = `Cupom ${codigo} aplicado! (${pctDesconto * 100}% de desconto)`;
+            input.disabled = true;
+        } else {
+            mensagem.style.color = "#ff4444";
+            mensagem.innerText = "Cupom inválido ou expirado.";
+            cupomDescontoAtivo = "";
+            descontoPercentual = 0;
+            input.disabled = false;
+        }
+    } catch (e) {
+        console.error("Erro ao validar cupom:", e);
+        if (codigo === "AVALIEI20") {
+            cupomDescontoAtivo = "AVALIEI20";
+            descontoPercentual = 0.20;
+            mensagem.style.color = "#25d366";
+            mensagem.innerText = "Cupom AVALIEI20 aplicado! (20% de desconto)";
+            input.disabled = true;
+        } else {
+            mensagem.style.color = "#ff4444";
+            mensagem.innerText = "Erro ao validar cupom.";
+        }
+    }
+    updateCart();
+}
+
 function updateCart() {
     const itemsCont = document.getElementById('cart-items');
     const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
     const barra = document.getElementById('barra-frete');
     const textoFrete = document.getElementById('texto-frete');
     const entrega = document.getElementById('metodo-entrega').value;
+
+    // Regra: se frete grátis estiver ativo (3 ou mais garrafas na tele), desativa o cupom
+    if (entrega === 'tele' && totalGarrafas >= 3 && cupomDescontoAtivo) {
+        cupomDescontoAtivo = "";
+        descontoPercentual = 0;
+        
+        const input = document.getElementById('cupom-input');
+        if (input) {
+            input.disabled = false;
+            input.value = "";
+        }
+        const mensagem = document.getElementById('cupom-mensagem-sacola');
+        if (mensagem) {
+            mensagem.style.color = "#ff4444";
+            mensagem.innerText = "Cupom removido. Cupons de desconto não são cumulativos com Frete Grátis.";
+            mensagem.style.display = "block";
+        }
+    }
 
     const progresso = Math.min((totalGarrafas / 3) * 100, 100);
     if (barra) barra.style.width = progresso + "%";
@@ -1139,15 +1307,29 @@ function updateCart() {
         }).join('');
     }
 
-    let total = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
+    let subtotal = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
+    let valorDesconto = subtotal * descontoPercentual;
+    let total = subtotal - valorDesconto;
+    
     let freteInclusoText = "";
     const isVip = urlParams.get('v') === '1';
     if (entrega === 'tele' && (totalGarrafas < 3 || isVip)) {
         total += 15;
         freteInclusoText = " (frete incluso)";
     }
+    
     const totalDisplay = document.getElementById('cart-total-display');
-    if (totalDisplay) totalDisplay.innerText = `Total: R$ ${total.toFixed(2).replace('.', ',')}${freteInclusoText}`;
+    if (totalDisplay) {
+        if (descontoPercentual > 0) {
+            totalDisplay.innerHTML = `
+                <div style="font-size: 0.9rem; font-weight: normal; color: #888; text-decoration: line-through; margin-bottom: 2px;">Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
+                <div style="font-size: 0.95rem; font-weight: bold; color: #25d366; margin-bottom: 5px;">Desconto: -R$ ${valorDesconto.toFixed(2).replace('.', ',')} (${descontoPercentual * 100}%)</div>
+                <div>Total: R$ ${total.toFixed(2).replace('.', ',')}${freteInclusoText}</div>
+            `;
+        } else {
+            totalDisplay.innerText = `Total: R$ ${total.toFixed(2).replace('.', ',')}${freteInclusoText}`;
+        }
+    }
 }
 
 function handlePagamentoChange() {
@@ -1276,6 +1458,31 @@ async function checkout() {
         }
         if (!pag || pag === "none") return showError('metodo-pagamento');
 
+        // Validar se o telefone já utilizou este cupom antes de finalizar
+        if (cupomDescontoAtivo) {
+            const cleanPhone = telefone.replace(/\D/g, "");
+            const jaUsou = await verificarCupomUsoCliente(cleanPhone, cupomDescontoAtivo);
+            if (jaUsou) {
+                alert(`O cupom ${cupomDescontoAtivo} já foi utilizado pelo seu número de WhatsApp. Por favor, utilize outro cupom.`);
+                // Resetar cupom
+                cupomDescontoAtivo = "";
+                descontoPercentual = 0;
+                const input = document.getElementById('cupom-input');
+                if (input) {
+                    input.value = "";
+                    input.disabled = false;
+                }
+                const mensagemSacola = document.getElementById('cupom-mensagem-sacola');
+                if (mensagemSacola) {
+                    mensagemSacola.style.color = "#ff4444";
+                    mensagemSacola.innerText = "Este cupom já foi utilizado por este número de WhatsApp.";
+                    mensagemSacola.style.display = "block";
+                }
+                updateCart();
+                return;
+            }
+        }
+
         localStorage.setItem('visitorName', nome);
         updateWelcome();
         atualizarPresenca();
@@ -1288,17 +1495,24 @@ async function checkout() {
             valorFrete = 15.00;
         }
 
-        let valorTotalComFrete = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0) + valorFrete;
+        let subtotal = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
+        let valorDesconto = subtotal * descontoPercentual;
+        let valorTotalComFrete = subtotal - valorDesconto + valorFrete;
 
         const itensMsg = cart.map(i => `${i.name} (x${i.qtd})`).join(', ');
         const totalMsg = `R$ ${valorTotalComFrete.toFixed(2).replace('.', ',')}${valorFrete > 0 ? ' (frete incluso)' : ''}`;
 
         let beneficioMsg = "";
         if (entrega === 'tele' && totalGarrafas >= 3) beneficioMsg = "\n🚚 FRETE GRÁTIS ATIVADO!";
+        
+        let cupomMsg = "";
+        if (cupomDescontoAtivo) {
+            cupomMsg = `\n🏷️ Cupom: *${cupomDescontoAtivo}* (Desconto: -R$ ${valorDesconto.toFixed(2).replace('.', ',')})`;
+        }
 
         const dbDados = {
             cliente: `${nome} (${telefone})`,
-            itens: itensMsg,
+            itens: itensMsg + (cupomDescontoAtivo ? ` [CUPOM: ${cupomDescontoAtivo}]` : ""),
             total: parseFloat(valorTotalComFrete.toFixed(2)),
             custo: parseFloat(custoTotalPedido.toFixed(2)),
             pagamento: pag,
@@ -1340,7 +1554,7 @@ async function checkout() {
 
         rastrearAcao(itensMsg, "🚀 Clicou WhatsApp");
 
-        const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 " + nome + "\n📱 " + telefone + "\n📦 " + itensMsg + "\n📍 " + endereco + "\n💳 Pagamento: " + pag + trocoMsg + "\n💰 " + totalMsg + beneficioMsg)}`;
+        const waUrl = `https://wa.me/5551989067003?text=${encodeURIComponent("*PEDIDO TIO NAN*\n👤 " + nome + "\n📱 " + telefone + "\n📦 " + itensMsg + "\n📍 " + endereco + "\n💳 Pagamento: " + pag + trocoMsg + cupomMsg + "\n💰 " + totalMsg + beneficioMsg)}`;
         window.location.href = waUrl;
     } catch (e) {
         console.error(e);
@@ -1426,16 +1640,45 @@ async function carregarTestimonialsHome() {
     try {
         if (!db) return;
         
-        // Busca as avaliações e produtos em paralelo
+        // Busca as avaliações que contêm comentários e os produtos em paralelo
         const [reviewsRes, prodsRes] = await Promise.all([
-            db.from('avaliacoes').select('*').gte('estrelas', 4).order('created_at', { ascending: false }).limit(9),
+            db.from('avaliacoes')
+                .select('*')
+                .gte('estrelas', 4)
+                .not('comentario', 'is', null)
+                .neq('comentario', '')
+                .order('created_at', { ascending: false })
+                .limit(40), // Buscamos mais para garantir avaliadores únicos após deduplicação
             db.from('produtos').select('*').eq('excluido', false)
         ]);
 
         if (reviewsRes.error) throw reviewsRes.error;
-        const data = reviewsRes.data;
         
-        if (!data || data.length === 0) {
+        // Filtra para garantir apenas depoimentos com comentários válidos e sem nomes repetidos
+        const nomesVistos = new Set();
+        const data = [];
+        const rawReviews = reviewsRes.data || [];
+        
+        for (const a of rawReviews) {
+            if (!a.comentario || a.comentario.trim() === '') continue;
+            
+            // Pega o nome completo em maiúsculo para comparar/exibir
+            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().toUpperCase() : 'ANÔNIMO';
+            
+            // Se já vimos esse primeiro nome de exibição, pula
+            if (nomeExibicao !== 'ANÔNIMO' && nomesVistos.has(nomeExibicao)) {
+                continue;
+            }
+            
+            if (nomeExibicao !== 'ANÔNIMO') {
+                nomesVistos.add(nomeExibicao);
+            }
+            
+            data.push(a);
+            if (data.length >= 9) break; // Exibe no máximo 9 depoimentos únicos na home
+        }
+        
+        if (data.length === 0) {
             section.classList.add('hidden');
             return;
         }
@@ -1478,8 +1721,9 @@ async function carregarTestimonialsHome() {
 
         container.innerHTML = data.map(a => {
             const estrelas = "★".repeat(a.estrelas) + "☆".repeat(5 - a.estrelas);
-            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().split(' ')[0].toUpperCase() : 'ANÔNIMO';
-            const comentario = a.comentario ? a.comentario : 'Excelente cachaça premium, recomendo de olhos fechados!';
+            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().toUpperCase() : 'ANÔNIMO';
+            const comentario = a.comentario.trim();
+            const dataF = a.created_at ? new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
             
             const prodNomeKey = a.produto_nome ? a.produto_nome.trim().toLowerCase() : '';
             const prodInfo = produtosMap[prodNomeKey];
@@ -1491,12 +1735,25 @@ async function carregarTestimonialsHome() {
             return `
                 <div class="swiper-slide" style="height: auto;">
                     <div class="testimonial-card" ${clickAttr}>
-                        ${fotoUrl ? `<img src="${fotoUrl}" class="testimonial-product-badge" alt="${a.produto_nome}">` : ''}
-                        <div class="testimonial-stars">${estrelas}</div>
-                        <p class="testimonial-comment">${comentario}</p>
-                        <div class="testimonial-footer">
-                            <span class="testimonial-author">${nomeExibicao}</span>
+                        <!-- Lado do Produto -->
+                        <div class="testimonial-product-side">
+                            ${fotoUrl ? `<img src="${fotoUrl}" class="testimonial-card-bottle" alt="${a.produto_nome}">` : ''}
                             <span class="testimonial-product-tag">${a.produto_nome}</span>
+                        </div>
+                        
+                        <!-- Lado da Avaliação -->
+                        <div class="testimonial-review-side">
+                            <div class="testimonial-stars">${estrelas}</div>
+                            <p class="testimonial-comment">"${comentario}"</p>
+                            ${a.foto_cliente_url ? `
+                                <div style="margin-bottom: 12px; margin-top: -5px; z-index: 5; position: relative;">
+                                    <img src="${a.foto_cliente_url}" alt="Foto da garrafa enviada pelo cliente" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(197, 160, 89, 0.2); cursor: pointer; display: block;" onclick="event.stopPropagation(); window.open('${a.foto_cliente_url}', '_blank')">
+                                </div>
+                            ` : ''}
+                            <div class="testimonial-footer">
+                                <span class="testimonial-author">${nomeExibicao}</span>
+                                ${dataF ? `<span class="testimonial-date">${dataF}</span>` : ''}
+                            </div>
                         </div>
                     </div>
                 </div>

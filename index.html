@@ -263,6 +263,13 @@
                 <input type="text" id="troco" class="cart-input" placeholder="Precisa de troco para quanto? (Opcional)">
             </div>
 
+            <!-- Campo de Cupom de Desconto -->
+            <div style="display: flex; gap: 8px; margin-top: 15px; margin-bottom: 12px; align-items: stretch;">
+                <input type="text" id="cupom-input" class="cart-input" placeholder="Cupom de Desconto" style="margin-bottom: 0; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+                <button type="button" onclick="aplicarCupomSacola()" style="background: var(--blue-navy); color: #FFF; border: none; border-radius: 12px; padding: 0 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='var(--gold-soft)'" onmouseout="this.style.background='var(--blue-navy)'">APLICAR</button>
+            </div>
+            <div id="cupom-mensagem-sacola" style="font-size: 0.8rem; font-weight: 700; margin-top: -6px; margin-bottom: 15px; display: none;"></div>
+
             <div id="aviso-regiao"
                 style="color: #ff4444; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; display: none; text-transform: uppercase;">
                 Ops! Ainda não entregamos nesta cidade. 💔</div>
