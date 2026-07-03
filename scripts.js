@@ -51,6 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         if (overlay) overlay.style.display = 'flex';
     }
+
+    // Eventos de swipe no lightbox
+    const lightboxEl = document.getElementById('review-lightbox');
+    if (lightboxEl) {
+        lightboxEl.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        lightboxEl.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+    }
 });
 
 function updateWelcome() {
@@ -77,6 +90,11 @@ function updateWelcome() {
 const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
 let db;
+// Variáveis do Lightbox de avaliações
+let lightboxUrls = [];
+let lightboxCurrentIndex = 0;
+let touchStartX = 0;
+let touchEndX = 0;
 try {
     db = window.supabase.createClient(supabaseUrl, supabaseKey);
 } catch (e) {
@@ -936,6 +954,152 @@ function abrirModalProduto(dadosEncoded) {
     document.body.classList.add('stop-scroll');
 }
 
+function abrirLightbox(url, event, allUrlsString) {
+    if (event) event.stopPropagation();
+    const lightbox = document.getElementById('review-lightbox');
+    const img = document.getElementById('lightbox-img');
+    if (!lightbox || !img) return;
+
+    // Inicializa as URLs
+    if (allUrlsString) {
+        lightboxUrls = allUrlsString.split(',').map(u => u.trim()).filter(u => u.length > 0);
+    } else {
+        lightboxUrls = [url];
+    }
+
+    // Acha o índice atual
+    lightboxCurrentIndex = lightboxUrls.indexOf(url);
+    if (lightboxCurrentIndex === -1) lightboxCurrentIndex = 0;
+
+    img.src = lightboxUrls[lightboxCurrentIndex];
+    lightbox.style.display = 'flex';
+    
+    // Resolve o bug de stacking/compositing do iOS com backdrop-filter
+    const modalOverlay = document.getElementById('modal-produto-overlay');
+    if (modalOverlay) {
+        modalOverlay.style.zIndex = '1000'; // Menor que o do lightbox
+        modalOverlay.style.backdropFilter = 'none';
+        modalOverlay.style.webkitBackdropFilter = 'none';
+    }
+
+    setTimeout(() => {
+        lightbox.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+    }, 10);
+    
+    document.body.classList.add('stop-scroll');
+
+    // Atualiza a navegação
+    atualizarLightboxNav();
+}
+
+function fecharLightbox() {
+    const lightbox = document.getElementById('review-lightbox');
+    const img = document.getElementById('lightbox-img');
+    if (!lightbox || !img) return;
+
+    lightbox.style.opacity = '0';
+    img.style.transform = 'scale(0.9)';
+    
+    // Restaura o z-index e backdrop-filter do modal do produto
+    const modalOverlay = document.getElementById('modal-produto-overlay');
+    if (modalOverlay) {
+        modalOverlay.style.zIndex = '';
+        modalOverlay.style.backdropFilter = '';
+        modalOverlay.style.webkitBackdropFilter = '';
+    }
+
+    setTimeout(() => {
+        lightbox.style.display = 'none';
+        img.src = '';
+        
+        // Só remove stop-scroll se o modal principal também não estiver ativo
+        const modalProd = document.getElementById('modal-produto-overlay');
+        if (!modalProd || !modalProd.classList.contains('active')) {
+            document.body.classList.remove('stop-scroll');
+        }
+    }, 300);
+}
+
+function atualizarLightboxNav() {
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    const dotsContainer = document.getElementById('lightbox-dots');
+    
+    if (!prevBtn || !nextBtn || !dotsContainer) return;
+
+    if (lightboxUrls.length > 1) {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+        dotsContainer.style.display = 'flex';
+        
+        // Renderiza as bolinhas (dots)
+        dotsContainer.innerHTML = lightboxUrls.map((_, index) => {
+            const isActive = index === lightboxCurrentIndex;
+            return `<span class="lightbox-dot ${isActive ? 'active' : ''}" onclick="lightboxIrPara(${index}, event)"></span>`;
+        }).join('');
+    } else {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        dotsContainer.style.display = 'none';
+    }
+}
+
+function lightboxProximo(event) {
+    if (event) event.stopPropagation();
+    if (lightboxUrls.length <= 1) return;
+    
+    lightboxCurrentIndex = (lightboxCurrentIndex + 1) % lightboxUrls.length;
+    atualizarImagemLightbox();
+}
+
+function lightboxAnterior(event) {
+    if (event) event.stopPropagation();
+    if (lightboxUrls.length <= 1) return;
+    
+    lightboxCurrentIndex = (lightboxCurrentIndex - 1 + lightboxUrls.length) % lightboxUrls.length;
+    atualizarImagemLightbox();
+}
+
+function lightboxIrPara(index, event) {
+    if (event) event.stopPropagation();
+    if (index === lightboxCurrentIndex) return;
+    
+    lightboxCurrentIndex = index;
+    atualizarImagemLightbox();
+}
+
+function atualizarImagemLightbox() {
+    const img = document.getElementById('lightbox-img');
+    if (!img) return;
+    
+    img.style.opacity = '0';
+    img.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
+        img.src = lightboxUrls[lightboxCurrentIndex];
+        img.onload = () => {
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1)';
+        };
+        atualizarLightboxNav();
+    }, 150);
+}
+
+function handleSwipe() {
+    const threshold = 50;
+    const diff = touchEndX - touchStartX;
+    if (Math.abs(diff) < threshold) return;
+    
+    if (diff < 0) {
+        // Deslizou para a esquerda (próxima foto)
+        lightboxProximo();
+    } else {
+        // Deslizou para a direita (foto anterior)
+        lightboxAnterior();
+    }
+}
+
 async function carregarReviewsProduto(produtoNome) {
     const container = document.getElementById('modal-reviews-section');
     if (!container) return;
@@ -1005,8 +1169,10 @@ async function carregarReviewsProduto(produtoNome) {
                     <div style="color:#ffc107; font-size:0.85rem; margin-bottom:3px; letter-spacing:1px;">${starsText}</div>
                     ${comentario ? `<p style="font-style:italic; color:#555; line-height:1.3; margin:0; font-size:0.8rem;">${comentario}</p>` : `<p style="font-style:italic; color:#999; margin:0; font-size:0.75rem;">Avaliou sem comentário escrito.</p>`}
                     ${a.foto_cliente_url ? `
-                        <div style="margin-top: 8px;">
-                            <img src="${a.foto_cliente_url}" alt="Foto da garrafa enviada pelo cliente" style="max-width: 120px; max-height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); cursor: pointer;" onclick="window.open('${a.foto_cliente_url}', '_blank')">
+                        <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                            ${a.foto_cliente_url.split(',').map(url => `
+                                <img src="${url.trim()}" alt="Foto da garrafa enviada pelo cliente" style="width: 90px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(197, 160, 89, 0.2); cursor: pointer; display: block;" onclick="abrirLightbox('${url.trim()}', event, '${a.foto_cliente_url.replace(/'/g, "\\'")}')">
+                            `).join('')}
                         </div>
                     ` : ''}
                 </div>
@@ -1745,11 +1911,13 @@ async function carregarTestimonialsHome() {
                         <div class="testimonial-review-side">
                             <div class="testimonial-stars">${estrelas}</div>
                             <p class="testimonial-comment">"${comentario}"</p>
-                            ${a.foto_cliente_url ? `
-                                <div style="margin-bottom: 12px; margin-top: -5px; z-index: 5; position: relative;">
-                                    <img src="${a.foto_cliente_url}" alt="Foto da garrafa enviada pelo cliente" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(197, 160, 89, 0.2); cursor: pointer; display: block;" onclick="event.stopPropagation(); window.open('${a.foto_cliente_url}', '_blank')">
-                                </div>
-                            ` : ''}
+                    ${a.foto_cliente_url ? `
+                        <div style="margin-bottom: 12px; margin-top: -5px; z-index: 5; position: relative; display: flex; gap: 6px; flex-wrap: wrap;">
+                            ${a.foto_cliente_url.split(',').map(url => `
+                                <img src="${url.trim()}" alt="Foto da garrafa enviada pelo cliente" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(197, 160, 89, 0.2); cursor: pointer; display: block;" onclick="abrirLightbox('${url.trim()}', event, '${a.foto_cliente_url.replace(/'/g, "\\'")}')">
+                            `).join('')}
+                        </div>
+                    ` : ''}
                             <div class="testimonial-footer">
                                 <span class="testimonial-author">${nomeExibicao}</span>
                                 ${dataF ? `<span class="testimonial-date">${dataF}</span>` : ''}

@@ -1561,8 +1561,10 @@
                             <div style="margin-top:2px; font-size:1rem; letter-spacing:2px;">${estrelas}</div>
                             <p style="font-style:italic; color:#ccc; font-size:0.85rem; margin-top:5px; line-height:1.4;">${comentario}</p>
                             ${a.foto_cliente_url ? `
-                                <div style="margin-top: 8px;">
-                                    <img src="${a.foto_cliente_url}" alt="Foto da garrafa" style="max-width: 120px; max-height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #444; cursor: pointer;" onclick="window.open('${a.foto_cliente_url}', '_blank')">
+                                <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                    ${a.foto_cliente_url.split(',').map(url => `
+                                        <img src="${url.trim()}" alt="Foto da garrafa" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #444; cursor: pointer;" onclick="window.open('${url.trim()}', '_blank')">
+                                    `).join('')}
                                 </div>
                             ` : ''}
                         </div>

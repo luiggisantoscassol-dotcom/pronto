@@ -9,6 +9,11 @@
     <meta name="description" content="Avalie as cachaças premium artesanais do Tio Nan e compartilhe sua opinião.">
     <link rel="canonical" href="https://www.tionan.com.br/avaliar.html">
 
+    <!-- ÍCONES -->
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.tionan.com.br/avaliar.html">
@@ -698,7 +703,12 @@
                     <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px; line-height: 1.45;">
                         Como você enviou uma foto degustando, você garantiu seu desconto! Use o cupom abaixo no seu próximo pedido feito com este celular pelo WhatsApp:
                     </p>
-                    <div style="font-size: 1.4rem; font-weight: 800; color: var(--gold-soft); background: #FFF; padding: 10px 25px; border-radius: 10px; border: 1px solid rgba(197, 160, 89, 0.25); display: inline-block; letter-spacing: 2px; margin-bottom: 8px; font-family: var(--font-premium);">AVALIEI20</div>
+                    <div id="codigo-cupom" style="font-size: 1.4rem; font-weight: 800; color: var(--gold-soft); background: #FFF; padding: 10px 25px; border-radius: 10px; border: 1px solid rgba(197, 160, 89, 0.25); display: inline-block; letter-spacing: 2px; margin-bottom: 12px; font-family: var(--font-premium);">AVALIEI20</div>
+                    <div style="margin-bottom: 15px;">
+                        <button type="button" id="btn-copiar-cupom" onclick="copiarCupom()" style="background: var(--blue-navy); color: #FFF; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.5px; text-transform: uppercase;" onmouseover="this.style.background='var(--gold-soft)'" onmouseout="this.style.background='var(--blue-navy)'">
+                            📋 Copiar Cupom
+                        </button>
+                    </div>
                     <p style="font-size: 0.72rem; color: #888; margin: 0;">*Desconto válido para compras associadas a este número de WhatsApp.</p>
                 </div>
 
@@ -1031,13 +1041,10 @@
                             </div>
                             
                             <label for="eval-foto-${pId}" style="font-size: 0.85rem; font-weight: 700; color: var(--gold-soft); display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 12px; background: rgba(138, 102, 46, 0.04); border: 1px solid rgba(138, 102, 46, 0.15); border-radius: 8px; transition: all 0.3s; user-select: none;" onmouseover="this.style.background='rgba(138, 102, 46, 0.08)'" onmouseout="this.style.background='rgba(138, 102, 46, 0.04)'">
-                                📸 Adicionar foto degustando (opcional)
+                                📸 Adicionar fotos degustando (opcional)
                             </label>
-                            <input type="file" id="eval-foto-${pId}" accept="image/*" style="display: none;" onchange="handleFotoChange('${pId}', this)">
-                            <div id="eval-foto-preview-container-${pId}" style="margin-top: 12px; display: ${currentData.filePreview ? 'flex' : 'none'}; align-items: center; gap: 12px;">
-                                <img id="eval-foto-preview-${pId}" src="${currentData.filePreview || ''}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #EAEAEA;">
-                                <button type="button" style="background:#ff4444; color:#FFF; border:none; border-radius:6px; padding:6px 12px; font-size:0.75rem; font-weight:700; cursor:pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" onclick="removerFoto('${pId}')">Remover Foto</button>
-                            </div>
+                            <input type="file" id="eval-foto-${pId}" accept="image/*" multiple style="display: none;" onchange="handleFotoChange('${pId}', this)">
+                            <div id="eval-foto-preview-container-${pId}" style="margin-top: 12px; display: none;"></div>
                         </div>
 
                         <!-- Decisão de Compra -->
@@ -1066,6 +1073,9 @@
             });
 
             wrapper.innerHTML = html;
+            produtosSelecionados.forEach(pId => {
+                renderPreviews(pId);
+            });
             validarBotaoFinalizar();
         }
 
@@ -1113,36 +1123,81 @@
             avaliacoesData[pId].comment = textarea.value.trim();
         }
 
-        // --- CONTROLE DE UPLOAD DE FOTOS LOCAIS ---
+        // --- CONTROLE DE UPLOAD DE MULTIPLAS FOTOS LOCAIS ---
         function handleFotoChange(pId, input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
+            if (input.files && input.files.length > 0) {
                 if (!avaliacoesData[pId]) {
                     avaliacoesData[pId] = { stars: 0, comment: '', decision: [] };
                 }
-                avaliacoesData[pId].file = file;
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    avaliacoesData[pId].filePreview = e.target.result;
-                    const container = document.getElementById(`eval-foto-preview-container-${pId}`);
-                    const img = document.getElementById(`eval-foto-preview-${pId}`);
-                    if (img) img.src = e.target.result;
-                    if (container) container.style.display = 'flex';
+                if (!avaliacoesData[pId].photos) {
+                    avaliacoesData[pId].photos = [];
                 }
-                reader.readAsDataURL(file);
+                
+                const filesArray = Array.from(input.files);
+                
+                // Limite de 5 fotos por sabor para evitar sobrecarga de rede
+                if (avaliacoesData[pId].photos.length + filesArray.length > 5) {
+                    alert("Você pode adicionar no máximo 5 fotos por sabor.");
+                    return;
+                }
+
+                let processados = 0;
+                filesArray.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const photoObj = {
+                            file: file,
+                            preview: e.target.result,
+                            id: `${Date.now()}-${Math.random().toString(36).substring(2, 6)}`
+                        };
+                        avaliacoesData[pId].photos.push(photoObj);
+                        processados++;
+                        if (processados === filesArray.length) {
+                            renderPreviews(pId);
+                        }
+                    }
+                    reader.readAsDataURL(file);
+                });
+                
+                // Limpa o input para poder selecionar os mesmos arquivos se desejar
+                input.value = '';
             }
         }
 
-        function removerFoto(pId) {
-            if (avaliacoesData[pId]) {
-                avaliacoesData[pId].file = null;
-                avaliacoesData[pId].filePreview = null;
-            }
-            const fileInput = document.getElementById(`eval-foto-${pId}`);
-            if (fileInput) fileInput.value = '';
+        function renderPreviews(pId) {
             const container = document.getElementById(`eval-foto-preview-container-${pId}`);
-            if (container) container.style.display = 'none';
+            if (!container) return;
+
+            const photos = (avaliacoesData[pId] && avaliacoesData[pId].photos) ? avaliacoesData[pId].photos : [];
+            
+            if (photos.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.style.flexWrap = 'wrap';
+            container.style.gap = '10px';
+            container.style.alignItems = 'center';
+
+            container.innerHTML = photos.map(photo => {
+                return `
+                    <div id="preview-item-${photo.id}" style="position: relative; width: 65px; height: 65px; margin-top: 5px;">
+                        <img src="${photo.preview}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 8px; border: 1px solid #EAEAEA;">
+                        <button type="button" onclick="removerFotoUnica('${pId}', '${photo.id}')" style="position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; border-radius: 50%; background: #ff4444; color: #FFF; border: none; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; font-weight: bold; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            &times;
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removerFotoUnica(pId, photoId) {
+            if (avaliacoesData[pId] && avaliacoesData[pId].photos) {
+                avaliacoesData[pId].photos = avaliacoesData[pId].photos.filter(p => p.id !== photoId);
+            }
+            renderPreviews(pId);
         }
 
         function setDecision(pId, decType) {
@@ -1245,24 +1300,30 @@
                         
                         let fotoClienteUrl = null;
                         
-                        // Faz o upload da foto se existir
-                        if (evalItem && evalItem.file) {
+                        // Faz o upload de múltiplas fotos se existirem
+                        if (evalItem && evalItem.photos && evalItem.photos.length > 0) {
                             try {
-                                const file = evalItem.file;
-                                const fileExt = file.name.split('.').pop();
-                                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-                                const filePath = `avaliacoes/${fileName}`;
-                                
-                                const { data: uploadData, error: uploadError } = await db.storage
-                                    .from('fotos')
-                                    .upload(filePath, file);
+                                const uploadPromises = evalItem.photos.map(async photoObj => {
+                                    const file = photoObj.file;
+                                    const fileExt = file.name.split('.').pop();
+                                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+                                    const filePath = `avaliacoes/${fileName}`;
                                     
-                                if (uploadError) throw uploadError;
+                                    const { error: uploadError } = await db.storage
+                                        .from('fotos')
+                                        .upload(filePath, file);
+                                        
+                                    if (uploadError) throw uploadError;
+                                    
+                                    const { data: publicUrlData } = db.storage.from('fotos').getPublicUrl(filePath);
+                                    return publicUrlData.publicUrl;
+                                });
                                 
-                                const { data: publicUrlData } = db.storage.from('fotos').getPublicUrl(filePath);
-                                fotoClienteUrl = publicUrlData.publicUrl;
+                                const urlsUploaded = await Promise.all(uploadPromises);
+                                fotoClienteUrl = urlsUploaded.join(',');
                             } catch (uploadErr) {
-                                console.error("Erro ao fazer upload da imagem:", uploadErr);
+                                console.error("Erro ao fazer upload das imagens:", uploadErr);
+                                alert(`Aviso: O upload de fotos para o sabor "${produto.nome}" falhou (${uploadErr.message || uploadErr}). A avaliação será enviada apenas com o texto.`);
                             }
                         }
                         
@@ -1317,10 +1378,10 @@
                 }
             }
 
-            // Ativa o box de cupom caso o cliente tenha enviado foto
+            // Ativa o box de cupom caso o cliente tenha enviado fotos
             let temFotoEnviada = false;
             produtosSelecionados.forEach(pId => {
-                if (avaliacoesData[pId] && avaliacoesData[pId].file) {
+                if (avaliacoesData[pId] && avaliacoesData[pId].photos && avaliacoesData[pId].photos.length > 0) {
                     temFotoEnviada = true;
                 }
             });
@@ -1334,6 +1395,59 @@
             document.getElementById('step-section-2').classList.remove('active');
             document.getElementById('step-section-3').classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function copiarCupom() {
+            const codigoCupomEl = document.getElementById('codigo-cupom');
+            const btn = document.getElementById('btn-copiar-cupom');
+            if (!codigoCupomEl || !btn) return;
+
+            const textToCopy = codigoCupomEl.innerText.trim();
+
+            const successCallback = () => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = "Copiado! ✓";
+                btn.style.background = "#27ae60"; // verde
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = ""; // volta pro original
+                }, 2000);
+            };
+
+            const fallbackCopy = () => {
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    if (successful) {
+                        successCallback();
+                    } else {
+                        alert("Copie o cupom manualmente: " + textToCopy);
+                    }
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                    document.body.removeChild(textArea);
+                    alert("Copie o cupom manualmente: " + textToCopy);
+                }
+            };
+
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(successCallback)
+                    .catch(err => {
+                        console.warn("navigator.clipboard falhou, tentando fallback...", err);
+                        fallbackCopy();
+                    });
+            } else {
+                fallbackCopy();
+            }
         }
     </script>
 </body>
