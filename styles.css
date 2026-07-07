@@ -2094,6 +2094,35 @@
             fill: currentColor;
         }
 
+        /* Responsividade para o Selo no celular */
+        @media (max-width: 480px) {
+            .header-social-proof {
+                gap: 6px;
+                padding: 4px 10px;
+                border-radius: 16px;
+                margin-top: -10px;
+                margin-bottom: 12px;
+            }
+            .header-social-proof .stars-gold {
+                font-size: 1rem;
+            }
+            .header-social-proof .badge-text {
+                font-size: 0.68rem;
+                gap: 4px;
+                letter-spacing: 0.2px;
+            }
+            .header-social-proof .verified-badge {
+                font-size: 0.58rem;
+                padding: 2px 6px;
+                border-radius: 8px;
+                gap: 2.5px;
+            }
+            .header-social-proof .verified-icon {
+                width: 8px;
+                height: 8px;
+            }
+        }
+
         /* --- TOAST FLUTUANTE DE PROVA SOCIAL --- */
         .social-proof-toast {
             position: fixed;
