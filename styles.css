@@ -765,7 +765,7 @@
         .hero-section {
             width: 100%;
             text-align: center;
-            padding: 20px 10px;
+            padding: 20px 10px 0 10px;
             /* Reduzido pela metade */
         }
 
@@ -777,6 +777,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-top: -10px;
+            margin-bottom: 0;
             line-height: 1.1;
             word-wrap: break-word;
         }
@@ -1596,7 +1597,7 @@
         /* --- SEARCH BAR --- */
         .search-container {
             max-width: 600px;
-            margin: 30px auto 40px;
+            margin: 0 auto 40px;
             padding: 0 20px;
             position: relative;
             z-index: 50;
@@ -2026,8 +2027,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 30px auto 0 auto;
-            gap: 10px;
+            margin: 30px auto 30px auto;
+            gap: 12px;
             text-align: center;
             width: 100%;
         }
@@ -2046,11 +2047,11 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             background: rgba(27, 54, 93, 0.03);
             border: 1.5px solid rgba(197, 160, 89, 0.25);
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 8px 18px;
+            border-radius: 25px;
             margin: 0 auto;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2073,14 +2074,14 @@
 
         .header-social-proof .stars-gold {
             color: #FFC107;
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             line-height: 1;
             filter: drop-shadow(0 1px 2px rgba(255, 193, 7, 0.3));
         }
 
         .header-social-proof .badge-text {
             color: var(--blue-navy);
-            font-size: 0.78rem;
+            font-size: 0.84rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -2099,8 +2100,8 @@
         /* Responsividade para o Selo no celular */
         @media (max-width: 480px) {
             .header-social-proof-container {
-                margin: 20px auto 0 auto;
-                gap: 6px;
+                margin: 20px auto 20px auto;
+                gap: 8px;
             }
             .trust-badge-label {
                 font-size: 0.72rem;
@@ -2109,17 +2110,17 @@
                 line-height: 1.3;
             }
             .header-social-proof {
-                gap: 6px;
-                padding: 4px 10px;
-                border-radius: 16px;
+                gap: 8px;
+                padding: 6px 14px;
+                border-radius: 20px;
                 margin: 0 auto;
             }
             .header-social-proof .stars-gold {
-                font-size: 1rem;
+                font-size: 1.15rem;
             }
             .header-social-proof .badge-text {
-                font-size: 0.68rem;
-                gap: 4px;
+                font-size: 0.74rem;
+                gap: 5px;
                 letter-spacing: 0.2px;
             }
         }
