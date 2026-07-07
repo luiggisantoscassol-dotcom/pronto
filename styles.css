@@ -2025,60 +2025,73 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background: rgba(197, 160, 89, 0.05);
-            border: 1px solid rgba(197, 160, 89, 0.2);
-            padding: 8px 16px;
-            border-radius: 30px;
+            gap: 8px;
+            background: rgba(27, 54, 93, 0.03);
+            border: 1.5px solid rgba(197, 160, 89, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
             margin: -5px auto 15px auto;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+            animation: trustBadgePulse 6s infinite ease-in-out;
+        }
+
+        @keyframes trustBadgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         .header-social-proof:hover {
-            background: rgba(197, 160, 89, 0.1);
-            border-color: rgba(197, 160, 89, 0.4);
-            transform: translateY(-2px);
+            background: rgba(197, 160, 89, 0.08);
+            border-color: rgba(197, 160, 89, 0.5);
+            transform: translateY(-2px) scale(1.03) !important;
             box-shadow: 0 6px 15px rgba(197, 160, 89, 0.1);
-        }
-
-        .header-social-proof .avatar-group {
-            display: flex;
-            align-items: center;
-        }
-
-        .header-social-proof .avatar-letter {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 1.5px solid #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.65rem;
-            font-weight: 800;
-            margin-right: -7px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-
-        .header-social-proof .avatar-letter:last-child {
-            margin-right: 0;
         }
 
         .header-social-proof .stars-gold {
             color: #FFC107;
-            font-size: 1.05rem;
-            letter-spacing: 0.5px;
+            font-size: 1.2rem;
             line-height: 1;
+            filter: drop-shadow(0 1px 2px rgba(255, 193, 7, 0.3));
         }
 
         .header-social-proof .badge-text {
             color: var(--blue-navy);
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             font-weight: 800;
-            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-social-proof .badge-divider {
+            color: rgba(197, 160, 89, 0.4);
+            font-weight: 300;
+        }
+
+        .header-social-proof .verified-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(37, 211, 102, 0.1);
+            color: #1e7e34;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(37, 211, 102, 0.2);
+        }
+
+        .header-social-proof .verified-icon {
+            width: 10px;
+            height: 10px;
+            fill: currentColor;
         }
 
         /* --- TOAST FLUTUANTE DE PROVA SOCIAL --- */
