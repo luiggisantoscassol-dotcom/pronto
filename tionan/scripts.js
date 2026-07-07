@@ -511,6 +511,7 @@ async function loadProducts() {
         try {
             const { data } = await db.from('avaliacoes').select('produto_nome, estrelas');
             avaliacoesVitrine = data || [];
+            atualizarSeloConfianca(avaliacoesVitrine);
         } catch (e) {
             console.warn("Erro ao buscar avaliações para vitrine:", e);
         }
@@ -1205,13 +1206,26 @@ function fecharModalProduto(event) {
 }
 
 function scrollToReviews() {
-    const modalBox = document.getElementById('modal-produto-box');
-    const reviewsSection = document.getElementById('modal-reviews-section');
-    if (modalBox && reviewsSection) {
-        modalBox.scrollTo({
-            top: reviewsSection.offsetTop - 20,
-            behavior: 'smooth'
-        });
+    const overlay = document.getElementById('modal-produto-overlay');
+    const isModalOpen = overlay && overlay.classList.contains('active');
+    
+    if (isModalOpen) {
+        const modalBox = document.getElementById('modal-produto-box');
+        const reviewsSection = document.getElementById('modal-reviews-section');
+        if (modalBox && reviewsSection) {
+            modalBox.scrollTo({
+                top: reviewsSection.offsetTop - 20,
+                behavior: 'smooth'
+            });
+        }
+    } else {
+        const homeReviews = document.getElementById('homepage-testimonials');
+        if (homeReviews) {
+            homeReviews.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
     }
 }
 
@@ -1653,7 +1667,7 @@ async function checkout() {
         updateWelcome();
         atualizarPresenca();
 
-        let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321)";
+        let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321) - Dia e horário a combinar";
         const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
 
         let valorFrete = 0;
@@ -1949,11 +1963,92 @@ async function carregarTestimonialsHome() {
                     disableOnInteraction: false,
                 }
             });
+            // Inicia as notificações flutuantes (Live Social Proof)
+            iniciarToastProvaSocial(data);
         }, 150);
     } catch (e) {
         console.error("Erro ao carregar depoimentos na home:", e);
         section.classList.add('hidden');
     }
+}
+
+// --- FUNÇÕES DE PROVA SOCIAL E TRUST BADGE ---
+
+function atualizarSeloConfianca(avaliacoes) {
+    const qtyEl = document.getElementById('total-reviews-qty');
+    const starsEl = document.getElementById('header-average-stars');
+    const containerEl = document.getElementById('header-social-proof-container');
+    if (!containerEl || !qtyEl || !starsEl || !avaliacoes || avaliacoes.length === 0) return;
+
+    const totalCount = avaliacoes.length;
+    const totalStars = avaliacoes.reduce((acc, a) => acc + a.estrelas, 0);
+    const media = (totalStars / totalCount).toFixed(1);
+
+    qtyEl.innerText = totalCount;
+    starsEl.innerText = media;
+    containerEl.style.display = 'flex';
+}
+
+function iniciarToastProvaSocial(avaliacoes) {
+    // Se o usuário já fechou na sessão atual, não exibe
+    if (sessionStorage.getItem('social-proof-dismissed') === 'true') return;
+
+    const toast = document.getElementById('social-proof-toast');
+    if (!toast || !avaliacoes || avaliacoes.length === 0) return;
+
+    let index = 0;
+    let timeoutId = null;
+
+    function mostrarProximaNotificacao() {
+        // Se o usuário fechou entre os intervalos, encerra
+        if (sessionStorage.getItem('social-proof-dismissed') === 'true') return;
+
+        const a = avaliacoes[index];
+        const nome = a.cliente_nome ? a.cliente_nome.trim() : 'Cliente Satisfeito';
+        
+        // Formata primeiro nome + sobrenome abreviado
+        const partesNome = nome.split(' ');
+        const nomeFormatado = partesNome[0] + (partesNome.length > 1 ? ' ' + partesNome[partesNome.length - 1][0] + '.' : '');
+        
+        const estrelas = '★'.repeat(a.estrelas);
+        const produto = a.produto_nome || 'uma garrafa';
+        const comentarioCurto = a.comentario.length > 70 ? a.comentario.substring(0, 67) + '...' : a.comentario;
+
+        // Monta o conteúdo do toast flutuante
+        toast.innerHTML = `
+            <button class="social-proof-close" onclick="fecharToastProvaSocial(event)">&times;</button>
+            <div class="social-proof-icon">⭐</div>
+            <div class="social-proof-content">
+                <p class="social-proof-title"><strong>${nomeFormatado}</strong> avaliou com ${estrelas}</p>
+                <p class="social-proof-desc">"${comentarioCurto}"</p>
+                <p class="social-proof-product">${produto}</p>
+            </div>
+        `;
+
+        // Ativa o toast flutuante (fade-in)
+        toast.classList.add('active');
+
+        // Oculta após 6 segundos (fade-out)
+        timeoutId = setTimeout(() => {
+            toast.classList.remove('active');
+            index = (index + 1) % avaliacoes.length;
+            
+            // Próximo toast aparece após 8 segundos
+            timeoutId = setTimeout(mostrarProximaNotificacao, 8000);
+        }, 6000);
+    }
+
+    // Primeiro toast aparece após 3 segundos da inicialização
+    setTimeout(mostrarProximaNotificacao, 3000);
+}
+
+function fecharToastProvaSocial(event) {
+    if (event) event.stopPropagation();
+    const toast = document.getElementById('social-proof-toast');
+    if (toast) {
+        toast.classList.remove('active');
+    }
+    sessionStorage.setItem('social-proof-dismissed', 'true');
 }
 
 

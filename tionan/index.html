@@ -233,6 +233,7 @@
             <select id="metodo-entrega" class="cart-input" onchange="updateCart()">
                 <option value="none" selected disabled>Como quer receber?</option>
                 <option value="tele">Entrega em Casa (Tele)</option>
+                <option value="retirada">Retirar na Loja (dia e horário a combinar)</option>
             </select>
 
             <div id="info-entrega-imediata"
@@ -251,7 +252,7 @@
                 style="display:none; padding:15px; background:rgba(212,175,55,0.05); border-radius:10px; margin:15px 0; border:1px solid rgba(212,175,55,0.1); font-size:0.85rem; color:#aaa; text-align:left;">
                 📍 Retirada na <a href="https://www.google.com/maps/place/Av.+Bento+Gon%C3%A7alves,+4321+-+Partenon,+Porto+Alegre+-+RS,+90650-003/@-30.061903,-51.1754231,17z/data=!3m1!4b1!4m6!3m5!1s0x95199d563f94c077:0x7eff562e1f95c679!8m2!3d-30.0619077!4d-51.1728428!16s%2Fg%2F11c1nygt4n?entry=ttu&g_ep=EgoyMDI2MDUwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank"
                     style="color:var(--gold-soft); font-weight:bold; text-decoration:underline;">Av. Bento Gonçalves,
-                    4321</a>. Horário a combinar via WhatsApp.
+                    4321</a>. Dia e horário da retirada a combinar via WhatsApp.
             </div>
 
             <div id="bloco-endereco" style="display:none;">
@@ -331,6 +332,17 @@
 
         <section class="hero-section">
             <h1 id="hero-title">Cachaça do Tio Nan</h1>
+            <div id="header-social-proof-container" class="header-social-proof-container" style="display: none;">
+                <p class="trust-badge-label">Quem prova, recomenda! <span class="trust-badge-sublabel">Veja a nossa reputação:</span></p>
+                <div class="header-social-proof" onclick="scrollToReviews()">
+                    <span class="stars-gold">★</span>
+                    <span class="badge-text">
+                        <span id="header-average-stars">4.9</span>/5 
+                        <span class="badge-divider">|</span> 
+                        <span id="total-reviews-qty">0</span> avaliações
+                    </span>
+                </div>
+            </div>
         </section>
 
         <div class="search-container">
@@ -405,6 +417,8 @@
             © 2026 TIO NAN. Todos os direitos reservados.
         </div>
     </footer>
+
+    <div id="social-proof-toast" class="social-proof-toast"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
