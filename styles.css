@@ -2034,13 +2034,14 @@
         }
 
         .trust-badge-label {
-            font-size: 0.72rem;
-            color: #666;
-            font-weight: 700;
-            letter-spacing: 0.3px;
+            font-size: 0.88rem;
+            color: var(--blue-navy);
+            font-weight: 800;
+            letter-spacing: 0.5px;
             margin: 0;
             text-transform: uppercase;
             font-family: var(--font-body);
+            opacity: 0.85;
         }
 
         .header-social-proof {
@@ -2104,7 +2105,7 @@
                 gap: 8px;
             }
             .trust-badge-label {
-                font-size: 0.72rem;
+                font-size: 0.8rem;
                 letter-spacing: 0.3px;
                 padding: 0 15px;
                 line-height: 1.3;
