@@ -2027,17 +2027,17 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 30px auto 30px auto;
-            gap: 12px;
+            margin: 20px auto 20px auto;
+            gap: 8px;
             text-align: center;
             width: 100%;
         }
 
         .trust-badge-label {
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             color: #666;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             margin: 0;
             text-transform: uppercase;
             font-family: var(--font-body);
@@ -2047,11 +2047,11 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(27, 54, 93, 0.03);
             border: 1.5px solid rgba(197, 160, 89, 0.25);
-            padding: 8px 18px;
-            border-radius: 25px;
+            padding: 6px 14px;
+            border-radius: 20px;
             margin: 0 auto;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2074,20 +2074,20 @@
 
         .header-social-proof .stars-gold {
             color: #FFC107;
-            font-size: 1.35rem;
+            font-size: 1.15rem;
             line-height: 1;
             filter: drop-shadow(0 1px 2px rgba(255, 193, 7, 0.3));
         }
 
         .header-social-proof .badge-text {
             color: var(--blue-navy);
-            font-size: 0.84rem;
+            font-size: 0.74rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.2px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .header-social-proof .badge-divider {
