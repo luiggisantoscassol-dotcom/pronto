@@ -1977,8 +1977,8 @@ async function carregarTestimonialsHome() {
 function atualizarSeloConfianca(avaliacoes) {
     const qtyEl = document.getElementById('total-reviews-qty');
     const starsEl = document.getElementById('header-average-stars');
-    const badgeEl = document.querySelector('.header-social-proof');
-    if (!badgeEl || !qtyEl || !starsEl || !avaliacoes || avaliacoes.length === 0) return;
+    const containerEl = document.getElementById('header-social-proof-container');
+    if (!containerEl || !qtyEl || !starsEl || !avaliacoes || avaliacoes.length === 0) return;
 
     const totalCount = avaliacoes.length;
     const totalStars = avaliacoes.reduce((acc, a) => acc + a.estrelas, 0);
@@ -1986,7 +1986,7 @@ function atualizarSeloConfianca(avaliacoes) {
 
     qtyEl.innerText = totalCount;
     starsEl.innerText = media;
-    badgeEl.style.display = 'inline-flex';
+    containerEl.style.display = 'flex';
 }
 
 function iniciarToastProvaSocial(avaliacoes) {

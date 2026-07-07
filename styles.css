@@ -2021,6 +2021,27 @@
         }
 
         /* --- PROVA SOCIAL / TRUST BADGE CABEÇALHO --- */
+        .header-social-proof-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 15px auto 25px auto;
+            gap: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .trust-badge-label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin: 0;
+            text-transform: uppercase;
+            font-family: var(--font-body);
+        }
+
         .header-social-proof {
             display: inline-flex;
             align-items: center;
@@ -2030,7 +2051,7 @@
             border: 1.5px solid rgba(197, 160, 89, 0.25);
             padding: 6px 14px;
             border-radius: 20px;
-            margin: -5px auto 15px auto;
+            margin: 0 auto;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
@@ -2096,12 +2117,21 @@
 
         /* Responsividade para o Selo no celular */
         @media (max-width: 480px) {
+            .header-social-proof-container {
+                margin: 10px auto 20px auto;
+                gap: 6px;
+            }
+            .trust-badge-label {
+                font-size: 0.72rem;
+                letter-spacing: 0.3px;
+                padding: 0 15px;
+                line-height: 1.3;
+            }
             .header-social-proof {
                 gap: 6px;
                 padding: 4px 10px;
                 border-radius: 16px;
-                margin-top: -10px;
-                margin-bottom: 12px;
+                margin: 0 auto;
             }
             .header-social-proof .stars-gold {
                 font-size: 1rem;
