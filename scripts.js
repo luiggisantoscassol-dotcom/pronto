@@ -775,6 +775,7 @@ function createParticles(x, y) {
 }
 
 function add(id, name, price, cost, event) {
+    try { fecharToastProvaSocial(); } catch (e) {}
     if (event) { createParticles(event.clientX, event.clientY); event.stopPropagation(); }
     const card = document.getElementById(`card-${id}`);
     const modalOverlay = document.getElementById('modal-produto-overlay');
