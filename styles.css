@@ -1945,6 +1945,23 @@
             border-color: rgba(138, 102, 46, 0.1);
         }
 
+        .modal-reviews-wrapper {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        /* Efeito de fade-out suave na parte inferior da lista para indicar que há mais conteúdo */
+        .modal-reviews-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 35px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #FFFFFF);
+            pointer-events: none;
+        }
+
         /* Custom Scrollbar para a listagem de reviews no modal */
         .modal-reviews-list {
             scrollbar-width: thin;
@@ -1954,14 +1971,27 @@
             gap: 10px;
             max-height: 350px;
             overflow-y: auto;
-            padding-right: 4px;
+            padding-right: 6px;
         }
 
         @media (max-width: 600px) {
             .modal-reviews-list {
                 max-height: 280px; /* Limita a altura no celular para habilitar o scroll */
                 overflow-y: auto;
-                padding-right: 4px;
+                padding-right: 6px;
+            }
+            /* Torna a trilha da barra de rolagem visível no celular para dar a dica de rolagem */
+            .modal-reviews-list::-webkit-scrollbar {
+                width: 6px;
+                display: block !important;
+            }
+            .modal-reviews-list::-webkit-scrollbar-track {
+                background: rgba(138, 102, 46, 0.06) !important;
+                border-radius: 10px;
+            }
+            .modal-reviews-list::-webkit-scrollbar-thumb {
+                background-color: rgba(138, 102, 46, 0.4) !important;
+                border-radius: 10px;
             }
         }
 

@@ -1173,7 +1173,8 @@ async function carregarReviewsProduto(produtoNome) {
                         <div style="font-size: 0.85rem; color: #ffc107; letter-spacing: 1px;">${estrelasMedia} <span style="font-size: 0.75rem; color: #888; font-weight: 500; font-family: var(--font-body);">(${data.length})</span></div>
                     </div>
                 </div>
-                <div class="modal-reviews-list">
+                <div class="modal-reviews-wrapper">
+                    <div class="modal-reviews-list">
         `;
 
         data.forEach(a => {
@@ -1202,6 +1203,7 @@ async function carregarReviewsProduto(produtoNome) {
         });
 
         html += `
+                    </div>
                 </div>
             </div>
         `;
