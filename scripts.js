@@ -1116,6 +1116,26 @@ async function carregarReviewsProduto(produtoNome) {
             
         if (error) throw error;
         
+        if (data && data.length > 0) {
+            data.sort((x, y) => {
+                const getScore = (a) => {
+                    const temComentario = a.comentario && a.comentario.trim() !== '';
+                    const temFoto = a.foto_cliente_url && a.foto_cliente_url.trim() !== '';
+                    if (temComentario && temFoto) return 3;
+                    if (temComentario) return 2;
+                    return 1;
+                };
+
+                const scoreX = getScore(x);
+                const scoreY = getScore(y);
+
+                if (scoreX !== scoreY) {
+                    return scoreY - scoreX; // Prioridade maior primeiro
+                }
+                return new Date(y.created_at) - new Date(x.created_at); // Mais recente em caso de empate
+            });
+        }
+        
         if (!data || data.length === 0) {
             container.innerHTML = '<div style="font-size:0.85rem; opacity:0.6; text-align:center; padding:20px 10px; border-top:1px solid rgba(197,160,89,0.15); margin-top:20px; font-family:var(--font-body);">Nenhuma avaliação para este sabor ainda. Seja o primeiro a avaliar! 🥃</div>';
             const btnScroll = document.getElementById('modal-btn-scroll-reviews');

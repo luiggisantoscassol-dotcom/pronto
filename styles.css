@@ -1959,9 +1959,9 @@
 
         @media (max-width: 600px) {
             .modal-reviews-list {
-                max-height: none; /* Expande naturalmente no celular para evitar scroll duplo */
-                overflow-y: visible;
-                padding-right: 0;
+                max-height: 280px; /* Limita a altura no celular para habilitar o scroll */
+                overflow-y: auto;
+                padding-right: 4px;
             }
         }
 
