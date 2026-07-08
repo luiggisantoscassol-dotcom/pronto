@@ -903,7 +903,7 @@
             <p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 30px; font-weight: 600;">Painel de
                 Gestão Tio Nan</p>
 
-            <input type="text" id="login-user" placeholder="Usuário" style="margin-bottom: 15px; text-align: center;">
+            <input type="email" id="login-user" placeholder="E-mail" style="margin-bottom: 15px; text-align: center;">
             <input type="password" id="login-pass" placeholder="Senha" style="margin-bottom: 25px; text-align: center;">
 
             <button onclick="fazerLogin()" class="btn-status"
@@ -933,6 +933,7 @@
         <button class="nav-item" onclick="switchTab('tab-rastreio')">Visitantes 👁️</button>
         <button class="nav-item" onclick="switchTab('tab-avaliacoes')">Avaliações ⭐</button>
         <button class="nav-item" onclick="switchTab('tab-cupons')">Cupons 🏷️</button>
+        <button class="nav-item" onclick="fazerLogout()" style="color: var(--red-premium); font-weight: bold; margin-top: 20px;">Sair do Painel 🚪</button>
     </nav>
 
     <div id="tab-pedidos" class="tab-content">
@@ -1320,37 +1321,127 @@
             isSwiping = false;
         }, { passive: true });
 
-        // --- SISTEMA DE LOGIN ---
-        function verificarSessao() {
-            if (sessionStorage.getItem('tioNanAdminLogado') === 'true') {
+        // --- CONFIGURAÇÃO SUPABASE ---
+        const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
+        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // --- SISTEMA DE LOGIN COM SUPABASE AUTH ---
+        let canalRealtime = null;
+        let canalPresenca = null;
+        let intervalCarregamento = null;
+        let painelIniciado = false;
+
+        async function verificarSessao() {
+            const { data: { session }, error } = await db.auth.getSession();
+            if (session) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.body.style.overflow = 'auto';
+                if (!painelIniciado) iniciarPainel();
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.body.style.overflow = 'hidden'; // Bloqueia rolagem
             }
         }
 
-        function fazerLogin() {
-            const u = document.getElementById('login-user').value.trim();
-            const p = document.getElementById('login-pass').value.trim();
+        async function fazerLogin() {
+            const email = document.getElementById('login-user').value.trim();
+            const senha = document.getElementById('login-pass').value.trim();
+            const btn = document.querySelector('#login-screen button');
+            const errorEl = document.getElementById('login-error');
 
-            // USUÁRIO E SENHA DEFINIDOS AQUI
-            if (u.toLowerCase() === 'admin' && p.toLowerCase() === 'tionan123') {
-                sessionStorage.setItem('tioNanAdminLogado', 'true');
+            if (!email || !senha) {
+                errorEl.innerText = "Por favor, preencha todos os campos.";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "VERIFICANDO...";
+
+            const { data, error } = await db.auth.signInWithPassword({
+                email: email,
+                password: senha
+            });
+
+            btn.disabled = false;
+            btn.innerText = "ENTRAR NO SISTEMA";
+
+            if (error) {
+                errorEl.innerText = "Acesso negado: " + error.message;
+                errorEl.style.display = 'block';
+            } else {
+                errorEl.style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none';
                 document.body.style.overflow = 'auto';
-                document.getElementById('login-error').style.display = 'none';
-            } else {
-                document.getElementById('login-error').style.display = 'block';
+                iniciarPainel();
             }
         }
 
-        verificarSessao();
+        async function fazerLogout() {
+            if (confirm("Tem certeza que deseja sair do painel?")) {
+                if (intervalCarregamento) clearInterval(intervalCarregamento);
+                if (canalRealtime) db.removeChannel(canalRealtime);
+                if (canalPresenca) db.removeChannel(canalPresenca);
+                
+                await db.auth.signOut();
+                window.location.reload();
+            }
+        }
 
-        const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
-        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+        function iniciarPainel() {
+            if (painelIniciado) return;
+            painelIniciado = true;
+
+            const abaSalva = localStorage.getItem('abaAtivaTioNan') || 'tab-pedidos';
+            switchTab(abaSalva); 
+            carregar();
+
+            intervalCarregamento = setInterval(carregar, 15000);
+
+            // --- SISTEMA DE ATUALIZAÇÃO EM TEMPO REAL (SUPABASE) ---
+            canalRealtime = db.channel('tionan_updates');
+            canalRealtime
+                .on(
+                    'postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'pedidos' },
+                    (payload) => {
+                        const p = payload.new;
+                        if (p.status === "Novo Pedido") {
+                            showToast(`🔔 NOVO PEDIDO: ${p.cliente.toUpperCase()}! 🥃`);
+                            dispararNotificacaoNativa(p.cliente.toUpperCase());
+                            try {
+                                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                                audio.play();
+                            } catch (e) { }
+                            carregar();
+                        }
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'rastreio_carrinho' },
+                    () => {
+                        carregar(true);
+                    }
+                )
+                .subscribe();
+
+            // --- SISTEMA DE PRESENÇA EM TEMPO REAL ---
+            canalPresenca = db.channel('online_users');
+            canalPresenca
+                .on('presence', { event: 'sync' }, () => {
+                    onlineDevices = canalPresenca.presenceState();
+                    carregar(true);
+                })
+                .on('presence', { event: 'leave' }, () => {
+                    onlineDevices = canalPresenca.presenceState();
+                    carregar(true);
+                })
+                .subscribe();
+        }
+
+        verificarSessao();
         let veioDoPdv = false;
         let editandoPedidoId = null;
         let allProducts = [];
@@ -2879,59 +2970,7 @@
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
         }
 
-        const abaSalva = localStorage.getItem('abaAtivaTioNan') || 'tab-pedidos';
-        switchTab(abaSalva); carregar();
-
-        // --- SISTEMA DE ATUALIZAÇÃO EM TEMPO REAL (SUPABASE) ---
-        // Nota: Para funcionar, as tabelas 'pedidos' e 'rastreio_carrinho' 
-        // devem estar com o "Realtime" ativado no Dashboard do Supabase.
-        const canalRealtime = db.channel('tionan_updates');
-
-        canalRealtime
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'pedidos' },
-                (payload) => {
-                    const p = payload.new;
-                    if (p.status === "Novo Pedido") {
-                        showToast(`🔔 NOVO PEDIDO: ${p.cliente.toUpperCase()}! 🥃`);
-                        dispararNotificacaoNativa(p.cliente.toUpperCase());
-                        try {
-                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                            audio.play();
-                        } catch (e) { }
-                        carregar();
-                    }
-                }
-            )
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'rastreio_carrinho' },
-                () => {
-                    console.log("Rastreio em tempo real recebido!");
-                    carregar(true);
-                }
-            )
-            .subscribe((status) => {
-                console.log("Status da conexão em tempo real:", status);
-            });
-
         verificarPermissaoNotificacao();
-
-        // --- SISTEMA DE PRESENÇA EM TEMPO REAL ---
-        const canalPresenca = db.channel('online_users');
-        canalPresenca
-            .on('presence', { event: 'sync' }, () => {
-                onlineDevices = canalPresenca.presenceState();
-                carregar(true);
-            })
-            .on('presence', { event: 'leave' }, () => {
-                // Quando alguém sai, atualiza o estado e a tela
-                onlineDevices = canalPresenca.presenceState();
-                carregar(true);
-            })
-            .subscribe();
-        setInterval(carregar, 15000);
         // --- LÓGICA DE SELEÇÃO POR SEGURAR (LONG PRESS) ---
         let pressTimer;
         let isSelectionMode = false;
