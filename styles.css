@@ -765,7 +765,7 @@
         .hero-section {
             width: 100%;
             text-align: center;
-            padding: 20px 10px;
+            padding: 20px 10px 0 10px;
             /* Reduzido pela metade */
         }
 
@@ -777,6 +777,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-top: -10px;
+            margin-bottom: 0;
             line-height: 1.1;
             word-wrap: break-word;
         }
@@ -1596,7 +1597,7 @@
         /* --- SEARCH BAR --- */
         .search-container {
             max-width: 600px;
-            margin: 20px auto 40px;
+            margin: 0 auto 40px;
             padding: 0 20px;
             position: relative;
             z-index: 50;
@@ -2018,4 +2019,231 @@
         .lightbox-dot.active {
             background: #C5A059;
             transform: scale(1.3);
+        }
+
+        /* --- PROVA SOCIAL / TRUST BADGE CABEÇALHO --- */
+        .header-social-proof-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto 20px auto;
+            gap: 8px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .trust-badge-label {
+            font-size: 0.98rem;
+            color: var(--blue-navy);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin: 0;
+            text-transform: uppercase;
+            font-family: var(--font-body);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trust-badge-sublabel {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: none;
+            opacity: 0.8;
+        }
+
+        .header-social-proof {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(27, 54, 93, 0.03);
+            border: 1.5px solid rgba(197, 160, 89, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+            animation: trustBadgePulse 6s infinite ease-in-out;
+        }
+
+        @keyframes trustBadgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .header-social-proof:hover {
+            background: rgba(197, 160, 89, 0.08);
+            border-color: rgba(197, 160, 89, 0.5);
+            transform: translateY(-2px) scale(1.03) !important;
+            box-shadow: 0 6px 15px rgba(197, 160, 89, 0.1);
+        }
+
+        .header-social-proof .stars-gold {
+            color: #FFC107;
+            font-size: 1.15rem;
+            line-height: 1;
+            filter: drop-shadow(0 1px 2px rgba(255, 193, 7, 0.3));
+        }
+
+        .header-social-proof .badge-text {
+            color: var(--blue-navy);
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-social-proof .badge-divider {
+            color: rgba(197, 160, 89, 0.4);
+            font-weight: 300;
+        }
+
+
+
+        /* Responsividade para o Selo no celular */
+        @media (max-width: 480px) {
+            .header-social-proof-container {
+                margin: 20px auto 20px auto;
+                gap: 8px;
+            }
+            .trust-badge-label {
+                font-size: 0.88rem;
+                letter-spacing: 0.3px;
+                padding: 0 15px;
+                line-height: 1.35;
+            }
+            .trust-badge-sublabel {
+                font-size: 0.74rem;
+            }
+            .header-social-proof {
+                gap: 8px;
+                padding: 6px 14px;
+                border-radius: 20px;
+                margin: 0 auto;
+            }
+            .header-social-proof .stars-gold {
+                font-size: 1.15rem;
+            }
+            .header-social-proof .badge-text {
+                font-size: 0.74rem;
+                gap: 5px;
+                letter-spacing: 0.2px;
+            }
+        }
+
+        /* --- TOAST FLUTUANTE DE PROVA SOCIAL --- */
+        .social-proof-toast {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            width: 320px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            z-index: 99999;
+            transform: translateX(-120%);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .social-proof-toast.active {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .social-proof-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.2rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 6px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .social-proof-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #333;
+        }
+
+        .social-proof-icon {
+            font-size: 1.3rem;
+            background: rgba(197, 160, 89, 0.1);
+            color: #A67C37;
+            padding: 6px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .social-proof-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .social-proof-title {
+            font-size: 0.82rem;
+            color: #333;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .social-proof-title strong {
+            color: var(--blue-navy);
+            font-weight: 800;
+        }
+
+        .social-proof-desc {
+            font-size: 0.8rem;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        .social-proof-product {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #A67C37;
+            margin: 2px 0 0 0;
+        }
+
+        /* Responsividade para o Toast */
+        @media (max-width: 480px) {
+            .social-proof-toast {
+                bottom: 15px;
+                left: 15px;
+                right: 15px;
+                width: calc(100% - 30px);
+                padding: 12px 16px;
+            }
         }
