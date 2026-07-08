@@ -1205,6 +1205,11 @@ async function carregarReviewsProduto(produtoNome) {
         html += `
                     </div>
                 </div>
+                ${data.length > 2 ? `
+                <div style="text-align: center; font-size: 0.72rem; color: var(--gold-soft); margin-top: 8px; opacity: 0.8; font-family: var(--font-body); font-weight: 600; letter-spacing: 0.5px; animation: bounce 2s infinite;">
+                    Role para ver mais avaliações ↓
+                </div>
+                ` : ''}
             </div>
         `;
         container.innerHTML = html;

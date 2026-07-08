@@ -1980,19 +1980,28 @@
                 overflow-y: auto;
                 padding-right: 6px;
             }
-            /* Torna a trilha da barra de rolagem visível no celular para dar a dica de rolagem */
+            /* Torna a barra de rolagem muito mais evidente no celular */
             .modal-reviews-list::-webkit-scrollbar {
                 width: 6px;
                 display: block !important;
             }
             .modal-reviews-list::-webkit-scrollbar-track {
-                background: rgba(138, 102, 46, 0.06) !important;
+                background: rgba(138, 102, 46, 0.12) !important;
                 border-radius: 10px;
+                border: 1px solid rgba(138, 102, 46, 0.05);
             }
             .modal-reviews-list::-webkit-scrollbar-thumb {
-                background-color: rgba(138, 102, 46, 0.4) !important;
+                background-color: rgba(138, 102, 46, 0.75) !important;
                 border-radius: 10px;
+                border: 1px solid #FFFFFF;
             }
+        }
+
+        /* Animação suave para chamar atenção do usuário no indicador de rolagem */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-4px); }
+            60% { transform: translateY(-2px); }
         }
 
         .modal-reviews-list::-webkit-scrollbar {
