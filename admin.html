@@ -1559,6 +1559,15 @@
             renderizarClientes(filtrados);
         }
 
+        async function irParaCliente(telefone) {
+            switchTab('tab-clientes');
+            await carregarClientes();
+            const busca = document.getElementById('search-clientes');
+            busca.value = telefone;
+            filtrarClientes();
+            busca.focus();
+        }
+
         async function renderizarClientes(data) {
             const container = document.getElementById('corpo-clientes');
             container.innerHTML = '<div class="loading">Buscando base de dados...</div>';
@@ -2078,7 +2087,11 @@
                         if (label.includes("👋 Entrou")) label = `<span style="color:var(--gold-soft); font-style:italic; font-size:0.8rem;">${label}</span>`;
 
                         // Formatação para o aviso de cliente salvo
-                        if (label.includes("(cliente salvo)")) {
+                        if (label.includes("(cliente salvo")) {
+                            label = label.replace(/\(cliente salvo: ([^•)]+) • ([^)]+)\)/g, (_match, nome, telefone) => {
+                                const telefoneBusca = telefone.replace(/\D/g, '');
+                                return `<button type="button" onclick="event.stopPropagation(); irParaCliente('${telefoneBusca}')" title="Abrir este cliente" style="background:none; border:0; padding:0; color:#25D366; font:inherit; font-size:0.65rem; cursor:pointer; text-decoration:underline; text-underline-offset:2px;">(cliente salvo: ${nome.trim()} • ${telefone.trim()})</button>`;
+                            });
                             label = label.replace("(cliente salvo)", `<span style="color:#25D366; font-size:0.65rem; font-weight:normal; margin-left:4px;">(cliente salvo)</span>`);
                         }
 
@@ -2136,7 +2149,7 @@
                         if (logs.includes("Buscou")) score += 1;
                         if (logs.includes("Abriu Checkout")) score += 3;
                         if (logs.includes("Preencheu")) score += 4;
-                        if (logs.includes("(cliente salvo)")) score += 5;
+                        if (logs.includes("(cliente salvo")) score += 5;
 
                         if (score >= 10) return "☄️"; // Fervendo
                         if (score >= 6) return "🔥";  // Quente

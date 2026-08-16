@@ -1573,6 +1573,12 @@ function sincronizarBadge() {
     if (badge) badge.innerText = totalGarrafas;
 }
 
+function identificarClienteSalvo(nome, telefone) {
+    const nomeLimpo = (nome || '').trim();
+    const telefoneLimpo = (telefone || '').trim();
+    return nomeLimpo && telefoneLimpo ? ` (cliente salvo: ${nomeLimpo} • ${telefoneLimpo})` : "";
+}
+
 let timeoutSalvarRascunho;
 function salvarRascunhoCliente() {
     clearTimeout(timeoutSalvarRascunho);
@@ -1622,7 +1628,7 @@ document.addEventListener('visibilitychange', () => {
         if (pag === "none" || !pag) faltou.push("Pagamento");
 
         if (faltou.length > 0) {
-            let sufixo = (nome && telefone.length >= 10) ? " (cliente salvo)" : "";
+            let sufixo = (nome && telefone.length >= 10) ? identificarClienteSalvo(nome, telefone) : "";
             rastrearAcao(faltou.join(", ") + sufixo, "⚠️ Saiu sem");
         }
     } else if (document.visibilityState === 'visible' && isCartOpen) {
@@ -1811,10 +1817,10 @@ function closeCart(veioDoBotaoVoltar = false) {
             if (pag === "none" || !pag) faltou.push("Pagamento");
 
             if (faltou.length > 0) {
-                let sufixo = (nome && telefone.length >= 10) ? " (cliente salvo)" : "";
+                let sufixo = (nome && telefone.length >= 10) ? identificarClienteSalvo(nome, telefone) : "";
                 rastrearAcao(faltou.join(", ") + sufixo, "⚠️ Abandonou sem");
             } else {
-                rastrearAcao("Pronto p/ WhatsApp (cliente salvo)", "⚠️ Abandonou (Preencheu Tudo)");
+                rastrearAcao(`Pronto p/ WhatsApp${identificarClienteSalvo(nome, telefone)}`, "⚠️ Abandonou (Preencheu Tudo)");
             }
         }
     } catch (e) { }
@@ -2078,5 +2084,4 @@ function fecharToastProvaSocial(event) {
     }
     sessionStorage.setItem('social-proof-dismissed', 'true');
 }
-
 
