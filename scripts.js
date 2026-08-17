@@ -1604,7 +1604,7 @@ function salvarRascunhoCliente() {
                 await db.from('clientes').upsert([dados], { onConflict: 'telefone' });
                 localStorage.setItem('visitorName', nome);
                 updateWelcome();
-                rastrearAcao("Identificação", "✅ Preencheu");
+                rastrearAcao(`Identificação${identificarClienteSalvo(nome, telRaw)}`, "✅ Preencheu");
             } catch (e) {
                 console.warn("Erro ao salvar rascunho:", e.message);
             }
@@ -2084,4 +2084,3 @@ function fecharToastProvaSocial(event) {
     }
     sessionStorage.setItem('social-proof-dismissed', 'true');
 }
-

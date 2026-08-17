@@ -2042,6 +2042,7 @@
                                 items: [],
                                 ultimo: r.created_at,
                                 nome: nomeCliente,
+                                telefone: null,
                                 ip: r.ip,
                                 local: r.local || null,
                                 origem: r.origem || null
@@ -2082,6 +2083,12 @@
                         }
 
                         trackerMap[chave].cont++;
+
+                        const clienteSalvo = String(r.produto_nome || '').match(/\(cliente salvo: ([^•)]+) • ([^)]+)\)/);
+                        if (clienteSalvo) {
+                            trackerMap[chave].nome = clienteSalvo[1].trim();
+                            trackerMap[chave].telefone = clienteSalvo[2].replace(/\D/g, '');
+                        }
 
                         // Formatação especial para as ações
                         let label = r.produto_nome;
@@ -2168,6 +2175,8 @@
                     const statusClass = isOnline ? 'status-online' : 'status-offline';
                     const badgeOnline = isOnline ? `<span class="status-badge" style="background:#25D366; color:#000; animation: pulse-online 2s infinite; font-size:0.5rem; padding: 2px 4px; margin-left:5px; height:18px !important; width:auto !important; min-width:unset !important;">ONLINE</span>` : '';
                     const tagOrigem = d.origem ? `<span style="font-size: 0.5rem; background: rgba(197, 160, 89, 0.2); color: var(--gold-soft); padding: 2px 5px; border-radius: 4px; font-weight: 900; margin-left: 6px; border: 1px solid rgba(197,160,89,0.4); text-transform: uppercase; letter-spacing: 0.5px;">${d.origem}</span>` : '';
+                    const telefoneWhats = limparTelefoneWhatsApp(d.telefone);
+                    const botaoWhatsVisitante = telefoneWhats ? `<a href="https://wa.me/55${telefoneWhats}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:flex; align-items:center; justify-content:center; gap:7px; width:100%; box-sizing:border-box; margin-bottom:12px; padding:11px 14px; border-radius:10px; background:#25D366; color:#081b10; text-decoration:none; font-size:0.72rem; font-weight:900; letter-spacing:0.4px;">💬 CHAMAR NO WHATSAPP</a>` : '';
 
                     htmlRastreio += `
                         <div class="order-row visitor-row" onclick="toggleRastreioDetalhe('${safeId}', ${index})" style="cursor:pointer;">
@@ -2185,6 +2194,7 @@
                                 </div>
                             </div>
                             <div id="detalhe-${index}" style="display:${trackingAberto === id ? 'block' : 'none'}; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 10px; font-size: 0.8rem; color: #aaa;">
+                                ${botaoWhatsVisitante}
                                 <ul style="list-style: none; padding:0;">${listaItens}</ul>
                             </div>
                         </div>`;
