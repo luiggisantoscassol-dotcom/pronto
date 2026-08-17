@@ -1563,8 +1563,15 @@
             switchTab('tab-clientes');
             await carregarClientes();
             const busca = document.getElementById('search-clientes');
-            busca.value = telefone;
-            filtrarClientes();
+            busca.value = telefone || '';
+            if (telefone) {
+                filtrarClientes();
+            } else {
+                const maisRecentes = [...listaClientesOriginal].sort((a, b) =>
+                    new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0)
+                );
+                renderizarClientes(maisRecentes);
+            }
             busca.focus();
         }
 
@@ -2092,7 +2099,7 @@
                                 const telefoneBusca = telefone.replace(/\D/g, '');
                                 return `<button type="button" onclick="event.stopPropagation(); irParaCliente('${telefoneBusca}')" title="Abrir este cliente" style="background:none; border:0; padding:0; color:#25D366; font:inherit; font-size:0.65rem; cursor:pointer; text-decoration:underline; text-underline-offset:2px;">(cliente salvo: ${nome.trim()} • ${telefone.trim()})</button>`;
                             });
-                            label = label.replace("(cliente salvo)", `<span style="color:#25D366; font-size:0.65rem; font-weight:normal; margin-left:4px;">(cliente salvo)</span>`);
+                            label = label.replace("(cliente salvo)", `<button type="button" onclick="event.stopPropagation(); irParaCliente('')" title="Ver clientes mais recentes" style="background:none; border:0; padding:0; color:#25D366; font:inherit; font-size:0.65rem; cursor:pointer; text-decoration:underline; text-underline-offset:2px;">(cliente salvo — ver mais recentes)</button>`);
                         }
 
                         trackerMap[chave].items.push(`${label} <small style="opacity:0.5; font-size:0.65rem;">(${formatarDataHora(r.created_at)})</small>`);
