@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rastrear pedido | Tio Nan</title>
+  <link rel="icon" href="favicon.png">
+  <style>
+    :root{--navy:#1b365d;--gold:#c5a059;--paper:#f7f4ee;--muted:#737b86}
+    @font-face{font-family:'Gin Round Tio Nan';src:url('GinTest-Round.otf') format('opentype');font-display:swap}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--navy);font-family:Arial,sans-serif}body{padding-top:70px}
+    .header-main{position:fixed;z-index:8500;top:0;left:0;width:100%;height:70px;display:flex;align-items:center;justify-content:center;padding:0 20px;background:rgba(255,255,255,.96);border-bottom:1px solid rgba(197,160,89,.25);backdrop-filter:blur(15px)}
+    .header-logo{color:#000;text-decoration:none;font:400 2rem 'Gin Round Tio Nan','Arial Narrow',sans-serif}.menu-toggle{position:absolute;left:20px;width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;border:0;background:transparent;cursor:pointer}.menu-toggle span{width:23px;height:2px;border-radius:8px;background:var(--navy);transition:.2s}.menu-toggle.active span:nth-child(1){transform:translateY(7px) rotate(45deg)}.menu-toggle.active span:nth-child(2){opacity:0}.menu-toggle.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .header-home{position:absolute;right:20px;width:44px;height:44px;display:grid;place-items:center;color:var(--navy);text-decoration:none}.header-home svg{width:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .site-menu{position:fixed;z-index:8400;top:70px;left:0;width:min(290px,82vw);min-height:calc(100vh - 70px);display:flex;flex-direction:column;gap:6px;padding:28px 24px;background:#fff;box-shadow:18px 18px 45px rgba(27,54,93,.18);transform:translateX(-105%);transition:transform .28s ease}.site-menu.active{transform:translateX(0)}.site-menu a{padding:16px 8px;border-bottom:1px solid rgba(197,160,89,.2);color:var(--navy);font-size:1.05rem;font-weight:700;text-decoration:none}.site-menu a.current{color:var(--gold)}
+    .page-heading{padding:34px 20px 24px;text-align:center}.page-heading span{font-size:.72rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}.page-heading h1{margin:8px 0 0;font-size:clamp(1.8rem,6vw,2.45rem)}
+    main{width:min(580px,calc(100% - 32px));margin:0 auto;padding:0 0 52px}.card{background:#fff;border:1px solid rgba(27,54,93,.1);border-radius:24px;padding:36px 32px;box-shadow:0 18px 55px rgba(27,54,93,.1)}
+    .brand{display:block;width:190px;max-width:70%;height:auto;margin:0 auto 30px}.card h2{text-align:center;margin:0 0 12px;font-size:1.45rem}
+    .lead{text-align:center;color:var(--muted);line-height:1.55;margin:0 auto 30px;max-width:430px}.field label{display:block;margin-bottom:8px;font-size:.78rem;font-weight:800;letter-spacing:.4px}
+    input{width:100%;min-height:56px;padding:0 15px;border:1px solid rgba(27,54,93,.22);border-radius:12px;color:var(--navy);font-size:1rem;outline:none}input:focus{border-color:var(--navy);box-shadow:0 0 0 4px rgba(27,54,93,.09)}
+    .error{min-height:20px;margin:7px 0 5px;color:#a52a2a;font-size:.8rem}button,.home{width:100%;min-height:54px;border-radius:12px;font-weight:900;text-transform:uppercase;letter-spacing:1px;cursor:pointer}
+    button{border:1px solid var(--gold);background:var(--navy);color:#fff}.home{display:grid;place-items:center;margin-top:11px;border:1px solid rgba(27,54,93,.2);color:var(--navy);text-decoration:none}
+    .hint{margin:18px 0 0;color:var(--muted);font-size:.75rem;line-height:1.5;text-align:center}@media(max-width:520px){.page-heading{padding-top:26px}main{padding-bottom:24px}.card{padding:28px 18px;border-radius:18px}}
+  </style>
+</head>
+<body>
+  <header class="header-main">
+    <button class="menu-toggle" type="button" id="menu-toggle" aria-label="Abrir menu" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a class="header-logo" href="index.html">TIO NAN</a>
+    <a class="header-home" href="index.html" aria-label="Voltar para a loja"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg></a>
+  </header>
+  <nav class="site-menu" id="site-menu" aria-label="Menu principal">
+    <a href="index.html">Início</a><a href="index.html#vitrine">Produtos</a><a href="index.html#homepage-testimonials">Avaliações</a><a href="index.html#contato">Contato</a><a class="current" href="rastrear.html" aria-current="page">Rastrear pedido</a>
+  </nav>
+  <div class="page-heading"><span>Área do cliente</span><h1>Rastrear pedido</h1></div>
+  <main><div class="card">
+    <img class="brand" src="logo-tio-nan-email.png" alt="Tio Nan">
+    <h2>Acompanhe sua entrega</h2>
+    <p class="lead">Digite o código recebido após finalizar sua compra para acompanhar todas as etapas.</p>
+    <form id="tracking-form" novalidate>
+      <div class="field"><label for="tracking-code-input">Código de rastreio</label><input id="tracking-code-input" type="text" autocomplete="off" placeholder="Cole o código ou o link do pedido" required></div>
+      <p class="error" id="tracking-error" role="alert"></p>
+      <button type="submit">Acompanhar pedido</button>
+    </form>
+    <a class="home" href="index.html">Voltar para a loja</a>
+    <p class="hint">O código está na confirmação exibida ao finalizar o pedido e no seu link de acompanhamento.</p>
+  </div></main>
+  <script src="rastrear.js?v=1.0"></script>
+</body>
+</html>

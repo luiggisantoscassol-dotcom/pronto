@@ -1,0 +1,278 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendOrderConfirmation } from "../_shared/order-email.ts";
+
+const MP_API = "https://api.mercadopago.com";
+const DEFAULT_SITE = "https://www.tionan.com.br";
+const ALLOWED_ORIGINS = new Set([
+  "https://www.tionan.com.br",
+  "https://tionan.com.br",
+  "http://localhost:8000",
+  "http://127.0.0.1:8000",
+  "http://192.168.2.110:8080",
+]);
+
+const normalize = (value = "") => value
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  .replace(/[^a-z0-9]+/g, " ").replace(/^cachaca\s+(de\s+)?/, "").trim();
+const cleanPhone = (value = "") => value.replace(/\D/g, "");
+const isValidEmail = (value = "") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isValidCpf = (value = "") => {
+  const cpf = value.replace(/\D/g, "");
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  const digit = (length: number) => {
+    let sum = 0;
+    for (let index = 0; index < length; index++) sum += Number(cpf[index]) * (length + 1 - index);
+    const remainder = (sum * 10) % 11;
+    return remainder === 10 ? 0 : remainder;
+  };
+  return digit(9) === Number(cpf[9]) && digit(10) === Number(cpf[10]);
+};
+const money = (value: number) => Number(value.toFixed(2));
+const fallbackCatalog: Record<string, { name: string; price: number; blingId?: string }> = {
+  "gengibre guaco e mel": { name: "Gengibre, Guaco e Mel", price: 50 },
+  "ouro": { name: "Cachaça Ouro", price: 50, blingId: "16699660347" },
+  "prata": { name: "Cachaça Prata", price: 50, blingId: "16687078597" },
+};
+
+const cors = (origin: string | null) => ({
+  "access-control-allow-origin": origin && ALLOWED_ORIGINS.has(origin) ? origin : DEFAULT_SITE,
+  "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
+  "access-control-allow-methods": "POST, OPTIONS",
+  "vary": "Origin",
+});
+const respond = (origin: string | null, body: unknown, status = 200) => new Response(JSON.stringify(body), {
+  status,
+  headers: { ...cors(origin), "content-type": "application/json; charset=utf-8" },
+});
+
+Deno.serve(async (request) => {
+  const origin = request.headers.get("origin");
+  if (request.method === "OPTIONS") return new Response("ok", { headers: cors(origin) });
+  if (request.method !== "POST") return respond(origin, { error: "Use POST." }, 405);
+  if (origin && !ALLOWED_ORIGINS.has(origin)) return respond(origin, { error: "Origem não autorizada." }, 403);
+
+  const payload = await request.json().catch(() => null);
+  const sandbox = payload?.sandbox === true;
+  const isCash = payload?.pagamento === "Dinheiro";
+  const accessToken = isCash ? "" : Deno.env.get(sandbox ? "MERCADO_PAGO_TEST_ACCESS_TOKEN" : "MERCADO_PAGO_ACCESS_TOKEN");
+  if (!isCash && !accessToken) return respond(origin, { error: `Mercado Pago ${sandbox ? "de teste " : ""}ainda não foi configurado.` }, 500);
+  const cpf = String(payload?.cpf || "").replace(/\D/g, "");
+  const email = String(payload?.email || "").trim().toLowerCase();
+  const name = String(payload?.nome || "").trim();
+  const phone = cleanPhone(String(payload?.telefone || ""));
+  const delivery = payload?.entrega === "tele" ? "tele" : payload?.entrega === "retirada" ? "retirada" : "";
+  const incomingItems = Array.isArray(payload?.itens) ? payload.itens.slice(0, 20) : [];
+  if (!isValidCpf(cpf) || !isValidEmail(email) || name.length < 3 || phone.length < 10 || !delivery || !incomingItems.length) {
+    return respond(origin, { error: "Dados do pedido incompletos." }, 400);
+  }
+
+  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  const { data: products, error: productsError } = await db
+    .from("produtos")
+    .select("id,nome,preco,estoque,bling_id,excluido")
+    .eq("excluido", false);
+  if (productsError) return respond(origin, { error: "Não foi possível validar os produtos." }, 500);
+
+  const lines: Array<Record<string, unknown>> = [];
+  for (const raw of incomingItems) {
+    const quantity = Math.max(1, Math.min(12, Math.trunc(Number(raw?.quantidade || raw?.qtd || 0))));
+    const incomingId = String(raw?.id || "");
+    const incomingName = String(raw?.nome || raw?.name || "");
+    const key = normalize(incomingName);
+    const product = (products || []).find((item) => String(item.id) === incomingId || normalize(item.nome) === key);
+    const fallback = fallbackCatalog[key];
+    if (!product && !fallback) return respond(origin, { error: `Produto inválido: ${incomingName}` }, 400);
+    const unitPrice = money(Number(product?.preco ?? fallback?.price ?? 0));
+    if (!(unitPrice > 0)) return respond(origin, { error: `Preço inválido: ${incomingName}` }, 400);
+    if (
+      product &&
+      product.estoque !== null &&
+      product.estoque !== undefined &&
+      Number.isFinite(Number(product.estoque)) &&
+      Number(product.estoque) < quantity
+    ) {
+      return respond(origin, { error: `Estoque insuficiente para ${product.nome}.` }, 409);
+    }
+    lines.push({
+      id: product?.id ?? incomingId,
+      nome: product?.nome ?? fallback.name,
+      quantidade: quantity,
+      preco: unitPrice,
+      bling_id: product?.bling_id ? String(product.bling_id) : fallback?.blingId || null,
+    });
+  }
+
+  const totalBottles = lines.reduce((sum, item) => sum + Number(item.quantidade), 0);
+  const subtotal = money(lines.reduce((sum, item) => sum + Number(item.preco) * Number(item.quantidade), 0));
+  const shipping = delivery === "tele" ? 15 : 0;
+  let coupon = String(payload?.cupom || "").trim().toUpperCase();
+  let discountPercent = 0;
+  if (coupon) {
+    const { data: couponRow } = await db.from("cupons").select("desconto_percentual,ativo").eq("codigo", coupon).maybeSingle();
+    if (couponRow?.ativo) discountPercent = Math.min(100, Math.max(0, Number(couponRow.desconto_percentual || 0)));
+    else if (coupon === "AVALIEI20") discountPercent = 20;
+    else coupon = "";
+  }
+
+  if (coupon) {
+    const { data: previous } = await db.from("pedidos").select("id").ilike("cliente", `%${phone}%`).ilike("itens", `%[CUPOM: ${coupon}]%`).limit(1);
+    if (previous?.length) return respond(origin, { error: "Este cupom já foi utilizado por este telefone." }, 409);
+  }
+
+  const discount = money(subtotal * discountPercent / 100);
+  const total = money(subtotal - discount + shipping);
+  const reference = crypto.randomUUID();
+  const trackingToken = crypto.randomUUID();
+  const address = delivery === "tele"
+    ? `${payload?.endereco?.rua || ""}, ${payload?.endereco?.numero || ""} - ${payload?.endereco?.bairro || ""}, ${payload?.endereco?.cidade || ""}/${payload?.endereco?.estado || ""}`
+    : "Retirada na Loja (Av. Bento Gonçalves, 4321) - Dia e horário a combinar";
+  const clientPayload: Record<string, unknown> = { telefone: phone, nome: name, email, cpf };
+  if (delivery === "tele") {
+    Object.assign(clientPayload, {
+      rua: String(payload?.endereco?.rua || "").trim(),
+      numero: String(payload?.endereco?.numero || "").trim(),
+      complemento: String(payload?.endereco?.complemento || payload?.endereco?.apto || "").trim(),
+      bairro: String(payload?.endereco?.bairro || "").trim(),
+      cep: String(payload?.endereco?.cep || "").replace(/\D/g, "").slice(0, 8),
+      cidade: String(payload?.endereco?.cidade || "").trim(),
+      estado: String(payload?.endereco?.estado || "").trim().toUpperCase().slice(0, 2),
+    });
+  }
+  const saveClient = async () => {
+    // CPF é a identidade estável do cliente. Telefone e e-mail podem mudar
+    // entre compras e não devem gerar um segundo contato.
+    let existingClientId: string | null = null;
+    const byCpf = await db.from("clientes").select("id").eq("cpf", cpf).limit(1).maybeSingle();
+    existingClientId = byCpf.data?.id || null;
+    if (!existingClientId) {
+      const byPhone = await db.from("clientes").select("id").eq("telefone", phone).limit(1).maybeSingle();
+      existingClientId = byPhone.data?.id || null;
+    }
+    if (!existingClientId) {
+      const byEmail = await db.from("clientes").select("id").ilike("email", email).limit(1).maybeSingle();
+      existingClientId = byEmail.data?.id || null;
+    }
+    if (existingClientId) return db.from("clientes").update(clientPayload).eq("id", existingClientId);
+    return db.from("clientes").insert(clientPayload);
+  };
+  const itemsText = lines.map((item) => `${item.nome} (x${item.quantidade})`).join(", ") + (coupon ? ` [CUPOM: ${coupon}]` : "");
+
+  const { error: orderError } = await db.from("pedidos").insert({
+    referencia: reference,
+    cliente: `${name} (${phone})`,
+    cliente_nome: name,
+    cliente_telefone: phone,
+    cliente_email: email,
+    cliente_cpf: cpf,
+    itens: itemsText,
+    itens_json: lines,
+    total,
+    custo: 0,
+    endereco: address,
+    frete: shipping,
+    status: "Novo Pedido",
+    status_pagamento: isCash ? "aguardando" : "pendente",
+    tracking_token: trackingToken,
+    pagamento: isCash
+      ? `Dinheiro${payload?.troco ? ` — troco para R$ ${String(payload.troco).slice(0, 20)}` : " — sem troco"}`
+      : sandbox ? "Mercado Pago (Teste)" : "Mercado Pago",
+    pagamento_metodo: isCash ? "dinheiro" : null,
+    pagamento_parcelas: isCash ? 1 : null,
+  });
+  if (orderError) return respond(origin, { error: "Não foi possível criar o pedido.", detail: orderError.message }, 500);
+
+  if (isCash) {
+    await saveClient();
+    const emailResult = await sendOrderConfirmation({ email, name, reference, trackingToken });
+    if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
+    else console.error("Falha ao enviar confirmação do pedido", emailResult.error);
+    const syncSecret = Deno.env.get("BLING_SYNC_SECRET");
+    if (syncSecret) {
+      await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/bling-sync`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-bling-sync-secret": syncSecret },
+        body: JSON.stringify({ action: "pedido", referencia: reference }),
+      }).catch((error) => console.error("Falha ao sincronizar pedido em dinheiro", error));
+    }
+    return respond(origin, { ok: true, pedido: reference, tracking_token: trackingToken });
+  }
+
+  // O Mercado Pago exige URLs públicas HTTPS quando `auto_return` está ativo.
+  // O checkout pode ser iniciado no localhost, mas o retorno sempre vai ao site oficial.
+  const site = DEFAULT_SITE;
+  const functionUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/mercado-pago-webhook`;
+  if (sandbox) {
+    const rawPayment = payload?.payment || {};
+    const paymentMethodId = String(rawPayment.payment_method_id || "");
+    if (!paymentMethodId) {
+      await db.from("pedidos").update({ status_pagamento: "erro", mercado_pago_status: "missing_payment_method", atualizado_em: new Date().toISOString() }).eq("referencia", reference);
+      return respond(origin, { error: "Selecione uma forma de pagamento." }, 400);
+    }
+    const paymentBody: Record<string, unknown> = {
+      transaction_amount: total,
+      description: `Pedido Tio Nan — ${lines.map((item) => item.nome).join(", ").slice(0, 180)}`,
+      payment_method_id: paymentMethodId,
+      external_reference: reference,
+      notification_url: `${functionUrl}?sandbox=1`,
+      payer: { email, first_name: name, identification: { type: "CPF", number: cpf } },
+      metadata: { pedido_referencia: reference, cliente_telefone: phone, sandbox: true },
+    };
+    if (rawPayment.token) paymentBody.token = String(rawPayment.token);
+    if (rawPayment.issuer_id) paymentBody.issuer_id = String(rawPayment.issuer_id);
+    if (rawPayment.installments) paymentBody.installments = Math.max(1, Math.trunc(Number(rawPayment.installments)));
+    const paymentResponse = await fetch(`${MP_API}/v1/payments`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json", "x-idempotency-key": reference },
+      body: JSON.stringify(paymentBody),
+    });
+    const payment = await paymentResponse.json().catch(() => ({}));
+    if (!paymentResponse.ok || !payment?.id) {
+      await db.from("pedidos").update({ status_pagamento: "erro", mercado_pago_status: "payment_error", atualizado_em: new Date().toISOString() }).eq("referencia", reference);
+      return respond(origin, { error: "O Mercado Pago recusou o pagamento de teste.", detail: payment?.message || payment?.cause?.[0]?.description || payment?.error }, 502);
+    }
+    const paymentStatus = String(payment.status || "pending");
+    const localStatus = paymentStatus === "approved" ? "pago_teste" : paymentStatus === "rejected" ? "cancelado_teste" : "pendente_teste";
+    await db.from("pedidos").update({
+      mercado_pago_payment_id: String(payment.id),
+      mercado_pago_status: paymentStatus,
+      status_pagamento: localStatus,
+      pagamento_metodo: String(payment.payment_method_id || paymentMethodId || ""),
+      pagamento_parcelas: Math.max(1, Number(payment.installments || rawPayment.installments || 1)),
+      atualizado_em: new Date().toISOString(),
+    }).eq("referencia", reference);
+    await saveClient();
+    if (paymentStatus === "approved") {
+      const emailResult = await sendOrderConfirmation({ email, name, reference, trackingToken });
+      if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
+      else console.error("Falha ao enviar confirmação do pedido", emailResult.error);
+    }
+    return respond(origin, { ok: true, sandbox: true, pedido: reference, tracking_token: trackingToken, payment_id: String(payment.id), status: paymentStatus, status_detail: payment.status_detail });
+  }
+
+  const preferenceResponse = await fetch(`${MP_API}/checkout/preferences`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json", "x-idempotency-key": reference },
+    body: JSON.stringify({
+      items: [{ id: reference, title: `Pedido Tio Nan — ${lines.map((item) => item.nome).join(", ").slice(0, 180)}`, quantity: 1, currency_id: "BRL", unit_price: total }],
+      external_reference: reference,
+      statement_descriptor: "TIO NAN",
+      payer: { name, email, identification: { type: "CPF", number: cpf }, phone: { area_code: phone.slice(0, 2), number: phone.slice(2) } },
+      back_urls: {
+        success: `${site}/?pagamento=sucesso&pedido=${reference}`,
+        pending: `${site}/?pagamento=pendente&pedido=${reference}`,
+        failure: `${site}/?pagamento=falha&pedido=${reference}`,
+      },
+      auto_return: "approved",
+      notification_url: functionUrl,
+      metadata: { pedido_referencia: reference, cliente_telefone: phone },
+    }),
+  });
+  const preference = await preferenceResponse.json().catch(() => ({}));
+  if (!preferenceResponse.ok || !preference?.id || !preference?.init_point) {
+    await db.from("pedidos").update({ status_pagamento: "erro", mercado_pago_status: "preference_error", atualizado_em: new Date().toISOString() }).eq("referencia", reference);
+    return respond(origin, { error: "O Mercado Pago recusou a abertura do checkout.", detail: preference?.message || preference?.error }, 502);
+  }
+  await db.from("pedidos").update({ mercado_pago_preference_id: String(preference.id), atualizado_em: new Date().toISOString() }).eq("referencia", reference);
+  await saveClient();
+  return respond(origin, { ok: true, pedido: reference, tracking_token: trackingToken, checkout_url: preference.init_point });
+});

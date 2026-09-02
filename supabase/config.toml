@@ -1,0 +1,20 @@
+[functions.bling-oauth-callback]
+verify_jwt = false
+
+[functions.bling-sync]
+verify_jwt = false
+
+[functions.mercado-pago-checkout]
+verify_jwt = false
+
+[functions.mercado-pago-webhook]
+verify_jwt = false
+
+[functions.acompanhar-pedido]
+verify_jwt = false
+
+[functions.atualizar-status-pedido]
+verify_jwt = false
+
+[functions.buscar-cliente-checkout]
+verify_jwt = false
