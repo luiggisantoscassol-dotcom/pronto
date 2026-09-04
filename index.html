@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Tio Nan | Projeto em Andamento</title>
 
-    <meta name="description" content="Vem aí uma nova Tio Nan. Projeto em andamento.">
+    <meta name="description"
+          content="Vem aí uma nova Tio Nan. Projeto em andamento.">
+
     <meta name="robots" content="index, follow">
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -19,38 +25,70 @@
         html,
         body {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
         }
 
         body {
-            background: #f5f1e8;
-            overflow: hidden;
+            background-color: #f7f3eb;
         }
 
         .pagina {
             width: 100%;
-            height: 100vh;
+            min-height: 100vh;
 
-            background-image: url("novosite.webp");
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background-color: #f7f3eb;
+
+            overflow: hidden;
         }
 
+        .pagina img {
+            display: block;
+
+            width: 90%;
+            max-width: 1600px;
+
+            height: auto;
+            max-height: 92vh;
+
+            object-fit: contain;
+        }
+
+
+        /* CELULAR */
         @media (max-width: 768px) {
+
             .pagina {
-                background-position: center;
+                min-height: 100vh;
             }
+
+            .pagina img {
+                width: 100%;
+                max-height: 100vh;
+                object-fit: contain;
+            }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
-    <main class="pagina"
-          role="img"
-          aria-label="Vem aí uma nova Tio Nan. Projeto em andamento.">
+    <main class="pagina">
+
+        <img
+            src="novosite.webp"
+            alt="Vem aí uma nova Tio Nan - Projeto em andamento"
+        >
+
     </main>
 
 </body>
+
 </html>
