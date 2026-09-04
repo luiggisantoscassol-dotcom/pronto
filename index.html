@@ -29,7 +29,7 @@
         }
 
         body {
-            background-color: #f7f3eb;
+            background: #f7f3eb;
         }
 
         .pagina {
@@ -40,12 +40,11 @@
             align-items: center;
             justify-content: center;
 
-            background-color: #f7f3eb;
-
+            background: #f7f3eb;
             overflow: hidden;
         }
 
-        .pagina img {
+        .imagem-site {
             display: block;
 
             width: 90%;
@@ -58,16 +57,16 @@
         }
 
 
-        /* CELULAR */
+        /* MOBILE */
         @media (max-width: 768px) {
 
-            .pagina {
-                min-height: 100vh;
-            }
-
-            .pagina img {
+            .imagem-site {
                 width: 100%;
+                max-width: none;
+
+                height: auto;
                 max-height: 100vh;
+
                 object-fit: contain;
             }
 
@@ -82,10 +81,22 @@
 
     <main class="pagina">
 
-        <img
-            src="novosite.webp"
-            alt="Vem aí uma nova Tio Nan - Projeto em andamento"
-        >
+        <picture>
+
+            <!-- IMAGEM PARA CELULAR -->
+            <source
+                media="(max-width: 768px)"
+                srcset="novosite-mobile.webp"
+            >
+
+            <!-- IMAGEM PARA DESKTOP -->
+            <img
+                class="imagem-site"
+                src="novosite.webp"
+                alt="Vem aí uma nova Tio Nan - Projeto em andamento"
+            >
+
+        </picture>
 
     </main>
 
