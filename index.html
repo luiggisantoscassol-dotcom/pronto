@@ -5,14 +5,12 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title>Tio Nan | Novo Site em Breve</title>
 
     <meta name="description"
           content="Vem aí um novo site Tio Nan. A mesma essência de sempre.">
-
-    <meta name="robots" content="index, follow">
 
     <style>
         * {
@@ -24,30 +22,30 @@
         html,
         body {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
+            background: #f8f4ec;
         }
 
         body {
-            background-color: #f8f4ec;
-            overflow: hidden;
+            min-height: 100vh;
+            min-height: 100dvh;
         }
 
         .pagina {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            background-color: #f8f4ec;
+            background: #f8f4ec;
+            overflow: hidden;
         }
 
         picture {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
+            display: block;
             width: 100%;
             height: 100%;
         }
@@ -55,25 +53,41 @@
         .imagem-site {
             display: block;
 
-            width: auto;
-            height: auto;
-
-            max-width: 92vw;
-            max-height: 92vh;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
 
             object-fit: contain;
             object-position: center;
+
+            margin: 0 auto;
+        }
+
+        /* DESKTOP */
+        @media (min-width: 769px) {
+
+            .imagem-site {
+                width: 92vw;
+                height: 92vh;
+
+                max-width: 1600px;
+
+                object-fit: contain;
+            }
+
         }
 
         /* MOBILE */
         @media (max-width: 768px) {
 
-            .imagem-site {
-                max-width: 100vw;
-                max-height: 100vh;
+            .pagina {
+                align-items: center;
+                justify-content: center;
+            }
 
-                width: 100%;
-                height: 100%;
+            .imagem-site {
+                width: 100vw;
+                height: 100dvh;
 
                 object-fit: contain;
                 object-position: center;
@@ -81,7 +95,6 @@
 
         }
     </style>
-
 </head>
 
 <body>
@@ -99,7 +112,8 @@
             <img
                 class="imagem-site"
                 src="novosite.webp"
-                alt="Vem aí um novo site Tio Nan - A mesma essência de sempre">
+                alt="Vem aí um novo site Tio Nan"
+            >
 
         </picture>
 
