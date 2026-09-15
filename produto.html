@@ -4,7 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ffffff" />
+  <base href="/" />
   <title>Produto | Tio Nan</title>
+  <meta name="description" content="Conheça as cachaças e kits artesanais Tio Nan. Compra segura e entrega para todo o Brasil." />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" id="seo-canonical" href="https://www.tionan.com.br/produto.html" />
+  <meta property="og:type" content="product" />
+  <meta property="og:site_name" content="Tio Nan" />
+  <meta property="og:title" content="Produto | Tio Nan" />
+  <meta property="og:description" content="Conheça as cachaças e kits artesanais Tio Nan." />
+  <meta property="og:url" content="https://www.tionan.com.br/produto.html" />
+  <meta property="og:image" content="https://www.tionan.com.br/fotos/cachaca-ouro.webp" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Produto | Tio Nan" />
+  <meta name="twitter:description" content="Conheça as cachaças e kits artesanais Tio Nan." />
+  <meta name="twitter:image" content="https://www.tionan.com.br/fotos/cachaca-ouro.webp" />
+  <script type="application/ld+json" id="product-structured-data">{}</script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <style>
     @font-face { font-family: "Gin Tio Nan"; src: url("GinTest-Round.otf") format("opentype"); font-display: swap; }
@@ -22,8 +38,10 @@
     .crumbs { margin:16px 0 18px; color:#647086; font-size:14px; }
     .crumbs a { color:inherit; text-decoration:none; }
     .layout { display:grid; grid-template-columns:minmax(360px, .95fr) minmax(380px, 1.05fr); gap:clamp(32px, 6vw, 88px); align-items:start; }
-    .gallery { position:sticky; top:94px; min-height:560px; display:grid; place-items:center; border:1px solid #ece8df; border-radius:26px; overflow:hidden; background:radial-gradient(circle at 50% 28%, #fff 0 30%, #f8f6f0 100%); }
-    .gallery img { width:100%; height:100%; max-height:630px; min-height:520px; object-fit:contain; padding:26px; mix-blend-mode:multiply; }
+    .gallery { position:sticky; top:94px; width:100%; aspect-ratio:1/1; display:grid; place-items:center; border:1px solid #ece8df; border-radius:26px; overflow:hidden; background:#fff; }
+    .gallery img { display:block; width:100%; height:100%; object-fit:cover; padding:0; }
+    .gallery.placeholder { background:#faf9f5; }
+    .gallery.placeholder img { width:78%; height:78%; object-fit:contain; mix-blend-mode:multiply; }
     .tag { display:inline-block; margin:2px 0 11px; color:var(--gold); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     h1 { margin:0; color:var(--navy-dark); font-size:clamp(30px, 4vw, 47px); line-height:1.08; letter-spacing:-.035em; }
     .rating { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:19px 0 22px; font-size:15px; }
@@ -59,6 +77,15 @@
     .shipping input { width:100%; min-width:0; height:46px; padding:0 13px; border:1px solid #cdd3db; border-radius:9px; background:#fff; color:var(--ink); font-size:15px; }
     .shipping button { flex:0 0 auto; height:46px; padding:0 15px; border:0; border-radius:9px; background:var(--navy); color:#fff; font-weight:800; }
     .shipping-result { min-height:18px; margin:9px 0 0; color:#647086; font-size:13px; }
+    .shipping-options { display:grid; gap:8px; margin-top:12px; }
+    .shipping-option { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; min-height:58px; padding:10px 12px; border:1px solid #d9dee5; border-radius:10px; background:#fff; cursor:pointer; }
+    .shipping-option:has(input:checked) { border-color:var(--navy); box-shadow:0 0 0 1px var(--navy); background:#f5f8fc; }
+    .shipping-option input { width:18px; height:18px; accent-color:var(--navy); }
+    .shipping-option span { min-width:0; }
+    .shipping-option b, .shipping-option small { display:block; }
+    .shipping-option b { color:var(--navy-dark); font-size:14px; }
+    .shipping-option small { margin-top:3px; color:var(--muted); font-size:12px; }
+    .shipping-option strong { color:var(--navy-dark); font-size:14px; white-space:nowrap; }
     .reviews-section { width:min(760px, 100%); margin:62px auto 0; padding-top:31px; border-top:1px solid var(--line); }
     .reviews-heading { margin:0 0 7px; color:var(--navy-dark); font-size:28px; letter-spacing:-.025em; }
     .reviews-summary { margin:0 0 23px; color:var(--muted); }
@@ -79,8 +106,8 @@
       .brand { font-size:24px; }
       .product-page { padding:0 0 24px; }
       .layout { display:flex; flex-direction:column; gap:0; }
-      .gallery { order:0; width:100%; min-height:0; height:calc(100vw * .95); border:0; border-radius:0; background:#faf9f5; position:relative; top:auto; }
-      .gallery img { min-height:0; height:100%; max-height:none; padding:14px 22px; }
+      .gallery { order:0; width:100%; height:auto; aspect-ratio:1/1; border:0; border-radius:0; position:relative; top:auto; }
+      .gallery img { height:100%; padding:0; }
       .product-info { width:100%; padding:0 24px; }
       .crumbs { margin:24px 0 20px; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       .tag { margin-bottom:9px; }
@@ -134,11 +161,15 @@
     const app = document.getElementById('app');
     let product = null;
     let quantity = 1;
+    let shippingPostalCode = '';
+    let selectedShipping = null;
+    let shippingRefreshTimer = null;
 
     function cart() { try { return JSON.parse(sessionStorage.getItem('tioNanCart') || '[]'); } catch { return []; } }
     function updateCartCount() { document.getElementById('cart-count').textContent = cart().reduce((sum, item) => sum + (Number(item.qtd) || Number(item.quantidade) || 0), 0); }
     function money(value) { return Number(value || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }); }
     function normalize(value) { return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    function productSlug(value) { return normalize(value).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
     function isGengibreGuacoMel(p) { const name = normalize(p.nome); return name.includes('gengibre') && name.includes('guaco') && name.includes('mel'); }
     function reviewKey(value) {
       const name = normalize(value).replace(/[^a-z0-9]+/g, ' ').trim();
@@ -148,26 +179,92 @@
       return name;
     }
     function photoFor(p) {
-      const name = normalize(p.nome);
+      const blingId = String(p.bling_id || '');
       const savedPhoto = String(p.foto_1 || '').trim();
+      if (savedPhoto) return savedPhoto;
+      if (p.tipo_produto === 'kit') return 'fotos/produto-em-breve.svg';
+      if (blingId === '16699719562') return 'fotos/gengibre-guaco-mel.webp?v=5';
+      if (blingId === '16699660347') return 'fotos/cachaca-ouro.webp?v=2';
+      if (blingId === '16687078597') return 'fotos/produto-em-breve.svg';
+      const name = normalize(p.nome);
       const savedFile = savedPhoto.split('?')[0].split('/').pop().toLowerCase();
       if (name.includes('gengibre') && name.includes('guaco') && ['gengibre.png', 'gengibre-2.png'].includes(savedFile)) {
-        return 'fotos/gengibre-guaco-mel.webp?v=4';
+        return 'fotos/gengibre-guaco-mel.webp?v=5';
       }
-      return savedPhoto || (name.includes('gengibre') && name.includes('guaco') ? 'fotos/gengibre-guaco-mel.webp?v=4' : name.includes('ouro') ? 'fotos/cachaca-ouro.webp?v=1' : 'fotos/produto-em-breve.svg');
+      return savedPhoto || (name.includes('gengibre') && name.includes('guaco') ? 'fotos/gengibre-guaco-mel.webp?v=5' : name.includes('ouro') ? 'fotos/cachaca-ouro.webp?v=2' : 'fotos/produto-em-breve.svg');
+    }
+    function absoluteUrl(value) {
+      try { return new URL(String(value || ''), 'https://www.tionan.com.br/').href; }
+      catch { return 'https://www.tionan.com.br/'; }
+    }
+    function setMeta(selector, value) {
+      const element = document.querySelector(selector);
+      if (element) element.setAttribute('content', value);
+    }
+    function updateSeo(p, review, description) {
+      const title = `${p.nome} | Tio Nan`;
+      const summary = String(description || '').replace(/\s+/g, ' ').trim().slice(0, 155);
+      const url = `https://www.tionan.com.br/produtos/${productSlug(p.nome)}`;
+      const image = absoluteUrl(photoFor(p));
+      const price = Number(p.preco || 0).toFixed(2);
+      document.title = title;
+      document.getElementById('seo-canonical').href = url;
+      setMeta('meta[name="description"]', summary);
+      setMeta('meta[property="og:title"]', title);
+      setMeta('meta[property="og:description"]', summary);
+      setMeta('meta[property="og:url"]', url);
+      setMeta('meta[property="og:image"]', image);
+      setMeta('meta[name="twitter:title"]', title);
+      setMeta('meta[name="twitter:description"]', summary);
+      setMeta('meta[name="twitter:image"]', image);
+      const schema = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: String(p.nome || ''),
+        description: summary,
+        image: [image],
+        sku: String(p.bling_id || p.id || ''),
+        brand: { '@type': 'Brand', name: 'Tio Nan' },
+        offers: {
+          '@type': 'Offer',
+          url,
+          priceCurrency: 'BRL',
+          price,
+          availability: Number(p.estoque || 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          itemCondition: 'https://schema.org/NewCondition',
+          seller: { '@type': 'Organization', name: 'Tio Nan' }
+        }
+      };
+      if (review.count > 0) schema.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: Number(review.average).toFixed(1),
+        reviewCount: review.count,
+        bestRating: 5,
+        worstRating: 1
+      };
+      document.getElementById('product-structured-data').textContent = JSON.stringify(schema);
     }
     function updateQuantity(delta) {
       quantity = Math.max(1, quantity + delta);
       document.querySelectorAll('[data-quantity-output]').forEach(el => el.textContent = quantity);
       document.getElementById('mobile-quantity').textContent = quantity;
+      if (shippingPostalCode.length === 8) {
+        clearTimeout(shippingRefreshTimer);
+        shippingRefreshTimer = setTimeout(checkCep, 350);
+      }
     }
     function addToCart() {
       if (!product) return;
       const currentCart = cart();
       const item = currentCart.find(item => String(item.id) === String(product.id));
-      if (item) item.qtd = (Number(item.qtd) || Number(item.quantidade) || 0) + quantity;
-      else currentCart.push({ id:product.id, name:product.nome, price:Number(product.preco || 0), cost:0, foto:photoFor(product), qtd:quantity });
+      if (item) { item.qtd = (Number(item.qtd) || Number(item.quantidade) || 0) + quantity; item.unidadesPorKit = Math.max(1,Number(product.unidades_por_kit || item.unidadesPorKit || 1)); }
+      else currentCart.push({ id:product.id, name:product.nome, price:Number(product.preco || 0), cost:0, foto:photoFor(product), qtd:quantity, unidadesPorKit:Math.max(1,Number(product.unidades_por_kit || 1)) });
       sessionStorage.setItem('tioNanCart', JSON.stringify(currentCart));
+      if (shippingPostalCode.length === 8) {
+        sessionStorage.setItem('tioNanCheckoutCep', shippingPostalCode);
+        if (selectedShipping) sessionStorage.setItem('tioNanCheckoutEntrega', JSON.stringify(selectedShipping));
+        else sessionStorage.removeItem('tioNanCheckoutEntrega');
+      }
       updateCartCount();
       document.querySelectorAll('.notice').forEach(el => el.textContent = 'Produto adicionado ao carrinho.');
       document.querySelectorAll('.buy-button').forEach(button => { button.textContent = 'Adicionado ✓'; setTimeout(() => button.textContent = 'Comprar', 1600); });
@@ -182,11 +279,52 @@
       const result = document.getElementById('shipping-result');
       const cep = input.value.replace(/\D/g, '');
       if (cep.length !== 8) { result.textContent = 'Informe um CEP válido com 8 números.'; return; }
-      result.textContent = 'Consultando CEP…';
+      result.textContent = 'Consultando CEP e calculando o frete…';
       try {
         const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
         const address = await response.json();
-        result.textContent = address.erro ? 'CEP não encontrado. Verifique e tente novamente.' : `Entrega para ${address.localidade}/${address.uf}. As opções aparecem no checkout.`;
+        if (address.erro) { result.textContent = 'CEP não encontrado. Verifique e tente novamente.'; return; }
+        shippingPostalCode = cep;
+        selectedShipping = null;
+        result.replaceChildren();
+        const city = document.createElement('strong');
+        city.textContent = `Entrega para ${address.localidade}/${address.uf}`;
+        result.appendChild(city);
+        const options = document.createElement('div');
+        options.className = 'shipping-options';
+        result.appendChild(options);
+
+        const addOption = (value, title, description, price, freight = null) => {
+          const label = document.createElement('label');
+          label.className = 'shipping-option';
+          const radio = document.createElement('input');
+          radio.type = 'radio'; radio.name = 'product-shipping'; radio.value = value;
+          radio.addEventListener('change', () => { selectedShipping = { value, frete:freight }; });
+          const text = document.createElement('span');
+          const heading = document.createElement('b'); heading.textContent = title;
+          const detail = document.createElement('small'); detail.textContent = description;
+          const amount = document.createElement('strong'); amount.textContent = price;
+          text.append(heading, detail); label.append(radio, text, amount); options.appendChild(label);
+        };
+
+        const isPortoAlegre = normalize(address.localidade) === 'porto alegre';
+        if (['porto alegre', 'montenegro', 'viamao', 'canoas'].includes(normalize(address.localidade))) {
+          addOption('tele', 'Entrega local', 'De 3 a 5 dias úteis', money(15));
+        }
+        let quotes = [];
+        if (!isPortoAlegre) {
+          const bottleCount = quantity * Math.max(1, Number(product?.unidades_por_kit || 1));
+          const { data: quote, error: quoteError } = await db.functions.invoke('frenet-cotacao', { body:{ cep, quantidade:bottleCount, valor_pedido:Number(product?.preco || 0) * quantity } });
+          if (quoteError) throw quoteError;
+          quotes = Array.isArray(quote?.cotacoes) ? quote.cotacoes : [];
+          quotes.forEach(freight => addOption(`frenet:${freight.id}`, freight.nome, `${freight.transportadora} · ${freight.prazo} ${Number(freight.prazo) === 1 ? 'dia útil' : 'dias úteis'}`, money(freight.preco), freight));
+        }
+        addOption('retirada', 'Retirar na loja', 'Av. Bento Gonçalves, 4321 — Porto Alegre', 'Grátis');
+        if (!isPortoAlegre && !quotes.length) {
+          const warning = document.createElement('small');
+          warning.textContent = 'Nenhuma transportadora disponível para este CEP.';
+          options.prepend(warning);
+        }
       } catch { result.textContent = 'Não foi possível consultar o CEP agora. Tente novamente.'; }
     }
     async function reviewsFor(name) {
@@ -223,25 +361,26 @@
       const description = p.descricao || (gengibreGuacoMel
         ? 'Uma alquimia perfeita para quem aprecia intensidade e conforto. O calor picante do gengibre fresco desperta o paladar, enquanto o guaco traz notas herbais profundas que remetem à tradição do campo. A finalização fica por conta da doçura aveludada do mel, que suaviza a potência da cachaça e deixa um retrogosto acolhedor. Ideal para dias frios ou para momentos de puro relaxamento.'
         : 'Uma cachaça Tio Nan para celebrar bons encontros e transformar cada brinde em história.');
+      updateSeo(p, review, description);
       const volume = p.volume || '700 ml';
       const alcohol = gengibreGuacoMel ? '28% vol.' : (p.teor_alcoolico ? `${p.teor_alcoolico}% vol.` : 'Consulte o rótulo');
       const category = gengibreGuacoMel ? 'Bebida mista' : 'Cachaça premium';
       const productType = gengibreGuacoMel ? 'Bebida mista à base de cachaça Tio Nan' : 'Cachaça Tio Nan';
       app.innerHTML = `
         <div class="layout">
-          <section class="gallery" aria-label="Imagem de ${p.nome}"><img src="${photoFor(p)}" alt="${p.nome}" /></section>
+          <section class="gallery ${photoFor(p).includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Imagem de ${p.nome}"><img src="${photoFor(p)}" alt="${p.nome}" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></section>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${p.nome}</nav>
             <span class="tag">${productType}</span>
             <h1>${p.nome}</h1>
             <div class="rating" aria-label="Avaliação do produto"><span class="stars">${stars}</span>${review.count ? `<strong>${score} de 5</strong><button type="button" class="reviews-link" data-scroll-reviews>(${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'})</button>` : '<span class="rating-note">Ainda sem avaliações</span>'}</div>
-            <div class="price-box"><span class="price-label">Por apenas</span><strong class="price">${money(p.preco)}</strong><p class="payment-note">Compra segura e finalização no checkout.</p></div>
+            <div class="price-box">${Number(p.preco_original||0)>Number(p.preco||0)?`<span class="price-label" style="text-decoration:line-through">De ${money(p.preco_original)}</span><span class="price-label">${Math.round((1-Number(p.preco)/Number(p.preco_original))*100)}% de desconto</span>`:'<span class="price-label">Por apenas</span>'}<strong class="price">${Number(p.preco_original||0)>Number(p.preco||0)?'Por ':''}${money(p.preco)}</strong><p class="payment-note">Compra segura e finalização no checkout.</p></div>
             <p class="product-copy">${description}</p>
             <details open><summary>Detalhes do produto</summary><div class="detail-content"><dl class="detail-list"><div><dt>Volume</dt><dd>${volume}</dd></div><div><dt>Teor alcoólico</dt><dd>${alcohol}</dd></div><div><dt>Categoria</dt><dd>${category}</dd></div><div><dt>Origem</dt><dd>Rio Grande do Sul</dd></div></dl></div></details>
             <details><summary>Entrega e pagamento</summary><div class="detail-content">Informe seu CEP no checkout para visualizar as opções de entrega disponíveis para a sua região.</div></details>
+            <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
             <div class="buy-row"><div class="quantity" aria-label="Quantidade"><button type="button" data-quantity="-1" aria-label="Diminuir quantidade">−</button><output data-quantity-output>1</output><button type="button" data-quantity="1" aria-label="Aumentar quantidade">+</button></div><button class="buy-button" type="button" data-buy>Comprar</button></div>
             <p class="notice" aria-live="polite"></p>
-            <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
           </section>
         </div>
         <section class="reviews-section" id="avaliacoes" aria-labelledby="reviews-heading"><h2 class="reviews-heading" id="reviews-heading">Avaliações de quem já provou</h2><p class="reviews-summary">${review.count ? `${score} de 5 com base em ${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'}.` : 'Opiniões de clientes aparecerão aqui.'}</p>${review.count ? '<div class="review-filters" aria-label="Filtrar avaliações"><button class="review-filter is-active" type="button" data-review-filter="all">Todas</button><button class="review-filter" type="button" data-review-filter="with-description">Com descrição</button><button class="review-filter" type="button" data-review-filter="without-description">Sem descrição</button></div>' : ''}${reviewList(reviews)}</section>`;
@@ -267,11 +406,22 @@
       updateCartCount();
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
+      const blingId = params.get('bling');
       const name = params.get('nome');
-      if (!id && !name) { app.innerHTML = '<div class="not-found"><div><p>Produto não encontrado.</p><a href="index.html#vitrine">Voltar para os produtos</a></div></div>'; return; }
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const pathSlug = pathParts[0] === 'produtos' ? decodeURIComponent(pathParts.slice(1).join('/')) : '';
+      const slug = params.get('slug') || pathSlug;
+      if (!id && !blingId && !name && !slug) { app.innerHTML = '<div class="not-found"><div><p>Produto não encontrado.</p><a href="index.html#vitrine">Voltar para os produtos</a></div></div>'; return; }
       let data = null; let error = null;
       if (id) ({ data, error } = await db.from('produtos').select('*').eq('id', id).eq('excluido', false).maybeSingle());
-      else ({ data, error } = await db.from('produtos').select('*').eq('nome', name).eq('excluido', false).maybeSingle());
+      else if (blingId) ({ data, error } = await db.from('produtos').select('*').eq('bling_id', blingId).eq('excluido', false).maybeSingle());
+      else if (name) ({ data, error } = await db.from('produtos').select('*').eq('nome', name).eq('excluido', false).maybeSingle());
+      else {
+        const response = await db.from('produtos').select('*').eq('excluido', false);
+        error = response.error;
+        const products = response.data || [];
+        data = products.find(item => productSlug(item.nome) === slug) || null;
+      }
       const localOuro = id === 'cachaca-ouro-local' ? {
         id: 'cachaca-ouro-local', nome: 'Cachaça Ouro', preco: 50, estoque: 1,
         foto_1: 'fotos/cachaca-ouro.webp', teor_alcoolico: '39,5',
@@ -286,7 +436,10 @@
       product = selectedProduct;
       const review = await reviewsFor(selectedProduct.nome);
       render(selectedProduct, review);
-      document.title = `${selectedProduct.nome} | Tio Nan`;
+      if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+        const friendlyPath = `/produtos/${productSlug(selectedProduct.nome)}`;
+        if (window.location.pathname !== friendlyPath) history.replaceState(null, '', friendlyPath);
+      }
     }
     init();
   </script>

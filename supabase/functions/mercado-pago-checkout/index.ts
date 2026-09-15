@@ -8,7 +8,9 @@ const ALLOWED_ORIGINS = new Set([
   "https://tionan.com.br",
   "http://localhost:8000",
   "http://127.0.0.1:8000",
+  "http://192.168.0.103:8000",
   "http://192.168.2.110:8080",
+  "http://172.20.10.3:8000",
 ]);
 
 const normalize = (value = "") => value
@@ -29,7 +31,7 @@ const isValidCpf = (value = "") => {
 };
 const money = (value: number) => Number(value.toFixed(2));
 const fallbackCatalog: Record<string, { name: string; price: number; blingId?: string }> = {
-  "gengibre guaco e mel": { name: "Gengibre, Guaco e Mel", price: 50 },
+  "gengibre guaco e mel": { name: "Gengibre, Guaco e Mel", price: 55, blingId: "16699719562" },
   "ouro": { name: "Cachaça Ouro", price: 50, blingId: "16699660347" },
   "prata": { name: "Cachaça Prata", price: 50, blingId: "16687078597" },
 };
@@ -53,25 +55,39 @@ Deno.serve(async (request) => {
 
   const payload = await request.json().catch(() => null);
   const sandbox = payload?.sandbox === true;
+  const isTest = payload?.pagamento === "Teste" || payload?.teste === true;
   const isCash = payload?.pagamento === "Dinheiro";
-  const accessToken = isCash ? "" : Deno.env.get(sandbox ? "MERCADO_PAGO_TEST_ACCESS_TOKEN" : "MERCADO_PAGO_ACCESS_TOKEN");
-  if (!isCash && !accessToken) return respond(origin, { error: `Mercado Pago ${sandbox ? "de teste " : ""}ainda não foi configurado.` }, 500);
+  const accessToken = isCash || isTest ? "" : Deno.env.get(sandbox ? "MERCADO_PAGO_TEST_ACCESS_TOKEN" : "MERCADO_PAGO_ACCESS_TOKEN");
+  if (!isCash && !isTest && !accessToken) return respond(origin, { error: `Mercado Pago ${sandbox ? "de teste " : ""}ainda não foi configurado.` }, 500);
   const cpf = String(payload?.cpf || "").replace(/\D/g, "");
   const email = String(payload?.email || "").trim().toLowerCase();
   const name = String(payload?.nome || "").trim();
   const phone = cleanPhone(String(payload?.telefone || ""));
-  const delivery = payload?.entrega === "tele" ? "tele" : payload?.entrega === "retirada" ? "retirada" : "";
+  const requestedDelivery = String(payload?.entrega || "");
+  const delivery = requestedDelivery === "tele" || requestedDelivery === "retirada" || requestedDelivery.startsWith("melhor-envio:") || requestedDelivery.startsWith("frenet:") ? requestedDelivery : "";
   const incomingItems = Array.isArray(payload?.itens) ? payload.itens.slice(0, 20) : [];
   if (!isValidCpf(cpf) || !isValidEmail(email) || name.length < 3 || phone.length < 10 || !delivery || !incomingItems.length) {
     return respond(origin, { error: "Dados do pedido incompletos." }, 400);
   }
 
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  if (isTest) {
+    const bearer = request.headers.get("authorization") || "";
+    const userToken = bearer.replace(/^Bearer\s+/i, "");
+    const { data: authData, error: authError } = await db.auth.getUser(userToken);
+    if (authError || !authData.user) return respond(origin, { error: "Entre no painel administrativo para criar pedidos de teste." }, 401);
+    const { data: admin } = await db.from("admin_users").select("user_id").eq("user_id", authData.user.id).maybeSingle();
+    if (!admin) return respond(origin, { error: "Apenas administradores podem criar pedidos de teste." }, 403);
+  }
   const { data: products, error: productsError } = await db
     .from("produtos")
-    .select("id,nome,preco,estoque,bling_id,excluido")
+    .select("id,nome,preco,estoque,bling_id,excluido,tipo_produto,unidades_por_kit")
     .eq("excluido", false);
   if (productsError) return respond(origin, { error: "Não foi possível validar os produtos." }, 500);
+  const { data: componentRows, error: componentsError } = await db
+    .from("produto_componentes")
+    .select("kit_id,componente_id,quantidade,componente:produtos!produto_componentes_componente_id_fkey(id,nome,bling_id,preco)");
+  if (componentsError) return respond(origin, { error: "Não foi possível validar a composição dos kits." }, 500);
 
   const lines: Array<Record<string, unknown>> = [];
   for (const raw of incomingItems) {
@@ -93,18 +109,113 @@ Deno.serve(async (request) => {
     ) {
       return respond(origin, { error: `Estoque insuficiente para ${product.nome}.` }, 409);
     }
+    const componentes = product?.tipo_produto === "kit"
+      ? (componentRows || []).filter((row: any) => String(row.kit_id) === String(product.id)).map((row: any) => ({
+          id: row.componente_id,
+          nome: row.componente?.nome,
+          bling_id: row.componente?.bling_id ? String(row.componente.bling_id) : null,
+          preco_referencia: Number(row.componente?.preco || 0),
+          quantidade: Number(row.quantidade || 0),
+        }))
+      : [];
+    if (product?.tipo_produto === "kit" && !componentes.length) return respond(origin, { error: `O kit ${product.nome} está sem composição.` }, 409);
     lines.push({
       id: product?.id ?? incomingId,
       nome: product?.nome ?? fallback.name,
       quantidade: quantity,
       preco: unitPrice,
       bling_id: product?.bling_id ? String(product.bling_id) : fallback?.blingId || null,
+      tipo_produto: product?.tipo_produto || "unitario",
+      unidades_por_kit: Number(product?.unidades_por_kit || 1),
+      componentes,
     });
   }
 
-  const totalBottles = lines.reduce((sum, item) => sum + Number(item.quantidade), 0);
+  const totalBottles = lines.reduce((sum, item) => sum + Number(item.quantidade) * Number(item.unidades_por_kit || 1), 0);
   const subtotal = money(lines.reduce((sum, item) => sum + Number(item.preco) * Number(item.quantidade), 0));
-  const shipping = delivery === "tele" ? 15 : 0;
+  const carrierDelivery = delivery.startsWith("melhor-envio:") || delivery.startsWith("frenet:");
+  let carrierQuote: Record<string, unknown> | null = null;
+  let carrierDestination = "";
+  let carrierOrigin = "";
+  if (carrierDelivery) {
+    const serviceId = delivery.slice(delivery.indexOf(":") + 1);
+    carrierDestination = String(payload?.endereco?.cep || "").replace(/\D/g, "");
+    if (delivery.startsWith("frenet:")) {
+      const frenetToken = Deno.env.get("FRENET_TOKEN") || "";
+      carrierOrigin = String(Deno.env.get("FRENET_FROM_POSTAL_CODE") || "90650003").replace(/\D/g, "");
+      if (!frenetToken || carrierDestination.length !== 8) return respond(origin, { error: "Frete Frenet inválido. Consulte o CEP novamente." }, 400);
+      const quoteResponse = await fetch("https://api.frenet.com.br/shipping/quote", {
+        method: "POST",
+        headers: { token: frenetToken, accept: "application/json", "content-type": "application/json" },
+        body: JSON.stringify({ SellerCEP: carrierOrigin, RecipientCEP: carrierDestination, RecipientCountry: "BR", ShipmentInvoiceValue: subtotal, ShippingItemArray: [{ Weight: 1.5, Length: 12, Height: 36, Width: 12, Quantity: totalBottles, SKU: "garrafa-700ml", Category: "Bebidas", isFragile: true }] }),
+      });
+      const quoteData = await quoteResponse.json().catch(() => ({}));
+      const selected = (Array.isArray(quoteData?.ShippingSevicesArray) ? quoteData.ShippingSevicesArray : []).find((item: Record<string, unknown>) => String(item.ServiceCode) === serviceId && item.Error !== true);
+      if (!quoteResponse.ok || !selected) return respond(origin, { error: "A cotação Frenet selecionada expirou. Consulte o CEP novamente." }, 409);
+      carrierQuote = { id: selected.ServiceCode, name: selected.ServiceDescription, company: { name: selected.Carrier }, price: Number(selected.ShippingPrice || 0), custom_price: Number(selected.ShippingPrice || 0), delivery_time: Number(selected.DeliveryTime || 0), custom_delivery_time: Number(selected.DeliveryTime || 0), carrier_code: selected.CarrierCode };
+    } else {
+    const { data: integration } = await db.from("melhor_envio_integracao").select("access_token").eq("id", "principal").maybeSingle();
+    if (!integration?.access_token || carrierDestination.length !== 8) return respond(origin, { error: "Frete inválido. Consulte o CEP novamente." }, 400);
+    const meEnvironment = (Deno.env.get("MELHOR_ENVIO_ENVIRONMENT") || "production").toLowerCase();
+    const meBase = meEnvironment === "sandbox" ? "https://sandbox.melhorenvio.com.br" : "https://melhorenvio.com.br";
+    carrierOrigin = String(Deno.env.get("MELHOR_ENVIO_FROM_POSTAL_CODE") || "90650003").replace(/\D/g, "");
+    const quoteResponse = await fetch(`${meBase}/api/v2/me/shipment/calculate`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${integration.access_token}`, accept: "application/json", "content-type": "application/json", "user-agent": "Tio Nan (contato@tionan.com.br)" },
+      body: JSON.stringify({ from: { postal_code: carrierOrigin }, to: { postal_code: carrierDestination }, products: [{ id: "garrafa-700ml", width: 12, height: 36, length: 12, weight: 1.5, insurance_value: 55, quantity: totalBottles }], options: { receipt: false, own_hand: false } }),
+    });
+    const quotes = await quoteResponse.json().catch(() => []);
+    const selected = (Array.isArray(quotes) ? quotes : []).find((item) => String(item.id) === serviceId && !item.error);
+    if (!quoteResponse.ok || !selected) return respond(origin, { error: "A cotação selecionada expirou. Consulte o CEP novamente." }, 409);
+    carrierQuote = selected;
+    }
+  }
+  const shipping = delivery === "tele" ? 15 : carrierDelivery ? money(Number(carrierQuote?.custom_price || carrierQuote?.price || 0)) : 0;
+  const shippingDetails = carrierDelivery && carrierQuote ? {
+    origem: delivery.startsWith("frenet:") ? "frenet" : "melhor_envio",
+    servico_id: String(carrierQuote.id || ""),
+    servico: String(carrierQuote.name || "Servico de entrega"),
+    transportadora: String((carrierQuote.company as Record<string, unknown> | undefined)?.name || "Transportadora"),
+    transportadora_codigo: String(carrierQuote.carrier_code || ""),
+    preco: shipping,
+    preco_original: money(Number(carrierQuote.price || shipping)),
+    prazo_dias_uteis: Number(carrierQuote.custom_delivery_time || carrierQuote.delivery_time || 0),
+    cep_origem: carrierOrigin,
+    cep_destino: carrierDestination,
+    volumes: 1,
+    peso_kg: money(totalBottles * 1.5),
+    largura_cm: 12,
+    altura_cm: 36,
+    comprimento_cm: 12,
+    quantidade_produtos: totalBottles,
+    destinatario: {
+      nome: name,
+      email,
+      telefone: phone,
+      documento: cpf,
+      endereco: String(payload?.endereco?.rua || "").trim(),
+      numero: String(payload?.endereco?.numero || "").trim(),
+      complemento: String(payload?.endereco?.complemento || payload?.endereco?.apto || "").trim(),
+      bairro: String(payload?.endereco?.bairro || "").trim(),
+      cidade: String(payload?.endereco?.cidade || "").trim(),
+      uf: String(payload?.endereco?.estado || "").trim().toUpperCase().slice(0, 2),
+      cep: carrierDestination,
+    },
+    cotado_em: new Date().toISOString(),
+  } : delivery === "tele" ? {
+    origem: "entrega_local",
+    servico: "Entrega local",
+    transportadora: "Tio Nan",
+    preco: shipping,
+    prazo_dias_uteis: 5,
+    cep_destino: String(payload?.endereco?.cep || "").replace(/\D/g, ""),
+  } : {
+    origem: "retirada",
+    servico: "Retirada na loja",
+    transportadora: null,
+    preco: 0,
+    prazo_dias_uteis: 0,
+  };
   let coupon = String(payload?.cupom || "").trim().toUpperCase();
   let discountPercent = 0;
   if (coupon) {
@@ -123,11 +234,11 @@ Deno.serve(async (request) => {
   const total = money(subtotal - discount + shipping);
   const reference = crypto.randomUUID();
   const trackingToken = crypto.randomUUID();
-  const address = delivery === "tele"
+  const address = (delivery === "tele" || carrierDelivery)
     ? `${payload?.endereco?.rua || ""}, ${payload?.endereco?.numero || ""} - ${payload?.endereco?.bairro || ""}, ${payload?.endereco?.cidade || ""}/${payload?.endereco?.estado || ""}`
     : "Retirada na Loja (Av. Bento Gonçalves, 4321) - Dia e horário a combinar";
   const clientPayload: Record<string, unknown> = { telefone: phone, nome: name, email, cpf };
-  if (delivery === "tele") {
+  if (delivery === "tele" || carrierDelivery) {
     Object.assign(clientPayload, {
       rua: String(payload?.endereco?.rua || "").trim(),
       numero: String(payload?.endereco?.numero || "").trim(),
@@ -170,29 +281,45 @@ Deno.serve(async (request) => {
     custo: 0,
     endereco: address,
     frete: shipping,
+    frete_detalhes: shippingDetails,
     status: "Novo Pedido",
-    status_pagamento: isCash ? "aguardando" : "pendente",
+    status_pagamento: isTest ? "pago_teste" : isCash ? "aguardando" : "pendente",
     tracking_token: trackingToken,
-    pagamento: isCash
+    pagamento: isTest
+      ? "Pagamento de teste — sem cobrança"
+      : isCash
       ? `Dinheiro${payload?.troco ? ` — troco para R$ ${String(payload.troco).slice(0, 20)}` : " — sem troco"}`
       : sandbox ? "Mercado Pago (Teste)" : "Mercado Pago",
-    pagamento_metodo: isCash ? "dinheiro" : null,
-    pagamento_parcelas: isCash ? 1 : null,
+    pagamento_metodo: isTest ? "teste" : isCash ? "dinheiro" : null,
+    pagamento_parcelas: isCash || isTest ? 1 : null,
   });
   if (orderError) return respond(origin, { error: "Não foi possível criar o pedido.", detail: orderError.message }, 500);
 
-  if (isCash) {
+  const reserveStock = async () => {
+    const { error } = await db.rpc("reservar_estoque_pedido", { p_referencia: reference });
+    if (error) throw new Error(error.message || "Não foi possível reservar o estoque.");
+  };
+
+  if (isCash || isTest) {
+    try {
+      await reserveStock();
+    } catch (stockError) {
+      await db.from("pedidos").delete().eq("referencia", reference);
+      return respond(origin, { error: stockError instanceof Error ? stockError.message : "Estoque insuficiente." }, 409);
+    }
     await saveClient();
-    const emailResult = await sendOrderConfirmation({ email, name, reference, trackingToken });
-    if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
-    else console.error("Falha ao enviar confirmação do pedido", emailResult.error);
+    if (!isTest) {
+      const emailResult = await sendOrderConfirmation({ email, name, reference, trackingToken });
+      if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
+      else console.error("Falha ao enviar confirmação do pedido", emailResult.error);
+    }
     const syncSecret = Deno.env.get("BLING_SYNC_SECRET");
     if (syncSecret) {
       await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/bling-sync`, {
         method: "POST",
         headers: { "content-type": "application/json", "x-bling-sync-secret": syncSecret },
         body: JSON.stringify({ action: "pedido", referencia: reference }),
-      }).catch((error) => console.error("Falha ao sincronizar pedido em dinheiro", error));
+      }).catch((error) => console.error("Falha ao sincronizar pedido sem cobrança", error));
     }
     return respond(origin, { ok: true, pedido: reference, tracking_token: trackingToken });
   }
@@ -242,6 +369,12 @@ Deno.serve(async (request) => {
     }).eq("referencia", reference);
     await saveClient();
     if (paymentStatus === "approved") {
+      try {
+        await reserveStock();
+      } catch (stockError) {
+        await db.from("pedidos").update({ status_pagamento: "divergente", mercado_pago_status: "approved_without_stock" }).eq("referencia", reference);
+        return respond(origin, { error: stockError instanceof Error ? stockError.message : "Pagamento aprovado, mas o estoque ficou indisponível." }, 409);
+      }
       const emailResult = await sendOrderConfirmation({ email, name, reference, trackingToken });
       if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
       else console.error("Falha ao enviar confirmação do pedido", emailResult.error);

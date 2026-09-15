@@ -6,6 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tio Nan | Avaliar Garrafas</title>
+    <meta name="robots" content="noindex,follow,noarchive">
     <meta name="description" content="Avalie as cachaças premium artesanais do Tio Nan e compartilhe sua opinião.">
     <link rel="canonical" href="https://www.tionan.com.br/avaliar.html">
 
@@ -38,7 +39,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600;800&family=Barlow+Condensed:wght@500;600;700;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=5.5">
+    <link rel="stylesheet" href="styles.css?v=6.12">
 
     <style>
         /* Estilos adicionais específicos da página de avaliação */
@@ -606,6 +607,19 @@
         /* Ocultar elementos */
         .hidden {
             display: none !important;
+        }
+
+        @media (max-width: 560px) {
+            body { padding-top: 62px; overflow-x: hidden; }
+            .header-minimal { height: 62px; padding: 0 14px; }
+            .eval-container { width: 100%; padding: 14px 14px 24px; }
+            .step-title { font-size: 1.45rem; line-height: 1.2; }
+            .selection-grid, .skeleton-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+            .selection-card { min-height: 150px; padding: 12px; }
+            .selection-card img { height: 94px; }
+            input, select, textarea { width: 100%; max-width: 100%; font-size: 16px !important; }
+            button, .btn-adicionar, .btn-secondary-outline { width: 100%; min-height: 48px; white-space: normal; }
+            .btn-wrapper { padding-bottom: max(18px, env(safe-area-inset-bottom)); }
         }
     </style>
 </head>

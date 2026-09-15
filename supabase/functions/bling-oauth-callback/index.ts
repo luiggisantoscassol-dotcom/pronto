@@ -4,8 +4,32 @@ const BLING_TOKEN_URL = "https://api.bling.com.br/Api/v3/oauth/token";
 const BLING_AUTHORIZE_URL = "https://www.bling.com.br/Api/v3/oauth/authorize";
 const FUNCTION_URL = "https://eegqobqhrfdkmjyjnqvp.supabase.co/functions/v1/bling-oauth-callback";
 
+const base64Url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+const signState = async (payload: string, secret: string) => {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return base64Url(new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload))));
+};
+const createState = async (secret: string) => {
+  const payload = `${Date.now()}.${crypto.randomUUID()}`;
+  return `${payload}.${await signState(payload, secret)}`;
+};
+const validSignedState = async (state: string, secret: string) => {
+  const parts = state.split(".");
+  if (parts.length !== 3) return false;
+  const payload = `${parts[0]}.${parts[1]}`;
+  const age = Date.now() - Number(parts[0]);
+  if (!Number.isFinite(age) || age < 0 || age > 10 * 60 * 1000) return false;
+  const expected = await signState(payload, secret);
+  if (expected.length !== parts[2].length) return false;
+  let difference = 0;
+  for (let index = 0; index < expected.length; index++) difference |= expected.charCodeAt(index) ^ parts[2].charCodeAt(index);
+  return difference === 0;
+};
+
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]!));
+
 function responseHtml(title: string, message: string, status = 200) {
-  return new Response(`<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>${title}</title><body style="font-family:system-ui;background:#fffaf1;color:#17253d;padding:48px;max-width:620px;margin:auto"><h1>${title}</h1><p>${message}</p></body></html>`, {
+  return new Response(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head><body style="font-family:system-ui;background:#fffaf1;color:#17253d;padding:48px;max-width:620px;margin:auto"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(message)}</p></body></html>`, {
     status,
     headers: { "content-type": "text/html; charset=utf-8" },
   });
@@ -30,15 +54,7 @@ Deno.serve(async (request) => {
 
   // Acesse ?action=connect para iniciar a conexão, sem expor o segredo do Bling no site.
   if (action === "connect") {
-    const state = crypto.randomUUID();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-    const { error } = await db.from("bling_integracao").upsert({
-      id: "principal",
-      oauth_state: state,
-      oauth_state_expires_at: expiresAt,
-      atualizado_em: new Date().toISOString(),
-    });
-    if (error) return responseHtml("Erro ao iniciar conexão", error.message, 500);
+    const state = await createState(clientSecret);
 
     const authorize = new URL(BLING_AUTHORIZE_URL);
     authorize.searchParams.set("response_type", "code");
@@ -48,16 +64,20 @@ Deno.serve(async (request) => {
     return Response.redirect(authorize.toString(), 302);
   }
 
+  const oauthError = url.searchParams.get("error");
+  if (oauthError) {
+    const description = url.searchParams.get("error_description") || "O Bling recusou a autorização.";
+    return responseHtml(
+      "Autorização recusada pelo Bling",
+      `${description} Entre no Bling com o usuário administrador que criou ou tem acesso ao aplicativo Tio Nan e tente novamente.`,
+      403,
+    );
+  }
+
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   if (!code || !state) return responseHtml("Conexão não iniciada", "Abra este endereço com ?action=connect para vincular sua conta Bling.", 400);
-
-  const { data: connection, error: connectionError } = await db
-    .from("bling_integracao")
-    .select("oauth_state, oauth_state_expires_at")
-    .eq("id", "principal")
-    .maybeSingle();
-  if (connectionError || !connection || connection.oauth_state !== state || !connection.oauth_state_expires_at || new Date(connection.oauth_state_expires_at) < new Date()) {
+  if (!(await validSignedState(state, clientSecret))) {
     return responseHtml("Conexão expirada", "Por segurança, inicie novamente a conexão com o Bling.", 400);
   }
 

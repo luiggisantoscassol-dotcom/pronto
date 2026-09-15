@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const ALLOWED_ORIGINS = new Set(["https://www.tionan.com.br", "https://tionan.com.br", "http://localhost:8000", "http://127.0.0.1:8000", "http://192.168.2.110:8080"]);
+const ALLOWED_ORIGINS = new Set(["https://www.tionan.com.br", "https://tionan.com.br", "http://localhost:8000", "http://127.0.0.1:8000", "http://192.168.0.103:8000", "http://192.168.2.110:8080", "http://172.20.10.3:8000"]);
 const cors = (origin: string | null) => ({
   "access-control-allow-origin": origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://www.tionan.com.br",
   "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",

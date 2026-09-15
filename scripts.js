@@ -2,6 +2,10 @@
 document.addEventListener('touchstart', function (event) { if (event.touches.length > 1) { event.preventDefault(); } }, { passive: false });
 document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
 
+// A entrada no site exige apenas a confirmação de maioridade.
+// Remove nomes antigos usados pelo modal anterior para não personalizar a sessão.
+localStorage.removeItem('visitorName');
+
 // Proteção Global de Fontes
 if ("fonts" in document) {
     document.fonts.ready.then(() => {
@@ -13,11 +17,7 @@ if ("fonts" in document) {
 
 function verifyAge(isMajor) {
     if (isMajor) {
-        const nameInput = document.getElementById('visitor-name');
-        const name = nameInput ? nameInput.value.trim() : '';
-        if (name.length < 2) return;
-
-        localStorage.setItem('visitorName', name);
+        localStorage.removeItem('visitorName');
         localStorage.setItem('ageVerified', 'true');
 
         const overlay = document.getElementById('age-verification-overlay');
@@ -44,9 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     aplicarRotulosCheckout();
     const isVerified = localStorage.getItem('ageVerified');
     const overlay = document.getElementById('age-verification-overlay');
-    const visitorName = localStorage.getItem('visitorName');
-
-    if (isVerified === 'true' && visitorName) {
+    if (isVerified === 'true') {
         if (overlay) overlay.style.display = 'none';
         // Se já verificou, o loader pode sumir direto pelo loadProducts()
     } else {
@@ -113,21 +111,14 @@ function aplicarRotulosCheckout() {
 }
 
 function updateWelcome() {
-    const visitorName = localStorage.getItem('visitorName') || '';
     const titleEl = document.getElementById('hero-title');
-    if (titleEl) {
-        if (visitorName) {
-            titleEl.innerHTML = `<span style="display:block; font-size:0.7em; opacity:1; color:#000; margin-bottom:12px; letter-spacing:3px;">Olá, ${visitorName}!</span>Seja bem vindo à Tio Nan`;
-        } else {
-            titleEl.innerText = "Seja bem vindo à Tio Nan";
-        }
-    }
+    if (titleEl) titleEl.innerText = "Seja bem vindo à Tio Nan";
 
     const cartTitle = document.getElementById('cart-title');
-    if (cartTitle && visitorName) cartTitle.innerText = `Carrinho de ${visitorName}`;
+    if (cartTitle) cartTitle.innerText = 'Seu carrinho';
 
     const welcomeHeader = document.getElementById('header-user-welcome');
-    if (welcomeHeader && visitorName) welcomeHeader.innerText = `Olá, ${visitorName}`;
+    if (welcomeHeader) welcomeHeader.innerText = '';
 
     // O nome salvo para a saudação não identifica necessariamente quem está
     // comprando (especialmente em dispositivos compartilhados). O checkout
@@ -192,9 +183,9 @@ if (db) {
 
 let heartbeatCount = 0;
 setInterval(() => {
-    const hasName = localStorage.getItem('visitorName') && localStorage.getItem('visitorName').trim() !== '';
+    const idadeConfirmada = localStorage.getItem('ageVerified') === 'true';
 
-    if (canalPresenca && hasName) {
+    if (canalPresenca && idadeConfirmada) {
         atualizarPresenca();
         heartbeatCount++;
         if (heartbeatCount >= 6) {
@@ -409,6 +400,35 @@ function searchProducts() {
 
 const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
 const SABORES_ATIVOS_AVALIACOES = ['gengibre guaco e mel', 'ouro', 'prata'];
+let freteMelhorEnvioSelecionado = null;
+
+function entregaPorTransportadora(valor = document.getElementById('metodo-entrega')?.value || '') {
+    return String(valor).startsWith('melhor-envio:') || String(valor).startsWith('frenet:');
+}
+
+function atualizarPagamentoPorEntrega() {
+    const pagamento = document.getElementById('metodo-pagamento');
+    if (!pagamento) return;
+    const opcaoDinheiro = [...pagamento.options].find(option => option.value === 'Dinheiro');
+    const opcaoTeste = [...pagamento.options].find(option => option.value === 'Teste');
+    const ambienteLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    if (opcaoDinheiro) {
+        opcaoDinheiro.hidden = false;
+        opcaoDinheiro.disabled = false;
+    }
+    if (opcaoTeste) {
+        opcaoTeste.hidden = !ambienteLocal;
+        opcaoTeste.disabled = !ambienteLocal;
+    }
+    if (!ambienteLocal && pagamento.value === 'Teste') pagamento.value = 'Mercado Pago';
+}
+
+function valorFreteAtual() {
+    const entrega = document.getElementById('metodo-entrega')?.value;
+    if (entrega === 'tele') return 15;
+    if (entregaPorTransportadora(entrega)) return Number(freteMelhorEnvioSelecionado?.preco || 0);
+    return 0;
+}
 
 function normalizarNomeSabor(nome = '') {
     return nome
@@ -418,6 +438,17 @@ function normalizarNomeSabor(nome = '') {
         .replace(/[^a-z0-9]+/g, ' ')
         .replace(/^cachaca\s+(de\s+)?/, '')
         .trim();
+}
+
+function slugProduto(nome = '') {
+    return String(nome).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function urlProduto(produto = {}) {
+    const ambienteLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    return ambienteLocal
+        ? `produto.html?id=${encodeURIComponent(produto.id)}`
+        : `/produtos/${slugProduto(produto.nome)}`;
 }
 
 function chaveSaborAvaliacao(nome = '') {
@@ -440,6 +471,19 @@ new Swiper('.swiper-hero', {
 });
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');
+
+// Mantém carrinhos criados antes da padronização alinhados ao catálogo do admin.
+cart = cart.map((item) => ({
+    ...item,
+    name: String(item?.name || '').replace(/750\s*ml/gi, '700 ml')
+}));
+sessionStorage.setItem('tioNanCart', JSON.stringify(cart));
+
+const unidadesFisicasItem = item => Math.max(1, Number(item?.unidadesPorKit || item?.unidades_por_kit || 1));
+const quantidadeGarrafasCarrinho = () => cart.reduce((total, item) => total + Number(item.qtd || 0) * unidadesFisicasItem(item), 0);
+// O indicador visual representa produtos/embalagens adicionados. Um kit é um
+// item no carrinho, embora suas garrafas continuem valendo para estoque e frete.
+const quantidadeItensCarrinho = () => cart.reduce((total, item) => total + Number(item.qtd || item.quantidade || 0), 0);
 
 function toggleMenu() {
     const menu = document.getElementById('site-menu');
@@ -539,12 +583,26 @@ function mostrarEtapaCheckout(etapa) {
     if (overlay) overlay.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function marcarErroCheckout(elementId) {
+function limparErroEtapaCheckout() {
+    const aviso = document.getElementById('erro-etapa-entrega');
+    if (aviso) {
+        aviso.textContent = '';
+        aviso.style.display = 'none';
+    }
+}
+
+function marcarErroCheckout(elementId, mensagem = 'Revise o campo destacado para continuar.') {
     const el = document.getElementById(elementId);
     if (!el) return false;
     el.classList.add('input-error');
+    const aviso = document.getElementById('erro-etapa-entrega');
+    if (aviso) {
+        aviso.textContent = mensagem;
+        aviso.style.display = 'flex';
+    }
     el.focus();
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Mantém a explicação visível; o campo já recebe foco e destaque.
+    if (aviso) aviso.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     return false;
 }
 
@@ -572,27 +630,33 @@ async function irParaEntrega() {
 
 function irParaPagamento() {
     document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    limparErroEtapaCheckout();
     const cpf = document.getElementById('cliente-cpf').value.replace(/\D/g, '');
     const email = document.getElementById('cliente-email').value.trim().toLowerCase();
-    const telefone = document.getElementById('cliente-telefone').value;
+    const telefone = document.getElementById('cliente-telefone').value.replace(/\D/g, '');
     const nome = document.getElementById('cliente-nome').value.trim();
     const entrega = document.getElementById('metodo-entrega').value;
 
-    if (!cpfValido(cpf)) return marcarErroCheckout('cliente-cpf');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return marcarErroCheckout('cliente-email');
-    if (!telefone || telefone.length < 14) return marcarErroCheckout('cliente-telefone');
-    if (!nome) return marcarErroCheckout('cliente-nome');
-    if (!entrega || entrega === 'none') return marcarErroCheckout('metodo-entrega');
-    if (entrega === 'tele') {
-        if (!document.getElementById('cep').value) return marcarErroCheckout('cep');
-        if (!document.getElementById('rua').value) return marcarErroCheckout('rua');
-        if (!document.getElementById('numero').value) return marcarErroCheckout('numero');
-        if (!document.getElementById('bairro').value) return marcarErroCheckout('bairro');
-        if (!document.getElementById('cidade').value) return marcarErroCheckout('cidade');
-        if (document.getElementById('btn-finalizar').disabled) return marcarErroCheckout('cidade');
+    if (!cpfValido(cpf)) return marcarErroCheckout('cliente-cpf', 'Informe um CPF válido para continuar.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return marcarErroCheckout('cliente-email', 'Informe um e-mail válido para continuar.');
+    if (telefone.length < 10 || telefone.length > 11) return marcarErroCheckout('cliente-telefone', 'Informe o telefone completo com DDD.');
+    if (nome.length < 3) return marcarErroCheckout('cliente-nome', 'Informe o nome completo do comprador.');
+    if (!entrega || entrega === 'none') return marcarErroCheckout('metodo-entrega', 'Selecione entrega ou retirada no carrinho.');
+    if (entrega === 'tele' || entregaPorTransportadora(entrega)) {
+        const valor = id => document.getElementById(id)?.value?.trim() || '';
+        if (valor('cep').replace(/\D/g, '').length !== 8) return marcarErroCheckout('cep', 'Consulte um CEP válido antes de continuar.');
+        if (!valor('rua')) return marcarErroCheckout('rua', 'Informe a rua do endereço de entrega.');
+        if (!valor('numero')) return marcarErroCheckout('numero', 'Informe o número do endereço.');
+        if (!valor('bairro')) return marcarErroCheckout('bairro', 'Informe o bairro do endereço.');
+        if (!valor('cidade')) return marcarErroCheckout('cidade', 'A cidade não foi identificada. Consulte o CEP novamente.');
+        if (!valor('estado')) return marcarErroCheckout('estado', 'O estado não foi identificado. Consulte o CEP novamente.');
+        const normalizarCidade = texto => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLowerCase();
+        const cidadePermitida = CIDADES_PERMITIDAS.some(c => normalizarCidade(c) === normalizarCidade(valor('cidade')));
+        if (entrega === 'tele' && !cidadePermitida) return marcarErroCheckout('cidade', `Ainda não realizamos entrega em ${valor('cidade')}. Escolha retirada na loja ou outro endereço.`);
     }
 
     mostrarEtapaCheckout('pagamento');
+    atualizarPagamentoPorEntrega();
     handlePagamentoChange();
 }
 
@@ -628,6 +692,10 @@ async function buscarClientePorEmail(cpfInformado, emailInformado) {
     const email = String(emailInformado || '').trim().toLowerCase();
     const preencherCliente = async (salvo) => {
         if (!salvo) return false;
+        const cepCampo = document.getElementById('cep');
+        const cepInicial = String(cepCampo?.value || '').replace(/\D/g, '');
+        const cepSalvo = String(salvo.cep || '').replace(/\D/g, '');
+        const manterCepInicial = cepInicial.length === 8;
         const preencher = (id, valor) => {
             const campo = document.getElementById(id);
             if (campo && valor !== null && valor !== undefined && String(valor).trim()) campo.value = valor;
@@ -636,6 +704,26 @@ async function buscarClientePorEmail(cpfInformado, emailInformado) {
         preencher('cliente-telefone', salvo.telefone);
         const telefoneCampo = document.getElementById('cliente-telefone');
         if (telefoneCampo?.value) mascaraTelefone(telefoneCampo);
+
+        // O CEP escolhido no carrinho tem prioridade sobre o endereço do cadastro.
+        // Evita trocar silenciosamente a cidade e recalcular o frete para um endereço antigo.
+        if (manterCepInicial) {
+            if (cepCampo) cepCampo.value = cepInicial.replace(/^(\d{5})(\d{3})$/, '$1-$2');
+            const mesmoCep = cepInicial === cepSalvo;
+            const numeroCampo = document.getElementById('numero');
+            const aptoCampo = document.getElementById('apto');
+            if (!mesmoCep) {
+                if (numeroCampo) numeroCampo.value = '';
+                if (aptoCampo) aptoCampo.value = '';
+            }
+            await buscaCEP();
+            if (mesmoCep) {
+                preencher('numero', salvo.numero);
+                preencher('apto', salvo.apto);
+            }
+            return true;
+        }
+
         preencher('cep', salvo.cep);
         preencher('rua', salvo.rua);
         preencher('numero', salvo.numero);
@@ -676,27 +764,36 @@ function salvarClienteRecenteCheckout(cpf, email, nome, telefone, endereco = {})
 }
 
 let ultimoCepConsultado = '';
+let recotacaoFreteTimer = null;
 
 function consultarCEPQuandoCompleto(input) {
     const cep = input.value.replace(/\D/g, '');
     if (cep.length === 8) buscaCEP();
 }
 
-async function buscaCEP() {
+async function buscaCEP(forcarCotacao = false) {
     const cepInput = document.getElementById('cep');
     const resultado = document.getElementById('cep-resultado');
     const cep = cepInput.value.replace(/\D/g, '');
     if (cep.length !== 8) {
         ultimoCepConsultado = '';
         const metodoEntrega = document.getElementById('metodo-entrega');
-        if (metodoEntrega) metodoEntrega.value = 'none';
+        if (metodoEntrega) {
+            metodoEntrega.value = 'none';
+            delete metodoEntrega.dataset.cepSelecionado;
+        }
         if (resultado) resultado.style.display = 'none';
         return false;
     }
-    if (cep === ultimoCepConsultado && resultado?.dataset.consultado === 'true') return true;
+    if (!forcarCotacao && cep === ultimoCepConsultado && resultado?.dataset.consultado === 'true') return true;
 
     const metodoEntrega = document.getElementById('metodo-entrega');
-    if (metodoEntrega && cep !== ultimoCepConsultado) metodoEntrega.value = 'none';
+    // A consulta pode ocorrer no oninput e novamente no onblur. Não apague uma
+    // escolha já feita para este mesmo CEP; só reinicie quando o CEP mudar.
+    if (metodoEntrega && metodoEntrega.dataset.cepSelecionado !== cep) {
+        metodoEntrega.value = 'none';
+        delete metodoEntrega.dataset.cepSelecionado;
+    }
 
     if (resultado) {
         resultado.className = 'cep-resultado is-loading';
@@ -718,10 +815,18 @@ async function buscaCEP() {
         }
 
         ultimoCepConsultado = cep;
-        document.getElementById('rua').value = d.logradouro;
-        document.getElementById('bairro').value = d.bairro;
-        document.getElementById('cidade').value = d.localidade;
-        document.getElementById('estado').value = d.uf;
+        const preencherEnderecoCEP = (id, valor) => {
+            const campo = document.getElementById(id);
+            if (!campo) return;
+            campo.value = String(valor || '').trim();
+            campo.classList.remove('input-error');
+            campo.dispatchEvent(new Event('input', { bubbles: true }));
+            campo.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        preencherEnderecoCEP('rua', d.logradouro);
+        preencherEnderecoCEP('bairro', d.bairro);
+        preencherEnderecoCEP('cidade', d.localidade);
+        preencherEnderecoCEP('estado', d.uf);
         validarCidade(d.localidade);
 
         const cidadeAtendida = CIDADES_PERMITIDAS.some(cidade => cidade.toLowerCase() === d.localidade.toLowerCase());
@@ -739,11 +844,61 @@ async function buscaCEP() {
                     'Frete fixo — R$ 15,00',
                     'Entrega de 3 a 5 dias úteis'
                 ));
-            } else {
-                const aviso = document.createElement('span');
-                aviso.className = 'cep-cidade-indisponivel';
-                aviso.textContent = 'Ainda não realizamos entregas nesta cidade.';
-                opcoes.appendChild(aviso);
+            }
+
+            const cidadePortoAlegre = normalizarNomeSabor(d.localidade) === 'porto alegre';
+            if (cidadePortoAlegre && entregaPorTransportadora(metodoEntrega?.value)) {
+                metodoEntrega.value = 'none';
+                delete metodoEntrega.dataset.cepSelecionado;
+                freteMelhorEnvioSelecionado = null;
+            }
+            const carregando = document.createElement('span');
+            carregando.className = 'cep-cidade-indisponivel is-loading';
+            carregando.textContent = 'Calculando todas as opções de frete…';
+            if (!cidadePortoAlegre) opcoes.appendChild(carregando);
+            if (!cidadePortoAlegre) try {
+                const quantidade = quantidadeGarrafasCarrinho();
+                const valorPedido = cart.reduce((total, item) => total + Number(item.price || 0) * Number(item.qtd || 0), 0);
+                const { data: cotacao, error: erroCotacao } = await db.functions.invoke('frenet-cotacao', { body: { cep, quantidade, valor_pedido: valorPedido } });
+                if (erroCotacao) throw erroCotacao;
+                const cotacoes = Array.isArray(cotacao?.cotacoes) ? cotacao.cotacoes : [];
+                carregando.remove();
+                cotacoes.forEach(frete => opcoes.appendChild(criarOpcaoEntregaCEP(
+                    `frenet:${frete.id}`,
+                    frete.nome,
+                    `${frete.transportadora} · ${frete.prazo} ${Number(frete.prazo) === 1 ? 'dia útil' : 'dias úteis'}`,
+                    frete
+                )));
+                const entregaSelecionada = String(metodoEntrega?.value || '');
+                if (forcarCotacao && entregaPorTransportadora(entregaSelecionada)) {
+                    const servicoSelecionado = entregaSelecionada.slice(entregaSelecionada.indexOf(':') + 1);
+                    const freteAtualizado = cotacoes.find(frete => String(frete.id) === servicoSelecionado);
+                    if (freteAtualizado) {
+                        freteMelhorEnvioSelecionado = freteAtualizado;
+                        const opcaoAtual = [...opcoes.querySelectorAll('input[name="entrega-cep"]')]
+                            .find(input => input.value === `frenet:${servicoSelecionado}`);
+                        if (opcaoAtual) opcaoAtual.checked = true;
+                    } else {
+                        metodoEntrega.value = 'none';
+                        delete metodoEntrega.dataset.cepSelecionado;
+                        freteMelhorEnvioSelecionado = null;
+                        const avisoMudanca = document.createElement('span');
+                        avisoMudanca.className = 'cep-cidade-indisponivel';
+                        avisoMudanca.textContent = 'O frete escolhido não está disponível para a nova quantidade. Selecione outra opção.';
+                        opcoes.prepend(avisoMudanca);
+                    }
+                    updateCart();
+                }
+                if (!cotacoes.length) {
+                    const aviso = document.createElement('span');
+                    aviso.className = 'cep-cidade-indisponivel';
+                    aviso.textContent = 'Nenhuma opção de transportadora disponível para este CEP.';
+                    opcoes.appendChild(aviso);
+                }
+            } catch (erroCotacao) {
+                console.warn('Erro na cotação da Frenet:', erroCotacao);
+                carregando.classList.remove('is-loading');
+                carregando.textContent = 'Não foi possível calcular o frete agora. Tente consultar novamente.';
             }
 
             opcoes.appendChild(criarOpcaoEntregaCEP(
@@ -753,7 +908,7 @@ async function buscaCEP() {
             ));
             resultado.replaceChildren(cidade, opcoes);
         }
-        return cidadeAtendida;
+        return true;
     } catch (error) {
         ultimoCepConsultado = '';
         if (resultado) {
@@ -765,7 +920,17 @@ async function buscaCEP() {
     }
 }
 
-function criarOpcaoEntregaCEP(valor, titulo, descricao) {
+function agendarAtualizacaoAutomaticaFrete() {
+    const cep = document.getElementById('cep')?.value.replace(/\D/g, '') || '';
+    const resultado = document.getElementById('cep-resultado');
+    // Se o CEP já foi consultado, toda alteração no carrinho precisa refazer a
+    // lista completa da Frenet, mesmo antes de o cliente escolher um serviço.
+    if (!isCartOpen || !cart.length || cep.length !== 8 || resultado?.dataset.consultado !== 'true') return;
+    clearTimeout(recotacaoFreteTimer);
+    recotacaoFreteTimer = setTimeout(() => buscaCEP(true), 450);
+}
+
+function criarOpcaoEntregaCEP(valor, titulo, descricao, dadosFrete = null) {
     const label = document.createElement('label');
     label.className = 'cep-opcao-entrega';
     const radio = document.createElement('input');
@@ -775,17 +940,27 @@ function criarOpcaoEntregaCEP(valor, titulo, descricao) {
     radio.checked = document.getElementById('metodo-entrega').value === valor;
     radio.addEventListener('change', () => {
         const metodoEntrega = document.getElementById('metodo-entrega');
+        if (![...metodoEntrega.options].some(option => option.value === valor)) {
+            metodoEntrega.add(new Option(titulo, valor));
+        }
         metodoEntrega.value = valor;
+        metodoEntrega.dataset.cepSelecionado = document.getElementById('cep').value.replace(/\D/g, '');
+        freteMelhorEnvioSelecionado = dadosFrete;
+        atualizarPagamentoPorEntrega();
         document.getElementById('cep-resultado')?.classList.remove('needs-selection');
+        limparErroEtapaCheckout();
         updateCart();
     });
     const texto = document.createElement('span');
     const destaque = document.createElement('b');
     const detalhe = document.createElement('small');
+    const preco = document.createElement('strong');
     destaque.textContent = titulo;
     detalhe.textContent = descricao;
+    preco.className = 'cep-opcao-preco';
+    preco.textContent = dadosFrete ? `R$ ${Number(dadosFrete.preco).toFixed(2).replace('.', ',')}` : '';
     texto.append(destaque, detalhe);
-    label.append(radio, texto);
+    label.append(radio, texto, preco);
     return label;
 }
 
@@ -793,8 +968,8 @@ function validarCidade(cidade) {
     const btn = document.getElementById('btn-finalizar');
     const aviso = document.getElementById('aviso-regiao');
     const entrega = document.getElementById('metodo-entrega').value;
-    if (entrega === 'tele') {
-        const permitida = CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
+    if (entrega === 'tele' || entregaPorTransportadora(entrega)) {
+        const permitida = entregaPorTransportadora(entrega) || CIDADES_PERMITIDAS.some(c => c.toLowerCase() === cidade.toLowerCase());
         if (!permitida) {
             btn.disabled = true; btn.style.background = "#333"; btn.style.opacity = "0.5"; aviso.style.display = "block";
         } else { liberarBotao(); }
@@ -833,7 +1008,7 @@ function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
     // Corrige referências antigas que apontavam para arquivos .png inexistentes.
     const arquivoAtual = String(currentUrl || '').split('?')[0].split('/').pop().toLowerCase();
     if (nomeNorm.includes('gengibre') && ['gengibre.png', 'gengibre-2.png'].includes(arquivoAtual)) {
-        return isFoto2 ? 'fotos/gengibre-2.webp' : 'fotos/gengibre-guaco-mel.webp?v=4';
+        return isFoto2 ? 'fotos/gengibre-2.webp' : 'fotos/gengibre-guaco-mel.webp?v=5';
     }
 
     // A foto salva no Admin sempre tem prioridade, seja local, Drive ou URL pública.
@@ -859,6 +1034,24 @@ function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
     // mantemos o mapeamento ou o link original do Drive como prioridade segura.
 
     return currentUrl;
+}
+
+function fotoProdutoOficial(produto, isFoto2 = false) {
+    const blingId = String(produto?.bling_id || '');
+    const fotoCadastrada = fixDrive(isFoto2 ? produto?.foto_2 : produto?.foto_1);
+    if (fotoCadastrada) return fotoCadastrada;
+    if (produto?.tipo_produto === 'kit') return 'fotos/produto-em-breve.svg';
+    if (blingId === '16699719562') return isFoto2 ? 'fotos/gengibre-2.webp' : 'fotos/gengibre-guaco-mel.webp?v=5';
+    if (blingId === '16699660347') return 'fotos/cachaca-ouro.webp?v=2';
+    if (blingId === '16687078597') return 'fotos/produto-em-breve.svg';
+    return getLocalPhoto(produto?.nome || '', fixDrive(isFoto2 ? produto?.foto_2 : produto?.foto_1), isFoto2);
+}
+
+// O cadastro administrativo/Bling é a fonte oficial para a apresentação dos
+// três produtos. Mantém a vitrine, o detalhe e novos itens do carrinho em
+// 700 ml mesmo se um nome antigo de 750 ml ainda estiver salvo no banco.
+function nomeProdutoOficial(produto) {
+    return String(produto?.nome || '');
 }
 
 
@@ -909,30 +1102,21 @@ async function loadProducts() {
             .replace(/[^a-z0-9]+/g, ' ')
             .replace(/^cachaca\s+(de\s+)?/, '')
             .trim();
-        const idsBlingPermitidos = new Set(['16687078597', '16699660347']);
-        const idsSitePermitidos = new Set(['3e878921-6b60-4cc6-b5d9-3faa25d9a9d9']);
-        const produtosExibidos = (produtos || []).filter((produto) =>
-            idsBlingPermitidos.has(String(produto.bling_id || '')) ||
-            idsSitePermitidos.has(String(produto.id || '')) ||
-            normalizarNomeProduto(produto.nome).includes('gengibre guaco e mel')
-        );
-
-        // Exibe os dois próximos produtos desde já, mesmo antes do cadastro no Admin.
-        const nomesExistentes = new Set(produtosExibidos.map(p => normalizarNomeProduto(p.nome)));
-        [
-            { id: 'cachaca-ouro-local', nome: 'Cachaça Ouro', foto_1: 'fotos/cachaca-ouro.webp', preco: 50, custo: 0, estoque: 1, localOnly: true },
-            { id: 'cachaca-prata-local', nome: 'Cachaça Prata', preco: 50, custo: 0, estoque: 1, localOnly: true }
-        ].forEach(produto => {
-            if (!nomesExistentes.has(normalizarNomeProduto(produto.nome))) {
-                produtosExibidos.push(produto);
-            }
-        });
+        const ordemProdutosBling = ['16699719562', '16699660347', '16687078597'];
+        const prioridadeProduto = new Map(ordemProdutosBling.map((id, indice) => [id, indice]));
+        const produtosExibidos = (produtos || [])
+            .filter(produto => ordemProdutosBling.includes(String(produto.bling_id || '')) || (produto.tipo_produto === 'kit' && produto.visivel === true))
+            .sort((a, b) => {
+                const prioridadeA = prioridadeProduto.get(String(a.bling_id || '')) ?? ordemProdutosBling.length;
+                const prioridadeB = prioridadeProduto.get(String(b.bling_id || '')) ?? ordemProdutosBling.length;
+                return prioridadeA - prioridadeB || String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR');
+            });
 
         let htmlDisp = ''; let htmlEsg = '';
 
         produtosExibidos.forEach(p => {
             const id = p.id;
-            const nome = p.nome;
+            const nome = nomeProdutoOficial(p);
 
             // Calcula estrelas para a vitrine
             const chaveProduto = chaveSaborAvaliacao(nome);
@@ -960,13 +1144,15 @@ async function loadProducts() {
 
             const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5)
                 ? p.foto_1.trim()
-                : ((p.emBreve || p.localOnly) ? 'fotos/produto-em-breve.svg' : "https://via.placeholder.com/300x300?text=Sem+Foto");
-            let foto1 = getLocalPhoto(nome, fixDrive(foto1Raw), false);
+                : (p.emBreve ? 'fotos/produto-em-breve.svg' : '');
+            let foto1 = fotoProdutoOficial({ ...p, foto_1: foto1Raw }, false);
 
             const temFoto2 = (p.foto_2 && p.foto_2.trim().length > 5);
-            let foto2 = temFoto2 ? getLocalPhoto(nome, fixDrive(p.foto_2.trim()), true) : foto1;
+            let foto2 = temFoto2 ? fixDrive(p.foto_2.trim()) : foto1;
 
             const precoNum = parseFloat(p.preco);
+            const precoOriginalNum = parseFloat(p.preco_original || 0);
+            const temDesconto = precoOriginalNum > precoNum;
             const estoque = parseInt(p.estoque) || 0;
             const temEstoque = estoque > 0;
             const custoNum = parseFloat(p.custo || 0);
@@ -983,7 +1169,7 @@ async function loadProducts() {
 
             const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
             const matches = (pId && id == pId) || (pSlug && slug == pSlug);
-            const produtoUrl = `produto.html?id=${encodeURIComponent(id)}`;
+            const produtoUrl = urlProduto({ id, nome });
             
             // No modo VIP (p, id ou v=1 presente), mostramos apenas o produto do link + outros produtos OCULTOS
             if (pId || pSlug || isVip) {
@@ -994,7 +1180,10 @@ async function loadProducts() {
                 ? '<span class="tag-estoque-discreta">EM BREVE</span>'
                 : ((temEstoque && estoque <= 5) ? `<span class="tag-estoque-discreta">🔥 Apenas ${estoque} unidades</span>` : '');
             const acaoDetalhes = (p.emBreve || (p.localOnly && normalizarNomeProduto(nome) !== 'ouro')) ? '' : `onclick="window.location.href='${produtoUrl}'" style="cursor:pointer;"`;
-            const precoExibido = p.emBreve ? 'Em breve' : `R$ ${precoNum.toFixed(2).replace('.', ',')}`;
+            const percentualDesconto = temDesconto ? Math.round((1 - precoNum / precoOriginalNum) * 100) : 0;
+            const precoExibido = p.emBreve ? 'Em breve' : temDesconto
+                ? `<small class="preco-original">De R$ ${precoOriginalNum.toFixed(2).replace('.', ',')}</small><span>Por R$ ${precoNum.toFixed(2).replace('.', ',')}</span><em class="desconto-produto">${percentualDesconto}% OFF</em>`
+                : `R$ ${precoNum.toFixed(2).replace('.', ',')}`;
 
             const card = `
                 <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${p.emBreve ? 'em-breve-card' : ''}" id="card-${id}">
@@ -1004,13 +1193,13 @@ async function loadProducts() {
                             <img src="${foto1}" class="foto-1 prod-img">
                             <img src="${foto2}" class="foto-2" loading="lazy">
                         </div>
-                        <div class="swiper swiper-produto">
+                        ${temFoto2 ? `<div class="swiper swiper-produto">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide"><img src="${foto1}" class="prod-img" loading="lazy"></div>
-                                ${temFoto2 ? `<div class="swiper-slide"><img src="${foto2}" class="prod-img" loading="lazy"></div>` : ''}
+                                <div class="swiper-slide"><img src="${foto1}" class="prod-img" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'"></div>
+                                <div class="swiper-slide"><img src="${foto2}" class="prod-img" loading="eager" decoding="async" onerror="this.onerror=null;this.src='${foto1}'"></div>
                             </div>
                             <div class="swiper-pagination"></div>
-                        </div>
+                        </div>` : `<div class="swiper-produto swiper-produto-estatico"><img src="${foto1}" class="prod-img" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'"></div>`}
                     </div>
                     <div ${acaoDetalhes}>
                         ${tagEstoque}
@@ -1018,7 +1207,7 @@ async function loadProducts() {
                         ${estrelasVitrineHtml}
                         <span class="preco">${precoExibido}</span>
                     </div>
-                    ${p.emBreve ? '<button class="btn-adicionar" disabled>Em breve</button>' : (temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum}, event)">Comprar</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`)}
+                    ${p.emBreve ? '<button class="btn-adicionar" disabled>Em breve</button>' : (temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum}, event, ${Number(p.unidades_por_kit || 1)})">Comprar</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`)}
                 </div>`;
 
             const slide = `<div class="swiper-slide">${card}</div>`;
@@ -1056,7 +1245,7 @@ async function loadProducts() {
             });
         }, { rootMargin: '100px' });
 
-        document.querySelectorAll('.swiper-produto').forEach(el => swiperObserver.observe(el));
+        document.querySelectorAll('.swiper-produto.swiper').forEach(el => swiperObserver.observe(el));
 
 
         const highlightObserver = new IntersectionObserver((entries) => {
@@ -1169,7 +1358,7 @@ function createParticles(x, y) {
     }
 }
 
-function add(id, name, price, cost, event) {
+function add(id, name, price, cost, event, unidadesPorKit = 1) {
     try { fecharToastProvaSocial(); } catch (e) {}
     if (event) { createParticles(event.clientX, event.clientY); event.stopPropagation(); }
     const card = document.getElementById(`card-${id}`);
@@ -1200,11 +1389,13 @@ function add(id, name, price, cost, event) {
     const item = cart.find(i => i.id === id);
     if (item) {
         item.qtd++;
+        item.unidadesPorKit = Math.max(1, Number(unidadesPorKit || item.unidadesPorKit || 1));
         if (fotoUrl) item.foto = fotoUrl;
     } else {
-        cart.push({ id, name, price, cost: cost, qtd: 1, foto: fotoUrl });
+        cart.push({ id, name, price, cost: cost, qtd: 1, foto: fotoUrl, unidadesPorKit: Math.max(1, Number(unidadesPorKit || 1)) });
     }
     updateCart();
+    if (typeof isCartOpen !== 'undefined' && isCartOpen) agendarAtualizacaoAutomaticaFrete();
     const abrirCarrinhoAposAdicionar = () => {
         if (window.matchMedia('(min-width: 900px)').matches) {
             mostrarPreviewCarrinho(name, fotoUrl);
@@ -1283,7 +1474,7 @@ function add(id, name, price, cost, event) {
                 void badge.offsetWidth;
                 badge.style.animation = "popBadge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
             }
-            const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+            const totalGarrafas = quantidadeGarrafasCarrinho();
             const nudge = document.getElementById("nudge-frete");
             if (nudge) {
                 if (totalGarrafas === 2 && urlParams.get('v') !== '1') {
@@ -1384,7 +1575,7 @@ function abrirModalProduto(dadosEncoded) {
 function abrirModalProduto(dadosEncoded) {
     const p = JSON.parse(decodeURIComponent(dadosEncoded));
     rastrearAcao(p.nome, "👀 Viu");
-    window.location.href = `produto.html?id=${encodeURIComponent(p.id)}`;
+    window.location.href = urlProduto(p);
 }
 
 function abrirLightbox(url, event, allUrlsString) {
@@ -1703,7 +1894,7 @@ async function aplicarCupomSacola() {
     const mensagem = document.getElementById('cupom-mensagem-sacola');
     if (!input || !mensagem) return;
 
-    const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+    const totalGarrafas = quantidadeGarrafasCarrinho();
     const entrega = document.getElementById('metodo-entrega').value;
 
     const codigo = input.value.trim().toUpperCase();
@@ -1797,7 +1988,7 @@ async function aplicarCupomSacola() {
 function updateCart() {
     sessionStorage.setItem('tioNanCart', JSON.stringify(cart));
     const itemsCont = document.getElementById('cart-items');
-    const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+    const totalGarrafas = quantidadeGarrafasCarrinho();
     const barra = document.getElementById('barra-frete');
     const textoFrete = document.getElementById('texto-frete');
     const entrega = document.getElementById('metodo-entrega').value;
@@ -1867,10 +2058,12 @@ function updateCart() {
     const infoEntrega = document.getElementById('info-entrega-imediata');
     const blocoRetirada = document.getElementById('bloco-retirada');
 
-    if (entrega === 'tele') {
+    if (entrega === 'tele' || entregaPorTransportadora(entrega)) {
         if (blocoEndereco) blocoEndereco.style.display = 'block';
         if (infoEntrega) infoEntrega.style.display = 'flex';
-        buscarClientePorEmail();
+        // Atualizar itens, preços ou estoque não deve consultar novamente o cliente.
+        // Essa consulta pertence apenas à etapa de identificação; executá-la aqui
+        // sem CPF/e-mail podia sobrescrever ou invalidar o endereço já preenchido.
     } else {
         if (blocoEndereco) blocoEndereco.style.display = 'none';
         if (infoEntrega) infoEntrega.style.display = 'none';
@@ -1878,7 +2071,7 @@ function updateCart() {
     if (blocoRetirada) blocoRetirada.style.display = (entrega === 'retirada') ? 'block' : 'none';
 
     if (entrega === 'retirada') liberarBotao();
-    else if (entrega === 'tele' && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
+    else if ((entrega === 'tele' || entregaPorTransportadora(entrega)) && document.getElementById('cidade').value) validarCidade(document.getElementById('cidade').value);
 
     if (itemsCont) {
         itemsCont.innerHTML = cart.map(i => {
@@ -1907,8 +2100,8 @@ function updateCart() {
     
     let freteInclusoText = "";
     const isVip = urlParams.get('v') === '1';
-    if (entrega === 'tele') {
-        total += 15;
+    if (entrega === 'tele' || entregaPorTransportadora(entrega)) {
+        total += valorFreteAtual();
         freteInclusoText = " (frete incluso)";
     }
     
@@ -1929,14 +2122,15 @@ function updateCart() {
 let carregandoMercadoPagoAutomaticamente = false;
 
 async function handlePagamentoChange() {
+    atualizarPagamentoPorEntrega();
     const pag = document.getElementById('metodo-pagamento').value;
     const blocoTroco = document.getElementById('bloco-troco');
     const btnFinalizar = document.getElementById('btn-finalizar');
     const btnTexto = document.getElementById('btn-finalizar-texto');
     if (blocoTroco) blocoTroco.style.display = (pag === 'Dinheiro') ? 'block' : 'none';
     if (btnFinalizar) btnFinalizar.style.display = 'flex';
-    if (btnTexto) btnTexto.textContent = pag === 'Dinheiro' ? 'Finalizar pedido' : 'Ir para pagamento seguro';
-    if (pag === 'Dinheiro') {
+    if (btnTexto) btnTexto.textContent = pag === 'Dinheiro' ? 'Finalizar pedido' : pag === 'Teste' ? 'Criar pedido de teste' : 'Ir para pagamento seguro';
+    if (pag === 'Dinheiro' || pag === 'Teste') {
         const paymentBrick = document.getElementById('paymentBrick_container');
         const statusBrick = document.getElementById('statusScreenBrick_container');
         const avisoSandbox = document.getElementById('mp-sandbox-aviso');
@@ -1974,6 +2168,7 @@ function changeQty(id, delta) {
         if (item.qtd <= 0) cart = cart.filter(i => i.id !== id);
         updateCart();
         sincronizarBadge();
+        agendarAtualizacaoAutomaticaFrete();
     }
 }
 
@@ -1989,9 +2184,8 @@ function esvaziarSacola(event) {
 
 
 function sincronizarBadge() {
-    const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
     const badge = document.getElementById('badge');
-    if (badge) badge.innerText = totalGarrafas;
+    if (badge) badge.innerText = quantidadeItensCarrinho();
 }
 
 function identificarClienteSalvo(nome, telefone) {
@@ -2139,7 +2333,7 @@ async function checkout() {
         const nome = document.getElementById('cliente-nome').value;
         const entrega = document.getElementById('metodo-entrega').value;
         const pag = document.getElementById('metodo-pagamento').value;
-        const totalGarrafas = cart.reduce((acc, i) => acc + i.qtd, 0);
+        const totalGarrafas = quantidadeGarrafasCarrinho();
 
         document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
 
@@ -2164,11 +2358,15 @@ async function checkout() {
         if (!telefone || telefone.length < 14) return showError('cliente-telefone');
         if (!nome) return showError('cliente-nome');
         if (!entrega || entrega === "none") return showError('metodo-entrega');
-        if (entrega === 'tele') {
-            if (!document.getElementById('rua').value) return showError('rua');
-            if (!document.getElementById('numero').value) return showError('numero');
-            if (!document.getElementById('bairro').value) return showError('bairro');
-            if (!document.getElementById('cidade').value) return showError('cidade');
+        if (entrega === 'tele' || entregaPorTransportadora(entrega)) {
+            const valor = id => document.getElementById(id)?.value?.trim() || '';
+            if (valor('cep').replace(/\D/g, '').length !== 8) return showError('cep');
+            if (!valor('rua')) return showError('rua');
+            if (!valor('numero')) return showError('numero');
+            if (!valor('bairro')) return showError('bairro');
+            if (!valor('cidade')) return showError('cidade');
+            if (!valor('estado')) return showError('estado');
+            if (entrega === 'tele' && !CIDADES_PERMITIDAS.some(c => c.localeCompare(valor('cidade'), 'pt-BR', { sensitivity: 'base' }) === 0)) return showError('cidade');
         }
         if (!pag || pag === "none") return showError('metodo-pagamento');
         if (pag === 'Dinheiro' && document.getElementById('precisa-troco').checked && !document.getElementById('troco').value.trim()) {
@@ -2204,13 +2402,11 @@ async function checkout() {
         updateWelcome();
         atualizarPresenca();
 
-        let endereco = (entrega === 'tele') ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321) - Dia e horário a combinar";
+        let endereco = (entrega === 'tele' || entregaPorTransportadora(entrega)) ? `${document.getElementById('rua').value}, ${document.getElementById('numero').value} - ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value}` : "Retirada na Loja (Av. Bento Gonçalves, 4321) - Dia e horário a combinar";
         const custoTotalPedido = cart.reduce((acc, i) => acc + (i.cost * i.qtd), 0);
 
         let valorFrete = 0;
-        if (entrega === 'tele') {
-            valorFrete = 15.00;
-        }
+        valorFrete = valorFreteAtual();
 
         let subtotal = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
         let valorDesconto = subtotal * descontoPercentual;
@@ -2227,7 +2423,7 @@ async function checkout() {
         }
 
         if (pag === "Mercado Pago" && MERCADO_PAGO_BRICK_TEST) {
-            const enderecoPayload = entrega === 'tele' ? {
+            const enderecoPayload = (entrega === 'tele' || entregaPorTransportadora(entrega)) ? {
                 cep: document.getElementById('cep').value,
                 rua: document.getElementById('rua').value,
                 numero: document.getElementById('numero').value,
@@ -2243,6 +2439,7 @@ async function checkout() {
                     nome,
                     telefone,
                     entrega,
+                    frete: freteMelhorEnvioSelecionado,
                     endereco: enderecoPayload,
                     cupom: cupomDescontoAtivo,
                     itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
@@ -2259,7 +2456,7 @@ async function checkout() {
         if (pag === "Mercado Pago") {
             const btn = document.getElementById('btn-finalizar');
             if (btn) { btn.disabled = true; btn.style.opacity = "0.65"; btn.textContent = "Abrindo pagamento seguro…"; }
-            const enderecoPayload = entrega === 'tele' ? {
+            const enderecoPayload = (entrega === 'tele' || entregaPorTransportadora(entrega)) ? {
                 cep: document.getElementById('cep').value,
                 rua: document.getElementById('rua').value,
                 numero: document.getElementById('numero').value,
@@ -2275,6 +2472,7 @@ async function checkout() {
                     nome,
                     telefone,
                     entrega,
+                    frete: freteMelhorEnvioSelecionado,
                     endereco: enderecoPayload,
                     cupom: cupomDescontoAtivo,
                     itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
@@ -2306,7 +2504,7 @@ async function checkout() {
             }
         }
 
-        const enderecoPayload = entrega === 'tele' ? {
+        const enderecoPayload = (entrega === 'tele' || entregaPorTransportadora(entrega)) ? {
             cep: document.getElementById('cep').value,
             rua: document.getElementById('rua').value,
             numero: document.getElementById('numero').value,
@@ -2318,13 +2516,26 @@ async function checkout() {
         const btn = document.getElementById('btn-finalizar');
         if (btn) { btn.disabled = true; btn.style.opacity = '0.65'; }
         const { data, error } = await db.functions.invoke('mercado-pago-checkout', { body: {
-            pagamento: 'Dinheiro',
-            troco: document.getElementById('precisa-troco').checked ? document.getElementById('troco').value : '',
-            cpf, email, nome, telefone, entrega, endereco: enderecoPayload,
+            pagamento: pag,
+            teste: pag === 'Teste',
+            troco: pag === 'Dinheiro' && document.getElementById('precisa-troco').checked ? document.getElementById('troco').value : '',
+            cpf, email, nome, telefone, entrega, endereco: enderecoPayload, frete: freteMelhorEnvioSelecionado,
             cupom: cupomDescontoAtivo,
             itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
         }});
-        if (error || !data?.tracking_token) throw new Error(data?.error || error?.message || 'Não foi possível criar o pedido.');
+        if (error) {
+            let mensagem = error.message || 'Não foi possível criar o pedido.';
+            try {
+                if (error.context && typeof error.context.json === 'function') {
+                    const resposta = await error.context.json();
+                    mensagem = [resposta?.error, resposta?.detail].filter(Boolean).join(' — ') || mensagem;
+                }
+            } catch (contextError) {
+                console.warn('Não foi possível ler os detalhes do pedido em dinheiro:', contextError);
+            }
+            throw new Error(mensagem);
+        }
+        if (!data?.tracking_token) throw new Error(data?.error || 'O pedido foi criado sem código de acompanhamento.');
         salvarClienteRecenteCheckout(cpf, email, nome, telefone, enderecoPayload);
         localStorage.setItem('tioNanUltimoPedido', data.tracking_token);
         cart = [];
@@ -2332,7 +2543,10 @@ async function checkout() {
         window.location.assign(`pedido.html?novo=1&token=${encodeURIComponent(data.tracking_token)}`);
     } catch (e) {
         console.error(e);
-        alert("Ops! Verifique se todos os campos estão preenchidos corretamente.");
+        const mensagem = e instanceof Error && e.message ? e.message : 'Não foi possível finalizar o pedido.';
+        alert(`Não foi possível finalizar o pedido.\n\n${mensagem}`);
+        const btn = document.getElementById('btn-finalizar');
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
     }
 }
 
@@ -2409,7 +2623,23 @@ function closeCart(veioDoBotaoVoltar = false) {
 }
 window.addEventListener("popstate", (event) => { if (isCartOpen) { closeCart(true); } });
 
-if (urlParams.get('carrinho') === '1') setTimeout(openCart, 150);
+if (urlParams.get('carrinho') === '1') setTimeout(async () => {
+    openCart();
+    const cepTransferido = String(sessionStorage.getItem('tioNanCheckoutCep') || '').replace(/\D/g, '');
+    if (cepTransferido.length !== 8) return;
+    const campoCep = document.getElementById('cep');
+    if (campoCep) campoCep.value = cepTransferido.replace(/^(\d{5})(\d{3})$/, '$1-$2');
+    await buscaCEP();
+    try {
+        const entregaTransferida = JSON.parse(sessionStorage.getItem('tioNanCheckoutEntrega') || 'null');
+        const opcao = entregaTransferida?.value
+            ? document.querySelector(`input[name="entrega-cep"][value="${CSS.escape(entregaTransferida.value)}"]`)
+            : null;
+        if (opcao) { opcao.checked = true; opcao.dispatchEvent(new Event('change', { bubbles:true })); }
+    } catch (error) { console.warn('Não foi possível restaurar a opção de entrega:', error); }
+    sessionStorage.removeItem('tioNanCheckoutCep');
+    sessionStorage.removeItem('tioNanCheckoutEntrega');
+}, 150);
 
 document.addEventListener('input', function (e) {
     if (e.target && e.target.classList && e.target.classList.contains('input-error')) {
@@ -2488,7 +2718,7 @@ async function carregarTestimonialsHome() {
 
                 produtosMap[nomeNormalizado] = {
                     fotoUrl: foto1,
-                    produtoUrl: `produto.html?id=${encodeURIComponent(id)}`
+                    produtoUrl: urlProduto({ id, nome })
                 };
             });
         }

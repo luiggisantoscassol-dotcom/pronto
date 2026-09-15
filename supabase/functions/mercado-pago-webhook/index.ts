@@ -47,7 +47,7 @@ Deno.serve(async (request) => {
     : status === "approved" ? "pago" : ["rejected", "cancelled", "refunded", "charged_back"].includes(status) ? "cancelado" : "pendente";
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data: existingOrder } = await db.from("pedidos")
-    .select("referencia,total,bling_id,cliente_email,cliente_nome,tracking_token,email_confirmacao_enviado_em")
+    .select("referencia,total,bling_id,cliente_email,cliente_nome,tracking_token,email_confirmacao_enviado_em,estoque_reservado_em")
     .eq("referencia", reference)
     .maybeSingle();
   if (!existingOrder) return json({ ok: true, ignored: true });
@@ -72,6 +72,14 @@ Deno.serve(async (request) => {
     atualizado_em: new Date().toISOString(),
   }).eq("referencia", reference).select("referencia,bling_id").maybeSingle();
   if (error) return json({ error: error.message }, 500);
+
+  if (status === "approved" && !existingOrder.estoque_reservado_em) {
+    const { error: stockError } = await db.rpc("reservar_estoque_pedido", { p_referencia: reference });
+    if (stockError) {
+      await db.from("pedidos").update({ status_pagamento: "divergente", mercado_pago_status: "approved_without_stock" }).eq("referencia", reference);
+      return json({ error: stockError.message || "Pagamento aprovado, mas o estoque ficou indisponível." }, 409);
+    }
+  }
 
   if (status === "approved" && existingOrder.cliente_email && existingOrder.tracking_token && !existingOrder.email_confirmacao_enviado_em) {
     const emailResult = await sendOrderConfirmation({
