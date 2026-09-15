@@ -390,6 +390,28 @@
             margin: 0 auto;
         }
 
+        .footer-pages {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px 22px;
+            width: min(900px, 100%);
+            margin: 28px auto 22px;
+        }
+
+        .footer-pages a {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.82rem;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .footer-pages a:hover { color: var(--gold-soft); }
+
+        @media (max-width: 600px) {
+            .footer-pages { display: grid; gap: 12px; }
+        }
+
         .footer-address {
             color: #444;
             font-size: 0.75rem;

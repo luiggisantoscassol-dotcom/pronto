@@ -47,6 +47,11 @@ Deno.serve(async (request) => {
   const staticEntries = [
     urlEntry(`${SITE_URL}/`, today, "weekly", "1.0"),
     urlEntry(`${SITE_URL}/todos-produtos.html`, today, "daily", "0.9"),
+    urlEntry(`${SITE_URL}/sobre.html`, today, "monthly", "0.7"),
+    urlEntry(`${SITE_URL}/entregas.html`, today, "monthly", "0.7"),
+    urlEntry(`${SITE_URL}/trocas-devolucoes.html`, today, "monthly", "0.5"),
+    urlEntry(`${SITE_URL}/privacidade.html`, today, "yearly", "0.4"),
+    urlEntry(`${SITE_URL}/termos.html`, today, "yearly", "0.4"),
     urlEntry(`${SITE_URL}/links.html`, today, "monthly", "0.6")
   ];
   const seen = new Set<string>();
