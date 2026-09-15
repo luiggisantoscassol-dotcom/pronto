@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" role="img" aria-label="Foto do produto em breve">
-  <rect width="600" height="750" fill="#f7f4ee"/>
-  <rect x="35" y="35" width="530" height="680" rx="24" fill="#fff" stroke="#c5a059" stroke-width="3"/>
-  <path d="M255 165h90v70l55 85v220H200V320l55-85z" fill="#e5dbc7" stroke="#1b365d" stroke-width="9"/>
-  <path d="M225 320h150" stroke="#1b365d" stroke-width="9"/>
-  <text x="300" y="610" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#1b365d">FOTO EM BREVE</text>
-</svg>

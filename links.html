@@ -25,14 +25,6 @@
         rel="stylesheet">
 
     <style>
-        @font-face {
-            font-family: 'Gin Round Tio Nan';
-            src: url('GinTest-Round.otf') format('opentype');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
         :root {
             --blue-navy: #1B365D;
             --gold-antique: #A67C37;
@@ -75,13 +67,13 @@
         }
 
         .bio-logo {
-            font-family: 'Gin Round Tio Nan', 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
+            font-family: 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
             font-size: 2.5rem;
             /* Um pouco maior que o header por ser página de bio, mas com o mesmo estilo */
             color: #000000;
             text-decoration: none;
             text-transform: uppercase;
-            letter-spacing: 0.15px;
+            letter-spacing: 0.5px;
             font-weight: 700;
             margin-bottom: 10px;
             display: block;
@@ -122,8 +114,8 @@
         }
 
         .link-btn.primary {
-            background: #A67C37;
-            color: #000;
+            background: var(--gold-metallic);
+            color: #FFF;
             border: none;
             box-shadow: 0 10px 20px rgba(166, 124, 55, 0.2);
             animation: pulsePrimary 2s infinite;
@@ -344,18 +336,6 @@
             height: 40%;
             background: radial-gradient(circle, rgba(197, 160, 89, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
             z-index: -1;
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 24px 14px max(24px, env(safe-area-inset-bottom)); }
-            .bio-container { max-width: 100%; }
-            .bio-header { margin-bottom: 22px; }
-            .bio-logo { font-size: 2.1rem; }
-            .bio-tagline { font-size: .78rem; letter-spacing: 2px; }
-            .link-btn { min-height: 54px; padding: 15px 12px; border-radius: 16px; line-height: 1.3; }
-            .trust-section, .faq-section { padding: 22px 14px; border-radius: 22px; }
-            .trust-grid { grid-template-columns: 1fr; gap: 16px; }
-            .faq-title { font-size: 1.05rem; }
         }
     </style>
 </head>
