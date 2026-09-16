@@ -1119,6 +1119,20 @@ function nomeProdutoOficial(produto) {
     return String(produto?.nome || '');
 }
 
+function apresentacaoCardProduto(produto) {
+    const blingId = String(produto?.bling_id || '');
+    const nome = nomeProdutoOficial(produto);
+    if (blingId === '16699719562') return { titulo: 'Gengibre, Guaco e Mel', subtitulo: 'Bebida alcoólica mista · 700 ml' };
+    if (blingId === '16699660347') return { titulo: 'Cachaça Ouro', subtitulo: 'Envelhecida em carvalho por 2 anos · Premium · 700 ml' };
+    if (blingId === '16687078597') return { titulo: 'Cachaça Prata', subtitulo: 'Cachaça prata · 700 ml' };
+    if (produto?.tipo_produto === 'kit') {
+        const titulo = nome.replace(/\s+TIO\s+NAN\s*$/i, '').replace(/\s+700\s*ML\s*/ig, ' ').replace(/\s{2,}/g, ' ').trim();
+        const unidades = Math.max(1, Number(produto?.unidades_por_kit || 1));
+        return { titulo, subtitulo: `${unidades} ${unidades === 1 ? 'garrafa' : 'garrafas'} de 700 ml` };
+    }
+    return { titulo: nome, subtitulo: '' };
+}
+
 
 async function loadProducts() {
     try {
@@ -1182,6 +1196,7 @@ async function loadProducts() {
         produtosExibidos.forEach(p => {
             const id = p.id;
             const nome = nomeProdutoOficial(p);
+            const apresentacao = apresentacaoCardProduto(p);
 
             // Calcula estrelas para a vitrine
             const chaveProduto = chaveSaborAvaliacao(nome);
@@ -1268,7 +1283,8 @@ async function loadProducts() {
                     </div>
                     <div ${acaoDetalhes}>
                         ${tagEstoque}
-                        <h3 class="prod-nome">${nome}</h3>
+                        <h3 class="prod-nome">${apresentacao.titulo}</h3>
+                        ${apresentacao.subtitulo ? `<p class="prod-subtitulo">${apresentacao.subtitulo}</p>` : ''}
                         ${estrelasVitrineHtml}
                         <span class="preco">${precoExibido}</span>
                     </div>
