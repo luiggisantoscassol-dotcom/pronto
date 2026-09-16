@@ -2471,14 +2471,26 @@
         }
 
         .tag-estoque-discreta {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #ff6b6b;
+            position: absolute;
+            top: 13px;
+            left: 13px;
+            z-index: 55;
+            width: max-content;
+            max-width: calc(100% - 26px);
+            padding: 7px 10px;
+            border: 1px solid rgba(255,255,255,.8);
+            border-radius: 999px;
+            background: rgba(255,255,255,.94);
+            box-shadow: 0 5px 16px rgba(20,32,48,.16);
+            font-size: 0.62rem;
+            line-height: 1;
+            font-weight: 900;
+            color: #c34e4e;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
+            letter-spacing: .75px;
+            margin: 0;
             display: block;
-            opacity: 0.9;
+            opacity: 1;
         }
 
         /* --- SEARCH BAR --- */
