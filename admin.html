@@ -1218,10 +1218,26 @@
         .mkt-field > span { display:block; margin:0 0 7px; color:#435b75; font-size:.7rem; font-weight:850; letter-spacing:.35px; }
         .mkt-field input,.mkt-field textarea { display:block; width:100%; margin:0; padding:13px 15px; border:1px solid #dcd5ca; border-radius:12px; font:inherit; line-height:1.45; }
         .mkt-field textarea { min-height:190px; resize:vertical; }
+        .mkt-image-upload { display:grid; grid-template-columns:92px minmax(0,1fr); gap:14px; align-items:center; padding:13px; border:1px dashed #c9b995; border-radius:14px; background:#fff; }
+        .mkt-image-upload img { display:none; width:92px; aspect-ratio:1; object-fit:cover; border-radius:11px; background:#f4f0e8; }
+        .mkt-image-upload img[src]:not([src=""]) { display:block; }
+        .mkt-image-upload input[type="file"] { width:100%; min-height:0; padding:8px; }
+        .mkt-image-status { display:block; margin-bottom:7px; color:#718096; font-size:.68rem; font-weight:800; line-height:1.4; }
         .mkt-fields-inline { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
         .mkt-preview-wrap { position:sticky; top:94px; min-width:0; }
         .mkt-preview-label { display:flex; justify-content:space-between; align-items:center; margin:0 0 10px; color:#718096; font-size:.66rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
         .mkt-preview-device { padding:14px; border:1px solid #e3dacb; border-radius:22px; background:#f4f0e8; box-shadow:0 12px 34px rgba(25,56,95,.09); }
+        .mkt-blocks { margin:0 0 14px; padding:14px; border:1px solid #e3dacb; border-radius:16px; background:#fff; }
+        .mkt-blocks-title { display:block; margin-bottom:10px; color:#435b75; font-size:.65rem; font-weight:900; letter-spacing:.8px; text-transform:uppercase; }
+        .mkt-block-list { display:grid; gap:7px; }
+        .mkt-block { display:grid; grid-template-columns:28px 1fr auto; align-items:center; gap:9px; padding:10px 11px; border:1px solid #e7e0d5; border-radius:11px; background:#fbfaf7; color:#19385f; cursor:grab; user-select:none; transition:.18s; }
+        .mkt-block:active { cursor:grabbing; }
+        .mkt-block.dragging { opacity:.42; transform:scale(.985); }
+        .mkt-block.drag-over { border-color:#c59a4a; background:#fff8e9; }
+        .mkt-block-handle { color:#a77b2b; font-size:1rem; letter-spacing:-3px; }
+        .mkt-block-name { font-size:.72rem; font-weight:850; }
+        .mkt-block-actions { display:flex; gap:4px; }
+        .mkt-block-actions button { display:grid; width:28px; height:28px; min-height:28px; padding:0; place-items:center; border:1px solid #ded7cc; border-radius:8px; background:#fff; color:#19385f; cursor:pointer; }
         #mkt-preview { display:block; width:100%; height:650px; border:0; border-radius:14px; background:#fff; }
         .mkt-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         .mkt-actions .btn-status { width:100%!important; margin:0!important; min-height:52px; }
@@ -1233,7 +1249,7 @@
             .mkt-workspace{grid-template-columns:1fr}.mkt-preview-wrap{position:static}.mkt-preview-device{max-width:620px;margin:auto}#mkt-preview{height:590px}
         }
         @media(max-width:600px){
-            .mkt-header{align-items:flex-start;padding:22px 18px;flex-direction:column}.mkt-audience{width:100%;min-width:0}.mkt-workspace{padding:18px;gap:22px}.mkt-section{padding:17px}.mkt-fields-inline,.mkt-actions{grid-template-columns:1fr}.mkt-history{padding:0 18px 22px}.mkt-history-list{padding:4px 14px}#mkt-preview{height:520px}
+            .mkt-header{align-items:flex-start;padding:22px 18px;flex-direction:column}.mkt-audience{width:100%;min-width:0}.mkt-workspace{padding:18px;gap:22px}.mkt-section{padding:17px}.mkt-fields-inline,.mkt-actions{grid-template-columns:1fr}.mkt-image-upload{grid-template-columns:72px minmax(0,1fr)}.mkt-image-upload img{width:72px}.mkt-history{padding:0 18px 22px}.mkt-history-list{padding:4px 14px}#mkt-preview{height:520px}
         }
         .produto-precos-grid {
             display: grid;
@@ -1477,7 +1493,12 @@
                     <section class="mkt-section">
                         <h3 class="mkt-section-title"><span>2</span> Conteúdo</h3>
                         <label class="mkt-field"><span>Mensagem</span><textarea id="mkt-conteudo" placeholder="Escreva uma mensagem humana e divertida. Separe os parágrafos com uma linha em branco." oninput="atualizarPreviewMarketing()"></textarea></label>
-                        <label class="mkt-field"><span>URL da imagem (opcional)</span><input id="mkt-imagem" type="url" placeholder="https://www.tionan.com.br/fotos/..." oninput="atualizarPreviewMarketing()"></label>
+                        <div class="mkt-field"><span>Imagem da campanha (opcional)</span>
+                            <div class="mkt-image-upload">
+                                <img id="mkt-imagem-preview" alt="Prévia da imagem da campanha">
+                                <div><span id="mkt-imagem-status" class="mkt-image-status">Envie JPG, PNG ou WebP. A imagem será convertida para WebP.</span><input id="mkt-imagem-arquivo" type="file" accept="image/jpeg,image/png,image/webp" onchange="selecionarImagemMarketing(this)"><input id="mkt-imagem" type="hidden"></div>
+                            </div>
+                        </div>
                         <div class="mkt-fields-inline">
                             <label class="mkt-field"><span>Texto do botão</span><input id="mkt-botao-texto" placeholder="Conhecer produto" oninput="atualizarPreviewMarketing()"></label>
                             <label class="mkt-field"><span>Link do botão</span><input id="mkt-botao-url" type="url" placeholder="https://www.tionan.com.br/..." oninput="atualizarPreviewMarketing()"></label>
@@ -1495,6 +1516,10 @@
                 </div>
                 <aside class="mkt-preview-wrap">
                     <div class="mkt-preview-label"><span>Prévia do e-mail</span><span>Atualização automática</span></div>
+                    <div class="mkt-blocks">
+                        <span class="mkt-blocks-title">Segure e arraste para mudar a ordem</span>
+                        <div id="mkt-block-list" class="mkt-block-list"></div>
+                    </div>
                     <div class="mkt-preview-device"><iframe id="mkt-preview" title="Prévia da campanha"></iframe></div>
                 </aside>
             </div>
@@ -2276,6 +2301,11 @@
             if (id === 'tab-consignacao') carregarConsignacao();
         }
 
+        let ordemBlocosMarketing = ['imagem', 'titulo', 'texto', 'botao'];
+        let blocoArrastadoMarketing = '';
+
+        const nomesBlocosMarketing = { imagem: 'Imagem', titulo: 'Título da campanha', texto: 'Mensagem', botao: 'Botão de ação' };
+
         function dadosCampanhaMarketing() {
             return {
                 nome: document.getElementById('mkt-nome')?.value.trim() || '',
@@ -2284,7 +2314,8 @@
                 conteudo: document.getElementById('mkt-conteudo')?.value.trim() || '',
                 imagem_url: document.getElementById('mkt-imagem')?.value.trim() || '',
                 botao_texto: document.getElementById('mkt-botao-texto')?.value.trim() || '',
-                botao_url: document.getElementById('mkt-botao-url')?.value.trim() || ''
+                botao_url: document.getElementById('mkt-botao-url')?.value.trim() || '',
+                ordem_blocos: [...ordemBlocosMarketing]
             };
         }
 
@@ -2292,14 +2323,101 @@
             return String(valor || '').replace(/[&<>"']/g, caractere => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[caractere]));
         }
 
+        function renderizarOrdemMarketing() {
+            const lista = document.getElementById('mkt-block-list');
+            if (!lista) return;
+            lista.innerHTML = ordemBlocosMarketing.map((bloco, indice) => `<div class="mkt-block" draggable="true" data-bloco="${bloco}" ondragstart="iniciarArrasteMarketing(event,'${bloco}')" ondragend="finalizarArrasteMarketing()" ondragover="permitirArrasteMarketing(event,this)" ondragleave="this.classList.remove('drag-over')" ondrop="soltarBlocoMarketing(event,'${bloco}')"><span class="mkt-block-handle" aria-hidden="true">⠿</span><span class="mkt-block-name">${nomesBlocosMarketing[bloco]}</span><span class="mkt-block-actions"><button type="button" aria-label="Mover para cima" onclick="moverBlocoMarketing('${bloco}',-1)" ${indice === 0 ? 'disabled' : ''}>↑</button><button type="button" aria-label="Mover para baixo" onclick="moverBlocoMarketing('${bloco}',1)" ${indice === ordemBlocosMarketing.length - 1 ? 'disabled' : ''}>↓</button></span></div>`).join('');
+        }
+
+        function iniciarArrasteMarketing(evento, bloco) {
+            blocoArrastadoMarketing = bloco;
+            evento.currentTarget.classList.add('dragging');
+            evento.dataTransfer.effectAllowed = 'move';
+            evento.dataTransfer.setData('text/plain', bloco);
+        }
+
+        function permitirArrasteMarketing(evento, elemento) {
+            evento.preventDefault();
+            evento.dataTransfer.dropEffect = 'move';
+            elemento.classList.add('drag-over');
+        }
+
+        function soltarBlocoMarketing(evento, destino) {
+            evento.preventDefault();
+            const origem = blocoArrastadoMarketing || evento.dataTransfer.getData('text/plain');
+            if (!origem || origem === destino) return finalizarArrasteMarketing();
+            const novaOrdem = ordemBlocosMarketing.filter(item => item !== origem);
+            novaOrdem.splice(novaOrdem.indexOf(destino), 0, origem);
+            ordemBlocosMarketing = novaOrdem;
+            finalizarArrasteMarketing();
+            renderizarOrdemMarketing();
+            atualizarPreviewMarketing();
+        }
+
+        function finalizarArrasteMarketing() {
+            blocoArrastadoMarketing = '';
+            document.querySelectorAll('.mkt-block').forEach(item => item.classList.remove('dragging', 'drag-over'));
+        }
+
+        function moverBlocoMarketing(bloco, direcao) {
+            const atual = ordemBlocosMarketing.indexOf(bloco);
+            const destino = atual + direcao;
+            if (atual < 0 || destino < 0 || destino >= ordemBlocosMarketing.length) return;
+            [ordemBlocosMarketing[atual], ordemBlocosMarketing[destino]] = [ordemBlocosMarketing[destino], ordemBlocosMarketing[atual]];
+            renderizarOrdemMarketing();
+            atualizarPreviewMarketing();
+        }
+
+        async function selecionarImagemMarketing(input) {
+            const arquivo = input?.files?.[0];
+            if (!arquivo) return;
+            const status = document.getElementById('mkt-imagem-status');
+            const preview = document.getElementById('mkt-imagem-preview');
+            const campo = document.getElementById('mkt-imagem');
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(arquivo.type) || arquivo.size > 12 * 1024 * 1024) {
+                input.value = '';
+                return showToast('Escolha uma imagem JPG, PNG ou WebP de até 12 MB.');
+            }
+            const local = URL.createObjectURL(arquivo);
+            preview.src = local;
+            campo.value = local;
+            status.textContent = 'Convertendo e enviando a imagem…';
+            atualizarPreviewMarketing();
+            try {
+                const webp = await converterFotoParaWebP(arquivo);
+                const identificador = (crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`).replace(/[^a-z0-9-]/gi, '');
+                const caminho = `email-marketing/${new Date().toISOString().slice(0, 10)}/${identificador}.webp`;
+                const { error } = await db.storage.from(PRODUTO_IMAGENS_BUCKET).upload(caminho, webp, { contentType: 'image/webp', cacheControl: '31536000', upsert: false });
+                if (error) throw error;
+                const { data } = db.storage.from(PRODUTO_IMAGENS_BUCKET).getPublicUrl(caminho);
+                if (!data?.publicUrl) throw new Error('A URL pública da imagem não foi gerada.');
+                campo.value = data.publicUrl;
+                preview.src = data.publicUrl;
+                status.textContent = '✓ Imagem carregada e convertida para WebP';
+                input.value = '';
+                atualizarPreviewMarketing();
+            } catch (erro) {
+                campo.value = '';
+                preview.removeAttribute('src');
+                status.textContent = 'Não foi possível carregar. Tente novamente.';
+                alert(`Erro ao carregar imagem.\n\n${erro.message || erro}`);
+            } finally {
+                URL.revokeObjectURL(local);
+            }
+        }
+
         function atualizarPreviewMarketing() {
             const frame = document.getElementById('mkt-preview');
             if (!frame) return;
             const dados = dadosCampanhaMarketing();
-            const imagem = /^https?:\/\//i.test(dados.imagem_url) ? `<img src="${escaparMarketing(dados.imagem_url)}" style="display:block;width:100%;height:auto" alt="">` : '';
-            const botao = /^https?:\/\//i.test(dados.botao_url) && dados.botao_texto ? `<p style="margin:28px 0"><span style="display:inline-block;background:#c79a49;color:#0b284b;font-weight:900;padding:14px 22px;border-radius:12px">${escaparMarketing(dados.botao_texto)}</span></p>` : '';
-            const texto = escaparMarketing(dados.conteudo || 'Sua mensagem aparecerá aqui.').replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
-            frame.srcdoc = `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f;padding:18px"><div style="max-width:560px;margin:auto;background:#fff;border-radius:20px;overflow:hidden"><div style="background:#0b284b;color:#fff;text-align:center;padding:22px;font-size:26px;font-weight:900">TIO NAN</div>${imagem}<div style="padding:30px"><small style="color:#b68737;font-weight:800;letter-spacing:2px">UM BRINDE DA TIO NAN</small><h1 style="font-family:Georgia,serif;font-size:32px;line-height:1.08">${escaparMarketing(dados.nome || dados.assunto || 'Sua campanha')}</h1><div style="color:#40516a;line-height:1.65"><p>${texto}</p></div>${botao}</div><div style="background:#0b284b;color:#cbd6e4;text-align:center;padding:20px;font-size:11px">Beba com moderação. Venda proibida para menores de 18 anos.<br><br><u>Não quero mais receber novidades</u></div></div></body></html>`;
+            const blocos = {
+                imagem: /^(https?:|blob:)/i.test(dados.imagem_url) ? `<img src="${escaparMarketing(dados.imagem_url)}" style="display:block;width:100%;height:auto" alt="">` : '',
+                titulo: `<div style="padding:30px 30px 0"><small style="color:#b68737;font-weight:800;letter-spacing:2px">UM BRINDE DA TIO NAN</small><h1 style="margin:10px 0 0;font-family:Georgia,serif;font-size:32px;line-height:1.08;color:#17304f">${escaparMarketing(dados.nome || dados.assunto || 'Sua campanha')}</h1></div>`,
+                texto: `<div style="padding:24px 30px 0;color:#40516a;line-height:1.65"><p>${escaparMarketing(dados.conteudo || 'Sua mensagem aparecerá aqui.').replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>')}</p></div>`,
+                botao: /^https?:\/\//i.test(dados.botao_url) && dados.botao_texto ? `<div style="padding:24px 30px 30px"><span style="display:inline-block;background:#c79a49;color:#0b284b;font-weight:900;padding:14px 22px;border-radius:12px">${escaparMarketing(dados.botao_texto)}</span></div>` : ''
+            };
+            const conteudoOrdenado = ordemBlocosMarketing.map(bloco => blocos[bloco] || '').join('');
+            frame.srcdoc = `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f;padding:18px"><div style="max-width:560px;margin:auto;background:#fff;border-radius:20px;overflow:hidden"><div style="background:#0b284b;color:#fff;text-align:center;padding:22px;font-size:26px;font-weight:900">TIO NAN</div>${conteudoOrdenado}<div style="background:#0b284b;color:#cbd6e4;text-align:center;padding:20px;font-size:11px">Beba com moderação. Venda proibida para menores de 18 anos.<br><br><u>Não quero mais receber novidades</u></div></div></body></html>`;
         }
 
         async function chamarEmailMarketing(action, extras = {}) {
@@ -2317,6 +2435,7 @@
         }
 
         async function carregarEmailMarketing() {
+            renderizarOrdemMarketing();
             atualizarPreviewMarketing();
             const historico = document.getElementById('mkt-historico');
             try {
