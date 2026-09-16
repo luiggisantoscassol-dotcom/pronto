@@ -85,8 +85,13 @@ Deno.serve(async (request) => {
   if (action === "test") {
     const to = String(input.email_teste || auth.user.email || "").trim();
     if (!validEmail(to)) return json(request, { error: "Informe um e-mail válido para o teste." }, 400);
-    const result = await resend("/emails", { method: "POST", body: JSON.stringify({ from, to: [to], subject: `[TESTE] ${campaign.assunto}`, html: template(campaign, false) }) });
-    return json(request, { ok: true, id: result.id });
+    try {
+      const result = await resend("/emails", { method: "POST", body: JSON.stringify({ from, to: [to], subject: `[TESTE] ${campaign.assunto}`, html: template(campaign, false) }) });
+      return json(request, { ok: true, id: result.id });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return json(request, { error: `O Resend não aceitou o envio: ${message}` }, 502);
+    }
   }
   if (action !== "send") return json(request, { error: "Ação inválida." }, 400);
   const { data: contacts, error: contactsError } = await db.from("clientes").select("nome,email").eq("marketing_consentimento", true).not("email", "is", null);
