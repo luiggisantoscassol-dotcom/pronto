@@ -1122,7 +1122,7 @@ function nomeProdutoOficial(produto) {
 function apresentacaoCardProduto(produto) {
     const blingId = String(produto?.bling_id || '');
     const nome = nomeProdutoOficial(produto);
-    if (blingId === '16699719562') return { titulo: 'Gengibre, Guaco e Mel', subtitulo: 'Bebida mista à base de Cachaça Prata Tio Nan · 700 ml' };
+    if (blingId === '16699719562') return { titulo: 'Gengibre, Guaco e Mel', subtitulo: 'Bebida alcoólica mista · 700 ml' };
     if (blingId === '16699660347') return { titulo: 'Cachaça Ouro', subtitulo: 'Envelhecida em carvalho por 2 anos · Premium · 700 ml' };
     if (blingId === '16687078597') return { titulo: 'Cachaça Prata', subtitulo: 'Cachaça prata · 700 ml' };
     if (produto?.tipo_produto === 'kit') {
