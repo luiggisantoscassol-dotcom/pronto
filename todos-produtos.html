@@ -17,6 +17,39 @@
     @font-face{font-family:Gin;src:url('GinTest-Round.otf') format('opentype');font-display:swap}
     :root{--navy:#15365f;--ink:#192238;--gold:#b98c3a;--line:#e7eaf0}*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif}.header{height:70px;display:grid;grid-template-columns:60px 1fr 60px;align-items:center;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:5}.back{justify-self:center;color:var(--navy);font-size:29px;text-decoration:none}.brand{justify-self:center;color:#000;font:400 27px/1 Gin,Georgia,serif;letter-spacing:.01em;text-decoration:none}.cart{justify-self:center;color:var(--navy);font-size:24px;text-decoration:none}.page{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:42px 0 65px}.eyebrow{color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.page h1{margin:8px 0 9px;color:var(--navy);font-size:clamp(32px,5vw,52px);letter-spacing:-.04em}.intro{margin:0 0 30px;color:#647086}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.card{display:grid;grid-template-rows:auto 1fr;min-height:520px;border:1px solid #e8e6df;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 10px 25px rgba(24,43,69,.07);text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease}.card:hover{transform:translateY(-4px);box-shadow:0 16px 31px rgba(24,43,69,.13)}.photo{min-width:0;aspect-ratio:1/1;overflow:hidden;background:#fff;border-bottom:1px solid #eeeae2}.photo img{display:block;width:100%;height:100%;object-fit:cover}.photo.placeholder{display:grid;place-items:center;background:#faf9f5}.photo.placeholder img{width:78%;height:78%;object-fit:contain;mix-blend-mode:multiply}.card-content{min-width:0;padding:18px 20px 21px;display:flex;flex-direction:column;align-items:flex-start}.card h2{margin:0 0 10px;color:var(--navy);font-size:19px;line-height:1.22;overflow-wrap:anywhere}.price{color:#111;font-weight:800;font-size:20px}.action{display:inline-block;margin-top:auto;padding-top:18px;color:var(--navy);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}@media(max-width:700px){.page{width:100%;padding:30px 20px 45px}.grid{display:flex;overflow-x:auto;gap:13px;margin-right:-20px;padding:0 20px 14px 0;scroll-snap-type:x mandatory}.card{flex:0 0 min(78vw,310px);grid-template-rows:auto 1fr;min-height:475px;scroll-snap-align:start}}
   </style>
+  <style>
+    @media (max-width: 700px) {
+      .page { width: 100%; padding: 28px 14px 44px; }
+      .intro { margin-bottom: 22px; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-right: 0;
+        padding: 0;
+        overflow: visible;
+        scroll-snap-type: none;
+      }
+      .card {
+        min-width: 0;
+        min-height: 350px;
+        grid-template-rows: auto 1fr;
+        border-radius: 14px;
+        box-shadow: 0 7px 18px rgba(24, 43, 69, .08);
+      }
+      .card:hover { transform: none; }
+      .card-content { padding: 13px 12px 15px; }
+      .card h2 {
+        margin-bottom: 8px;
+        font-size: clamp(13px, 3.6vw, 16px);
+        line-height: 1.18;
+      }
+      .price { font-size: clamp(15px, 4vw, 18px); }
+      .price small { font-size: 11px; }
+      .price em { display: block; margin-top: 3px; }
+      .action { padding-top: 14px; font-size: 11px; }
+    }
+  </style>
 </head>
 <body>
   <header class="header"><a class="back" href="index.html" aria-label="Voltar">‹</a><a class="brand" href="index.html">TIO NAN</a><a class="cart" href="index.html#vitrine" aria-label="Voltar para a loja">🛒</a></header>
