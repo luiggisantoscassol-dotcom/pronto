@@ -1230,6 +1230,10 @@
         .mkt-fields-inline { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
         .mkt-preview-wrap { position:sticky; top:94px; min-width:0; }
         .mkt-preview-label { display:flex; justify-content:space-between; align-items:center; margin:0 0 10px; color:#718096; font-size:.66rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+        .mkt-preview-meta { display:flex; align-items:center; gap:10px; }
+        .mkt-zoom { display:flex; align-items:center; gap:4px; }
+        .mkt-zoom button { display:grid; width:29px; height:29px; min-height:29px; padding:0; place-items:center; border:1px solid #dcd5ca; border-radius:8px; background:#fff; color:#19385f; font-weight:900; cursor:pointer; }
+        .mkt-zoom output { min-width:48px; text-align:center; color:#19385f; font-size:.65rem; }
         .mkt-preview-device { padding:14px; border:1px solid #e3dacb; border-radius:22px; background:#f4f0e8; box-shadow:0 12px 34px rgba(25,56,95,.09); }
         .mkt-blocks { margin:0 0 14px; padding:14px; border:1px solid #e3dacb; border-radius:16px; background:#fff; }
         .mkt-blocks-title { display:block; margin-bottom:10px; color:#435b75; font-size:.65rem; font-weight:900; letter-spacing:.8px; text-transform:uppercase; }
@@ -1278,9 +1282,9 @@
             #tab-email-marketing .mkt-history-list{padding:2px 12px;max-height:48px;overflow-y:auto}
             #tab-email-marketing .mkt-preview-wrap{top:0;height:100%;display:flex;min-height:0;flex-direction:column}
             #tab-email-marketing .mkt-preview-label{margin-bottom:6px}
-            #tab-email-marketing .mkt-blocks{flex:0 0 auto;margin-bottom:8px;padding:7px 9px}
+            #tab-email-marketing .mkt-blocks{grid-column:1/-1;margin:2px 0 0;padding:7px 9px}
             #tab-email-marketing .mkt-blocks-title{margin-bottom:5px;font-size:.57rem}
-            #tab-email-marketing .mkt-block-list{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+            #tab-email-marketing .mkt-block-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
             #tab-email-marketing .mkt-block{grid-template-columns:16px minmax(0,1fr) auto;gap:5px;padding:6px}
             #tab-email-marketing .mkt-block-name{font-size:.57rem;line-height:1.15}
             #tab-email-marketing .mkt-block-actions{grid-column:auto;justify-content:flex-end}
@@ -1543,6 +1547,10 @@
                             <label class="mkt-field"><span>Texto do botão</span><input id="mkt-botao-texto" placeholder="Conhecer produto" oninput="atualizarPreviewMarketing()"></label>
                             <label class="mkt-field"><span>Link do botão</span><input id="mkt-botao-url" type="url" placeholder="https://www.tionan.com.br/..." oninput="atualizarPreviewMarketing()"></label>
                         </div>
+                        <div class="mkt-blocks">
+                            <span class="mkt-blocks-title">Segure e arraste para mudar a ordem</span>
+                            <div id="mkt-block-list" class="mkt-block-list"></div>
+                        </div>
                     </section>
                     <section class="mkt-section">
                         <h3 class="mkt-section-title"><span>3</span> Revisar e enviar</h3>
@@ -1559,11 +1567,7 @@
                     </div>
                 </div>
                 <aside class="mkt-preview-wrap">
-                    <div class="mkt-preview-label"><span>Prévia do e-mail</span><span><strong id="mkt-inscritos">—</strong> inscritos autorizados · atualização automática</span></div>
-                    <div class="mkt-blocks">
-                        <span class="mkt-blocks-title">Segure e arraste para mudar a ordem</span>
-                        <div id="mkt-block-list" class="mkt-block-list"></div>
-                    </div>
+                    <div class="mkt-preview-label"><span>Prévia do e-mail</span><div class="mkt-preview-meta"><span><strong id="mkt-inscritos">—</strong> inscritos autorizados</span><div class="mkt-zoom"><button type="button" onclick="alterarZoomPreviewMarketing(-.25)" aria-label="Diminuir zoom">−</button><output id="mkt-zoom-valor">Ajustar</output><button type="button" onclick="alterarZoomPreviewMarketing(.25)" aria-label="Aumentar zoom">+</button><button type="button" onclick="resetarZoomPreviewMarketing()" aria-label="Ajustar à tela">↺</button></div></div></div>
                     <div class="mkt-preview-device"><iframe id="mkt-preview" title="Prévia da campanha"></iframe></div>
                 </aside>
             </div>
@@ -2344,6 +2348,7 @@
         let ordemBlocosMarketing = ['titulo', 'texto', 'botao'];
         let imagensMarketing = [];
         let blocoArrastadoMarketing = '';
+        let zoomPreviewMarketing = 1;
 
         const nomesBlocosMarketing = { titulo: 'Título da campanha', texto: 'Mensagem', botao: 'Botão de ação' };
 
@@ -2486,7 +2491,7 @@
                 return blocos[bloco] || '';
             }).join('');
             frame.onload = () => ajustarPreviewMarketing();
-            frame.srcdoc = `<!doctype html><html style="overflow:hidden"><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f;padding:12px;overflow:hidden"><div id="email-preview-root" style="max-width:620px;margin:auto;background:#fff;border-radius:20px;overflow:hidden;transform-origin:top center"><div style="background:#0b284b;color:#fff;text-align:center;padding:22px;font-size:26px;font-weight:900">TIO NAN</div>${conteudoOrdenado}<div style="background:#0b284b;color:#cbd6e4;text-align:center;padding:20px;font-size:11px">Beba com moderação. Venda proibida para menores de 18 anos.<br><br><u>Não quero mais receber novidades</u></div></div></body></html>`;
+            frame.srcdoc = `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f;padding:12px"><div id="email-preview-root" style="width:620px;max-width:calc(100% - 2px);margin:0 auto 12px;background:#fff;border-radius:20px;overflow:hidden;transform-origin:top center"><div style="background:#0b284b;color:#fff;text-align:center;padding:22px;font-size:26px;font-weight:900">TIO NAN</div>${conteudoOrdenado}<div style="background:#0b284b;color:#cbd6e4;text-align:center;padding:20px;font-size:11px">Beba com moderação. Venda proibida para menores de 18 anos.<br><br><u>Não quero mais receber novidades</u></div></div></body></html>`;
         }
 
         function ajustarPreviewMarketing() {
@@ -2497,8 +2502,23 @@
             raiz.style.zoom = '1';
             const disponivel = Math.max(1, frame.clientHeight - 24);
             const altura = Math.max(1, raiz.scrollHeight);
-            const escala = Math.min(1, disponivel / altura);
-            raiz.style.zoom = String(escala);
+            const escalaBase = Math.min(1, disponivel / altura);
+            const escalaFinal = escalaBase * zoomPreviewMarketing;
+            raiz.style.zoom = String(escalaFinal);
+            documento.documentElement.style.overflow = zoomPreviewMarketing > 1 ? 'auto' : 'hidden';
+            documento.body.style.overflow = zoomPreviewMarketing > 1 ? 'auto' : 'hidden';
+            const valor = document.getElementById('mkt-zoom-valor');
+            if (valor) valor.textContent = zoomPreviewMarketing === 1 ? 'Ajustar' : `${Math.round(zoomPreviewMarketing * 100)}%`;
+        }
+
+        function alterarZoomPreviewMarketing(delta) {
+            zoomPreviewMarketing = Math.min(2.5, Math.max(.5, Number((zoomPreviewMarketing + delta).toFixed(2))));
+            ajustarPreviewMarketing();
+        }
+
+        function resetarZoomPreviewMarketing() {
+            zoomPreviewMarketing = 1;
+            ajustarPreviewMarketing();
         }
 
         async function chamarEmailMarketing(action, extras = {}) {
