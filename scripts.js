@@ -1256,9 +1256,6 @@ async function loadProducts() {
                 if (!matches && p.visivel !== false) return;
             }
 
-            const tagEstoque = (!p.emBreve && temEstoque && estoque <= 5)
-                ? `<span class="tag-estoque-discreta">🔥 Apenas ${estoque} unidades</span>`
-                : '';
             const acaoDetalhes = (p.emBreve || (p.localOnly && normalizarNomeProduto(nome) !== 'ouro')) ? '' : `onclick="window.location.href='${produtoUrl}'" style="cursor:pointer;"`;
             const percentualDesconto = temDesconto ? Math.round((1 - precoNum / precoOriginalNum) * 100) : 0;
             const precoExibido = p.emBreve ? 'Em breve' : temDesconto
@@ -1269,7 +1266,6 @@ async function loadProducts() {
                 <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${p.emBreve ? 'em-breve-card' : ''}" id="card-${id}">
                     <div class="img-wrapper" ${acaoDetalhes}>
                         ${p.emBreve ? '<div class="faixa-esgotado-clean">Em breve</div>' : (temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>')}
-                        ${tagEstoque}
                         <div class="desktop-only-images">
                             <img src="${foto1}" class="foto-1 prod-img">
                             <img src="${foto2}" class="foto-2" loading="lazy">
