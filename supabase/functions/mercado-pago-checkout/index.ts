@@ -246,6 +246,11 @@ Deno.serve(async (request) => {
     ? `${payload?.endereco?.rua || ""}, ${payload?.endereco?.numero || ""} - ${payload?.endereco?.bairro || ""}, ${payload?.endereco?.cidade || ""}/${payload?.endereco?.estado || ""}`
     : "Retirada na Loja (Av. Bento Gonçalves, 4321) - Dia e horário a combinar";
   const clientPayload: Record<string, unknown> = { telefone: phone, nome: name, email, cpf };
+  if (payload?.marketing_consentimento === true) {
+    clientPayload.marketing_consentimento = true;
+    clientPayload.marketing_consentido_em = new Date().toISOString();
+    clientPayload.marketing_origem = "checkout";
+  }
   if (delivery === "tele" || carrierDelivery) {
     Object.assign(clientPayload, {
       rua: String(payload?.endereco?.rua || "").trim(),

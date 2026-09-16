@@ -36,3 +36,6 @@ verify_jwt = false
 
 [functions.sitemap]
 verify_jwt = false
+
+[functions.email-marketing]
+verify_jwt = false

@@ -2333,6 +2333,7 @@ async function checkout() {
         const nome = document.getElementById('cliente-nome').value;
         const entrega = document.getElementById('metodo-entrega').value;
         const pag = document.getElementById('metodo-pagamento').value;
+        const marketingConsentimento = Boolean(document.getElementById('marketing-consentimento')?.checked);
         const totalGarrafas = quantidadeGarrafasCarrinho();
 
         document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
@@ -2438,6 +2439,7 @@ async function checkout() {
                     email,
                     nome,
                     telefone,
+                    marketing_consentimento: marketingConsentimento,
                     entrega,
                     frete: freteMelhorEnvioSelecionado,
                     endereco: enderecoPayload,
@@ -2519,7 +2521,7 @@ async function checkout() {
             pagamento: pag,
             teste: pag === 'Teste',
             troco: pag === 'Dinheiro' && document.getElementById('precisa-troco').checked ? document.getElementById('troco').value : '',
-            cpf, email, nome, telefone, entrega, endereco: enderecoPayload, frete: freteMelhorEnvioSelecionado,
+            cpf, email, nome, telefone, marketing_consentimento: marketingConsentimento, entrega, endereco: enderecoPayload, frete: freteMelhorEnvioSelecionado,
             cupom: cupomDescontoAtivo,
             itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
         }});

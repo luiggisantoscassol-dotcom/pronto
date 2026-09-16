@@ -1278,6 +1278,7 @@
         <button class="nav-item" onclick="switchTab('tab-pedidos')">Pedidos e vendas 🛒</button>
         <button class="nav-item" onclick="switchTab('tab-pdv')">Venda no balcão 💰</button>
         <button class="nav-item" onclick="switchTab('tab-clientes')">Clientes 👥</button>
+        <button class="nav-item" onclick="switchTab('tab-email-marketing')">E-mail marketing ✉️</button>
         <button class="nav-item" onclick="switchTab('tab-historico')">Histórico 📜</button>
         <button class="nav-item" onclick="switchTab('tab-estoque')">Produtos e estoque 📦</button>
         <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastrar produto ➕</button>
@@ -1419,6 +1420,40 @@
             <input type="text" id="search-clientes" placeholder="Pesquisar por nome, telefone, e-mail ou CPF..."
                 oninput="filtrarClientes()">
             <div id="corpo-clientes"></div>
+        </div>
+    </div>
+
+    <div id="tab-email-marketing" class="tab-content">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;gap:15px;align-items:flex-start;flex-wrap:wrap;margin-bottom:24px">
+                <div><h2 style="margin:0 0 5px">E-mail Marketing</h2><small>Campanhas somente para clientes que autorizaram o recebimento.</small></div>
+                <div style="padding:13px 18px;border:1px solid rgba(197,160,89,.35);border-radius:15px;background:rgba(197,160,89,.08)"><strong id="mkt-inscritos" style="font-size:1.4rem;color:var(--gold)">—</strong><small style="display:block">inscritos autorizados</small></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;align-items:start">
+                <div>
+                    <label>Nome interno da campanha</label><input id="mkt-nome" placeholder="Ex.: Lançamento Kit Ouro">
+                    <label>Assunto do e-mail</label><input id="mkt-assunto" maxlength="120" placeholder="Um brinde especial chegou 🥃" oninput="atualizarPreviewMarketing()">
+                    <label>Texto de prévia</label><input id="mkt-preheader" maxlength="150" placeholder="A frase curta exibida antes de abrir" oninput="atualizarPreviewMarketing()">
+                    <label>Conteúdo</label><textarea id="mkt-conteudo" rows="9" placeholder="Escreva uma mensagem humana e divertida. Separe os parágrafos com uma linha em branco." oninput="atualizarPreviewMarketing()"></textarea>
+                    <label>URL da imagem (opcional)</label><input id="mkt-imagem" type="url" placeholder="https://www.tionan.com.br/fotos/..." oninput="atualizarPreviewMarketing()">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                        <div><label>Texto do botão</label><input id="mkt-botao-texto" placeholder="Conhecer produto" oninput="atualizarPreviewMarketing()"></div>
+                        <div><label>Link do botão</label><input id="mkt-botao-url" type="url" placeholder="https://www.tionan.com.br/..." oninput="atualizarPreviewMarketing()"></div>
+                    </div>
+                    <label>E-mail para teste</label><input id="mkt-email-teste" type="email" placeholder="seu@email.com">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+                        <button class="btn-status" style="width:auto;margin:0;background:#1f5f9f" onclick="enviarTesteMarketing(this)">ENVIAR TESTE</button>
+                        <button class="btn-status" style="width:auto;margin:0" onclick="dispararCampanhaMarketing(this)">ENVIAR CAMPANHA</button>
+                    </div>
+                    <p style="font-size:.72rem;color:#718096;margin-top:14px">O Resend adicionará o link de descadastramento. Clientes sem consentimento não entram no disparo.</p>
+                </div>
+                <div style="position:sticky;top:95px">
+                    <span style="display:block;margin-bottom:8px;font-size:.68rem;font-weight:900;letter-spacing:1px;color:#718096">PRÉVIA</span>
+                    <iframe id="mkt-preview" title="Prévia da campanha" style="width:100%;height:600px;border:1px solid rgba(197,160,89,.3);border-radius:18px;background:#fff"></iframe>
+                </div>
+            </div>
+            <h3 style="margin-top:40px">Campanhas recentes</h3>
+            <div id="mkt-historico"><p>Carregando campanhas…</p></div>
         </div>
     </div>
 
@@ -2185,11 +2220,88 @@
             if (float) float.style.display = (id === 'tab-pdv' && adminCart.length > 0) ? 'flex' : 'none';
             localStorage.setItem('abaAtivaTioNan', id);
             if (id === 'tab-clientes') carregarClientes();
+            if (id === 'tab-email-marketing') carregarEmailMarketing();
             if (id === 'tab-avaliacoes') carregarAvaliacoes();
             if (id === 'tab-cupons') carregarCupons();
             if (id === 'tab-envase') carregarControleEnvase();
             if (id === 'tab-embalagens') carregarEmbalagens();
             if (id === 'tab-consignacao') carregarConsignacao();
+        }
+
+        function dadosCampanhaMarketing() {
+            return {
+                nome: document.getElementById('mkt-nome')?.value.trim() || '',
+                assunto: document.getElementById('mkt-assunto')?.value.trim() || '',
+                preheader: document.getElementById('mkt-preheader')?.value.trim() || '',
+                conteudo: document.getElementById('mkt-conteudo')?.value.trim() || '',
+                imagem_url: document.getElementById('mkt-imagem')?.value.trim() || '',
+                botao_texto: document.getElementById('mkt-botao-texto')?.value.trim() || '',
+                botao_url: document.getElementById('mkt-botao-url')?.value.trim() || ''
+            };
+        }
+
+        function escaparMarketing(valor) {
+            return String(valor || '').replace(/[&<>"']/g, caractere => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[caractere]));
+        }
+
+        function atualizarPreviewMarketing() {
+            const frame = document.getElementById('mkt-preview');
+            if (!frame) return;
+            const dados = dadosCampanhaMarketing();
+            const imagem = /^https?:\/\//i.test(dados.imagem_url) ? `<img src="${escaparMarketing(dados.imagem_url)}" style="display:block;width:100%;height:auto" alt="">` : '';
+            const botao = /^https?:\/\//i.test(dados.botao_url) && dados.botao_texto ? `<p style="margin:28px 0"><span style="display:inline-block;background:#c79a49;color:#0b284b;font-weight:900;padding:14px 22px;border-radius:12px">${escaparMarketing(dados.botao_texto)}</span></p>` : '';
+            const texto = escaparMarketing(dados.conteudo || 'Sua mensagem aparecerá aqui.').replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+            frame.srcdoc = `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f;padding:18px"><div style="max-width:560px;margin:auto;background:#fff;border-radius:20px;overflow:hidden"><div style="background:#0b284b;color:#fff;text-align:center;padding:22px;font-size:26px;font-weight:900">TIO NAN</div>${imagem}<div style="padding:30px"><small style="color:#b68737;font-weight:800;letter-spacing:2px">UM BRINDE DA TIO NAN</small><h1 style="font-family:Georgia,serif;font-size:32px;line-height:1.08">${escaparMarketing(dados.nome || dados.assunto || 'Sua campanha')}</h1><div style="color:#40516a;line-height:1.65"><p>${texto}</p></div>${botao}</div><div style="background:#0b284b;color:#cbd6e4;text-align:center;padding:20px;font-size:11px">Beba com moderação. Venda proibida para menores de 18 anos.<br><br><u>Não quero mais receber novidades</u></div></div></body></html>`;
+        }
+
+        async function chamarEmailMarketing(action, extras = {}) {
+            const { data: sessao } = await db.auth.getSession();
+            const token = sessao?.session?.access_token;
+            if (!token) throw new Error('Faça login novamente no painel.');
+            const { data, error } = await db.functions.invoke('email-marketing', { body: { action, ...extras }, headers: { Authorization: `Bearer ${token}` } });
+            if (error) {
+                let mensagem = error.message;
+                try { const contexto = await error.context?.json?.(); mensagem = contexto?.error || mensagem; } catch (_) {}
+                throw new Error(mensagem);
+            }
+            if (data?.error) throw new Error(data.error);
+            return data;
+        }
+
+        async function carregarEmailMarketing() {
+            atualizarPreviewMarketing();
+            const historico = document.getElementById('mkt-historico');
+            try {
+                const data = await chamarEmailMarketing('overview');
+                document.getElementById('mkt-inscritos').textContent = Number(data.inscritos || 0).toLocaleString('pt-BR');
+                historico.innerHTML = (data.campanhas || []).map(campanha => `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:16px 0;border-bottom:1px solid rgba(197,160,89,.18)"><div><strong>${escaparMarketing(campanha.nome)}</strong><small style="display:block;color:#718096">${escaparMarketing(campanha.assunto)} · ${new Date(campanha.criado_em).toLocaleString('pt-BR')}</small>${campanha.erro ? `<small style="display:block;color:#a52a2a">${escaparMarketing(campanha.erro)}</small>` : ''}</div><div style="text-align:right"><b style="color:${campanha.status === 'enviada' ? '#23824a' : campanha.status === 'erro' ? '#a52a2a' : '#b68737'}">${escaparMarketing(campanha.status)}</b><small style="display:block">${Number(campanha.destinatarios || 0)} destinatários</small></div></div>`).join('') || '<p>Nenhuma campanha enviada ainda.</p>';
+            } catch (erro) {
+                historico.innerHTML = `<p style="color:#a52a2a">${escaparMarketing(erro.message || erro)}</p>`;
+            }
+        }
+
+        async function enviarTesteMarketing(botao) {
+            const email = document.getElementById('mkt-email-teste').value.trim();
+            const texto = botao.textContent;
+            try {
+                botao.disabled = true; botao.textContent = 'ENVIANDO…';
+                await chamarEmailMarketing('test', { ...dadosCampanhaMarketing(), email_teste: email });
+                showToast(`Teste enviado para ${email}.`);
+            } catch (erro) { alert(`Não foi possível enviar o teste.\n\n${erro.message || erro}`); }
+            finally { botao.disabled = false; botao.textContent = texto; }
+        }
+
+        async function dispararCampanhaMarketing(botao) {
+            const inscritos = document.getElementById('mkt-inscritos').textContent;
+            if (!confirm(`Enviar esta campanha agora para ${inscritos} cliente(s) autorizado(s)?\n\nDepois do disparo, o envio não poderá ser desfeito.`)) return;
+            const texto = botao.textContent;
+            try {
+                botao.disabled = true; botao.textContent = 'PREPARANDO ENVIO…';
+                const resultado = await chamarEmailMarketing('send', dadosCampanhaMarketing());
+                showToast(`Campanha enviada para ${resultado.destinatarios} cliente(s).`);
+                await carregarEmailMarketing();
+            } catch (erro) { alert(`Não foi possível enviar a campanha.\n\n${erro.message || erro}`); }
+            finally { botao.disabled = false; botao.textContent = texto; }
         }
 
         function abrirModalAdmin(id) {
@@ -5013,7 +5125,7 @@
             }
         }
         function navigateTabs(direction) {
-            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-historico', 'tab-estoque', 'tab-embalagens', 'tab-envase', 'tab-consignacao', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes', 'tab-cupons'];
+            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-email-marketing', 'tab-historico', 'tab-estoque', 'tab-embalagens', 'tab-envase', 'tab-consignacao', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes', 'tab-cupons'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
