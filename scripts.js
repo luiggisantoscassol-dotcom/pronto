@@ -25,6 +25,7 @@ function verifyAge(isMajor) {
 
         updateWelcome();
         rastrearAcao("Idade Verificada", "🔞");
+        agendarNewsletterModal();
 
         // Esconde o loader após verificar a idade
         const loader = document.getElementById('loader-wrapper');
@@ -46,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('age-verification-overlay');
     if (isVerified === 'true') {
         if (overlay) overlay.style.display = 'none';
+        agendarNewsletterModal();
         // Se já verificou, o loader pode sumir direto pelo loadProducts()
     } else {
         if (overlay) overlay.style.display = 'flex';
@@ -63,6 +65,57 @@ document.addEventListener('DOMContentLoaded', () => {
             handleSwipe();
         }, { passive: true });
     }
+});
+
+let newsletterTimer = null;
+function agendarNewsletterModal() {
+    if (newsletterTimer || localStorage.getItem('newsletterCadastro') === 'true' || sessionStorage.getItem('newsletterDispensado') === 'true') return;
+    newsletterTimer = window.setTimeout(() => {
+        newsletterTimer = null;
+        const modal = document.getElementById('newsletter-modal');
+        const ageOverlay = document.getElementById('age-verification-overlay');
+        if (!modal || (ageOverlay && getComputedStyle(ageOverlay).display !== 'none')) return agendarNewsletterModal();
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('newsletter-open');
+        window.setTimeout(() => document.getElementById('newsletter-email')?.focus(), 300);
+    }, 15000);
+}
+
+function fecharNewsletterModal() {
+    const modal = document.getElementById('newsletter-modal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('newsletter-open');
+    sessionStorage.setItem('newsletterDispensado', 'true');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-newsletter-close]').forEach((el) => el.addEventListener('click', fecharNewsletterModal));
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') fecharNewsletterModal(); });
+    document.getElementById('newsletter-form')?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = document.getElementById('newsletter-email')?.value.trim() || '';
+        const consent = Boolean(document.getElementById('newsletter-consent')?.checked);
+        const feedback = document.getElementById('newsletter-feedback');
+        const button = event.currentTarget.querySelector('button[type="submit"]');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { feedback.textContent = 'Digite um e-mail válido.'; return; }
+        if (!consent) { feedback.textContent = 'Confirme que deseja receber as novidades.'; return; }
+        button.disabled = true; button.textContent = 'Cadastrando…'; feedback.textContent = '';
+        try {
+            const { data, error } = await db.functions.invoke('newsletter-inscricao', { body: { email, consentimento: true, origem: 'modal-home-15s' } });
+            if (error) throw error;
+            if (!data?.ok) throw new Error(data?.error || 'Não foi possível concluir o cadastro.');
+            localStorage.setItem('newsletterCadastro', 'true');
+            feedback.textContent = 'Pronto! Seu lugar no Clube Tio Nan está garantido. 🥃';
+            event.currentTarget.reset();
+            window.setTimeout(fecharNewsletterModal, 1800);
+        } catch (error) {
+            feedback.textContent = error?.message || 'Não foi possível cadastrar agora. Tente novamente.';
+            button.disabled = false; button.innerHTML = 'Quero participar <span aria-hidden="true">→</span>';
+        }
+    });
 });
 
 function aplicarRotulosCheckout() {

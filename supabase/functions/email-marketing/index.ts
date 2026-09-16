@@ -80,11 +80,13 @@ Deno.serve(async (request) => {
     return data;
   };
   if (action === "overview") {
-    const [{ count }, { data: campaigns }] = await Promise.all([
-      db.from("clientes").select("id", { count: "exact", head: true }).eq("marketing_consentimento", true).not("email", "is", null),
+    const [{ data: customerEmails }, { data: newsletterEmails }, { data: campaigns }] = await Promise.all([
+      db.from("clientes").select("email").eq("marketing_consentimento", true).not("email", "is", null),
+      db.from("newsletter_inscritos").select("email").eq("consentimento", true),
       db.from("email_campanhas").select("id,nome,assunto,status,destinatarios,enviado_em,criado_em,erro").order("criado_em", { ascending: false }).limit(30),
     ]);
-    return json(request, { ok: true, inscritos: count || 0, campanhas: campaigns || [] });
+    const emails = new Set([...(customerEmails || []), ...(newsletterEmails || [])].map((item) => String(item.email || "").trim().toLowerCase()).filter(validEmail));
+    return json(request, { ok: true, inscritos: emails.size, campanhas: campaigns || [] });
   }
   const subject = String(input.assunto || "").trim();
   const campaign = {
@@ -108,9 +110,14 @@ Deno.serve(async (request) => {
     }
   }
   if (action !== "send") return json(request, { error: "Ação inválida." }, 400);
-  const { data: contacts, error: contactsError } = await db.from("clientes").select("nome,email").eq("marketing_consentimento", true).not("email", "is", null);
-  if (contactsError) return json(request, { error: contactsError.message }, 500);
-  const subscribers = (contacts || []).filter((item) => validEmail(item.email));
+  const [{ data: contacts, error: contactsError }, { data: newsletterContacts, error: newsletterError }] = await Promise.all([
+    db.from("clientes").select("nome,email").eq("marketing_consentimento", true).not("email", "is", null),
+    db.from("newsletter_inscritos").select("email").eq("consentimento", true),
+  ]);
+  if (contactsError || newsletterError) return json(request, { error: contactsError?.message || newsletterError?.message }, 500);
+  const unique = new Map<string, { nome?: string; email: string }>();
+  [...(contacts || []), ...(newsletterContacts || [])].forEach((item) => { if (validEmail(item.email)) unique.set(String(item.email).toLowerCase(), item); });
+  const subscribers = [...unique.values()];
   if (!subscribers.length) return json(request, { error: "Nenhum cliente autorizou e-mail marketing." }, 409);
   const { data: saved, error: saveError } = await db.from("email_campanhas").insert({ ...campaign, status: "enviando", destinatarios: subscribers.length, criado_por: auth.user.id }).select("id").single();
   if (saveError) return json(request, { error: saveError.message }, 500);

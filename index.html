@@ -39,7 +39,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Tio Nan">
 
-    <link rel="stylesheet" href="styles.css?v=6.12">
+    <link rel="stylesheet" href="styles.css?v=6.13">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -116,6 +116,35 @@
                 <button class="btn-age btn-no" onclick="verifyAge(false)">Não tenho 18 anos</button>
             </div>
         </div>
+    </div>
+
+    <div id="newsletter-modal" class="newsletter-modal" aria-hidden="true">
+        <div class="newsletter-modal__backdrop" data-newsletter-close></div>
+        <section class="newsletter-modal__card" role="dialog" aria-modal="true" aria-labelledby="newsletter-title">
+            <button class="newsletter-modal__close" type="button" aria-label="Fechar" data-newsletter-close>&times;</button>
+            <div class="newsletter-modal__visual" aria-hidden="true">
+                <img src="fotos/banner-amizade.webp?v=1" alt="">
+                <span>Clube Tio Nan</span>
+            </div>
+            <div class="newsletter-modal__content">
+                <span class="newsletter-modal__eyebrow">Um brinde começa aqui</span>
+                <h2 id="newsletter-title">Novidades e ofertas direto da fonte.</h2>
+                <p>Cadastre seu e-mail para receber lançamentos, kits especiais e condições exclusivas da Tio Nan.</p>
+                <form id="newsletter-form" novalidate>
+                    <label for="newsletter-email">Seu melhor e-mail</label>
+                    <div class="newsletter-modal__field">
+                        <input id="newsletter-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="voce@exemplo.com" required>
+                        <button type="submit">Quero participar <span aria-hidden="true">→</span></button>
+                    </div>
+                    <label class="newsletter-modal__consent" for="newsletter-consent">
+                        <input id="newsletter-consent" type="checkbox" required>
+                        <span>Concordo em receber novidades e ofertas por e-mail. Posso cancelar quando quiser.</span>
+                    </label>
+                    <p id="newsletter-feedback" class="newsletter-modal__feedback" role="status" aria-live="polite"></p>
+                </form>
+                <small>🔞 Conteúdo destinado a maiores de 18 anos.</small>
+            </div>
+        </section>
     </div>
 
     <div id="loader-wrapper">
@@ -449,7 +478,7 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://sdk.mercadopago.com/js/v2"></script>
-    <script src="scripts.js?v=6.23"></script>
+    <script src="scripts.js?v=6.24"></script>
 </body>
 
 </html>
