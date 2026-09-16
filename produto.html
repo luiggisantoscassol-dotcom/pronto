@@ -371,14 +371,15 @@
       const volume = p.volume || '700 ml';
       const alcohol = gengibreGuacoMel ? '28% vol.' : (p.teor_alcoolico ? `${p.teor_alcoolico}% vol.` : 'Consulte o rótulo');
       const category = gengibreGuacoMel ? 'Bebida mista' : 'Cachaça premium';
-      const productType = gengibreGuacoMel ? 'Bebida mista à base de cachaça Tio Nan' : 'Cachaça Tio Nan';
+      const productType = gengibreGuacoMel ? 'Bebida mista à base de Cachaça Prata Tio Nan' : 'Cachaça Tio Nan';
+      const displayName = gengibreGuacoMel ? 'Gengibre, Guaco e Mel' : p.nome;
       app.innerHTML = `
         <div class="layout">
           <section class="gallery ${photoFor(p).includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Imagem de ${p.nome}"><img src="${photoFor(p)}" alt="${p.nome}" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></section>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${p.nome}</nav>
             <span class="tag">${productType}</span>
-            <h1>${p.nome}</h1>
+            <h1>${displayName}</h1>
             <div class="rating" aria-label="Avaliação do produto"><span class="stars">${stars}</span>${review.count ? `<strong>${score} de 5</strong><button type="button" class="reviews-link" data-scroll-reviews>(${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'})</button>` : '<span class="rating-note">Ainda sem avaliações</span>'}</div>
             <div class="price-box">${Number(p.preco_original||0)>Number(p.preco||0)?`<span class="price-label" style="text-decoration:line-through">De ${money(p.preco_original)}</span><span class="price-label">${Math.round((1-Number(p.preco)/Number(p.preco_original))*100)}% de desconto</span>`:'<span class="price-label">Por apenas</span>'}<strong class="price">${Number(p.preco_original||0)>Number(p.preco||0)?'Por ':''}${money(p.preco)}</strong><p class="payment-note">Compra segura e finalização no checkout.</p></div>
             <p class="product-copy">${description}</p>
