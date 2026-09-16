@@ -96,9 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (event) => { if (event.key === 'Escape') fecharNewsletterModal(); });
     document.getElementById('newsletter-form')?.addEventListener('submit', async (event) => {
         event.preventDefault();
+        const form = event.currentTarget;
         const email = document.getElementById('newsletter-email')?.value.trim() || '';
         const feedback = document.getElementById('newsletter-feedback');
-        const button = event.currentTarget.querySelector('button[type="submit"]');
+        const button = form.querySelector('button[type="submit"]');
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { feedback.textContent = 'Digite um e-mail válido.'; return; }
         button.disabled = true; button.textContent = 'Cadastrando…'; feedback.textContent = '';
         try {
@@ -112,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data?.ok) throw new Error(data?.error || 'Não foi possível concluir o cadastro.');
             localStorage.setItem('newsletterCadastro', 'true');
             feedback.textContent = 'Pronto! Seu lugar no Clube Tio Nan está garantido. 🥃';
-            event.currentTarget.reset();
+            form.reset();
             window.setTimeout(fecharNewsletterModal, 1800);
         } catch (error) {
             feedback.textContent = error?.message || 'Não foi possível cadastrar agora. Tente novamente.';
