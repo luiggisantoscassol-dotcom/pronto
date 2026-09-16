@@ -97,15 +97,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('newsletter-form')?.addEventListener('submit', async (event) => {
         event.preventDefault();
         const email = document.getElementById('newsletter-email')?.value.trim() || '';
-        const consent = Boolean(document.getElementById('newsletter-consent')?.checked);
         const feedback = document.getElementById('newsletter-feedback');
         const button = event.currentTarget.querySelector('button[type="submit"]');
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { feedback.textContent = 'Digite um e-mail válido.'; return; }
-        if (!consent) { feedback.textContent = 'Confirme que deseja receber as novidades.'; return; }
         button.disabled = true; button.textContent = 'Cadastrando…'; feedback.textContent = '';
         try {
-            const { data, error } = await db.functions.invoke('newsletter-inscricao', { body: { email, consentimento: true, origem: 'modal-home-15s' } });
-            if (error) throw error;
+            const response = await fetch(`${supabaseUrl}/functions/v1/newsletter-inscricao`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+                body: JSON.stringify({ email, consentimento: true, origem: 'modal-home-15s' })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data?.error || 'Não foi possível concluir o cadastro.');
             if (!data?.ok) throw new Error(data?.error || 'Não foi possível concluir o cadastro.');
             localStorage.setItem('newsletterCadastro', 'true');
             feedback.textContent = 'Pronto! Seu lugar no Clube Tio Nan está garantido. 🥃';
@@ -176,6 +179,14 @@ function updateWelcome() {
     // O nome salvo para a saudação não identifica necessariamente quem está
     // comprando (especialmente em dispositivos compartilhados). O checkout
     // deve começar vazio e receber apenas os dados informados nesta compra.
+}
+
+function formatarNomeAvaliacao(nome, fallback = 'Cliente Tio Nan') {
+    const partes = String(nome || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+    if (!partes.length) return fallback;
+    const primeiro = partes[0].charAt(0).toUpperCase() + partes[0].slice(1).toLowerCase();
+    if (partes.length === 1) return primeiro;
+    return `${primeiro} ${partes[1].charAt(0).toUpperCase()}.`;
 }
 
 const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
@@ -1857,7 +1868,7 @@ async function carregarReviewsProduto(produtoNome) {
             const dataF = new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             const comentario = a.comentario ? `"${a.comentario}"` : '';
             const starsText = "★".repeat(a.estrelas) + "☆".repeat(5 - a.estrelas);
-            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().toUpperCase() : 'ANÔNIMO';
+            const nomeExibicao = formatarNomeAvaliacao(a.cliente_nome, 'Anônimo');
             
             html += `
                 <div class="modal-review-row">
@@ -2738,7 +2749,7 @@ async function carregarTestimonialsHome() {
             if (!a.comentario || a.comentario.trim() === '') continue;
             
             // Pega o nome completo em maiúsculo para comparar/exibir
-            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().toUpperCase() : 'ANÔNIMO';
+            const nomeExibicao = formatarNomeAvaliacao(a.cliente_nome, 'Anônimo');
             
             // Se já vimos esse primeiro nome de exibição, pula
             if (nomeExibicao !== 'ANÔNIMO' && nomesVistos.has(nomeExibicao)) {
@@ -2780,7 +2791,7 @@ async function carregarTestimonialsHome() {
 
         container.innerHTML = data.map(a => {
             const estrelas = "★".repeat(a.estrelas) + "☆".repeat(5 - a.estrelas);
-            const nomeExibicao = a.cliente_nome ? a.cliente_nome.trim().toUpperCase() : 'ANÔNIMO';
+            const nomeExibicao = formatarNomeAvaliacao(a.cliente_nome, 'Anônimo');
             const comentario = a.comentario.trim();
             const dataF = a.created_at ? new Date(a.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
             
@@ -2841,8 +2852,6 @@ async function carregarTestimonialsHome() {
                     disableOnInteraction: false,
                 }
             });
-            // Inicia as notificações flutuantes (Live Social Proof)
-            iniciarToastProvaSocial(data);
         }, 150);
     } catch (e) {
         console.error("Erro ao carregar depoimentos na home:", e);
@@ -2865,66 +2874,4 @@ function atualizarSeloConfianca(avaliacoes) {
     qtyEl.innerText = totalCount;
     starsEl.innerText = media;
     containerEl.style.display = 'flex';
-}
-
-function iniciarToastProvaSocial(avaliacoes) {
-    // Se o usuário já fechou na sessão atual, não exibe
-    if (sessionStorage.getItem('social-proof-dismissed') === 'true') return;
-
-    const toast = document.getElementById('social-proof-toast');
-    if (!toast || !avaliacoes || avaliacoes.length === 0) return;
-
-    let index = 0;
-    let timeoutId = null;
-
-    function mostrarProximaNotificacao() {
-        // Se o usuário fechou entre os intervalos, encerra
-        if (sessionStorage.getItem('social-proof-dismissed') === 'true') return;
-
-        const a = avaliacoes[index];
-        const nome = a.cliente_nome ? a.cliente_nome.trim() : 'Cliente Satisfeito';
-        
-        // Formata primeiro nome + sobrenome abreviado
-        const partesNome = nome.split(' ');
-        const nomeFormatado = partesNome[0] + (partesNome.length > 1 ? ' ' + partesNome[partesNome.length - 1][0] + '.' : '');
-        
-        const estrelas = '★'.repeat(a.estrelas);
-        const produto = a.produto_nome || 'uma garrafa';
-        const comentarioCurto = a.comentario.length > 70 ? a.comentario.substring(0, 67) + '...' : a.comentario;
-
-        // Monta o conteúdo do toast flutuante
-        toast.innerHTML = `
-            <button class="social-proof-close" onclick="fecharToastProvaSocial(event)">&times;</button>
-            <div class="social-proof-icon">⭐</div>
-            <div class="social-proof-content">
-                <p class="social-proof-title"><strong>${nomeFormatado}</strong> avaliou com ${estrelas}</p>
-                <p class="social-proof-desc">"${comentarioCurto}"</p>
-                <p class="social-proof-product">${produto}</p>
-            </div>
-        `;
-
-        // Ativa o toast flutuante (fade-in)
-        toast.classList.add('active');
-
-        // Oculta após 6 segundos (fade-out)
-        timeoutId = setTimeout(() => {
-            toast.classList.remove('active');
-            index = (index + 1) % avaliacoes.length;
-            
-            // Próximo toast aparece após 8 segundos
-            timeoutId = setTimeout(mostrarProximaNotificacao, 8000);
-        }, 6000);
-    }
-
-    // Primeiro toast aparece após 3 segundos da inicialização
-    setTimeout(mostrarProximaNotificacao, 3000);
-}
-
-function fecharToastProvaSocial(event) {
-    if (event) event.stopPropagation();
-    const toast = document.getElementById('social-proof-toast');
-    if (toast) {
-        toast.classList.remove('active');
-    }
-    sessionStorage.setItem('social-proof-dismissed', 'true');
 }

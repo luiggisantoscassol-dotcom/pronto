@@ -341,10 +341,16 @@
       return { count:reviews.length, average:reviews.reduce((sum, r) => sum + Number(r.estrelas || 0), 0) / reviews.length, reviews };
     }
     function escapeHtml(value) { const temp = document.createElement('div'); temp.textContent = value || ''; return temp.innerHTML; }
+    function formatReviewName(value) {
+      const parts = String(value || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+      if (!parts.length) return 'Cliente Tio Nan';
+      const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+      return parts.length > 1 ? `${first} ${parts[1].charAt(0).toUpperCase()}.` : first;
+    }
     function reviewList(reviews) {
       if (!reviews.length) return '<p class="reviews-empty">Este produto ainda não tem avaliações. Seja a primeira pessoa a compartilhar sua experiência.</p>';
       return reviews.map(review => {
-        const name = escapeHtml(review.cliente_nome ? review.cliente_nome.trim().toUpperCase() : 'CLIENTE TIO NAN');
+        const name = escapeHtml(formatReviewName(review.cliente_nome));
         const hasComment = Boolean(review.comentario && review.comentario.trim());
         const comment = escapeHtml(hasComment ? review.comentario.trim() : 'Avaliou este produto sem deixar descrição.');
         const date = review.created_at ? new Date(review.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
