@@ -1198,6 +1198,43 @@
         .produto-campo > input,
         .produto-campo > select,
         .produto-campo > textarea { margin-bottom: 0; }
+
+        /* Editor de campanhas */
+        #tab-email-marketing { max-width: 1280px; }
+        .mkt-shell { padding: 0; overflow: hidden; }
+        .mkt-header { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:30px 34px; background:linear-gradient(135deg,#19385f 0%,#254c78 100%); }
+        .mkt-header h2 { margin:0 0 6px; color:#fff; text-align:left; font-size:1.35rem; }
+        .mkt-header p { margin:0; color:#dce7f2; font-size:.84rem; line-height:1.5; }
+        .mkt-audience { flex:0 0 auto; min-width:190px; padding:16px 20px; border:1px solid rgba(255,255,255,.22); border-radius:16px; background:rgba(255,255,255,.1); color:#fff; }
+        .mkt-audience strong { display:block; color:#f1cc7e; font-size:1.75rem; line-height:1; }
+        .mkt-audience span { display:block; margin-top:7px; font-size:.7rem; font-weight:800; letter-spacing:.7px; text-transform:uppercase; }
+        .mkt-workspace { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr); gap:28px; padding:30px 34px 36px; align-items:start; }
+        .mkt-editor { display:flex; flex-direction:column; gap:22px; min-width:0; }
+        .mkt-section { padding:22px; border:1px solid #e7e0d5; border-radius:18px; background:#fbfaf7; }
+        .mkt-section-title { display:flex; align-items:center; gap:10px; margin:0 0 18px; color:#19385f; font-size:.78rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+        .mkt-section-title span { display:grid; width:28px; height:28px; place-items:center; border-radius:9px; background:#efe6d6; color:#a77b2b; }
+        .mkt-field { display:block; margin-bottom:16px; }
+        .mkt-field:last-child { margin-bottom:0; }
+        .mkt-field > span { display:block; margin:0 0 7px; color:#435b75; font-size:.7rem; font-weight:850; letter-spacing:.35px; }
+        .mkt-field input,.mkt-field textarea { display:block; width:100%; margin:0; padding:13px 15px; border:1px solid #dcd5ca; border-radius:12px; font:inherit; line-height:1.45; }
+        .mkt-field textarea { min-height:190px; resize:vertical; }
+        .mkt-fields-inline { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .mkt-preview-wrap { position:sticky; top:94px; min-width:0; }
+        .mkt-preview-label { display:flex; justify-content:space-between; align-items:center; margin:0 0 10px; color:#718096; font-size:.66rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+        .mkt-preview-device { padding:14px; border:1px solid #e3dacb; border-radius:22px; background:#f4f0e8; box-shadow:0 12px 34px rgba(25,56,95,.09); }
+        #mkt-preview { display:block; width:100%; height:650px; border:0; border-radius:14px; background:#fff; }
+        .mkt-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .mkt-actions .btn-status { width:100%!important; margin:0!important; min-height:52px; }
+        .mkt-note { margin:13px 2px 0; color:#718096; font-size:.69rem; line-height:1.55; }
+        .mkt-history { padding:0 34px 34px; }
+        .mkt-history h3 { margin:0 0 12px; color:#19385f; font-family:var(--font-premium); font-size:.95rem; letter-spacing:1px; text-transform:uppercase; }
+        .mkt-history-list { padding:4px 20px; border:1px solid #e7e0d5; border-radius:18px; background:#fbfaf7; }
+        @media(max-width:900px){
+            .mkt-workspace{grid-template-columns:1fr}.mkt-preview-wrap{position:static}.mkt-preview-device{max-width:620px;margin:auto}#mkt-preview{height:590px}
+        }
+        @media(max-width:600px){
+            .mkt-header{align-items:flex-start;padding:22px 18px;flex-direction:column}.mkt-audience{width:100%;min-width:0}.mkt-workspace{padding:18px;gap:22px}.mkt-section{padding:17px}.mkt-fields-inline,.mkt-actions{grid-template-columns:1fr}.mkt-history{padding:0 18px 22px}.mkt-history-list{padding:4px 14px}#mkt-preview{height:520px}
+        }
         .produto-precos-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1424,36 +1461,47 @@
     </div>
 
     <div id="tab-email-marketing" class="tab-content">
-        <div class="card">
-            <div style="display:flex;justify-content:space-between;gap:15px;align-items:flex-start;flex-wrap:wrap;margin-bottom:24px">
-                <div><h2 style="margin:0 0 5px">E-mail Marketing</h2><small>Campanhas somente para clientes que autorizaram o recebimento.</small></div>
-                <div style="padding:13px 18px;border:1px solid rgba(197,160,89,.35);border-radius:15px;background:rgba(197,160,89,.08)"><strong id="mkt-inscritos" style="font-size:1.4rem;color:var(--gold)">—</strong><small style="display:block">inscritos autorizados</small></div>
+        <div class="card mkt-shell">
+            <div class="mkt-header">
+                <div><h2>E-mail Marketing</h2><p>Crie, revise e envie campanhas apenas para quem autorizou o recebimento.</p></div>
+                <div class="mkt-audience"><strong id="mkt-inscritos">—</strong><span>inscritos autorizados</span></div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;align-items:start">
-                <div>
-                    <label>Nome interno da campanha</label><input id="mkt-nome" placeholder="Ex.: Lançamento Kit Ouro">
-                    <label>Assunto do e-mail</label><input id="mkt-assunto" maxlength="120" placeholder="Um brinde especial chegou 🥃" oninput="atualizarPreviewMarketing()">
-                    <label>Texto de prévia</label><input id="mkt-preheader" maxlength="150" placeholder="A frase curta exibida antes de abrir" oninput="atualizarPreviewMarketing()">
-                    <label>Conteúdo</label><textarea id="mkt-conteudo" rows="9" placeholder="Escreva uma mensagem humana e divertida. Separe os parágrafos com uma linha em branco." oninput="atualizarPreviewMarketing()"></textarea>
-                    <label>URL da imagem (opcional)</label><input id="mkt-imagem" type="url" placeholder="https://www.tionan.com.br/fotos/..." oninput="atualizarPreviewMarketing()">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                        <div><label>Texto do botão</label><input id="mkt-botao-texto" placeholder="Conhecer produto" oninput="atualizarPreviewMarketing()"></div>
-                        <div><label>Link do botão</label><input id="mkt-botao-url" type="url" placeholder="https://www.tionan.com.br/..." oninput="atualizarPreviewMarketing()"></div>
-                    </div>
-                    <label>E-mail para teste</label><input id="mkt-email-teste" type="email" placeholder="seu@email.com">
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-                        <button class="btn-status" style="width:auto;margin:0;background:#1f5f9f" onclick="enviarTesteMarketing(this)">ENVIAR TESTE</button>
-                        <button class="btn-status" style="width:auto;margin:0" onclick="dispararCampanhaMarketing(this)">ENVIAR CAMPANHA</button>
-                    </div>
-                    <p style="font-size:.72rem;color:#718096;margin-top:14px">O Resend adicionará o link de descadastramento. Clientes sem consentimento não entram no disparo.</p>
+            <div class="mkt-workspace">
+                <div class="mkt-editor">
+                    <section class="mkt-section">
+                        <h3 class="mkt-section-title"><span>1</span> Identificação</h3>
+                        <label class="mkt-field"><span>Nome interno da campanha</span><input id="mkt-nome" placeholder="Ex.: Lançamento Kit Ouro"></label>
+                        <label class="mkt-field"><span>Assunto do e-mail</span><input id="mkt-assunto" maxlength="120" placeholder="Um brinde especial chegou 🥃" oninput="atualizarPreviewMarketing()"></label>
+                        <label class="mkt-field"><span>Texto de prévia</span><input id="mkt-preheader" maxlength="150" placeholder="A frase curta exibida antes de abrir" oninput="atualizarPreviewMarketing()"></label>
+                    </section>
+                    <section class="mkt-section">
+                        <h3 class="mkt-section-title"><span>2</span> Conteúdo</h3>
+                        <label class="mkt-field"><span>Mensagem</span><textarea id="mkt-conteudo" placeholder="Escreva uma mensagem humana e divertida. Separe os parágrafos com uma linha em branco." oninput="atualizarPreviewMarketing()"></textarea></label>
+                        <label class="mkt-field"><span>URL da imagem (opcional)</span><input id="mkt-imagem" type="url" placeholder="https://www.tionan.com.br/fotos/..." oninput="atualizarPreviewMarketing()"></label>
+                        <div class="mkt-fields-inline">
+                            <label class="mkt-field"><span>Texto do botão</span><input id="mkt-botao-texto" placeholder="Conhecer produto" oninput="atualizarPreviewMarketing()"></label>
+                            <label class="mkt-field"><span>Link do botão</span><input id="mkt-botao-url" type="url" placeholder="https://www.tionan.com.br/..." oninput="atualizarPreviewMarketing()"></label>
+                        </div>
+                    </section>
+                    <section class="mkt-section">
+                        <h3 class="mkt-section-title"><span>3</span> Revisar e enviar</h3>
+                        <label class="mkt-field"><span>E-mail para teste</span><input id="mkt-email-teste" type="email" placeholder="seu@email.com"></label>
+                        <div class="mkt-actions">
+                            <button class="btn-status" style="background:#1f5f9f;color:#fff" onclick="enviarTesteMarketing(this)">ENVIAR TESTE</button>
+                            <button class="btn-status" onclick="dispararCampanhaMarketing(this)">ENVIAR CAMPANHA</button>
+                        </div>
+                        <p class="mkt-note">O Resend inclui o link de descadastramento automaticamente. Clientes sem consentimento nunca entram no disparo.</p>
+                    </section>
                 </div>
-                <div style="position:sticky;top:95px">
-                    <span style="display:block;margin-bottom:8px;font-size:.68rem;font-weight:900;letter-spacing:1px;color:#718096">PRÉVIA</span>
-                    <iframe id="mkt-preview" title="Prévia da campanha" style="width:100%;height:600px;border:1px solid rgba(197,160,89,.3);border-radius:18px;background:#fff"></iframe>
-                </div>
+                <aside class="mkt-preview-wrap">
+                    <div class="mkt-preview-label"><span>Prévia do e-mail</span><span>Atualização automática</span></div>
+                    <div class="mkt-preview-device"><iframe id="mkt-preview" title="Prévia da campanha"></iframe></div>
+                </aside>
             </div>
-            <h3 style="margin-top:40px">Campanhas recentes</h3>
-            <div id="mkt-historico"><p>Carregando campanhas…</p></div>
+            <div class="mkt-history">
+                <h3>Campanhas recentes</h3>
+                <div id="mkt-historico" class="mkt-history-list"><p>Carregando campanhas…</p></div>
+            </div>
         </div>
     </div>
 
