@@ -29,22 +29,35 @@ const safeUrl = (value: unknown) => {
   if (!text) return "";
   try { const url = new URL(text); return ["http:", "https:"].includes(url.protocol) ? url.toString() : ""; } catch { return ""; }
 };
+const safeAlign = (value: unknown, fallback = "left") => ["left", "center", "right"].includes(String(value)) ? String(value) : fallback;
+const safeColor = (value: unknown, fallback: string) => /^#[0-9a-f]{6}$/i.test(String(value || "")) ? String(value) : fallback;
+const safeStyles = (value: unknown) => {
+  const styles = value && typeof value === "object" ? value as Record<string, Record<string, unknown>> : {};
+  return {
+    titulo: { alinhamento: safeAlign(styles.titulo?.alinhamento), cor: safeColor(styles.titulo?.cor, "#17304f"), negrito: styles.titulo?.negrito !== false },
+    texto: { alinhamento: safeAlign(styles.texto?.alinhamento), cor: safeColor(styles.texto?.cor, "#40516a"), negrito: styles.texto?.negrito === true },
+    botao: { alinhamento: safeAlign(styles.botao?.alinhamento), cor: safeColor(styles.botao?.cor, "#0b284b"), negrito: styles.botao?.negrito !== false },
+    logo: { alinhamento: safeAlign(styles.logo?.alinhamento, "center") },
+  };
+};
 
 const template = (input: Record<string, unknown>, includeUnsubscribe: boolean) => {
   const images = Array.isArray(input.imagens_urls) ? input.imagens_urls.map(safeUrl).filter(Boolean) : [safeUrl(input.imagem_url)].filter(Boolean);
   const buttonUrl = safeUrl(input.botao_url);
   const paragraphs = escapeHtml(input.conteudo).split(/\n{2,}/).map((part) => `<p style="margin:0 0 18px">${part.replace(/\n/g, "<br>")}</p>`).join("");
+  const styles = safeStyles(input.estilos);
   const imageBlocks = images.map((_, index) => `imagem:${index}`);
-  const allowed = [...imageBlocks, "titulo", "texto", "botao"];
+  const allowed = ["logo", ...imageBlocks, "titulo", "texto", "botao"];
   const requested = Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String).map((item) => item.startsWith("imagem:") ? `imagem:${Math.max(0, Number(item.split(":")[1]) || 0)}` : item).filter((item) => allowed.includes(item)) : [];
   const order = [...new Set([...requested, ...allowed])];
   const blocks: Record<string, string> = {
-    titulo: `<tr><td style="padding:34px 32px 0"><p style="margin:0 0 8px;color:#b68737;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase">Um brinde da Tio Nan</p><h1 style="margin:0;font-family:Georgia,serif;font-size:34px;line-height:1.08;color:#0b284b">${escapeHtml(input.nome)}</h1></td></tr>`,
-    texto: `<tr><td style="padding:24px 32px 0"><div style="font-size:17px;line-height:1.65;color:#40516a">${paragraphs}</div></td></tr>`,
-    botao: buttonUrl && input.botao_texto ? `<tr><td style="padding:10px 32px 34px"><a href="${buttonUrl}" style="display:inline-block;background:#c79a49;color:#0b284b;text-decoration:none;font-weight:900;padding:15px 24px;border-radius:12px">${escapeHtml(input.botao_texto)}</a></td></tr>` : "",
+    logo: `<tr><td style="background:#0b284b;text-align:${styles.logo.alinhamento};padding:24px 28px"><span style="display:inline-block;padding:10px 18px;border-radius:12px;background:#fff"><img src="https://www.tionan.com.br/logo-tio-nan-email.png" width="190" alt="Tio Nan" style="display:block;width:190px;max-width:100%;height:auto"></span></td></tr>`,
+    titulo: `<tr><td style="padding:34px 32px 0;text-align:${styles.titulo.alinhamento}"><p style="margin:0 0 8px;color:#b68737;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase">Um brinde da Tio Nan</p><h1 style="margin:0;font-family:Georgia,serif;font-size:34px;line-height:1.08;color:${styles.titulo.cor};font-weight:${styles.titulo.negrito ? "800" : "400"}">${escapeHtml(input.nome)}</h1></td></tr>`,
+    texto: `<tr><td style="padding:24px 32px 0;text-align:${styles.texto.alinhamento}"><div style="font-size:17px;line-height:1.65;color:${styles.texto.cor};font-weight:${styles.texto.negrito ? "700" : "400"}">${paragraphs}</div></td></tr>`,
+    botao: buttonUrl && input.botao_texto ? `<tr><td style="padding:14px 32px 38px;text-align:${styles.botao.alinhamento}"><a href="${buttonUrl}" style="display:inline-block;background:#c79a49;background-image:linear-gradient(135deg,#e1bd70 0%,#b8842f 100%);color:${styles.botao.cor};text-decoration:none;font-weight:${styles.botao.negrito ? "900" : "500"};padding:15px 25px;border:1px solid #9f7126;border-radius:14px;box-shadow:0 8px 18px rgba(116,79,21,.24);letter-spacing:.02em">${escapeHtml(input.botao_texto)} &nbsp;→</a></td></tr>` : "",
   };
   images.forEach((image, index) => { blocks[`imagem:${index}`] = `<tr><td style="padding:24px 32px 4px"><img src="${image}" alt="" width="556" style="display:block;width:100%;height:auto;border-radius:14px"></td></tr>`; });
-  return `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f"><div style="display:none;max-height:0;overflow:hidden">${escapeHtml(input.preheader)}</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:28px 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:auto;background:#fff;border-radius:22px;overflow:hidden"><tr><td style="background:#0b284b;text-align:center;padding:24px 28px"><span style="display:inline-block;padding:10px 18px;border-radius:12px;background:#fff"><img src="https://www.tionan.com.br/logo-tio-nan-email.png" width="190" alt="Tio Nan" style="display:block;width:190px;max-width:100%;height:auto"></span></td></tr>${order.map((block) => blocks[block]).join("")}<tr><td style="background:#0b284b;color:#cbd6e4;text-align:center;padding:24px;font-size:12px">Beba com moderação. Venda proibida para menores de 18 anos.${includeUnsubscribe ? `<br><br><a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#efd7a5">Não quero mais receber novidades</a>` : ""}</td></tr></table></td></tr></table></body></html>`;
+  return `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f"><div style="display:none;max-height:0;overflow:hidden">${escapeHtml(input.preheader)}</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:28px 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:auto;background:#fff;border-radius:22px;overflow:hidden">${order.map((block) => blocks[block]).join("")}<tr><td style="background:#0b284b;color:#cbd6e4;text-align:center;padding:24px;font-size:12px">Beba com moderação. Venda proibida para menores de 18 anos.${includeUnsubscribe ? `<br><br><a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#efd7a5">Não quero mais receber novidades</a>` : ""}</td></tr></table></td></tr></table></body></html>`;
 };
 
 Deno.serve(async (request) => {
@@ -77,7 +90,7 @@ Deno.serve(async (request) => {
   const campaign = {
     nome: String(input.nome || subject).trim(), assunto: subject, preheader: String(input.preheader || "").trim(),
     conteudo: String(input.conteudo || "").trim(), imagem_url: safeUrl(input.imagem_url), imagens_urls: Array.isArray(input.imagens_urls) ? input.imagens_urls.map(safeUrl).filter(Boolean) : [safeUrl(input.imagem_url)].filter(Boolean), botao_texto: String(input.botao_texto || "").trim(), botao_url: safeUrl(input.botao_url),
-    ordem_blocos: Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String) : ["titulo", "texto", "botao"],
+    ordem_blocos: Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String) : ["logo", "titulo", "texto", "botao"], estilos: safeStyles(input.estilos),
   };
   if (campaign.assunto.length < 3) return json(request, { error: "Preencha o assunto do e-mail." }, 400);
   if (campaign.conteudo.length < 3 && !campaign.imagens_urls.length) return json(request, { error: "Inclua uma mensagem ou uma imagem na campanha." }, 400);

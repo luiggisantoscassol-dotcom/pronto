@@ -1246,6 +1246,13 @@
         .mkt-block-name { font-size:.72rem; font-weight:850; }
         .mkt-block-actions { display:flex; gap:4px; }
         .mkt-block-actions button { display:grid; width:28px; height:28px; min-height:28px; padding:0; place-items:center; border:1px solid #ded7cc; border-radius:8px; background:#fff; color:#19385f; cursor:pointer; }
+        .mkt-style-grid { grid-column:1/-1; display:grid; gap:7px; margin-top:7px; }
+        .mkt-style-row { display:grid; grid-template-columns:82px minmax(0,1fr) 42px auto; gap:7px; align-items:center; padding:7px 9px; border:1px solid #e7e0d5; border-radius:10px; background:#fff; }
+        .mkt-style-row>strong { color:#19385f; font-size:.62rem; }
+        .mkt-style-row select { width:100%; min-height:32px; margin:0; padding:4px 7px; border:1px solid #ded7cc; border-radius:8px; background:#fff; font-size:.66rem; }
+        .mkt-style-row input[type="color"] { width:36px; height:30px; min-height:30px; margin:0; padding:2px; border:1px solid #ded7cc; border-radius:8px; background:#fff; }
+        .mkt-style-row label { display:flex; align-items:center; gap:4px; color:#435b75; font-size:.61rem; font-weight:800; }
+        .mkt-style-row input[type="checkbox"] { width:15px; height:15px; min-height:15px; margin:0; }
         #mkt-preview { display:block; width:100%; height:650px; border:0; border-radius:14px; background:#fff; }
         .mkt-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         .mkt-actions .btn-status { width:100%!important; margin:0!important; min-height:52px; }
@@ -1550,6 +1557,12 @@
                         <div class="mkt-blocks">
                             <span class="mkt-blocks-title">Segure e arraste para mudar a ordem</span>
                             <div id="mkt-block-list" class="mkt-block-list"></div>
+                            <div class="mkt-style-grid">
+                                <div class="mkt-style-row"><strong>Título</strong><select id="mkt-titulo-alinhamento" oninput="atualizarPreviewMarketing()"><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select><input id="mkt-titulo-cor" type="color" value="#17304f" aria-label="Cor do título" oninput="atualizarPreviewMarketing()"><label><input id="mkt-titulo-negrito" type="checkbox" checked oninput="atualizarPreviewMarketing()">Negrito</label></div>
+                                <div class="mkt-style-row"><strong>Mensagem</strong><select id="mkt-texto-alinhamento" oninput="atualizarPreviewMarketing()"><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select><input id="mkt-texto-cor" type="color" value="#40516a" aria-label="Cor da mensagem" oninput="atualizarPreviewMarketing()"><label><input id="mkt-texto-negrito" type="checkbox" oninput="atualizarPreviewMarketing()">Negrito</label></div>
+                                <div class="mkt-style-row"><strong>Botão</strong><select id="mkt-botao-alinhamento" oninput="atualizarPreviewMarketing()"><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select><input id="mkt-botao-cor" type="color" value="#0b284b" aria-label="Cor do texto do botão" oninput="atualizarPreviewMarketing()"><label><input id="mkt-botao-negrito" type="checkbox" checked oninput="atualizarPreviewMarketing()">Negrito</label></div>
+                                <div class="mkt-style-row"><strong>Logo</strong><select id="mkt-logo-alinhamento" oninput="atualizarPreviewMarketing()"><option value="left">Esquerda</option><option value="center" selected>Centro</option><option value="right">Direita</option></select><span></span><span></span></div>
+                            </div>
                         </div>
                     </section>
                     <section class="mkt-section">
@@ -2345,12 +2358,12 @@
             if (id === 'tab-consignacao') carregarConsignacao();
         }
 
-        let ordemBlocosMarketing = ['titulo', 'texto', 'botao'];
+        let ordemBlocosMarketing = ['logo', 'titulo', 'texto', 'botao'];
         let imagensMarketing = [];
         let blocoArrastadoMarketing = '';
         let zoomPreviewMarketing = 1;
 
-        const nomesBlocosMarketing = { titulo: 'Título da campanha', texto: 'Mensagem', botao: 'Botão de ação' };
+        const nomesBlocosMarketing = { logo: 'Logo Tio Nan', titulo: 'Título da campanha', texto: 'Mensagem', botao: 'Botão de ação' };
 
         function dadosCampanhaMarketing() {
             return {
@@ -2362,6 +2375,12 @@
                 imagens_urls: imagensMarketing.map(imagem => imagem.url).filter(url => /^https?:\/\//i.test(url)),
                 botao_texto: document.getElementById('mkt-botao-texto')?.value.trim() || '',
                 botao_url: document.getElementById('mkt-botao-url')?.value.trim() || '',
+                estilos: {
+                    titulo: { alinhamento: document.getElementById('mkt-titulo-alinhamento')?.value || 'left', cor: document.getElementById('mkt-titulo-cor')?.value || '#17304f', negrito: !!document.getElementById('mkt-titulo-negrito')?.checked },
+                    texto: { alinhamento: document.getElementById('mkt-texto-alinhamento')?.value || 'left', cor: document.getElementById('mkt-texto-cor')?.value || '#40516a', negrito: !!document.getElementById('mkt-texto-negrito')?.checked },
+                    botao: { alinhamento: document.getElementById('mkt-botao-alinhamento')?.value || 'left', cor: document.getElementById('mkt-botao-cor')?.value || '#0b284b', negrito: !!document.getElementById('mkt-botao-negrito')?.checked },
+                    logo: { alinhamento: document.getElementById('mkt-logo-alinhamento')?.value || 'center' }
+                },
                 ordem_blocos: ordemBlocosMarketing.map(bloco => {
                     if (!bloco.startsWith('imagem:')) return bloco;
                     const indice = imagensMarketing.findIndex(imagem => `imagem:${imagem.id}` === bloco);
@@ -2478,10 +2497,12 @@
             const frame = document.getElementById('mkt-preview');
             if (!frame) return;
             const dados = dadosCampanhaMarketing();
+            const estilo = dados.estilos;
             const blocos = {
-                titulo: `<div style="padding:30px 30px 0"><small style="color:#b68737;font-weight:800;letter-spacing:2px">UM BRINDE DA TIO NAN</small><h1 style="margin:10px 0 0;font-family:Georgia,serif;font-size:32px;line-height:1.08;color:#17304f">${escaparMarketing(dados.nome || dados.assunto || 'Sua campanha')}</h1></div>`,
-                texto: `<div style="padding:24px 30px 0;color:#40516a;line-height:1.65"><p>${escaparMarketing(dados.conteudo || 'Sua mensagem aparecerá aqui.').replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>')}</p></div>`,
-                botao: /^https?:\/\//i.test(dados.botao_url) && dados.botao_texto ? `<div style="padding:24px 30px 30px"><span style="display:inline-block;background:#c79a49;color:#0b284b;font-weight:900;padding:14px 22px;border-radius:12px">${escaparMarketing(dados.botao_texto)}</span></div>` : ''
+                logo: `<div style="background:#0b284b;text-align:${estilo.logo.alinhamento};padding:24px 28px"><span style="display:inline-block;padding:10px 18px;border-radius:12px;background:#fff"><img src="https://www.tionan.com.br/logo-tio-nan-email.png" width="190" alt="Tio Nan" style="display:block;width:190px;max-width:100%;height:auto"></span></div>`,
+                titulo: `<div style="padding:34px 30px 0;text-align:${estilo.titulo.alinhamento}"><small style="color:#b68737;font-weight:800;letter-spacing:2px">UM BRINDE DA TIO NAN</small><h1 style="margin:10px 0 0;font-family:Georgia,serif;font-size:32px;line-height:1.08;color:${estilo.titulo.cor};font-weight:${estilo.titulo.negrito ? '800' : '400'}">${escaparMarketing(dados.nome || dados.assunto || 'Sua campanha')}</h1></div>`,
+                texto: `<div style="padding:24px 30px 0;color:${estilo.texto.cor};font-weight:${estilo.texto.negrito ? '700' : '400'};text-align:${estilo.texto.alinhamento};line-height:1.65"><p>${escaparMarketing(dados.conteudo || 'Sua mensagem aparecerá aqui.').replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>')}</p></div>`,
+                botao: /^https?:\/\//i.test(dados.botao_url) && dados.botao_texto ? `<div style="padding:28px 30px 34px;text-align:${estilo.botao.alinhamento}"><span style="display:inline-block;background:#c79a49;background-image:linear-gradient(135deg,#e1bd70 0%,#b8842f 100%);color:${estilo.botao.cor};font-weight:${estilo.botao.negrito ? '900' : '500'};padding:15px 25px;border:1px solid #9f7126;border-radius:14px;box-shadow:0 8px 18px rgba(116,79,21,.24);letter-spacing:.02em">${escaparMarketing(dados.botao_texto)} &nbsp;→</span></div>` : ''
             };
             const conteudoOrdenado = ordemBlocosMarketing.map(bloco => {
                 if (bloco.startsWith('imagem:')) {
@@ -2491,7 +2512,7 @@
                 return blocos[bloco] || '';
             }).join('');
             frame.onload = () => ajustarPreviewMarketing();
-            frame.srcdoc = `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f;padding:12px"><div id="email-preview-root" style="width:620px;max-width:calc(100% - 2px);margin:0 auto 12px;background:#fff;border-radius:20px;overflow:hidden;transform-origin:top center"><div style="background:#0b284b;text-align:center;padding:24px 28px"><span style="display:inline-block;padding:10px 18px;border-radius:12px;background:#fff"><img src="https://www.tionan.com.br/logo-tio-nan-email.png" width="190" alt="Tio Nan" style="display:block;width:190px;max-width:100%;height:auto"></span></div>${conteudoOrdenado}<div style="background:#0b284b;color:#cbd6e4;text-align:center;padding:20px;font-size:11px">Beba com moderação. Venda proibida para menores de 18 anos.<br><br><u>Não quero mais receber novidades</u></div></div></body></html>`;
+            frame.srcdoc = `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f;padding:12px"><div id="email-preview-root" style="width:620px;max-width:calc(100% - 2px);margin:0 auto 12px;background:#fff;border-radius:20px;overflow:hidden;transform-origin:top center">${conteudoOrdenado}<div style="background:#0b284b;color:#cbd6e4;text-align:center;padding:20px;font-size:11px">Beba com moderação. Venda proibida para menores de 18 anos.<br><br><u>Não quero mais receber novidades</u></div></div></body></html>`;
         }
 
         function ajustarPreviewMarketing() {
