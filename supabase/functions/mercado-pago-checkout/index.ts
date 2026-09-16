@@ -17,6 +17,7 @@ const normalize = (value = "") => value
   .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
   .replace(/[^a-z0-9]+/g, " ").replace(/^cachaca\s+(de\s+)?/, "").trim();
 const cleanPhone = (value = "") => value.replace(/\D/g, "");
+const LOCAL_DELIVERY_CITIES = new Set(["porto alegre", "viamao", "canoas"]);
 const isValidEmail = (value = "") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isValidCpf = (value = "") => {
   const cpf = value.replace(/\D/g, "");
@@ -68,6 +69,13 @@ Deno.serve(async (request) => {
   const incomingItems = Array.isArray(payload?.itens) ? payload.itens.slice(0, 20) : [];
   if (!isValidCpf(cpf) || !isValidEmail(email) || name.length < 3 || phone.length < 10 || !delivery || !incomingItems.length) {
     return respond(origin, { error: "Dados do pedido incompletos." }, 400);
+  }
+  if (delivery === "tele") {
+    const deliveryCity = normalize(String(payload?.endereco?.cidade || ""));
+    const deliveryState = String(payload?.endereco?.estado || "").trim().toUpperCase();
+    if (deliveryState !== "RS" || !LOCAL_DELIVERY_CITIES.has(deliveryCity)) {
+      return respond(origin, { error: "A entrega local de R$ 15 está disponível somente para Porto Alegre, Viamão e Canoas." }, 400);
+    }
   }
 
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

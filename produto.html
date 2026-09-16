@@ -308,7 +308,7 @@
         };
 
         const isPortoAlegre = normalize(address.localidade) === 'porto alegre';
-        if (['porto alegre', 'montenegro', 'viamao', 'canoas'].includes(normalize(address.localidade))) {
+        if (['porto alegre', 'viamao', 'canoas'].includes(normalize(address.localidade))) {
           addOption('tele', 'Entrega local', 'De 3 a 5 dias úteis', money(15));
         }
         let quotes = [];

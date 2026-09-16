@@ -398,7 +398,7 @@ function searchProducts() {
     });
 }
 
-const CIDADES_PERMITIDAS = ["Porto Alegre", "Montenegro", "Viamão", "Canoas"];
+const CIDADES_PERMITIDAS = ["Porto Alegre", "Viamão", "Canoas"];
 const SABORES_ATIVOS_AVALIACOES = ['gengibre guaco e mel', 'ouro', 'prata'];
 let freteMelhorEnvioSelecionado = null;
 
