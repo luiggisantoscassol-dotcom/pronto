@@ -2464,6 +2464,33 @@
             return data;
         }
 
+        function validarCampanhaMarketing(emailTeste = false) {
+            const dados = dadosCampanhaMarketing();
+            const pendencias = [];
+            if (dados.assunto.length < 3) pendencias.push({ id: 'mkt-assunto', nome: 'assunto do e-mail' });
+            if (dados.conteudo.length < 3 && !/^https?:\/\//i.test(dados.imagem_url)) pendencias.push({ id: 'mkt-conteudo', nome: 'mensagem ou imagem' });
+            if (dados.botao_texto && !/^https?:\/\//i.test(dados.botao_url)) pendencias.push({ id: 'mkt-botao-url', nome: 'link válido do botão' });
+            if (dados.botao_url && !dados.botao_texto) pendencias.push({ id: 'mkt-botao-texto', nome: 'texto do botão' });
+            if (emailTeste) {
+                const email = document.getElementById('mkt-email-teste')?.value.trim() || '';
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) pendencias.push({ id: 'mkt-email-teste', nome: 'e-mail de teste válido' });
+            }
+            document.querySelectorAll('.mkt-field input,.mkt-field textarea').forEach(campo => campo.style.borderColor = '');
+            if (!pendencias.length) {
+                if (!dados.nome) {
+                    document.getElementById('mkt-nome').value = dados.assunto;
+                    dados.nome = dados.assunto;
+                }
+                return dados;
+            }
+            pendencias.forEach(item => { const campo = document.getElementById(item.id); if (campo) campo.style.borderColor = '#b83232'; });
+            const primeiro = document.getElementById(pendencias[0].id);
+            primeiro?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            primeiro?.focus();
+            alert(`Confira antes de enviar:\n\n• ${pendencias.map(item => item.nome).join('\n• ')}`);
+            return null;
+        }
+
         async function carregarEmailMarketing() {
             renderizarOrdemMarketing();
             atualizarPreviewMarketing();
@@ -2479,22 +2506,26 @@
 
         async function enviarTesteMarketing(botao) {
             const email = document.getElementById('mkt-email-teste').value.trim();
+            const campanha = validarCampanhaMarketing(true);
+            if (!campanha) return;
             const texto = botao.textContent;
             try {
                 botao.disabled = true; botao.textContent = 'ENVIANDO…';
-                await chamarEmailMarketing('test', { ...dadosCampanhaMarketing(), email_teste: email });
+                await chamarEmailMarketing('test', { ...campanha, email_teste: email });
                 showToast(`Teste enviado para ${email}.`);
             } catch (erro) { alert(`Não foi possível enviar o teste.\n\n${erro.message || erro}`); }
             finally { botao.disabled = false; botao.textContent = texto; }
         }
 
         async function dispararCampanhaMarketing(botao) {
+            const campanha = validarCampanhaMarketing(false);
+            if (!campanha) return;
             const inscritos = document.getElementById('mkt-inscritos').textContent;
             if (!confirm(`Enviar esta campanha agora para ${inscritos} cliente(s) autorizado(s)?\n\nDepois do disparo, o envio não poderá ser desfeito.`)) return;
             const texto = botao.textContent;
             try {
                 botao.disabled = true; botao.textContent = 'PREPARANDO ENVIO…';
-                const resultado = await chamarEmailMarketing('send', dadosCampanhaMarketing());
+                const resultado = await chamarEmailMarketing('send', campanha);
                 showToast(`Campanha enviada para ${resultado.destinatarios} cliente(s).`);
                 await carregarEmailMarketing();
             } catch (erro) { alert(`Não foi possível enviar a campanha.\n\n${erro.message || erro}`); }

@@ -72,12 +72,15 @@ Deno.serve(async (request) => {
     ]);
     return json(request, { ok: true, inscritos: count || 0, campanhas: campaigns || [] });
   }
+  const subject = String(input.assunto || "").trim();
   const campaign = {
-    nome: String(input.nome || "").trim(), assunto: String(input.assunto || "").trim(), preheader: String(input.preheader || "").trim(),
+    nome: String(input.nome || subject).trim(), assunto: subject, preheader: String(input.preheader || "").trim(),
     conteudo: String(input.conteudo || "").trim(), imagem_url: safeUrl(input.imagem_url), botao_texto: String(input.botao_texto || "").trim(), botao_url: safeUrl(input.botao_url),
     ordem_blocos: Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String).filter((item) => ["imagem", "titulo", "texto", "botao"].includes(item)) : ["imagem", "titulo", "texto", "botao"],
   };
-  if (campaign.nome.length < 3 || campaign.assunto.length < 3 || campaign.conteudo.length < 10) return json(request, { error: "Preencha nome, assunto e conteúdo da campanha." }, 400);
+  if (campaign.assunto.length < 3) return json(request, { error: "Preencha o assunto do e-mail." }, 400);
+  if (campaign.conteudo.length < 3 && !campaign.imagem_url) return json(request, { error: "Inclua uma mensagem ou uma imagem na campanha." }, 400);
+  if ((campaign.botao_texto && !campaign.botao_url) || (!campaign.botao_texto && campaign.botao_url)) return json(request, { error: "Preencha o texto e o link do botão." }, 400);
   const from = Deno.env.get("RESEND_FROM") || "Tio Nan <pedidos@tionan.com.br>";
   if (action === "test") {
     const to = String(input.email_teste || auth.user.email || "").trim();
