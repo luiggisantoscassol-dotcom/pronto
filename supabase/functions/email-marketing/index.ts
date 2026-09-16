@@ -31,18 +31,19 @@ const safeUrl = (value: unknown) => {
 };
 
 const template = (input: Record<string, unknown>, includeUnsubscribe: boolean) => {
-  const image = safeUrl(input.imagem_url);
+  const images = Array.isArray(input.imagens_urls) ? input.imagens_urls.map(safeUrl).filter(Boolean) : [safeUrl(input.imagem_url)].filter(Boolean);
   const buttonUrl = safeUrl(input.botao_url);
   const paragraphs = escapeHtml(input.conteudo).split(/\n{2,}/).map((part) => `<p style="margin:0 0 18px">${part.replace(/\n/g, "<br>")}</p>`).join("");
-  const allowed = ["imagem", "titulo", "texto", "botao"];
-  const requested = Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String).filter((item) => allowed.includes(item)) : [];
+  const imageBlocks = images.map((_, index) => `imagem:${index}`);
+  const allowed = [...imageBlocks, "titulo", "texto", "botao"];
+  const requested = Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String).map((item) => item.startsWith("imagem:") ? `imagem:${Math.max(0, Number(item.split(":")[1]) || 0)}` : item).filter((item) => allowed.includes(item)) : [];
   const order = [...new Set([...requested, ...allowed])];
   const blocks: Record<string, string> = {
-    imagem: image ? `<tr><td><img src="${image}" alt="" width="620" style="display:block;width:100%;height:auto"></td></tr>` : "",
     titulo: `<tr><td style="padding:34px 32px 0"><p style="margin:0 0 8px;color:#b68737;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase">Um brinde da Tio Nan</p><h1 style="margin:0;font-family:Georgia,serif;font-size:34px;line-height:1.08;color:#0b284b">${escapeHtml(input.nome)}</h1></td></tr>`,
     texto: `<tr><td style="padding:24px 32px 0"><div style="font-size:17px;line-height:1.65;color:#40516a">${paragraphs}</div></td></tr>`,
     botao: buttonUrl && input.botao_texto ? `<tr><td style="padding:10px 32px 34px"><a href="${buttonUrl}" style="display:inline-block;background:#c79a49;color:#0b284b;text-decoration:none;font-weight:900;padding:15px 24px;border-radius:12px">${escapeHtml(input.botao_texto)}</a></td></tr>` : "",
   };
+  images.forEach((image, index) => { blocks[`imagem:${index}`] = `<tr><td><img src="${image}" alt="" width="620" style="display:block;width:100%;height:auto"></td></tr>`; });
   return `<!doctype html><html><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f"><div style="display:none;max-height:0;overflow:hidden">${escapeHtml(input.preheader)}</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:28px 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:auto;background:#fff;border-radius:22px;overflow:hidden"><tr><td style="background:#0b284b;color:#fff;text-align:center;padding:24px;font-size:28px;font-weight:900">TIO NAN</td></tr>${order.map((block) => blocks[block]).join("")}<tr><td style="background:#0b284b;color:#cbd6e4;text-align:center;padding:24px;font-size:12px">Beba com moderação. Venda proibida para menores de 18 anos.${includeUnsubscribe ? `<br><br><a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#efd7a5">Não quero mais receber novidades</a>` : ""}</td></tr></table></td></tr></table></body></html>`;
 };
 
@@ -75,11 +76,11 @@ Deno.serve(async (request) => {
   const subject = String(input.assunto || "").trim();
   const campaign = {
     nome: String(input.nome || subject).trim(), assunto: subject, preheader: String(input.preheader || "").trim(),
-    conteudo: String(input.conteudo || "").trim(), imagem_url: safeUrl(input.imagem_url), botao_texto: String(input.botao_texto || "").trim(), botao_url: safeUrl(input.botao_url),
-    ordem_blocos: Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String).filter((item) => ["imagem", "titulo", "texto", "botao"].includes(item)) : ["imagem", "titulo", "texto", "botao"],
+    conteudo: String(input.conteudo || "").trim(), imagem_url: safeUrl(input.imagem_url), imagens_urls: Array.isArray(input.imagens_urls) ? input.imagens_urls.map(safeUrl).filter(Boolean) : [safeUrl(input.imagem_url)].filter(Boolean), botao_texto: String(input.botao_texto || "").trim(), botao_url: safeUrl(input.botao_url),
+    ordem_blocos: Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String) : ["titulo", "texto", "botao"],
   };
   if (campaign.assunto.length < 3) return json(request, { error: "Preencha o assunto do e-mail." }, 400);
-  if (campaign.conteudo.length < 3 && !campaign.imagem_url) return json(request, { error: "Inclua uma mensagem ou uma imagem na campanha." }, 400);
+  if (campaign.conteudo.length < 3 && !campaign.imagens_urls.length) return json(request, { error: "Inclua uma mensagem ou uma imagem na campanha." }, 400);
   if ((campaign.botao_texto && !campaign.botao_url) || (!campaign.botao_texto && campaign.botao_url)) return json(request, { error: "Preencha o texto e o link do botão." }, 400);
   const from = Deno.env.get("RESEND_FROM") || "Tio Nan <pedidos@tionan.com.br>";
   if (action === "test") {
