@@ -1265,7 +1265,9 @@
             #tab-email-marketing.active{width:min(1520px,calc(100vw - 42px));max-width:1520px;height:calc(100dvh - 96px);padding:0 16px 14px}
             #tab-email-marketing .mkt-shell{display:grid;height:100%;grid-template-rows:minmax(0,1fr);margin:0}
             #tab-email-marketing .mkt-workspace{min-height:0;height:100%;grid-template-columns:minmax(430px,.78fr) minmax(600px,1.22fr);gap:24px;padding:18px 24px;overflow:hidden}
-            #tab-email-marketing .mkt-editor{height:100%;padding-right:4px;gap:10px;overflow:hidden}
+            #tab-email-marketing .mkt-editor{height:100%;padding-right:8px;gap:10px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c9b995 transparent}
+            #tab-email-marketing .mkt-editor::-webkit-scrollbar{width:7px}
+            #tab-email-marketing .mkt-editor::-webkit-scrollbar-thumb{border-radius:10px;background:#c9b995}
             #tab-email-marketing .mkt-section{padding:13px 15px;border-radius:14px}
             #tab-email-marketing .mkt-section-title{margin-bottom:10px}
             #tab-email-marketing .mkt-editor>.mkt-section:first-child{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:8px}
