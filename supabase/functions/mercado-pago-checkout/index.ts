@@ -17,6 +17,7 @@ const normalize = (value = "") => value
   .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
   .replace(/[^a-z0-9]+/g, " ").replace(/^cachaca\s+(de\s+)?/, "").trim();
 const cleanPhone = (value = "") => value.replace(/\D/g, "");
+const validUuid = (value = "") => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const LOCAL_DELIVERY_CITIES = new Set(["porto alegre", "viamao", "canoas"]);
 const isValidEmail = (value = "") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isValidCpf = (value = "") => {
@@ -64,6 +65,7 @@ Deno.serve(async (request) => {
   const email = String(payload?.email || "").trim().toLowerCase();
   const name = String(payload?.nome || "").trim();
   const phone = cleanPhone(String(payload?.telefone || ""));
+  const recoveryToken = validUuid(String(payload?.carrinho_recuperacao_token || "")) ? String(payload.carrinho_recuperacao_token) : null;
   const requestedDelivery = String(payload?.entrega || "");
   const delivery = requestedDelivery === "tele" || requestedDelivery === "retirada" || requestedDelivery.startsWith("melhor-envio:") || requestedDelivery.startsWith("frenet:") ? requestedDelivery : "";
   const incomingItems = Array.isArray(payload?.itens) ? payload.itens.slice(0, 20) : [];
@@ -305,6 +307,7 @@ Deno.serve(async (request) => {
       : sandbox ? "Mercado Pago (Teste)" : "Mercado Pago",
     pagamento_metodo: isTest ? "teste" : isCash ? "dinheiro" : null,
     pagamento_parcelas: isCash || isTest ? 1 : null,
+    carrinho_recuperacao_token: recoveryToken,
   });
   if (orderError) return respond(origin, { error: "Não foi possível criar o pedido.", detail: orderError.message }, 500);
 
@@ -321,6 +324,7 @@ Deno.serve(async (request) => {
       return respond(origin, { error: stockError instanceof Error ? stockError.message : "Estoque insuficiente." }, 409);
     }
     await saveClient();
+    if (recoveryToken) await db.from("carrinhos_abandonados").update({ status: "convertido", convertido_em: new Date().toISOString(), atualizado_em: new Date().toISOString() }).eq("token", recoveryToken);
     if (!isTest) {
       const emailResult = await sendOrderConfirmation({ email, name, reference, trackingToken });
       if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
@@ -382,6 +386,7 @@ Deno.serve(async (request) => {
     }).eq("referencia", reference);
     await saveClient();
     if (paymentStatus === "approved") {
+      if (recoveryToken) await db.from("carrinhos_abandonados").update({ status: "convertido", convertido_em: new Date().toISOString(), atualizado_em: new Date().toISOString() }).eq("token", recoveryToken);
       try {
         await reserveStock();
       } catch (stockError) {

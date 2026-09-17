@@ -537,6 +537,74 @@ new Swiper('.swiper-hero', {
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');
 
+const CARRINHO_RECUPERACAO_STORAGE = 'tioNanCarrinhoRecuperacaoToken';
+let carrinhoRecuperacaoTimer = null;
+
+function tokenRecuperacaoCarrinho(criar = true) {
+    let token = localStorage.getItem(CARRINHO_RECUPERACAO_STORAGE) || '';
+    if (!token && criar && window.crypto?.randomUUID) {
+        token = window.crypto.randomUUID();
+        localStorage.setItem(CARRINHO_RECUPERACAO_STORAGE, token);
+    }
+    return token;
+}
+
+async function salvarCarrinhoParaRecuperacao() {
+    const email = document.getElementById('cliente-email')?.value?.trim().toLowerCase() || '';
+    const nome = document.getElementById('cliente-nome')?.value?.trim() || '';
+    const consentimento = Boolean(document.getElementById('marketing-consentimento')?.checked);
+    if (!db || !cart.length || !consentimento || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    const token = tokenRecuperacaoCarrinho();
+    if (!token) return;
+    const { error } = await db.functions.invoke('carrinho-abandonado', {
+        body: {
+            action: 'salvar', token, email, nome, consentimento: true,
+            itens: cart.map(item => ({ id: item.id, quantidade: item.qtd }))
+        }
+    });
+    if (error) console.warn('Não foi possível guardar a sacola para recuperação:', error.message);
+}
+
+function agendarSalvamentoCarrinho() {
+    clearTimeout(carrinhoRecuperacaoTimer);
+    if (!cart.length) {
+        cancelarRecuperacaoCarrinho();
+        return;
+    }
+    carrinhoRecuperacaoTimer = window.setTimeout(salvarCarrinhoParaRecuperacao, 900);
+}
+
+async function cancelarRecuperacaoCarrinho(removerToken = true) {
+    clearTimeout(carrinhoRecuperacaoTimer);
+    const token = tokenRecuperacaoCarrinho(false);
+    if (removerToken) localStorage.removeItem(CARRINHO_RECUPERACAO_STORAGE);
+    if (!db || !token) return;
+    try { await db.functions.invoke('carrinho-abandonado', { body: { action: 'cancelar', token } }); } catch (_) {}
+}
+
+async function recuperarCarrinhoDoEmail() {
+    const token = urlParams.get('recuperar_carrinho');
+    if (!db || !token) return;
+    const { data, error } = await db.functions.invoke('carrinho-abandonado', { body: { action: 'recuperar', token } });
+    if (error || !data?.itens?.length) {
+        console.warn('Não foi possível recuperar a sacola:', error?.message || data?.error);
+        return;
+    }
+    cart = data.itens;
+    localStorage.setItem(CARRINHO_RECUPERACAO_STORAGE, token);
+    sessionStorage.setItem('tioNanCart', JSON.stringify(cart));
+    const emailInput = document.getElementById('cliente-email');
+    const nomeInput = document.getElementById('cliente-nome');
+    const consentInput = document.getElementById('marketing-consentimento');
+    if (emailInput) emailInput.value = data.email || '';
+    if (nomeInput && data.nome) nomeInput.value = data.nome;
+    if (consentInput) consentInput.checked = true;
+    updateCart();
+    sincronizarBadge();
+    openCart();
+    history.replaceState(history.state, '', `${location.pathname}?carrinho=1#sacola`);
+}
+
 // Mantém carrinhos criados antes da padronização alinhados ao catálogo do admin.
 cart = cart.map((item) => ({
     ...item,
@@ -2064,6 +2132,7 @@ async function aplicarCupomSacola() {
 
 function updateCart() {
     sessionStorage.setItem('tioNanCart', JSON.stringify(cart));
+    agendarSalvamentoCarrinho();
     const itemsCont = document.getElementById('cart-items');
     const totalGarrafas = quantidadeGarrafasCarrinho();
     const barra = document.getElementById('barra-frete');
@@ -2517,6 +2586,7 @@ async function checkout() {
                     nome,
                     telefone,
                     marketing_consentimento: marketingConsentimento,
+                    carrinho_recuperacao_token: tokenRecuperacaoCarrinho(false) || null,
                     entrega,
                     frete: freteMelhorEnvioSelecionado,
                     endereco: enderecoPayload,
@@ -2550,6 +2620,8 @@ async function checkout() {
                     email,
                     nome,
                     telefone,
+                    marketing_consentimento: marketingConsentimento,
+                    carrinho_recuperacao_token: tokenRecuperacaoCarrinho(false) || null,
                     entrega,
                     frete: freteMelhorEnvioSelecionado,
                     endereco: enderecoPayload,
@@ -2598,7 +2670,7 @@ async function checkout() {
             pagamento: pag,
             teste: pag === 'Teste',
             troco: pag === 'Dinheiro' && document.getElementById('precisa-troco').checked ? document.getElementById('troco').value : '',
-            cpf, email, nome, telefone, marketing_consentimento: marketingConsentimento, entrega, endereco: enderecoPayload, frete: freteMelhorEnvioSelecionado,
+            cpf, email, nome, telefone, marketing_consentimento: marketingConsentimento, carrinho_recuperacao_token: tokenRecuperacaoCarrinho(false) || null, entrega, endereco: enderecoPayload, frete: freteMelhorEnvioSelecionado,
             cupom: cupomDescontoAtivo,
             itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
         }});
@@ -2616,6 +2688,7 @@ async function checkout() {
         }
         if (!data?.tracking_token) throw new Error(data?.error || 'O pedido foi criado sem código de acompanhamento.');
         salvarClienteRecenteCheckout(cpf, email, nome, telefone, enderecoPayload);
+        cancelarRecuperacaoCarrinho();
         localStorage.setItem('tioNanUltimoPedido', data.tracking_token);
         cart = [];
         sessionStorage.removeItem('tioNanCart');
@@ -2631,6 +2704,7 @@ async function checkout() {
 
 const paymentReturn = new URLSearchParams(window.location.search).get('pagamento');
 if (paymentReturn === 'sucesso') {
+    cancelarRecuperacaoCarrinho();
     cart = [];
     sessionStorage.removeItem('tioNanCart');
     sessionStorage.removeItem('tioNanPedidoPendente');
@@ -2642,6 +2716,13 @@ if (paymentReturn === 'sucesso') {
 }
 
 loadProducts(); updateCart(); sincronizarBadge(); updateWelcome(); carregarTestimonialsHome();
+document.getElementById('cliente-email')?.addEventListener('input', agendarSalvamentoCarrinho);
+document.getElementById('cliente-nome')?.addEventListener('input', agendarSalvamentoCarrinho);
+document.getElementById('marketing-consentimento')?.addEventListener('change', () => {
+    if (document.getElementById('marketing-consentimento')?.checked) agendarSalvamentoCarrinho();
+    else cancelarRecuperacaoCarrinho();
+});
+if (urlParams.get('recuperar_carrinho')) window.setTimeout(recuperarCarrinhoDoEmail, 450);
 
 let isCartOpen = false;
 
