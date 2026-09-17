@@ -41,6 +41,52 @@ const safeStyles = (value: unknown) => {
   };
 };
 
+type MarketingContact = { nome?: string; email: string };
+const SEGMENTS = ["todos", "compradores", "sem_compra", "inativos_60", "gengibre", "ouro", "prata"] as const;
+const safeSegment = (value: unknown) => SEGMENTS.includes(String(value) as typeof SEGMENTS[number]) ? String(value) : "todos";
+const normalizeText = (value: unknown) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const loadAudiences = async (db: ReturnType<typeof createClient>) => {
+  const [{ data: customers, error: customerError }, { data: newsletter, error: newsletterError }, { data: orders, error: orderError }] = await Promise.all([
+    db.from("clientes").select("nome,email").eq("marketing_consentimento", true).not("email", "is", null),
+    db.from("newsletter_inscritos").select("email").eq("consentimento", true),
+    db.from("pedidos").select("cliente_email,itens_json,created_at,status").not("cliente_email", "is", null),
+  ]);
+  if (customerError || newsletterError || orderError) throw new Error(customerError?.message || newsletterError?.message || orderError?.message || "Não foi possível montar os públicos.");
+  const authorized = new Map<string, MarketingContact>();
+  for (const item of customers || []) {
+    const email = String(item.email || "").trim().toLowerCase();
+    if (validEmail(email)) authorized.set(email, { nome: String(item.nome || "").trim(), email });
+  }
+  for (const item of newsletter || []) {
+    const email = String(item.email || "").trim().toLowerCase();
+    if (validEmail(email) && !authorized.has(email)) authorized.set(email, { email });
+  }
+  const buyers = new Set<string>();
+  const lastPurchase = new Map<string, number>();
+  const productText = new Map<string, string>();
+  for (const order of orders || []) {
+    const email = String(order.cliente_email || "").trim().toLowerCase();
+    if (!authorized.has(email) || normalizeText(order.status).startsWith("cancel")) continue;
+    buyers.add(email);
+    const timestamp = new Date(order.created_at || 0).getTime();
+    if (Number.isFinite(timestamp) && timestamp > (lastPurchase.get(email) || 0)) lastPurchase.set(email, timestamp);
+    const items = Array.isArray(order.itens_json) ? order.itens_json : [];
+    const names = items.map((item: Record<string, unknown>) => normalizeText(item?.nome || item?.name || item?.descricao)).join(" ");
+    productText.set(email, `${productText.get(email) || ""} ${names}`.trim());
+  }
+  const cutoff = Date.now() - 60 * 24 * 60 * 60 * 1000;
+  const filter = (predicate: (email: string) => boolean) => [...authorized.values()].filter((contact) => predicate(contact.email));
+  return {
+    todos: [...authorized.values()],
+    compradores: filter((email) => buyers.has(email)),
+    sem_compra: filter((email) => !buyers.has(email)),
+    inativos_60: filter((email) => buyers.has(email) && (lastPurchase.get(email) || 0) < cutoff),
+    gengibre: filter((email) => (productText.get(email) || "").includes("gengibre")),
+    ouro: filter((email) => /(^|\s)(cachaca\s+)?ouro(\s|$)/.test(productText.get(email) || "")),
+    prata: filter((email) => /(^|\s)(cachaca\s+)?prata(\s|$)/.test(productText.get(email) || "")),
+  };
+};
+
 const template = (input: Record<string, unknown>, includeUnsubscribe: boolean) => {
   const images = Array.isArray(input.imagens_urls) ? input.imagens_urls.map(safeUrl).filter(Boolean) : [safeUrl(input.imagem_url)].filter(Boolean);
   const buttonUrl = safeUrl(input.botao_url);
@@ -80,19 +126,23 @@ Deno.serve(async (request) => {
     return data;
   };
   if (action === "overview") {
-    const [{ data: customerEmails }, { data: newsletterEmails }, { data: campaigns }] = await Promise.all([
-      db.from("clientes").select("email").eq("marketing_consentimento", true).not("email", "is", null),
-      db.from("newsletter_inscritos").select("email").eq("consentimento", true),
-      db.from("email_campanhas").select("id,nome,assunto,status,destinatarios,enviado_em,criado_em,erro").order("criado_em", { ascending: false }).limit(30),
-    ]);
-    const emails = new Set([...(customerEmails || []), ...(newsletterEmails || [])].map((item) => String(item.email || "").trim().toLowerCase()).filter(validEmail));
-    return json(request, { ok: true, inscritos: emails.size, campanhas: campaigns || [] });
+    try {
+      const [audiences, { data: campaigns, error: campaignsError }] = await Promise.all([
+        loadAudiences(db),
+        db.from("email_campanhas").select("id,nome,assunto,segmento,status,destinatarios,enviado_em,criado_em,erro").order("criado_em", { ascending: false }).limit(30),
+      ]);
+      if (campaignsError) throw campaignsError;
+      const segmentos = Object.fromEntries(Object.entries(audiences).map(([key, contacts]) => [key, contacts.length]));
+      return json(request, { ok: true, inscritos: audiences.todos.length, segmentos, campanhas: campaigns || [] });
+    } catch (error) {
+      return json(request, { error: error instanceof Error ? error.message : String(error) }, 500);
+    }
   }
   const subject = String(input.assunto || "").trim();
   const campaign = {
     nome: String(input.nome || subject).trim(), assunto: subject, preheader: String(input.preheader || "").trim(),
     conteudo: String(input.conteudo || "").trim(), imagem_url: safeUrl(input.imagem_url), imagens_urls: Array.isArray(input.imagens_urls) ? input.imagens_urls.map(safeUrl).filter(Boolean) : [safeUrl(input.imagem_url)].filter(Boolean), botao_texto: String(input.botao_texto || "").trim(), botao_url: safeUrl(input.botao_url),
-    ordem_blocos: Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String) : ["logo", "titulo", "texto", "botao"], estilos: safeStyles(input.estilos),
+    ordem_blocos: Array.isArray(input.ordem_blocos) ? input.ordem_blocos.map(String) : ["logo", "titulo", "texto", "botao"], estilos: safeStyles(input.estilos), segmento: safeSegment(input.segmento),
   };
   if (campaign.assunto.length < 3) return json(request, { error: "Preencha o assunto do e-mail." }, 400);
   if (campaign.conteudo.length < 3 && !campaign.imagens_urls.length) return json(request, { error: "Inclua uma mensagem ou uma imagem na campanha." }, 400);
@@ -110,15 +160,14 @@ Deno.serve(async (request) => {
     }
   }
   if (action !== "send") return json(request, { error: "Ação inválida." }, 400);
-  const [{ data: contacts, error: contactsError }, { data: newsletterContacts, error: newsletterError }] = await Promise.all([
-    db.from("clientes").select("nome,email").eq("marketing_consentimento", true).not("email", "is", null),
-    db.from("newsletter_inscritos").select("email").eq("consentimento", true),
-  ]);
-  if (contactsError || newsletterError) return json(request, { error: contactsError?.message || newsletterError?.message }, 500);
-  const unique = new Map<string, { nome?: string; email: string }>();
-  [...(contacts || []), ...(newsletterContacts || [])].forEach((item) => { if (validEmail(item.email)) unique.set(String(item.email).toLowerCase(), item); });
-  const subscribers = [...unique.values()];
-  if (!subscribers.length) return json(request, { error: "Nenhum cliente autorizou e-mail marketing." }, 409);
+  let subscribers: MarketingContact[] = [];
+  try {
+    const audiences = await loadAudiences(db);
+    subscribers = audiences[campaign.segmento as keyof typeof audiences];
+  } catch (error) {
+    return json(request, { error: error instanceof Error ? error.message : String(error) }, 500);
+  }
+  if (!subscribers.length) return json(request, { error: "Nenhum cliente autorizado pertence a este segmento." }, 409);
   const { data: saved, error: saveError } = await db.from("email_campanhas").insert({ ...campaign, status: "enviando", destinatarios: subscribers.length, criado_por: auth.user.id }).select("id").single();
   if (saveError) return json(request, { error: saveError.message }, 500);
   try {

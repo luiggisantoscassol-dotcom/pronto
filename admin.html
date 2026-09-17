@@ -1216,8 +1216,22 @@
         .mkt-field { display:block; margin-bottom:16px; }
         .mkt-field:last-child { margin-bottom:0; }
         .mkt-field > span { display:block; margin:0 0 7px; color:#435b75; font-size:.7rem; font-weight:850; letter-spacing:.35px; }
-        .mkt-field input,.mkt-field textarea { display:block; width:100%; margin:0; padding:13px 15px; border:1px solid #dcd5ca; border-radius:12px; font:inherit; line-height:1.45; }
+        .mkt-field input,.mkt-field textarea,.mkt-field select { display:block; width:100%; margin:0; padding:13px 15px; border:1px solid #dcd5ca; border-radius:12px; background:#fff; font:inherit; line-height:1.45; }
         .mkt-field textarea { min-height:190px; resize:vertical; }
+        .whats-shell { max-width:1180px; margin:0 auto; }
+        .whats-toolbar { display:grid; grid-template-columns:minmax(220px,1fr) minmax(220px,1fr); gap:14px; margin:18px 0; }
+        .whats-toolbar label { color:#435b75; font-size:.72rem; font-weight:850; }
+        .whats-toolbar select { display:block; width:100%; margin-top:7px; padding:12px 14px; border:1px solid #dcd5ca; border-radius:12px; background:#fff; font:inherit; }
+        .whats-note { padding:14px 16px; border-radius:13px; background:#eef8f1; color:#24613c; font-size:.78rem; line-height:1.5; }
+        .whats-list { display:grid; gap:10px; margin-top:18px; }
+        .whats-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:18px; align-items:center; padding:16px 18px; border:1px solid #e7e0d5; border-radius:15px; background:#fff; }
+        .whats-row small { display:block; margin-top:5px; color:#718096; }
+        .whats-open { border:0; border-radius:11px; padding:12px 16px; background:#25d366; color:#0b3b21; font-weight:900; cursor:pointer; }
+        .compra-itens { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0 18px; }
+        .compra-item { display:grid; grid-template-columns:minmax(0,1fr) 100px; gap:10px; align-items:center; padding:11px 12px; border:1px solid #e1d9cd; border-radius:12px; background:#fbfaf7; }
+        .compra-item input { margin:0; }
+        .nota-compra-row { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(180px,.8fr) auto; gap:16px; align-items:center; padding:16px 18px; border:1px solid #e7e0d5; border-radius:15px; background:#fff; }
+        .nota-compra-row small { display:block; margin-top:5px; color:#718096; }
         .mkt-image-upload { display:grid; grid-template-columns:92px minmax(0,1fr); gap:14px; align-items:center; padding:13px; border:1px dashed #c9b995; border-radius:14px; background:#fff; }
         .mkt-image-upload img { display:none; width:92px; aspect-ratio:1; object-fit:cover; border-radius:11px; background:#f4f0e8; }
         .mkt-image-upload img[src]:not([src=""]) { display:block; }
@@ -1278,7 +1292,8 @@
             #tab-email-marketing .mkt-editor>.mkt-section:nth-child(3) .mkt-section-title,#tab-email-marketing .mkt-editor>.mkt-section:nth-child(3) .mkt-note{grid-column:1/-1}
             #tab-email-marketing .mkt-field{margin-bottom:8px}
             #tab-email-marketing .mkt-field>span{margin-bottom:4px;font-size:.64rem}
-            #tab-email-marketing .mkt-field input,#tab-email-marketing .mkt-field textarea{padding:8px 11px;border-radius:9px;font-size:.78rem}
+            #tab-email-marketing .mkt-field input,#tab-email-marketing .mkt-field textarea,#tab-email-marketing .mkt-field select{padding:8px 11px;border-radius:9px;font-size:.78rem}
+            #tab-email-marketing .mkt-segment-field{grid-column:1/-1}
             #tab-email-marketing .mkt-field textarea{min-height:68px;max-height:82px}
             #tab-email-marketing .mkt-image-upload{grid-template-columns:58px minmax(0,1fr);padding:8px}
             #tab-email-marketing .mkt-image-upload img{width:58px}
@@ -1306,7 +1321,7 @@
             .mkt-workspace{grid-template-columns:1fr}.mkt-preview-wrap{position:static}.mkt-preview-device{max-width:620px;margin:auto}#mkt-preview{height:590px}
         }
         @media(max-width:600px){
-            .mkt-header{align-items:flex-start;padding:22px 18px;flex-direction:column}.mkt-audience{width:100%;min-width:0}.mkt-workspace{padding:18px;gap:22px}.mkt-section{padding:17px}.mkt-fields-inline,.mkt-actions{grid-template-columns:1fr}.mkt-image-upload{grid-template-columns:72px minmax(0,1fr)}.mkt-image-upload img{width:72px}.mkt-history{padding:0}.mkt-history-list{padding:4px 14px}#mkt-preview{height:520px}
+            .mkt-header{align-items:flex-start;padding:22px 18px;flex-direction:column}.mkt-audience{width:100%;min-width:0}.mkt-workspace{padding:18px;gap:22px}.mkt-section{padding:17px}.mkt-fields-inline,.mkt-actions{grid-template-columns:1fr}.mkt-image-upload{grid-template-columns:72px minmax(0,1fr)}.mkt-image-upload img{width:72px}.mkt-history{padding:0}.mkt-history-list{padding:4px 14px}#mkt-preview{height:520px}.whats-toolbar,.whats-row,.nota-compra-row{grid-template-columns:1fr}.whats-open{width:100%}.compra-itens{grid-template-columns:1fr}
         }
         .produto-precos-grid {
             display: grid;
@@ -1389,11 +1404,13 @@
         <button class="nav-item" onclick="switchTab('tab-pdv')">Venda no balcão 💰</button>
         <button class="nav-item" onclick="switchTab('tab-clientes')">Clientes 👥</button>
         <button class="nav-item" onclick="switchTab('tab-email-marketing')">E-mail marketing ✉️</button>
+        <button class="nav-item" onclick="switchTab('tab-whatsapp')">Fila de WhatsApp 💬</button>
         <button class="nav-item" onclick="switchTab('tab-historico')">Histórico 📜</button>
         <button class="nav-item" onclick="switchTab('tab-estoque')">Produtos e estoque 📦</button>
         <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastrar produto ➕</button>
         <button class="nav-item" onclick="switchTab('tab-embalagens')">Embalagens para envio 📫</button>
         <button class="nav-item" onclick="switchTab('tab-envase')">Controle de envase 🧴</button>
+        <button class="nav-item" onclick="switchTab('tab-notas-compra')">Notas de compra 🧾</button>
         <button class="nav-item" onclick="switchTab('tab-consignacao')">Consignação 🏢</button>
         <button class="nav-item" onclick="switchTab('tab-stats')">Resultados 📊</button>
         <button class="nav-item" onclick="switchTab('tab-rastreio')">Atividade do site 👁️</button>
@@ -1542,6 +1559,7 @@
                         <label class="mkt-field"><span>Nome interno da campanha</span><input id="mkt-nome" placeholder="Ex.: Lançamento Kit Ouro" oninput="atualizarPreviewMarketing()"></label>
                         <label class="mkt-field"><span>Assunto do e-mail</span><input id="mkt-assunto" maxlength="120" placeholder="Um brinde especial chegou 🥃" oninput="atualizarPreviewMarketing()"></label>
                         <label class="mkt-field"><span>Texto de prévia</span><input id="mkt-preheader" maxlength="150" placeholder="A frase curta exibida antes de abrir" oninput="atualizarPreviewMarketing()"></label>
+                        <label class="mkt-field mkt-segment-field"><span>Público da campanha</span><select id="mkt-segmento" onchange="atualizarResumoSegmentoMarketing()"><option value="todos">Todos os inscritos autorizados</option><option value="compradores">Clientes que já compraram</option><option value="sem_compra">Inscritos que ainda não compraram</option><option value="inativos_60">Clientes sem comprar há 60 dias ou mais</option><option value="gengibre">Compraram Gengibre, Guaco e Mel</option><option value="ouro">Compraram Cachaça Ouro</option><option value="prata">Compraram Cachaça Prata</option></select></label>
                     </section>
                     <section class="mkt-section">
                         <h3 class="mkt-section-title"><span>2</span> Conteúdo</h3>
@@ -1586,6 +1604,19 @@
                     <div class="mkt-preview-device"><iframe id="mkt-preview" title="Prévia da campanha"></iframe></div>
                 </aside>
             </div>
+        </div>
+    </div>
+
+    <div id="tab-whatsapp" class="tab-content">
+        <div class="card whats-shell">
+            <h2 style="margin-bottom:6px">Fila manual de WhatsApp</h2>
+            <p style="margin:0;color:#718096">Mensagens preparadas para abrir e revisar uma conversa por vez, sem custo de API e sem disparos automáticos.</p>
+            <div class="whats-toolbar">
+                <label>Quem mostrar<select id="whats-filtro" onchange="renderizarFilaWhatsApp()"><option value="andamento">Pedidos em andamento</option><option value="pos_venda">Pós-venda concluído</option><option value="todos">Todos com WhatsApp</option></select></label>
+                <label>Mensagem preparada<select id="whats-modelo"><option value="acompanhar">Acompanhar pedido</option><option value="ajuda">Oferecer ajuda</option><option value="pos_venda">Saber como foi a experiência</option></select></label>
+            </div>
+            <div class="whats-note"><strong>Envio consciente:</strong> o sistema nunca dispara em massa. Você abre o contato, confere a mensagem e decide se deseja enviá-la. Para promoções, confirme antes que a pessoa aceitou receber novidades pelo WhatsApp.</div>
+            <div id="whats-fila" class="whats-list"><p>Carregando contatos…</p></div>
         </div>
     </div>
 
@@ -1637,12 +1668,21 @@
         <div class="card">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
                 <div><h2 style="margin:0">Controle de envase</h2><small>Insumos, lotes e entrada de produto acabado no Bling</small></div>
-                <button class="btn-status" style="width:auto;margin:0" onclick="abrirNovoEnvase()">+ REGISTRAR ENVASE</button>
+                <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0;background:#26935c" onclick="abrirCompraInsumos()">+ REGISTRAR COMPRA</button><button class="btn-status" style="width:auto;margin:0" onclick="abrirNovoEnvase()">+ REGISTRAR ENVASE</button></div>
             </div>
             <h3 style="margin-top:30px">Saldo de insumos</h3>
             <div id="corpo-insumos-envase" class="admin-order-summary"></div>
             <h3 style="margin-top:30px">Lotes realizados</h3>
             <div id="corpo-lotes-envase"></div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-notas-compra">
+        <div class="card" style="max-width:1180px;margin:0 auto">
+            <div style="display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap"><div><h2 style="margin:0 0 6px">Notas de compra e custos</h2><small>Documentos privados de garrafas, tampas, lacres, rótulos, selos IPI e demais insumos.</small></div><button class="btn-status" style="width:auto;margin:0;background:#26935c" onclick="abrirCompraInsumos()">+ NOVA COMPRA</button></div>
+            <div style="margin:18px 0;padding:14px 16px;border-radius:13px;background:#f4f8fc;color:#435b75;font-size:.78rem"><strong>Armazenamento privado:</strong> os arquivos não ficam públicos no site. O download usa um link temporário disponível somente para o administrador autenticado.</div>
+            <input id="busca-notas-compra" type="search" placeholder="Buscar por fornecedor, número da nota ou insumo…" oninput="renderizarNotasCompra()">
+            <div id="lista-notas-compra" class="whats-list"><p>Carregando documentos…</p></div>
         </div>
     </div>
 
@@ -1855,6 +1895,26 @@
         <label>Novo saldo</label><input id="ajuste-insumo-novo" type="number" min="0" step="1">
         <label>Motivo do ajuste</label><input id="ajuste-insumo-motivo" value="Contagem de estoque">
         <button class="btn-status" onclick="salvarAjusteInsumo()">SALVAR AJUSTE</button>
+    </div>
+
+    <div class="modal-box" id="modal-compra-insumos" style="max-width:760px;padding:0;flex-direction:column;max-height:92vh">
+        <div class="modal-header"><h2>Registrar compra de insumos</h2><button onclick="fecharTodosModais()" class="modal-fechar-btn">×</button></div>
+        <div style="padding:24px;overflow-y:auto">
+            <div class="produto-precos-grid">
+                <div class="produto-campo"><label for="compra-fornecedor">Fornecedor</label><input id="compra-fornecedor" placeholder="Nome ou razão social"></div>
+                <div class="produto-campo"><label for="compra-numero">Número da nota (opcional)</label><input id="compra-numero" placeholder="Ex.: 000123"></div>
+                <div class="produto-campo"><label for="compra-data">Data de emissão</label><input id="compra-data" type="date"></div>
+                <div class="produto-campo"><label for="compra-valor">Valor total (opcional)</label><input id="compra-valor" type="number" min="0" step="0.01" placeholder="0,00"></div>
+            </div>
+            <div class="produto-precos-grid">
+                <div class="produto-campo"><label for="compra-insumo">Item comprado</label><select id="compra-insumo"></select></div>
+                <div class="produto-campo"><label for="compra-quantidade">Quantidade recebida</label><input id="compra-quantidade" type="number" min="1" step="1" value="1"></div>
+            </div>
+            <small style="display:block;margin:-4px 0 18px;color:#718096">Cada registro e cada nota fiscal ficam vinculados a um único item. O saldo será atualizado automaticamente.</small>
+            <div class="produto-campo"><label for="compra-arquivo">Nota fiscal ou comprovante (opcional)</label><input id="compra-arquivo" type="file" accept="application/pdf,application/xml,text/xml,image/jpeg,image/png,image/webp"><small style="display:block;margin-top:6px;color:#718096">PDF, XML, JPG, PNG ou WebP de até 15 MB. O arquivo ficará privado.</small></div>
+            <div class="produto-campo"><label for="compra-observacoes">Observações (opcional)</label><textarea id="compra-observacoes" style="width:100%;min-height:80px;padding:13px;border:1px solid #ded7cc;border-radius:12px;font:inherit"></textarea></div>
+            <button id="btn-salvar-compra" class="btn-status" onclick="salvarCompraInsumos(this)">SALVAR COMPRA E ATUALIZAR ESTOQUE</button>
+        </div>
     </div>
 
     <div id="modal-mes-detalhe" class="modal-box" style="padding: 0; flex-direction: column;">
@@ -2353,9 +2413,11 @@
             localStorage.setItem('abaAtivaTioNan', id);
             if (id === 'tab-clientes') carregarClientes();
             if (id === 'tab-email-marketing') carregarEmailMarketing();
+            if (id === 'tab-whatsapp') carregarFilaWhatsApp();
             if (id === 'tab-avaliacoes') carregarAvaliacoes();
             if (id === 'tab-cupons') carregarCupons();
             if (id === 'tab-envase') carregarControleEnvase();
+            if (id === 'tab-notas-compra') carregarNotasCompra();
             if (id === 'tab-embalagens') carregarEmbalagens();
             if (id === 'tab-consignacao') carregarConsignacao();
         }
@@ -2364,8 +2426,10 @@
         let imagensMarketing = [];
         let blocoArrastadoMarketing = '';
         let zoomPreviewMarketing = 1;
+        let segmentosMarketing = {};
 
         const nomesBlocosMarketing = { logo: 'Logo Tio Nan', titulo: 'Título da campanha', texto: 'Mensagem', botao: 'Botão de ação' };
+        const nomesSegmentosMarketing = { todos: 'Todos os autorizados', compradores: 'Clientes que já compraram', sem_compra: 'Ainda não compraram', inativos_60: 'Inativos há 60+ dias', gengibre: 'Compraram Gengibre, Guaco e Mel', ouro: 'Compraram Cachaça Ouro', prata: 'Compraram Cachaça Prata' };
 
         function dadosCampanhaMarketing() {
             return {
@@ -2377,6 +2441,7 @@
                 imagens_urls: imagensMarketing.map(imagem => imagem.url).filter(url => /^https?:\/\//i.test(url)),
                 botao_texto: document.getElementById('mkt-botao-texto')?.value.trim() || '',
                 botao_url: document.getElementById('mkt-botao-url')?.value.trim() || '',
+                segmento: document.getElementById('mkt-segmento')?.value || 'todos',
                 estilos: {
                     titulo: { alinhamento: document.getElementById('mkt-titulo-alinhamento')?.value || 'left', cor: document.getElementById('mkt-titulo-cor')?.value || '#17304f', negrito: !!document.getElementById('mkt-titulo-negrito')?.checked },
                     texto: { alinhamento: document.getElementById('mkt-texto-alinhamento')?.value || 'left', cor: document.getElementById('mkt-texto-cor')?.value || '#40516a', negrito: !!document.getElementById('mkt-texto-negrito')?.checked },
@@ -2393,6 +2458,13 @@
 
         function escaparMarketing(valor) {
             return String(valor || '').replace(/[&<>"']/g, caractere => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[caractere]));
+        }
+
+        function atualizarResumoSegmentoMarketing() {
+            const segmento = document.getElementById('mkt-segmento')?.value || 'todos';
+            const total = Number(segmentosMarketing[segmento] || 0);
+            const contador = document.getElementById('mkt-inscritos');
+            if (contador) contador.textContent = total.toLocaleString('pt-BR');
         }
 
         function renderizarOrdemMarketing() {
@@ -2594,8 +2666,9 @@
             const historico = document.getElementById('mkt-historico');
             try {
                 const data = await chamarEmailMarketing('overview');
-                document.getElementById('mkt-inscritos').textContent = Number(data.inscritos || 0).toLocaleString('pt-BR');
-                historico.innerHTML = (data.campanhas || []).map(campanha => `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:16px 0;border-bottom:1px solid rgba(197,160,89,.18)"><div><strong>${escaparMarketing(campanha.nome)}</strong><small style="display:block;color:#718096">${escaparMarketing(campanha.assunto)} · ${new Date(campanha.criado_em).toLocaleString('pt-BR')}</small>${campanha.erro ? `<small style="display:block;color:#a52a2a">${escaparMarketing(campanha.erro)}</small>` : ''}</div><div style="text-align:right"><b style="color:${campanha.status === 'enviada' ? '#23824a' : campanha.status === 'erro' ? '#a52a2a' : '#b68737'}">${escaparMarketing(campanha.status)}</b><small style="display:block">${Number(campanha.destinatarios || 0)} destinatários</small></div></div>`).join('') || '<p>Nenhuma campanha enviada ainda.</p>';
+                segmentosMarketing = data.segmentos || { todos: Number(data.inscritos || 0) };
+                atualizarResumoSegmentoMarketing();
+                historico.innerHTML = (data.campanhas || []).map(campanha => `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:16px 0;border-bottom:1px solid rgba(197,160,89,.18)"><div><strong>${escaparMarketing(campanha.nome)}</strong><small style="display:block;color:#718096">${escaparMarketing(campanha.assunto)} · ${escaparMarketing(nomesSegmentosMarketing[campanha.segmento] || nomesSegmentosMarketing.todos)} · ${new Date(campanha.criado_em).toLocaleString('pt-BR')}</small>${campanha.erro ? `<small style="display:block;color:#a52a2a">${escaparMarketing(campanha.erro)}</small>` : ''}</div><div style="text-align:right"><b style="color:${campanha.status === 'enviada' ? '#23824a' : campanha.status === 'erro' ? '#a52a2a' : '#b68737'}">${escaparMarketing(campanha.status)}</b><small style="display:block">${Number(campanha.destinatarios || 0)} destinatários</small></div></div>`).join('') || '<p>Nenhuma campanha enviada ainda.</p>';
             } catch (erro) {
                 historico.innerHTML = `<p style="color:#a52a2a">${escaparMarketing(erro.message || erro)}</p>`;
             }
@@ -2618,7 +2691,8 @@
             const campanha = validarCampanhaMarketing(false);
             if (!campanha) return;
             const inscritos = document.getElementById('mkt-inscritos').textContent;
-            if (!confirm(`Enviar esta campanha agora para ${inscritos} cliente(s) autorizado(s)?\n\nDepois do disparo, o envio não poderá ser desfeito.`)) return;
+            const nomeSegmento = nomesSegmentosMarketing[campanha.segmento] || nomesSegmentosMarketing.todos;
+            if (!confirm(`Enviar esta campanha agora para ${inscritos} cliente(s) do público “${nomeSegmento}”?\n\nDepois do disparo, o envio não poderá ser desfeito.`)) return;
             const texto = botao.textContent;
             try {
                 botao.disabled = true; botao.textContent = 'PREPARANDO ENVIO…';
@@ -2627,6 +2701,57 @@
                 await carregarEmailMarketing();
             } catch (erro) { alert(`Não foi possível enviar a campanha.\n\n${erro.message || erro}`); }
             finally { botao.disabled = false; botao.textContent = texto; }
+        }
+
+        let pedidosFilaWhatsApp = [];
+
+        async function carregarFilaWhatsApp() {
+            const lista = document.getElementById('whats-fila');
+            if (!lista) return;
+            lista.innerHTML = '<p>Carregando contatos…</p>';
+            const { data, error } = await db.from('pedidos').select('id,referencia,cliente_nome,cliente,cliente_telefone,status,created_at').not('cliente_telefone', 'is', null).order('created_at', { ascending: false }).limit(250);
+            if (error) {
+                lista.innerHTML = `<p style="color:#a52a2a">${escapeAdmin(error.message)}</p>`;
+                return;
+            }
+            const unicos = new Map();
+            for (const pedido of data || []) {
+                const telefone = limparTelefoneWhatsApp(String(pedido.cliente_telefone || pedido.cliente || ''));
+                if (telefone && !unicos.has(telefone)) unicos.set(telefone, { ...pedido, telefone_whats: telefone });
+            }
+            pedidosFilaWhatsApp = [...unicos.values()];
+            renderizarFilaWhatsApp();
+        }
+
+        function renderizarFilaWhatsApp() {
+            const lista = document.getElementById('whats-fila');
+            if (!lista) return;
+            const filtro = document.getElementById('whats-filtro')?.value || 'andamento';
+            const cancelado = status => String(status || '').toLowerCase().startsWith('cancel');
+            const pedidos = pedidosFilaWhatsApp.filter(pedido => {
+                if (cancelado(pedido.status)) return false;
+                if (filtro === 'andamento') return pedido.status !== 'Concluído';
+                if (filtro === 'pos_venda') return pedido.status === 'Concluído';
+                return true;
+            });
+            lista.innerHTML = pedidos.map(pedido => {
+                const nome = pedido.cliente_nome || String(pedido.cliente || '').split('(')[0].trim() || 'Cliente';
+                return `<div class="whats-row"><div><strong>${escapeAdmin(nome)}</strong><small>Pedido ${escapeAdmin(codigoPedido(pedido))} · ${escapeAdmin(pedido.status || 'Novo Pedido')} · ${formatarData(pedido.created_at)}</small></div><button type="button" class="whats-open" onclick="abrirContatoFilaWhatsApp('${escapeAdmin(pedido.id)}')">ABRIR CONVERSA ↗</button></div>`;
+            }).join('') || '<p style="text-align:center;color:#718096;padding:24px">Nenhum contato nesta fila.</p>';
+        }
+
+        function abrirContatoFilaWhatsApp(id) {
+            const pedido = pedidosFilaWhatsApp.find(item => String(item.id) === String(id));
+            if (!pedido?.telefone_whats) return showToast('Telefone não encontrado.');
+            const nome = (pedido.cliente_nome || String(pedido.cliente || '').split('(')[0].trim() || 'Cliente').split(/\s+/)[0];
+            const codigo = codigoPedido(pedido);
+            const modelo = document.getElementById('whats-modelo')?.value || 'acompanhar';
+            const mensagens = {
+                acompanhar: `Oi, ${nome}! Tudo bem? Aqui é da Tio Nan 🥃 Passando para acompanhar o pedido ${codigo}. Se precisar de qualquer ajuda, é só chamar por aqui.`,
+                ajuda: `Oi, ${nome}! Aqui é da Tio Nan 🥃 Ficou com alguma dúvida sobre seu pedido ${codigo}? Estamos por aqui para ajudar.`,
+                pos_venda: `Oi, ${nome}! Esperamos que o brinde tenha sido especial 🥃 Como foi sua experiência com a Tio Nan? Sua opinião é muito importante para a gente.`
+            };
+            window.open(`https://wa.me/55${pedido.telefone_whats}?text=${encodeURIComponent(mensagens[modelo] || mensagens.acompanhar)}`, '_blank', 'noopener,noreferrer');
         }
 
         function abrirModalAdmin(id) {
@@ -2788,6 +2913,126 @@
                 </div>
                 ${itens.map(l => `<div class="estoque-row" onclick='verEnvase(${JSON.stringify(l).replace(/'/g,"&#39;")})' style="cursor:pointer;${l.estornado_em?'opacity:.62':''}"><div><b>${escapeAdmin(l.produto_nome)}</b><div class="order-meta-line">Lote ${escapeAdmin(l.lote)}</div></div><div style="text-align:right"><b>${l.garrafas} garrafas</b><br>${l.estornado_em?'<span class="admin-chip error">ESTORNADO</span>':`<span class="admin-chip ${l.bling_status==='sincronizado'?'ok':l.bling_status==='erro'?'error':'warn'}">BLING: ${escapeAdmin(l.bling_status)}</span>`}</div></div>`).join('')}
             `).join('') || '<p>Nenhum envase registrado.</p>';
+        }
+
+        let insumosCompra = [];
+        let notasCompra = [];
+        let itensNotasCompra = [];
+        const NOTAS_COMPRA_BUCKET = 'notas-compra';
+
+        async function abrirCompraInsumos() {
+            const { data, error } = await db.from('insumos_envase').select('id,nome,quantidade').order('nome');
+            if (error) return showToast(`Não foi possível carregar os insumos: ${error.message}`);
+            insumosCompra = data || [];
+            document.getElementById('compra-insumo').innerHTML = insumosCompra.map(insumo => `<option value="${escapeAdmin(insumo.id)}">${escapeAdmin(insumo.nome)} · saldo ${Number(insumo.quantidade || 0)}</option>`).join('');
+            document.getElementById('compra-quantidade').value = '1';
+            document.getElementById('compra-fornecedor').value = '';
+            document.getElementById('compra-numero').value = '';
+            document.getElementById('compra-data').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('compra-valor').value = '';
+            document.getElementById('compra-arquivo').value = '';
+            document.getElementById('compra-observacoes').value = '';
+            document.getElementById('modal-compra-insumos').style.display = 'flex';
+            document.getElementById('overlay').style.display = 'block';
+            setTimeout(() => document.getElementById('compra-fornecedor').focus(), 50);
+        }
+
+        function tipoArquivoNota(arquivo) {
+            const extensao = String(arquivo?.name || '').split('.').pop().toLowerCase();
+            const porExtensao = { pdf:'application/pdf', xml:'application/xml', jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', webp:'image/webp' };
+            return porExtensao[extensao] || String(arquivo?.type || '');
+        }
+
+        async function salvarCompraInsumos(botao) {
+            const fornecedor = document.getElementById('compra-fornecedor').value.trim();
+            const numero = document.getElementById('compra-numero').value.trim();
+            const data = document.getElementById('compra-data').value;
+            const valorTexto = document.getElementById('compra-valor').value;
+            const valor = valorTexto === '' ? null : Number(valorTexto);
+            const observacoes = document.getElementById('compra-observacoes').value.trim();
+            const insumoId = document.getElementById('compra-insumo').value;
+            const quantidade = Number(document.getElementById('compra-quantidade').value || 0);
+            const itens = insumoId && Number.isInteger(quantidade) && quantidade > 0 ? [{ insumo_id:insumoId, quantidade }] : [];
+            const arquivo = document.getElementById('compra-arquivo').files?.[0] || null;
+            if (fornecedor.length < 2) return showToast('Informe o fornecedor da compra.');
+            if (!data) return showToast('Informe a data de emissão.');
+            if (!itens.length) return showToast('Selecione o item e informe uma quantidade válida.');
+            if (valor !== null && (!Number.isFinite(valor) || valor < 0)) return showToast('Informe um valor total válido.');
+            if (arquivo && arquivo.size > 15 * 1024 * 1024) return showToast('O arquivo deve ter no máximo 15 MB.');
+            const mime = arquivo ? tipoArquivoNota(arquivo) : '';
+            if (arquivo && !['application/pdf','application/xml','image/jpeg','image/png','image/webp'].includes(mime)) return showToast('Use um arquivo PDF, XML, JPG, PNG ou WebP.');
+            const compraId = crypto.randomUUID();
+            let arquivoPath = '';
+            const textoOriginal = botao.textContent;
+            try {
+                botao.disabled = true;
+                botao.textContent = arquivo ? 'ENVIANDO DOCUMENTO…' : 'SALVANDO COMPRA…';
+                if (arquivo) {
+                    const extensao = arquivo.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin';
+                    arquivoPath = `${data.slice(0,7)}/${compraId}/nota.${extensao}`;
+                    const { error: uploadError } = await db.storage.from(NOTAS_COMPRA_BUCKET).upload(arquivoPath, arquivo, { contentType:mime, cacheControl:'3600', upsert:false });
+                    if (uploadError) throw new Error(`Não foi possível guardar o documento: ${uploadError.message}`);
+                }
+                botao.textContent = 'ATUALIZANDO ESTOQUE…';
+                const { error } = await db.rpc('registrar_compra_insumos', {
+                    p_id:compraId, p_fornecedor:fornecedor, p_numero_documento:numero || null, p_data_emissao:data,
+                    p_valor_total:valor, p_observacoes:observacoes || null, p_arquivo_path:arquivoPath || null,
+                    p_arquivo_nome:arquivo?.name || null, p_arquivo_mime:mime || null, p_arquivo_bytes:arquivo?.size || null, p_itens:itens
+                });
+                if (error) throw new Error(error.message);
+                fecharTodosModais();
+                showToast('Compra registrada, saldos atualizados e documento protegido.');
+                await carregarControleEnvase();
+                if (document.getElementById('tab-notas-compra').classList.contains('active')) await carregarNotasCompra();
+            } catch (error) {
+                if (arquivoPath) await db.storage.from(NOTAS_COMPRA_BUCKET).remove([arquivoPath]);
+                alert(`Não foi possível registrar a compra.\n\n${error.message || error}`);
+            } finally {
+                botao.disabled = false;
+                botao.textContent = textoOriginal;
+            }
+        }
+
+        async function carregarNotasCompra() {
+            const lista = document.getElementById('lista-notas-compra');
+            if (!lista) return;
+            lista.innerHTML = '<p>Carregando documentos…</p>';
+            const [{ data:notas, error:erroNotas }, { data:itens, error:erroItens }] = await Promise.all([
+                db.from('compras_insumos').select('*').order('data_emissao', { ascending:false }).order('criado_em', { ascending:false }).limit(300),
+                db.from('compra_insumo_itens').select('compra_id,quantidade,insumo:insumos_envase(nome)')
+            ]);
+            if (erroNotas || erroItens) {
+                lista.innerHTML = `<p style="color:#a52a2a">${escapeAdmin(erroNotas?.message || erroItens?.message || 'Não foi possível carregar as notas.')}</p>`;
+                return;
+            }
+            notasCompra = notas || [];
+            itensNotasCompra = itens || [];
+            renderizarNotasCompra();
+        }
+
+        function renderizarNotasCompra() {
+            const lista = document.getElementById('lista-notas-compra');
+            if (!lista) return;
+            const busca = normalizarNomeProduto(document.getElementById('busca-notas-compra')?.value || '');
+            const filtradas = notasCompra.filter(nota => {
+                const itens = itensNotasCompra.filter(item => item.compra_id === nota.id).map(item => item.insumo?.nome || '').join(' ');
+                return !busca || normalizarNomeProduto(`${nota.fornecedor} ${nota.numero_documento || ''} ${itens}`).includes(busca);
+            });
+            lista.innerHTML = filtradas.map(nota => {
+                const itens = itensNotasCompra.filter(item => item.compra_id === nota.id);
+                const resumo = itens.map(item => `${Number(item.quantidade)}× ${escapeAdmin(item.insumo?.nome || 'Insumo')}`).join(' · ');
+                const valor = nota.valor_total === null ? 'Valor não informado' : Number(nota.valor_total).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+                const botao = nota.arquivo_path ? `<button class="btn-status" style="width:auto;margin:0;background:#1f5f9f" onclick="baixarNotaCompra('${escapeAdmin(nota.id)}')">BAIXAR ARQUIVO</button>` : '<span class="admin-chip warn">SEM ANEXO</span>';
+                return `<div class="nota-compra-row"><div><strong>${escapeAdmin(nota.fornecedor)}</strong><small>${nota.numero_documento ? `NF ${escapeAdmin(nota.numero_documento)} · ` : ''}${new Date(nota.data_emissao+'T12:00:00').toLocaleDateString('pt-BR')}</small><small>${resumo || 'Itens não informados'}</small></div><div><b>${escapeAdmin(valor)}</b>${nota.arquivo_nome ? `<small>${escapeAdmin(nota.arquivo_nome)}</small>` : ''}</div><div>${botao}</div></div>`;
+            }).join('') || '<p style="text-align:center;color:#718096;padding:30px">Nenhuma nota de compra encontrada.</p>';
+        }
+
+        async function baixarNotaCompra(id) {
+            const nota = notasCompra.find(item => String(item.id) === String(id));
+            if (!nota?.arquivo_path) return showToast('Esta compra não possui arquivo anexado.');
+            const { data, error } = await db.storage.from(NOTAS_COMPRA_BUCKET).createSignedUrl(nota.arquivo_path, 60, { download:nota.arquivo_nome || 'nota-compra' });
+            if (error || !data?.signedUrl) return showToast(`Não foi possível abrir o documento: ${error?.message || 'link não gerado'}`);
+            window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
         }
 
         function abrirAjusteInsumo(id, nome, atual) {
@@ -5450,7 +5695,7 @@
             }
         }
         function navigateTabs(direction) {
-            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-email-marketing', 'tab-historico', 'tab-estoque', 'tab-embalagens', 'tab-envase', 'tab-consignacao', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes', 'tab-cupons'];
+            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-historico', 'tab-estoque', 'tab-embalagens', 'tab-envase', 'tab-notas-compra', 'tab-consignacao', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes', 'tab-cupons'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
