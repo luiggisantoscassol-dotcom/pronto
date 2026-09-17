@@ -147,7 +147,7 @@ Deno.serve(async (request) => {
   if (campaign.assunto.length < 3) return json(request, { error: "Preencha o assunto do e-mail." }, 400);
   if (campaign.conteudo.length < 3 && !campaign.imagens_urls.length) return json(request, { error: "Inclua uma mensagem ou uma imagem na campanha." }, 400);
   if ((campaign.botao_texto && !campaign.botao_url) || (!campaign.botao_texto && campaign.botao_url)) return json(request, { error: "Preencha o texto e o link do botão." }, 400);
-  const from = Deno.env.get("RESEND_FROM") || "Tio Nan <pedidos@tionan.com.br>";
+  const from = Deno.env.get("RESEND_FROM") || "Tio Nan <pedidos@mail.tionan.com.br>";
   if (action === "test") {
     const to = String(input.email_teste || auth.user.email || "").trim();
     if (!validEmail(to)) return json(request, { error: "Informe um e-mail válido para o teste." }, 400);

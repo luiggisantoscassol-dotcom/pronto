@@ -61,7 +61,7 @@ Deno.serve(async (request) => {
       const signature = await signEmail(email, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
       const unsubscribeUrl = `https://eegqobqhrfdkmjyjnqvp.supabase.co/functions/v1/carrinho-abandonado?action=unsubscribe&email=${encodeURIComponent(email)}&token=${encodeURIComponent(signature)}`;
       const result = await send(order, "recompra", reorderHtml(order, unsubscribeUrl));
-      await db.from("pedidos").update({ email_recompra_enviado_em: new Date().toISOString(), email_recompra_resend_id: result.id || null, email_recompra_erro: null }).eq("id", order.id).is("email_recompra_enviado_em", null);
+      await db.from("pedidos").update({ email_recompra_enviado_em: new Date().toISOString(), email_recompra_resend_id: result.id || null, email_recompra_erro: null }).ilike("cliente_email", email).eq("status", "Concluído").is("email_recompra_enviado_em", null).lte("concluido_em", reorderBefore);
       reorderSent++;
     } catch (error) {
       await db.from("pedidos").update({ email_recompra_erro: String(error instanceof Error ? error.message : error).slice(0, 1000) }).eq("id", order.id);
