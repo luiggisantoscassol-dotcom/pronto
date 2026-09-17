@@ -54,6 +54,13 @@
     .price { color:#101b2e; font-size:36px; font-weight:800; letter-spacing:-.04em; }
     .payment-note { margin:7px 0 0; color:#5d6677; font-size:14px; }
     .product-copy { margin:23px 0 10px; color:#4c5667; font-size:16px; line-height:1.65; }
+    .real-ingredients { position:relative; overflow:hidden; margin:24px 0 18px; padding:23px 24px; border:1px solid #e8dcc7; border-radius:18px; background:linear-gradient(135deg,#fffaf1 0%,#f5ead6 100%); box-shadow:0 12px 30px rgba(110,76,26,.08); }
+    .real-ingredients::after { content:""; position:absolute; right:-32px; bottom:-48px; width:135px; height:135px; border:1px solid rgba(182,134,54,.18); border-radius:50%; box-shadow:0 0 0 18px rgba(182,134,54,.05); }
+    .real-ingredients-kicker { position:relative; z-index:1; display:block; margin-bottom:7px; color:#a87325; font-size:11px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
+    .real-ingredients h2 { position:relative; z-index:1; margin:0; color:var(--navy-dark); font-family:Georgia,serif; font-size:25px; line-height:1.08; letter-spacing:-.02em; }
+    .real-ingredients p { position:relative; z-index:1; margin:10px 0 16px; max-width:560px; color:#536071; font-size:14px; line-height:1.55; }
+    .ingredient-list { position:relative; z-index:1; display:flex; flex-wrap:wrap; gap:7px; margin:0; padding:0; list-style:none; }
+    .ingredient-list li { padding:7px 11px; border:1px solid rgba(166,124,55,.28); border-radius:999px; background:rgba(255,255,255,.72); color:#77531f; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     details { border-top:1px solid var(--line); }
     details:last-of-type { border-bottom:1px solid var(--line); }
     summary { list-style:none; padding:18px 2px; color:var(--navy-dark); font-size:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
@@ -365,9 +372,9 @@
       const stars = review.count ? '★★★★★' : '☆☆☆☆☆';
       const reviews = review.reviews || [];
       const gengibreGuacoMel = isGengibreGuacoMel(p);
-      const description = p.descricao || (gengibreGuacoMel
-        ? 'Uma alquimia perfeita para quem aprecia intensidade e conforto. O calor picante do gengibre fresco desperta o paladar, enquanto o guaco traz notas herbais profundas que remetem à tradição do campo. A finalização fica por conta da doçura aveludada do mel, que suaviza a potência da cachaça e deixa um retrogosto acolhedor. Ideal para dias frios ou para momentos de puro relaxamento.'
-        : 'Uma cachaça Tio Nan para celebrar bons encontros e transformar cada brinde em história.');
+      const description = gengibreGuacoMel
+        ? 'Tem sabores que parecem um abraço. Nesta bebida, o gengibre chega primeiro com sua personalidade marcante, o guaco traz um toque especial e o mel deixa tudo mais equilibrado e gostoso de beber. O resultado é uma combinação autêntica, feita para servir sem pressa, compartilhar com gente querida e transformar qualquer encontro em um bom brinde.'
+        : (p.descricao || 'Uma cachaça Tio Nan para celebrar bons encontros e transformar cada brinde em história.');
       updateSeo(p, review, description);
       const volume = p.volume || '700 ml';
       const alcohol = gengibreGuacoMel ? '28% vol.' : (p.teor_alcoolico ? `${p.teor_alcoolico}% vol.` : 'Consulte o rótulo');
@@ -376,6 +383,7 @@
       const displayName = gengibreGuacoMel ? 'Gengibre, Guaco e Mel' : p.nome;
       const stock = Math.max(0, Number(p.estoque || 0));
       const stockNotice = stock > 0 && stock <= 5 ? `<p class="stock-note">🔥 Apenas ${stock} ${stock === 1 ? 'unidade disponível' : 'unidades disponíveis'}</p>` : '';
+      const ingredientCallout = gengibreGuacoMel ? `<aside class="real-ingredients" aria-label="Ingredientes de verdade"><span class="real-ingredients-kicker">Ingredientes de verdade</span><h2>Da raiz ao brinde.</h2><p>Feita com gengibre, guaco e mel de verdade — ingredientes que você reconhece em um sabor marcante e cheio de personalidade.</p><ul class="ingredient-list"><li>Gengibre</li><li>Guaco</li><li>Mel</li></ul></aside>` : '';
       app.innerHTML = `
         <div class="layout">
           <section class="gallery ${photoFor(p).includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Imagem de ${p.nome}"><img src="${photoFor(p)}" alt="${p.nome}" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></section>
@@ -387,6 +395,7 @@
             ${stockNotice}
             <div class="price-box">${Number(p.preco_original||0)>Number(p.preco||0)?`<span class="price-label" style="text-decoration:line-through">De ${money(p.preco_original)}</span><span class="price-label">${Math.round((1-Number(p.preco)/Number(p.preco_original))*100)}% de desconto</span>`:'<span class="price-label">Por apenas</span>'}<strong class="price">${Number(p.preco_original||0)>Number(p.preco||0)?'Por ':''}${money(p.preco)}</strong><p class="payment-note">Compra segura e finalização no checkout.</p></div>
             <p class="product-copy">${description}</p>
+            ${ingredientCallout}
             <details open><summary>Detalhes do produto</summary><div class="detail-content"><dl class="detail-list"><div><dt>Volume</dt><dd>${volume}</dd></div><div><dt>Teor alcoólico</dt><dd>${alcohol}</dd></div><div><dt>Categoria</dt><dd>${category}</dd></div><div><dt>Origem</dt><dd>Rio Grande do Sul</dd></div></dl></div></details>
             <details><summary>Entrega e pagamento</summary><div class="detail-content">Informe seu CEP no checkout para visualizar as opções de entrega disponíveis para a sua região.</div></details>
             <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
