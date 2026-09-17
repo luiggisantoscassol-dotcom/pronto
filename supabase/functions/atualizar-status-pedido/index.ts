@@ -203,7 +203,10 @@ Deno.serve(async (request) => {
 
   const { data: order, error: orderError } = await db.from("pedidos").select("id,referencia,status,cliente_email,cliente_nome,tracking_token").eq("id", pedidoId).single();
   if (orderError || !order) return json(origin, { error: "Pedido não encontrado." }, 404);
-  const { error: updateError } = await db.from("pedidos").update({ status, atualizado_em: new Date().toISOString() }).eq("id", pedidoId);
+  const now = new Date().toISOString();
+  const statusUpdate: Record<string, unknown> = { status, atualizado_em: now };
+  if (status === "Concluído" && order.status !== "Concluído") statusUpdate.concluido_em = now;
+  const { error: updateError } = await db.from("pedidos").update(statusUpdate).eq("id", pedidoId);
   if (updateError) return json(origin, { error: "Não foi possível atualizar o pedido." }, 500);
 
   let emailEnviado = false;

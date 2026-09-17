@@ -42,3 +42,6 @@ verify_jwt = false
 
 [functions.carrinho-abandonado]
 verify_jwt = false
+
+[functions.ciclo-cliente]
+verify_jwt = false
