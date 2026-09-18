@@ -1409,6 +1409,9 @@
         .automation-stat small { color:#8490a0; font-size:.66rem; }
         .automation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
         .automation-card { padding:20px; border:1px solid #e7e0d5; border-radius:19px; background:#fff; box-shadow:0 8px 24px rgba(25,56,95,.05); }
+        .automation-card--clickable { cursor:pointer; transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+        .automation-card--clickable:hover,.automation-card--clickable:focus-visible { transform:translateY(-2px); border-color:#c59a4a; box-shadow:0 14px 34px rgba(25,56,95,.11); outline:none; }
+        .automation-card-open { display:flex; align-items:center; justify-content:flex-end; gap:6px; margin-top:13px; color:#a77b2b; font-size:.59rem; font-weight:900; letter-spacing:.7px; text-transform:uppercase; }
         .automation-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
         .automation-card-title { display:flex; gap:12px; align-items:center; }
         .automation-card-icon { display:grid; width:42px; height:42px; place-items:center; border-radius:13px; background:#f0e8da; font-size:1.15rem; }
@@ -1429,6 +1432,20 @@
         .automation-footer { display:flex; justify-content:space-between; gap:12px; margin-top:18px; color:#8490a0; font-size:.65rem; }
         .automation-shortcuts { display:flex; gap:8px; flex-wrap:wrap; }
         .automation-shortcuts button { min-height:38px; padding:9px 12px; border:1px solid #ddd5c9; border-radius:10px; background:#fff; color:#19385f; font-size:.62rem; font-weight:900; cursor:pointer; }
+        .automation-detail-toolbar { display:grid; grid-template-columns:minmax(0,1fr) 190px; gap:10px; margin-bottom:16px; }
+        .automation-detail-toolbar input,.automation-detail-toolbar select { margin:0; }
+        .automation-detail-list { display:grid; gap:10px; }
+        .automation-client-row { display:grid; grid-template-columns:minmax(170px,.9fr) minmax(220px,1.2fr) minmax(170px,.8fr); gap:14px; align-items:center; padding:15px 16px; border:1px solid #e7e0d5; border-radius:15px; background:#fbfaf7; }
+        .automation-client-row h4 { margin:0 0 5px; color:#19385f; font-size:.82rem; }
+        .automation-client-row p { margin:0; color:#63738a; font-size:.68rem; line-height:1.45; overflow-wrap:anywhere; }
+        .automation-client-status { display:inline-flex; width:max-content; margin-bottom:6px; padding:5px 8px; border-radius:999px; font-size:.55rem; font-weight:900; letter-spacing:.5px; text-transform:uppercase; }
+        .automation-client-status--enviado { background:#e8f6ed; color:#237547; }
+        .automation-client-status--pendente { background:#fff5dd; color:#89621d; }
+        .automation-client-status--erro { background:#fdeaea; color:#9a3333; }
+        .automation-client-status--convertido { background:#e7f1fb; color:#245f96; }
+        .automation-client-meta { text-align:right; }
+        .automation-client-meta time { display:block; color:#718096; font-size:.65rem; }
+        .automation-client-meta strong { display:block; margin-top:5px; color:#19385f; font-size:.72rem; }
         @media(max-width:800px) {
             header { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; gap:8px; }
             .admin-menu-trigger { min-width:44px; width:44px; height:44px; padding:0; justify-content:center; }
@@ -1440,6 +1457,9 @@
             .automation-header { align-items:flex-start; flex-direction:column; }
             .automation-summary,.automation-grid { grid-template-columns:1fr 1fr; }
             .automation-error-row { grid-template-columns:1fr; gap:4px; }
+            .automation-client-row { grid-template-columns:1fr; }
+            .automation-client-meta { text-align:left; }
+            .automation-detail-toolbar { grid-template-columns:1fr; }
         }
         @media(max-width:520px) {
             .automation-summary,.automation-grid { grid-template-columns:1fr; }
@@ -1587,21 +1607,21 @@
                 <article class="automation-stat"><span>Falhas pendentes</span><strong id="auto-falhas">—</strong><small>itens que precisam de atenção</small></article>
             </div>
             <div class="automation-grid">
-                <article class="automation-card">
+                <article class="automation-card automation-card--clickable" role="button" tabindex="0" onclick="abrirDetalhesAutomacao('boas')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalhesAutomacao('boas')}">
                     <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">👋</span><div><h3>Boas-vindas</h3><p>Enviado logo após a inscrição na newsletter.</p></div></div><span class="automation-status">Ativa</span></div>
-                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-boas-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-boas-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-boas-erros">—</b><span>Falhas</span></div></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-boas-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-boas-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-boas-erros">—</b><span>Falhas</span></div></div><span class="automation-card-open">Ver clientes →</span>
                 </article>
-                <article class="automation-card">
+                <article class="automation-card automation-card--clickable" role="button" tabindex="0" onclick="abrirDetalhesAutomacao('carrinhos')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalhesAutomacao('carrinhos')}">
                     <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">🛒</span><div><h3>Carrinho abandonado</h3><p>Lembrete enviado duas horas depois da última atividade.</p></div></div><span class="automation-status">Ativa</span></div>
-                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-carrinhos-enviados">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-carrinhos-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-carrinhos-erros">—</b><span>Falhas</span></div></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-carrinhos-enviados">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-carrinhos-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-carrinhos-erros">—</b><span>Falhas</span></div></div><span class="automation-card-open">Ver clientes →</span>
                 </article>
-                <article class="automation-card">
+                <article class="automation-card automation-card--clickable" role="button" tabindex="0" onclick="abrirDetalhesAutomacao('avaliacoes')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalhesAutomacao('avaliacoes')}">
                     <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">⭐</span><div><h3>Pedido de avaliação</h3><p>Enviado três dias depois que o pedido é concluído.</p></div></div><span class="automation-status">Ativa</span></div>
-                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-avaliacoes-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-avaliacoes-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-avaliacoes-erros">—</b><span>Falhas</span></div></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-avaliacoes-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-avaliacoes-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-avaliacoes-erros">—</b><span>Falhas</span></div></div><span class="automation-card-open">Ver clientes →</span>
                 </article>
-                <article class="automation-card">
+                <article class="automation-card automation-card--clickable" role="button" tabindex="0" onclick="abrirDetalhesAutomacao('recompras')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalhesAutomacao('recompras')}">
                     <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">🥃</span><div><h3>Lembrete de recompra</h3><p>Enviado após 45 dias, apenas para clientes autorizados.</p></div></div><span class="automation-status">Ativa</span></div>
-                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-recompras-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-recompras-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-recompras-erros">—</b><span>Falhas</span></div></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-recompras-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-recompras-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-recompras-erros">—</b><span>Falhas</span></div></div><span class="automation-card-open">Ver clientes →</span>
                 </article>
                 <section class="automation-errors"><h3>Itens que precisam de atenção</h3><div id="auto-lista-erros"><p class="automation-empty">Carregando o diagnóstico das automações…</p></div></section>
             </div>
@@ -1931,6 +1951,15 @@
     </div>
 
     <div class="overlay" id="overlay" onclick="fecharModalAoClicarFora(event)"></div>
+
+    <div class="modal-box" id="modal-automacao-clientes" style="max-width:980px;padding:0;flex-direction:column;max-height:90vh" onclick="event.stopPropagation()">
+        <div class="modal-header"><div><span class="sidebar-kicker">Detalhes da automação</span><h2 id="automacao-detalhe-titulo" style="margin:0;text-align:left">Clientes</h2></div><button type="button" onclick="fecharTodosModais()" class="modal-fechar-btn" aria-label="Fechar">×</button></div>
+        <div style="padding:22px;overflow-y:auto">
+            <p id="automacao-detalhe-descricao" style="margin:0 0 16px;color:#718096;line-height:1.5"></p>
+            <div class="automation-detail-toolbar"><input id="automacao-detalhe-busca" type="search" placeholder="Buscar por nome, e-mail ou pedido…" oninput="renderizarDetalhesAutomacao()"><select id="automacao-detalhe-filtro" onchange="renderizarDetalhesAutomacao()"><option value="todos">Todas as situações</option><option value="enviado">Enviados</option><option value="pendente">Pendentes</option><option value="convertido">Convertidos</option><option value="erro">Com falha</option></select></div>
+            <div id="automacao-detalhe-lista" class="automation-detail-list"><p class="automation-empty">Carregando clientes…</p></div>
+        </div>
+    </div>
 
     <div class="modal-box" id="modal-embalagem" style="max-width:720px" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="emb-modal-titulo">Novo modelo de caixa</h2><button class="modal-fechar-btn" onclick="fecharTodosModais()">×</button></div>
@@ -2581,6 +2610,8 @@
         }
 
         let centralAutomacoesCarregada = false;
+        let tipoAutomacaoAberta = '';
+        let dadosDetalhesAutomacoes = { boas:[], carrinhos:[], avaliacoes:[], recompras:[] };
         const preencherMetricaAutomacao = (id, valor) => {
             const elemento = document.getElementById(id);
             if (elemento) elemento.textContent = Number(valor || 0).toLocaleString('pt-BR');
@@ -2599,14 +2630,17 @@
                 // simultâneas e permitem montar todos os indicadores no navegador.
                 const newsletterResultado = await db.from('newsletter_inscritos').select('email,consentimento,boas_vindas_status,boas_vindas_enviado_em,boas_vindas_erro,atualizado_em');
                 if (newsletterResultado.error) throw new Error(`Newsletter: ${newsletterResultado.error.message || newsletterResultado.error.details || 'consulta recusada'}`);
-                const carrinhosResultado = await db.from('carrinhos_abandonados').select('email,status,consentimento,enviado_em,erro,atualizado_em');
+                const carrinhosResultado = await db.from('carrinhos_abandonados').select('email,nome,status,consentimento,total,itens,ultima_atividade_em,enviar_apos,enviado_em,convertido_em,erro,atualizado_em');
                 if (carrinhosResultado.error) throw new Error(`Carrinhos: ${carrinhosResultado.error.message || carrinhosResultado.error.details || 'consulta recusada'}`);
-                const pedidosResultado = await db.from('pedidos').select('referencia,cliente_nome,cliente_email,status,concluido_em,email_avaliacao_enviado_em,email_avaliacao_erro,email_recompra_enviado_em,email_recompra_erro,atualizado_em');
+                const pedidosResultado = await db.from('pedidos').select('referencia,cliente_nome,cliente_email,cliente_telefone,status,itens_json,concluido_em,email_avaliacao_enviado_em,email_avaliacao_erro,email_recompra_enviado_em,email_recompra_erro,atualizado_em');
                 if (pedidosResultado.error) throw new Error(`Pedidos: ${pedidosResultado.error.message || pedidosResultado.error.details || 'consulta recusada'}`);
+                const clientesResultado = await db.from('clientes').select('nome,email,telefone');
+                if (clientesResultado.error) throw new Error(`Clientes: ${clientesResultado.error.message || clientesResultado.error.details || 'consulta recusada'}`);
 
                 const newsletters = newsletterResultado.data || [];
                 const carrinhos = carrinhosResultado.data || [];
                 const pedidosAutomacao = pedidosResultado.data || [];
+                const clientesPorEmail = new Map((clientesResultado.data || []).filter(item => item.email).map(item => [String(item.email).trim().toLowerCase(), item]));
                 const inscritos = newsletters.filter(item => item.consentimento === true).length;
                 const boasEnviadas = newsletters.filter(item => item.boas_vindas_enviado_em).length;
                 const boasPendentes = newsletters.filter(item => item.consentimento === true && !item.boas_vindas_enviado_em && (!item.boas_vindas_status || item.boas_vindas_status === 'enviando')).length;
@@ -2621,6 +2655,29 @@
                 const recomprasEnviadas = pedidosAutomacao.filter(item => item.email_recompra_enviado_em).length;
                 const recomprasPendentes = pedidosAutomacao.filter(item => item.status === 'Concluído' && item.cliente_email && !item.email_recompra_enviado_em && item.concluido_em && item.concluido_em <= quarentaCincoDiasAtras).length;
                 const recomprasErros = pedidosAutomacao.filter(item => item.email_recompra_erro).length;
+
+                const dadosCliente = (email, nome = '', telefone = '') => {
+                    const cliente = clientesPorEmail.get(String(email || '').trim().toLowerCase()) || {};
+                    return { nome: nome || cliente.nome || 'Cliente sem nome', email: email || cliente.email || '', telefone: telefone || cliente.telefone || '' };
+                };
+                dadosDetalhesAutomacoes.boas = newsletters.map(item => ({
+                    ...dadosCliente(item.email), situacao:item.boas_vindas_erro || item.boas_vindas_status === 'erro' ? 'erro' : item.boas_vindas_enviado_em ? 'enviado' : 'pendente',
+                    detalhe:item.consentimento ? 'Recebimento autorizado' : 'Consentimento cancelado', data:item.boas_vindas_enviado_em || item.atualizado_em, erro:item.boas_vindas_erro || ''
+                }));
+                dadosDetalhesAutomacoes.carrinhos = carrinhos.map(item => {
+                    const itens = (Array.isArray(item.itens) ? item.itens : []).map(produto => produto.nome || produto.name).filter(Boolean).join(', ');
+                    return { ...dadosCliente(item.email, item.nome), situacao:item.erro || item.status === 'erro' ? 'erro' : item.status === 'convertido' ? 'convertido' : item.enviado_em ? 'enviado' : 'pendente', detalhe:itens || 'Sacola sem itens', valor:Number(item.total || 0), data:item.convertido_em || item.enviado_em || item.enviar_apos || item.ultima_atividade_em, erro:item.erro || '' };
+                });
+                const montarPedidoAutomacao = (item, tipo) => {
+                    const enviado = tipo === 'avaliacao' ? item.email_avaliacao_enviado_em : item.email_recompra_enviado_em;
+                    const erro = tipo === 'avaliacao' ? item.email_avaliacao_erro : item.email_recompra_erro;
+                    const limite = tipo === 'avaliacao' ? tresDiasAtras : quarentaCincoDiasAtras;
+                    const elegivel = item.status === 'Concluído' && item.cliente_email && item.concluido_em && item.concluido_em <= limite;
+                    const produtos = (Array.isArray(item.itens_json) ? item.itens_json : []).map(produto => produto.nome || produto.name || produto.descricao).filter(Boolean).join(', ');
+                    return { ...dadosCliente(item.cliente_email, item.cliente_nome, item.cliente_telefone), pedido:item.referencia || '', situacao:erro ? 'erro' : enviado ? 'enviado' : elegivel ? 'pendente' : 'pendente', detalhe:produtos || `Pedido ${item.referencia || ''}`, data:enviado || item.concluido_em || item.atualizado_em, erro:erro || '' };
+                };
+                dadosDetalhesAutomacoes.avaliacoes = pedidosAutomacao.filter(item => item.cliente_email && (item.email_avaliacao_enviado_em || item.email_avaliacao_erro || item.status === 'Concluído')).map(item => montarPedidoAutomacao(item, 'avaliacao'));
+                dadosDetalhesAutomacoes.recompras = pedidosAutomacao.filter(item => item.cliente_email && (item.email_recompra_enviado_em || item.email_recompra_erro || item.status === 'Concluído')).map(item => montarPedidoAutomacao(item, 'recompra'));
 
                 const valores = {
                     'auto-inscritos': inscritos, 'auto-recuperados': carrinhosRecuperados,
@@ -2650,6 +2707,53 @@
                 lista.innerHTML = `<p class="automation-empty" style="background:#fff0f0;color:#8e3030">Não foi possível carregar os indicadores: ${escapeAdmin(mensagemErro)}</p>`;
                 if (atualizado) atualizado.textContent = 'Falha na atualização';
             }
+        }
+
+        const configuracaoDetalhesAutomacao = {
+            boas: { titulo:'Boas-vindas', descricao:'Pessoas inscritas e a situação do primeiro e-mail enviado pela Tio Nan.' },
+            carrinhos: { titulo:'Carrinhos abandonados', descricao:'Clientes que deixaram uma sacola, quando o lembrete foi enviado e quais compras foram recuperadas.' },
+            avaliacoes: { titulo:'Pedidos de avaliação', descricao:'Clientes elegíveis para avaliar a compra e o andamento de cada envio.' },
+            recompras: { titulo:'Lembretes de recompra', descricao:'Clientes elegíveis para receber um novo convite de compra depois de 45 dias.' }
+        };
+        async function abrirDetalhesAutomacao(tipo) {
+            tipoAutomacaoAberta = tipo;
+            if (!centralAutomacoesCarregada) await carregarCentralAutomacoes(true);
+            const config = configuracaoDetalhesAutomacao[tipo];
+            if (!config) return;
+            document.getElementById('automacao-detalhe-titulo').textContent = config.titulo;
+            document.getElementById('automacao-detalhe-descricao').textContent = config.descricao;
+            document.getElementById('automacao-detalhe-busca').value = '';
+            document.getElementById('automacao-detalhe-filtro').value = 'todos';
+            renderizarDetalhesAutomacao();
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('modal-automacao-clientes').style.display = 'flex';
+        }
+        function formatarTelefoneAutomacao(valor) {
+            const numeros = String(valor || '').replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');
+            if (numeros.length === 11) return `(${numeros.slice(0,2)}) ${numeros.slice(2,7)}-${numeros.slice(7)}`;
+            if (numeros.length === 10) return `(${numeros.slice(0,2)}) ${numeros.slice(2,6)}-${numeros.slice(6)}`;
+            return String(valor || '');
+        }
+        function renderizarDetalhesAutomacao() {
+            const lista = document.getElementById('automacao-detalhe-lista');
+            if (!lista) return;
+            const busca = String(document.getElementById('automacao-detalhe-busca')?.value || '').trim().toLowerCase();
+            const filtro = document.getElementById('automacao-detalhe-filtro')?.value || 'todos';
+            const dados = [...(dadosDetalhesAutomacoes[tipoAutomacaoAberta] || [])]
+                .filter(item => filtro === 'todos' || item.situacao === filtro)
+                .filter(item => !busca || [item.nome,item.email,item.telefone,item.pedido,item.detalhe].some(valor => String(valor || '').toLowerCase().includes(busca)))
+                .sort((a,b) => new Date(b.data || 0) - new Date(a.data || 0));
+            if (!dados.length) {
+                lista.innerHTML = '<p class="automation-empty">Nenhum cliente encontrado nesta situação.</p>';
+                return;
+            }
+            const nomesStatus = { enviado:'Enviado', pendente:'Pendente', erro:'Falha', convertido:'Compra recuperada' };
+            lista.innerHTML = dados.map(item => {
+                const contato = [item.email, item.telefone ? formatarTelefoneAutomacao(item.telefone) : ''].filter(Boolean).join(' · ');
+                const valor = Number.isFinite(Number(item.valor)) && Number(item.valor) > 0 ? Number(item.valor).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : '';
+                const data = item.data ? new Date(item.data).toLocaleString('pt-BR') : 'Sem data registrada';
+                return `<article class="automation-client-row"><div><h4>${escapeAdmin(item.nome || 'Cliente sem nome')}</h4><p>${escapeAdmin(contato || 'Contato não informado')}</p></div><div><span class="automation-client-status automation-client-status--${escapeAdmin(item.situacao || 'pendente')}">${escapeAdmin(nomesStatus[item.situacao] || item.situacao || 'Pendente')}</span><p>${escapeAdmin(item.detalhe || '')}${item.erro ? `<br><strong style="color:#9a3333">${escapeAdmin(String(item.erro).slice(0,180))}</strong>` : ''}</p></div><div class="automation-client-meta"><time>${escapeAdmin(data)}</time>${item.pedido ? `<strong>Pedido ${escapeAdmin(item.pedido)}</strong>` : ''}${valor ? `<strong>${escapeAdmin(valor)}</strong>` : ''}</div></article>`;
+            }).join('');
         }
 
         let ordemBlocosMarketing = ['logo', 'titulo', 'texto', 'botao'];
