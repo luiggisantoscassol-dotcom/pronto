@@ -1362,6 +1362,90 @@
             .produto-foto-upload { grid-template-columns: 82px minmax(0, 1fr); }
             .produto-foto-preview { width: 82px; }
         }
+
+        /* Navegação dividida: rotina à esquerda e gestão à direita. */
+        .admin-menu-trigger {
+            display:flex; align-items:center; gap:9px; min-width:126px; padding:9px 12px;
+            border:1px solid #e7e0d5; border-radius:12px; background:#fbfaf7; color:#19385f;
+            cursor:pointer; font:inherit; font-size:.66rem; font-weight:900; letter-spacing:.7px;
+            text-transform:uppercase; transition:.2s;
+        }
+        .admin-menu-trigger:hover { border-color:#c59a4a; background:#fff; }
+        .admin-menu-trigger--right { justify-content:flex-end; }
+        .admin-menu-trigger-icon { font-size:1.25rem; line-height:1; }
+        .sidebar { display:block!important; width:380px!important; max-width:92vw; padding:24px 20px; gap:0; overflow-y:auto; grid-template-columns:none!important; grid-template-rows:none!important; box-sizing:border-box; }
+        .sidebar--left { left:-430px!important; right:auto!important; border-right:1px solid #e5ded2; border-left:0; box-shadow:20px 0 60px rgba(25,56,95,.12); }
+        .sidebar--left.active { left:0!important; right:auto!important; box-shadow:20px 0 60px rgba(25,56,95,.16); }
+        .sidebar--right { right:-430px!important; left:auto!important; }
+        .sidebar--right.active { right:0!important; left:auto!important; }
+        .sidebar-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:0 0 18px; }
+        .sidebar-head h3 { margin:0; text-align:left; }
+        .sidebar-close { display:grid; width:42px; height:42px; min-height:42px; padding:0; place-items:center; border:1px solid #e3dccf; border-radius:50%; background:#fff; color:#19385f; font-size:1.25rem; cursor:pointer; }
+        .sidebar-kicker { display:block; margin-bottom:5px; color:#a77b2b; font-size:.58rem; font-weight:900; letter-spacing:1.2px; text-transform:uppercase; }
+        .sidebar-groups { display:grid; gap:12px; }
+        .sidebar-group { padding:8px; border:1px solid #ebe4d8; border-radius:16px; background:#fbfaf7; }
+        .sidebar-group-title { display:block; padding:5px 8px 8px; color:#8290a2; font-size:.56rem; font-weight:900; letter-spacing:1.2px; text-transform:uppercase; }
+        .sidebar .nav-item { justify-content:flex-start; min-height:44px; max-height:none; margin:0 0 5px; padding:10px 12px; flex:none; border:0; background:transparent; border-radius:10px; color:#435b75; font-size:.68rem; letter-spacing:.45px; text-align:left; }
+        .sidebar .nav-item:last-child { margin:0!important; }
+        .sidebar .nav-item:hover { background:#f0ece4; }
+        .sidebar .nav-item.active { background:#19385f; color:#fff; }
+        .sidebar .nav-icon { display:grid; flex:0 0 30px; width:30px; height:30px; place-items:center; border-radius:9px; background:#eee8de; font-size:.9rem; }
+        .sidebar .nav-item.active .nav-icon { background:rgba(255,255,255,.16); }
+        .sidebar-tools { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:12px; }
+        .sidebar-tools .nav-item { min-height:48px; margin:0; align-items:center; justify-content:center; text-align:center; font-size:.58rem; }
+        .sidebar-logout { margin-top:12px!important; justify-content:center!important; color:#9a3333!important; background:#fff3f3!important; }
+
+        /* Central de automações */
+        #tab-automacoes { max-width:1240px; }
+        .automation-shell { padding:28px; }
+        .automation-header { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:22px; }
+        .automation-header h2 { margin:4px 0 6px; text-align:left; font-size:1.45rem; }
+        .automation-header p { margin:0; color:#718096; line-height:1.5; }
+        .automation-refresh { width:auto!important; margin:0!important; padding:12px 18px!important; }
+        .automation-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:22px; }
+        .automation-stat { padding:18px; border:1px solid #e7e0d5; border-radius:18px; background:#fbfaf7; }
+        .automation-stat span { display:block; color:#718096; font-size:.62rem; font-weight:900; letter-spacing:.8px; text-transform:uppercase; }
+        .automation-stat strong { display:block; margin:9px 0 3px; color:#19385f; font-size:2rem; line-height:1; }
+        .automation-stat small { color:#8490a0; font-size:.66rem; }
+        .automation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+        .automation-card { padding:20px; border:1px solid #e7e0d5; border-radius:19px; background:#fff; box-shadow:0 8px 24px rgba(25,56,95,.05); }
+        .automation-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+        .automation-card-title { display:flex; gap:12px; align-items:center; }
+        .automation-card-icon { display:grid; width:42px; height:42px; place-items:center; border-radius:13px; background:#f0e8da; font-size:1.15rem; }
+        .automation-card h3 { margin:0; color:#19385f; font-size:.9rem; }
+        .automation-card p { margin:5px 0 0; color:#718096; font-size:.7rem; line-height:1.45; }
+        .automation-status { display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:999px; background:#e8f6ed; color:#237547; font-size:.56rem; font-weight:900; letter-spacing:.6px; text-transform:uppercase; white-space:nowrap; }
+        .automation-status::before { content:""; width:7px; height:7px; border-radius:50%; background:#2ca461; }
+        .automation-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:17px; }
+        .automation-metric { padding:11px; border-radius:12px; background:#f7f5f0; }
+        .automation-metric b { display:block; color:#19385f; font-size:1.15rem; }
+        .automation-metric span { color:#718096; font-size:.58rem; font-weight:800; text-transform:uppercase; }
+        .automation-errors { grid-column:1/-1; margin-top:14px; padding:20px; border:1px solid #e7e0d5; border-radius:19px; background:#fbfaf7; }
+        .automation-errors h3 { margin:0 0 12px; color:#19385f; font-size:.86rem; }
+        .automation-error-row { display:grid; grid-template-columns:150px minmax(0,1fr) auto; gap:12px; align-items:center; padding:11px 0; border-top:1px solid #ece6dc; color:#53657c; font-size:.7rem; }
+        .automation-error-row:first-child { border-top:0; }
+        .automation-error-row strong { color:#8e3030; }
+        .automation-empty { margin:0; padding:16px; border-radius:12px; background:#edf8f1; color:#267247; font-size:.75rem; }
+        .automation-footer { display:flex; justify-content:space-between; gap:12px; margin-top:18px; color:#8490a0; font-size:.65rem; }
+        .automation-shortcuts { display:flex; gap:8px; flex-wrap:wrap; }
+        .automation-shortcuts button { min-height:38px; padding:9px 12px; border:1px solid #ddd5c9; border-radius:10px; background:#fff; color:#19385f; font-size:.62rem; font-weight:900; cursor:pointer; }
+        @media(max-width:800px) {
+            header { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; gap:8px; }
+            .admin-menu-trigger { min-width:44px; width:44px; height:44px; padding:0; justify-content:center; }
+            .admin-menu-trigger-label { display:none; }
+            .header-title { text-align:center; }
+            .sidebar { display:block!important; width:min(92vw,380px)!important; padding:18px 14px; }
+            .sidebar-head h3 { grid-column:auto; margin:0; }
+            .automation-shell { padding:18px 14px; }
+            .automation-header { align-items:flex-start; flex-direction:column; }
+            .automation-summary,.automation-grid { grid-template-columns:1fr 1fr; }
+            .automation-error-row { grid-template-columns:1fr; gap:4px; }
+        }
+        @media(max-width:520px) {
+            .automation-summary,.automation-grid { grid-template-columns:1fr; }
+            .automation-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+            .automation-footer { flex-direction:column; }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1391,34 +1475,58 @@
     </div>
 
     <header>
+        <button type="button" class="admin-menu-trigger admin-menu-trigger--left" onclick="toggleMenu('operacao')" aria-label="Abrir menu de operação" aria-controls="sidebar-operacao">
+            <span class="admin-menu-trigger-icon" aria-hidden="true">☰</span><span class="admin-menu-trigger-label">Operação</span>
+        </button>
         <button type="button" class="header-title" onclick="switchTab('tab-inicio')" aria-label="Voltar ao início do painel">Controle Tio Nan</button>
-        <div class="menu-icon" onclick="toggleMenu()"><span>☰</span></div>
+        <button type="button" class="admin-menu-trigger admin-menu-trigger--right" onclick="toggleMenu('gestao')" aria-label="Abrir menu de gestão" aria-controls="sidebar-gestao">
+            <span class="admin-menu-trigger-label">Gestão</span><span class="admin-menu-trigger-icon" aria-hidden="true">☰</span>
+        </button>
     </header>
 
-    <div class="overlay-menu" id="overlay-menu" onclick="toggleMenu()"></div>
+    <div class="overlay-menu" id="overlay-menu" onclick="fecharMenus()"></div>
 
-    <nav class="sidebar" id="sidebar">
-        <h3>CONTROLE TIO NAN</h3>
-        <button class="nav-item" onclick="switchTab('tab-inicio')">Início ⌂</button>
-        <button class="nav-item" onclick="switchTab('tab-pedidos')">Pedidos e vendas 🛒</button>
-        <button class="nav-item" onclick="switchTab('tab-pdv')">Venda no balcão 💰</button>
-        <button class="nav-item" onclick="switchTab('tab-clientes')">Clientes 👥</button>
-        <button class="nav-item" onclick="switchTab('tab-email-marketing')">E-mail marketing ✉️</button>
-        <button class="nav-item" onclick="switchTab('tab-whatsapp')">Fila de WhatsApp 💬</button>
-        <button class="nav-item" onclick="switchTab('tab-historico')">Histórico 📜</button>
-        <button class="nav-item" onclick="switchTab('tab-estoque')">Produtos e estoque 📦</button>
-        <button class="nav-item" onclick="switchTab('tab-cadastro')">Cadastrar produto ➕</button>
-        <button class="nav-item" onclick="switchTab('tab-embalagens')">Embalagens para envio 📫</button>
-        <button class="nav-item" onclick="switchTab('tab-envase')">Controle de envase 🧴</button>
-        <button class="nav-item" onclick="switchTab('tab-notas-compra')">Notas de compra 🧾</button>
-        <button class="nav-item" onclick="switchTab('tab-consignacao')">Consignação 🏢</button>
-        <button class="nav-item" onclick="switchTab('tab-stats')">Resultados 📊</button>
-        <button class="nav-item" onclick="switchTab('tab-rastreio')">Atividade do site 👁️</button>
-        <button class="nav-item" onclick="switchTab('tab-avaliacoes')">Avaliações ⭐</button>
-        <button class="nav-item" onclick="switchTab('tab-cupons')">Cupons 🏷️</button>
-        <button class="nav-item" onclick="testarConexaoFrenet(this)">Testar conexão Frenet 🚚</button>
-        <button class="nav-item" onclick="reconectarBling()">Reconectar Bling 🔄</button>
-        <button class="nav-item" onclick="fazerLogout()" style="color: var(--red-premium); font-weight: bold; margin-top: 20px;">Sair do Painel 🚪</button>
+    <nav class="sidebar sidebar--left" id="sidebar-operacao" aria-label="Menu de operação">
+        <div class="sidebar-head"><div><span class="sidebar-kicker">Rotina e produção</span><h3>Operação</h3></div><button type="button" class="sidebar-close" onclick="fecharMenus()" aria-label="Fechar menu">×</button></div>
+        <div class="sidebar-groups">
+            <section class="sidebar-group"><span class="sidebar-group-title">Dia a dia</span>
+                <button class="nav-item" onclick="switchTab('tab-inicio')"><span class="nav-icon">⌂</span>Início</button>
+                <button class="nav-item" onclick="switchTab('tab-pedidos')"><span class="nav-icon">🛒</span>Pedidos e vendas</button>
+                <button class="nav-item" onclick="switchTab('tab-pdv')"><span class="nav-icon">💰</span>Venda no balcão</button>
+                <button class="nav-item" onclick="switchTab('tab-historico')"><span class="nav-icon">📜</span>Histórico</button>
+            </section>
+            <section class="sidebar-group"><span class="sidebar-group-title">Produtos e produção</span>
+                <button class="nav-item" onclick="switchTab('tab-estoque')"><span class="nav-icon">📦</span>Produtos e estoque</button>
+                <button class="nav-item" onclick="switchTab('tab-cadastro')"><span class="nav-icon">➕</span>Cadastrar produto</button>
+                <button class="nav-item" onclick="switchTab('tab-envase')"><span class="nav-icon">🧴</span>Controle de envase</button>
+                <button class="nav-item" onclick="switchTab('tab-embalagens')"><span class="nav-icon">📫</span>Embalagens para envio</button>
+                <button class="nav-item" onclick="switchTab('tab-notas-compra')"><span class="nav-icon">🧾</span>Notas de compra</button>
+                <button class="nav-item" onclick="switchTab('tab-consignacao')"><span class="nav-icon">🏢</span>Consignação</button>
+            </section>
+        </div>
+    </nav>
+
+    <nav class="sidebar sidebar--right" id="sidebar-gestao" aria-label="Menu de gestão">
+        <div class="sidebar-head"><div><span class="sidebar-kicker">Clientes e crescimento</span><h3>Gestão</h3></div><button type="button" class="sidebar-close" onclick="fecharMenus()" aria-label="Fechar menu">×</button></div>
+        <div class="sidebar-groups">
+            <section class="sidebar-group"><span class="sidebar-group-title">Relacionamento</span>
+                <button class="nav-item" onclick="switchTab('tab-automacoes')"><span class="nav-icon">⚡</span>Central de automações</button>
+                <button class="nav-item" onclick="switchTab('tab-clientes')"><span class="nav-icon">👥</span>Clientes</button>
+                <button class="nav-item" onclick="switchTab('tab-email-marketing')"><span class="nav-icon">✉️</span>E-mail marketing</button>
+                <button class="nav-item" onclick="switchTab('tab-whatsapp')"><span class="nav-icon">💬</span>Fila de WhatsApp</button>
+                <button class="nav-item" onclick="switchTab('tab-avaliacoes')"><span class="nav-icon">⭐</span>Avaliações</button>
+                <button class="nav-item" onclick="switchTab('tab-cupons')"><span class="nav-icon">🏷️</span>Cupons</button>
+            </section>
+            <section class="sidebar-group"><span class="sidebar-group-title">Análise</span>
+                <button class="nav-item" onclick="switchTab('tab-stats')"><span class="nav-icon">📊</span>Resultados</button>
+                <button class="nav-item" onclick="switchTab('tab-rastreio')"><span class="nav-icon">👁️</span>Atividade do site</button>
+            </section>
+        </div>
+        <div class="sidebar-tools">
+            <button class="nav-item" onclick="testarConexaoFrenet(this)">Testar Frenet 🚚</button>
+            <button class="nav-item" onclick="reconectarBling()">Reconectar Bling 🔄</button>
+        </div>
+        <button class="nav-item sidebar-logout" onclick="fazerLogout()">Sair do painel 🚪</button>
     </nav>
 
     <div id="tab-inicio" class="tab-content">
@@ -1464,6 +1572,41 @@
                 </button>
             </div>
         </section>
+    </div>
+
+    <div id="tab-automacoes" class="tab-content">
+        <div class="card automation-shell">
+            <div class="automation-header">
+                <div><span class="sidebar-kicker">Relacionamento automático</span><h2>Central de Automações</h2><p>Acompanhe o que o sistema envia sozinho e identifique rapidamente qualquer falha.</p></div>
+                <button type="button" class="btn-status automation-refresh" onclick="carregarCentralAutomacoes(true)">↻ ATUALIZAR</button>
+            </div>
+            <div class="automation-summary">
+                <article class="automation-stat"><span>Automações ativas</span><strong id="auto-ativas">4</strong><small>boas-vindas, carrinho, avaliação e recompra</small></article>
+                <article class="automation-stat"><span>Inscritos autorizados</span><strong id="auto-inscritos">—</strong><small>aptos a receber novidades</small></article>
+                <article class="automation-stat"><span>Carrinhos recuperados</span><strong id="auto-recuperados">—</strong><small>compras retomadas depois do lembrete</small></article>
+                <article class="automation-stat"><span>Falhas pendentes</span><strong id="auto-falhas">—</strong><small>itens que precisam de atenção</small></article>
+            </div>
+            <div class="automation-grid">
+                <article class="automation-card">
+                    <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">👋</span><div><h3>Boas-vindas</h3><p>Enviado logo após a inscrição na newsletter.</p></div></div><span class="automation-status">Ativa</span></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-boas-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-boas-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-boas-erros">—</b><span>Falhas</span></div></div>
+                </article>
+                <article class="automation-card">
+                    <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">🛒</span><div><h3>Carrinho abandonado</h3><p>Lembrete enviado duas horas depois da última atividade.</p></div></div><span class="automation-status">Ativa</span></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-carrinhos-enviados">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-carrinhos-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-carrinhos-erros">—</b><span>Falhas</span></div></div>
+                </article>
+                <article class="automation-card">
+                    <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">⭐</span><div><h3>Pedido de avaliação</h3><p>Enviado três dias depois que o pedido é concluído.</p></div></div><span class="automation-status">Ativa</span></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-avaliacoes-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-avaliacoes-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-avaliacoes-erros">—</b><span>Falhas</span></div></div>
+                </article>
+                <article class="automation-card">
+                    <div class="automation-card-head"><div class="automation-card-title"><span class="automation-card-icon">🥃</span><div><h3>Lembrete de recompra</h3><p>Enviado após 45 dias, apenas para clientes autorizados.</p></div></div><span class="automation-status">Ativa</span></div>
+                    <div class="automation-metrics"><div class="automation-metric"><b id="auto-recompras-enviadas">—</b><span>Enviados</span></div><div class="automation-metric"><b id="auto-recompras-pendentes">—</b><span>Pendentes</span></div><div class="automation-metric"><b id="auto-recompras-erros">—</b><span>Falhas</span></div></div>
+                </article>
+                <section class="automation-errors"><h3>Itens que precisam de atenção</h3><div id="auto-lista-erros"><p class="automation-empty">Carregando o diagnóstico das automações…</p></div></section>
+            </div>
+            <div class="automation-footer"><div class="automation-shortcuts"><button type="button" onclick="switchTab('tab-email-marketing')">CRIAR CAMPANHA</button><button type="button" onclick="switchTab('tab-clientes')">VER CLIENTES</button><button type="button" onclick="switchTab('tab-whatsapp')">ABRIR FILA DO WHATSAPP</button></div><span id="auto-atualizado">Ainda não atualizado</span></div>
+        </div>
     </div>
 
     <div id="tab-pedidos" class="tab-content">
@@ -2180,17 +2323,17 @@
         document.addEventListener('touchend', e => {
             const touchEndX = e.changedTouches[0].screenX;
             const touchEndY = e.changedTouches[0].screenY;
-            const sidebar = document.getElementById('sidebar');
+            const sidebar = document.getElementById('sidebar-gestao');
             const isActive = sidebar.classList.contains('active');
 
             // Abrir (Swipe Left)
             if (isSwiping && touchStartX - touchEndX > 50 && !isActive) {
-                toggleMenu();
+                toggleMenu('gestao');
             }
 
             // Fechar (Swipe Right - simplificado para fechar fácil)
             if (isActive && touchEndX - touchStartX > 70) {
-                toggleMenu();
+                fecharMenus();
             }
             isSwiping = false;
         }, { passive: true });
@@ -2365,7 +2508,19 @@
         let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoEmpresaAtual = null;
         let embalagens = [];
 
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay-menu').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none'; }
+        function fecharMenus() {
+            document.querySelectorAll('.sidebar').forEach(menu => menu.classList.remove('active'));
+            document.getElementById('overlay-menu').style.display = 'none';
+        }
+        function toggleMenu(lado = 'gestao') {
+            const alvo = document.getElementById(lado === 'operacao' ? 'sidebar-operacao' : 'sidebar-gestao');
+            const estavaAberto = alvo?.classList.contains('active');
+            fecharMenus();
+            if (alvo && !estavaAberto) {
+                alvo.classList.add('active');
+                document.getElementById('overlay-menu').style.display = 'block';
+            }
+        }
         function fecharTodosModais() { document.querySelectorAll('.modal-box').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
         function fecharModalAoClicarFora() {
             const envaseAberto = document.getElementById('modal-envase')?.style.display === 'block';
@@ -2405,13 +2560,16 @@
 
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); if (n.getAttribute('onclick').includes(id)) n.classList.add('active'); });
-            document.getElementById(id).classList.add('active');
-            if (window.innerWidth < 800 && document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+            document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); if ((n.getAttribute('onclick') || '').includes(id)) n.classList.add('active'); });
+            const destino = document.getElementById(id);
+            if (!destino) return;
+            destino.classList.add('active');
+            fecharMenus();
             const float = document.getElementById('pdv-floating-cart');
             if (float) float.style.display = (id === 'tab-pdv' && adminCart.length > 0) ? 'flex' : 'none';
             localStorage.setItem('abaAtivaTioNan', id);
             if (id === 'tab-clientes') carregarClientes();
+            if (id === 'tab-automacoes') carregarCentralAutomacoes();
             if (id === 'tab-email-marketing') carregarEmailMarketing();
             if (id === 'tab-whatsapp') carregarFilaWhatsApp();
             if (id === 'tab-avaliacoes') carregarAvaliacoes();
@@ -2420,6 +2578,78 @@
             if (id === 'tab-notas-compra') carregarNotasCompra();
             if (id === 'tab-embalagens') carregarEmbalagens();
             if (id === 'tab-consignacao') carregarConsignacao();
+        }
+
+        let centralAutomacoesCarregada = false;
+        const preencherMetricaAutomacao = (id, valor) => {
+            const elemento = document.getElementById(id);
+            if (elemento) elemento.textContent = Number(valor || 0).toLocaleString('pt-BR');
+        };
+        async function carregarCentralAutomacoes(forcar = false) {
+            if (centralAutomacoesCarregada && !forcar) return;
+            const lista = document.getElementById('auto-lista-erros');
+            const atualizado = document.getElementById('auto-atualizado');
+            if (!lista) return;
+            lista.innerHTML = '<p class="automation-empty">Atualizando os indicadores…</p>';
+            try {
+                const agora = new Date();
+                const tresDiasAtras = new Date(agora.getTime() - 3 * 86400000).toISOString();
+                const quarentaCincoDiasAtras = new Date(agora.getTime() - 45 * 86400000).toISOString();
+                // Três leituras agrupadas são mais estáveis do que muitas contagens
+                // simultâneas e permitem montar todos os indicadores no navegador.
+                const newsletterResultado = await db.from('newsletter_inscritos').select('email,consentimento,boas_vindas_status,boas_vindas_enviado_em,boas_vindas_erro,atualizado_em');
+                if (newsletterResultado.error) throw new Error(`Newsletter: ${newsletterResultado.error.message || newsletterResultado.error.details || 'consulta recusada'}`);
+                const carrinhosResultado = await db.from('carrinhos_abandonados').select('email,status,consentimento,enviado_em,erro,atualizado_em');
+                if (carrinhosResultado.error) throw new Error(`Carrinhos: ${carrinhosResultado.error.message || carrinhosResultado.error.details || 'consulta recusada'}`);
+                const pedidosResultado = await db.from('pedidos').select('referencia,cliente_nome,cliente_email,status,concluido_em,email_avaliacao_enviado_em,email_avaliacao_erro,email_recompra_enviado_em,email_recompra_erro,atualizado_em');
+                if (pedidosResultado.error) throw new Error(`Pedidos: ${pedidosResultado.error.message || pedidosResultado.error.details || 'consulta recusada'}`);
+
+                const newsletters = newsletterResultado.data || [];
+                const carrinhos = carrinhosResultado.data || [];
+                const pedidosAutomacao = pedidosResultado.data || [];
+                const inscritos = newsletters.filter(item => item.consentimento === true).length;
+                const boasEnviadas = newsletters.filter(item => item.boas_vindas_enviado_em).length;
+                const boasPendentes = newsletters.filter(item => item.consentimento === true && !item.boas_vindas_enviado_em && (!item.boas_vindas_status || item.boas_vindas_status === 'enviando')).length;
+                const boasErros = newsletters.filter(item => item.boas_vindas_status === 'erro' || item.boas_vindas_erro).length;
+                const carrinhosEnviados = carrinhos.filter(item => item.enviado_em).length;
+                const carrinhosPendentes = carrinhos.filter(item => ['ativo','enviando'].includes(item.status) && item.consentimento === true && !item.enviado_em).length;
+                const carrinhosErros = carrinhos.filter(item => item.status === 'erro' || item.erro).length;
+                const carrinhosRecuperados = carrinhos.filter(item => item.status === 'convertido').length;
+                const avaliacoesEnviadas = pedidosAutomacao.filter(item => item.email_avaliacao_enviado_em).length;
+                const avaliacoesPendentes = pedidosAutomacao.filter(item => item.status === 'Concluído' && item.cliente_email && !item.email_avaliacao_enviado_em && item.concluido_em && item.concluido_em <= tresDiasAtras).length;
+                const avaliacoesErros = pedidosAutomacao.filter(item => item.email_avaliacao_erro).length;
+                const recomprasEnviadas = pedidosAutomacao.filter(item => item.email_recompra_enviado_em).length;
+                const recomprasPendentes = pedidosAutomacao.filter(item => item.status === 'Concluído' && item.cliente_email && !item.email_recompra_enviado_em && item.concluido_em && item.concluido_em <= quarentaCincoDiasAtras).length;
+                const recomprasErros = pedidosAutomacao.filter(item => item.email_recompra_erro).length;
+
+                const valores = {
+                    'auto-inscritos': inscritos, 'auto-recuperados': carrinhosRecuperados,
+                    'auto-boas-enviadas': boasEnviadas, 'auto-boas-pendentes': boasPendentes, 'auto-boas-erros': boasErros,
+                    'auto-carrinhos-enviados': carrinhosEnviados, 'auto-carrinhos-pendentes': carrinhosPendentes, 'auto-carrinhos-erros': carrinhosErros,
+                    'auto-avaliacoes-enviadas': avaliacoesEnviadas, 'auto-avaliacoes-pendentes': avaliacoesPendentes, 'auto-avaliacoes-erros': avaliacoesErros,
+                    'auto-recompras-enviadas': recomprasEnviadas, 'auto-recompras-pendentes': recomprasPendentes, 'auto-recompras-erros': recomprasErros,
+                    'auto-falhas': boasErros + carrinhosErros + avaliacoesErros + recomprasErros
+                };
+                Object.entries(valores).forEach(([id, valor]) => preencherMetricaAutomacao(id, valor));
+
+                const falhas = [];
+                newsletters.filter(item => item.boas_vindas_erro).forEach(item => falhas.push({ tipo:'Boas-vindas', pessoa:item.email, erro:item.boas_vindas_erro, data:item.atualizado_em }));
+                carrinhos.filter(item => item.erro).forEach(item => falhas.push({ tipo:'Carrinho', pessoa:item.email, erro:item.erro, data:item.atualizado_em }));
+                pedidosAutomacao.forEach(item => {
+                    if (item.email_avaliacao_erro) falhas.push({ tipo:'Avaliação', pessoa:item.cliente_nome || item.referencia, erro:item.email_avaliacao_erro, data:item.atualizado_em });
+                    if (item.email_recompra_erro) falhas.push({ tipo:'Recompra', pessoa:item.cliente_nome || item.referencia, erro:item.email_recompra_erro, data:item.atualizado_em });
+                });
+                falhas.sort((a,b) => new Date(b.data || 0) - new Date(a.data || 0));
+                lista.innerHTML = falhas.length ? falhas.slice(0,8).map(item => `<div class="automation-error-row"><strong>${escapeAdmin(item.tipo)}</strong><span><b>${escapeAdmin(item.pessoa || 'Sem identificação')}</b><br>${escapeAdmin(String(item.erro || 'Erro não detalhado').slice(0,180))}</span><time>${item.data ? new Date(item.data).toLocaleString('pt-BR') : '—'}</time></div>`).join('') : '<p class="automation-empty">✓ Tudo certo. Nenhuma falha pendente nas automações.</p>';
+                centralAutomacoesCarregada = true;
+                atualizado.textContent = `Atualizado em ${agora.toLocaleString('pt-BR')}`;
+                if (forcar) showToast('Central de automações atualizada.');
+            } catch (error) {
+                console.error('Erro ao carregar central de automações:', error);
+                const mensagemErro = error?.message || error?.details || error?.hint || JSON.stringify(error) || String(error);
+                lista.innerHTML = `<p class="automation-empty" style="background:#fff0f0;color:#8e3030">Não foi possível carregar os indicadores: ${escapeAdmin(mensagemErro)}</p>`;
+                if (atualizado) atualizado.textContent = 'Falha na atualização';
+            }
         }
 
         let ordemBlocosMarketing = ['logo', 'titulo', 'texto', 'botao'];
@@ -5684,18 +5914,20 @@
 
             if (Math.abs(deltaX) > threshold && document.getElementById('overlay').style.display !== 'block') {
                 if (deltaX > 0) {
-                    // Deslizar para a DIREITA (Fechar menu ou voltar aba)
-                    if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+                    // Borda esquerda abre a operação; fora dela mantém a navegação entre telas.
+                    if (document.querySelector('.sidebar.active')) fecharMenus();
+                    else if (touchstartX < edgeThreshold) toggleMenu('operacao');
                     else navigateTabs(-1);
                 } else {
-                    // Deslizar para a ESQUERDA (Abrir menu ou avançar aba)
-                    if (touchstartX > (window.innerWidth - edgeThreshold)) toggleMenu();
+                    // Borda direita abre a gestão.
+                    if (document.querySelector('.sidebar.active')) fecharMenus();
+                    else if (touchstartX > (window.innerWidth - edgeThreshold)) toggleMenu('gestao');
                     else navigateTabs(1);
                 }
             }
         }
         function navigateTabs(direction) {
-            const abas = ['tab-pedidos', 'tab-pdv', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-historico', 'tab-estoque', 'tab-embalagens', 'tab-envase', 'tab-notas-compra', 'tab-consignacao', 'tab-stats', 'tab-cadastro', 'tab-rastreio', 'tab-avaliacoes', 'tab-cupons'];
+            const abas = ['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-automacoes', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-avaliacoes', 'tab-cupons', 'tab-stats', 'tab-rastreio'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
