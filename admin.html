@@ -1466,6 +1466,170 @@
             .automation-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
             .automation-footer { flex-direction:column; }
         }
+
+        /* No celular o painel vira uma central exclusivamente operacional. */
+        .mobile-operation-nav,.mobile-label { display:none; }
+        @media(max-width:800px) {
+            html { overflow-x:hidden; }
+            body {
+                width:100%;
+                min-height:100dvh;
+                padding-top:calc(76px + env(safe-area-inset-top));
+                padding-bottom:calc(92px + env(safe-area-inset-bottom));
+                overflow-x:hidden;
+            }
+            header {
+                height:calc(64px + env(safe-area-inset-top));
+                padding:env(safe-area-inset-top) 12px 0;
+                grid-template-columns:48px minmax(0,1fr) 48px;
+            }
+            .admin-menu-trigger--right { visibility:hidden; pointer-events:none; }
+            #sidebar-gestao { display:none!important; }
+            #sidebar-operacao {
+                top:0;
+                bottom:0;
+                width:min(92vw,390px)!important;
+                max-width:390px;
+                height:100dvh;
+                padding:calc(18px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
+                border-radius:0 24px 24px 0;
+            }
+            #sidebar-operacao .sidebar-group { padding:7px; }
+            #sidebar-operacao .nav-item { min-height:48px; font-size:.7rem; }
+            .header-title { max-width:100%; font-size:clamp(.95rem,5vw,1.25rem); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+            .mobile-operation-nav {
+                position:fixed;
+                z-index:1350;
+                left:8px;
+                right:8px;
+                bottom:calc(8px + env(safe-area-inset-bottom));
+                display:grid;
+                grid-template-columns:repeat(5,minmax(0,1fr));
+                gap:3px;
+                padding:7px;
+                border:1px solid #ded7cc;
+                border-radius:20px;
+                background:rgba(255,255,255,.97);
+                box-shadow:0 14px 42px rgba(25,56,95,.2);
+                backdrop-filter:blur(18px);
+            }
+            .mobile-operation-nav button {
+                display:flex;
+                min-width:0;
+                min-height:55px;
+                padding:6px 2px;
+                flex-direction:column;
+                align-items:center;
+                justify-content:center;
+                gap:4px;
+                border:0;
+                border-radius:14px;
+                background:transparent;
+                color:#66788e;
+                font-family:var(--font-body);
+                font-size:.52rem;
+                font-weight:850;
+                letter-spacing:.2px;
+                line-height:1.05;
+                cursor:pointer;
+            }
+            .mobile-operation-nav button span { font-size:1.12rem; line-height:1; }
+            .mobile-operation-nav button.active { background:#19385f; color:#fff; }
+
+            .tab-content { width:100%; max-width:100%; padding:0 10px; }
+            .tab-content.active { animation:none; }
+            .card { width:100%; padding:18px 12px; margin-bottom:12px; border-radius:18px; overflow:hidden; }
+            h2 { margin-bottom:16px; font-size:1rem; letter-spacing:1px; }
+
+            .admin-home { padding:8px 0 0; }
+            .admin-home-intro { margin:0 0 12px; padding:0 4px; }
+            .admin-home-kicker .mobile-label { display:inline; }
+            .admin-home-kicker .desktop-label { display:none; }
+            .admin-home-grid { grid-template-columns:1fr; gap:11px; }
+            .admin-home-card,
+            .admin-home-card--pedidos,
+            .admin-home-card--estoque,
+            .admin-home-card--consignacao,
+            .admin-home-card--embalagens,
+            .admin-home-card--envase {
+                grid-column:1;
+                min-height:0;
+                padding:18px;
+                border-radius:18px;
+            }
+            .admin-home-card { display:grid; grid-template-columns:42px minmax(0,1fr); column-gap:12px; }
+            .admin-home-group { grid-column:1/-1; justify-self:start; margin-bottom:10px; }
+            .admin-home-icon { grid-column:1; grid-row:2; width:42px; height:42px; margin:0; }
+            .admin-home-card h2 { grid-column:2; grid-row:2; align-self:center; margin:0; text-align:left; }
+            .admin-home-metric,.admin-home-breakdown { grid-column:1/-1; margin:16px 0!important; }
+            .admin-home-link { grid-column:1/-1; }
+            #home-insumos,#home-estoque { grid-template-columns:repeat(2,minmax(0,1fr)); }
+
+            .admin-order-summary,
+            #tab-consignacao .admin-order-summary { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+            .admin-summary-card { min-width:0; padding:13px; border-radius:13px; }
+            .admin-summary-card b { font-size:1.05rem; overflow-wrap:anywhere; }
+            .pedidos-filtros { margin-left:-2px; margin-right:-2px; padding:2px 2px 8px; scrollbar-width:none; }
+            .pedidos-filtros::-webkit-scrollbar { display:none; }
+            .order-row { grid-template-columns:minmax(0,1fr); padding:14px 12px; }
+            .order-row .order-checkbox,.order-row .status-container { grid-column:1; }
+            .status-container { width:100%; align-items:stretch; text-align:left; }
+            .status-badge,.btn-whats-mini { width:100%!important; }
+
+            .pdv-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding-bottom:90px; }
+            .pdv-card { min-width:0; padding:12px 8px; border-radius:15px; }
+            .pdv-card img { height:90px; margin:5px 0; }
+            .pdv-name { min-height:34px; font-size:.72rem; }
+            .pdv-price { font-size:1rem; }
+            #pdv-floating-cart { bottom:calc(86px + env(safe-area-inset-bottom))!important; }
+            #bulk-actions-bar { bottom:calc(88px + env(safe-area-inset-bottom))!important; }
+
+            #tab-estoque .card>div:first-child,
+            #tab-embalagens .card>div:first-child,
+            #tab-envase .card>div:first-child,
+            #tab-notas-compra .card>div:first-child,
+            #tab-consignacao .card>div:first-child {
+                align-items:stretch!important;
+                flex-direction:column;
+            }
+            #tab-estoque .card>div:first-child>div:last-child,
+            #tab-envase .card>div:first-child>div:last-child { display:grid!important; width:100%; grid-template-columns:1fr; }
+            #tab-estoque .card>div:first-child button,
+            #tab-embalagens .card>div:first-child button,
+            #tab-envase .card>div:first-child button,
+            #tab-notas-compra .card>div:first-child button,
+            #tab-consignacao .card>div:first-child button { width:100%!important; min-height:46px; margin:0!important; }
+            .estoque-row { padding:15px 12px; overflow-wrap:anywhere; }
+            .estoque-saldo-bling { width:100%; min-width:0; }
+
+            .produto-precos-grid { grid-template-columns:1fr; }
+            .produto-foto-upload { grid-template-columns:72px minmax(0,1fr); padding:10px; }
+            .produto-foto-preview { width:72px; }
+            .produto-foto-upload input[type="file"] { width:100%; }
+
+            .modal-box,.modal-box[style] {
+                width:calc(100vw - 12px)!important;
+                max-width:calc(100vw - 12px)!important;
+                max-height:calc(100dvh - 12px)!important;
+                padding:18px 12px!important;
+                border-radius:18px;
+            }
+            #modal-pedido { width:calc(100vw - 12px)!important; max-height:calc(100dvh - 12px)!important; }
+            #modal-pedido .pedido-modal-topo { padding:17px 14px 14px; }
+            #modal-pedido .pedido-modal-corpo { padding:14px; }
+            #modal-pedido .pedido-total { align-items:flex-start; flex-direction:column; }
+            #modal-pedido .pedido-total strong { font-size:1.45rem; }
+            input,select,textarea { width:100%; max-width:100%; }
+            .mobile-operation-logout { display:flex!important; margin-top:12px!important; justify-content:center!important; color:#9a3333!important; background:#fff3f3!important; }
+        }
+
+        @media(max-width:360px) {
+            .mobile-operation-nav { left:4px; right:4px; padding:5px 3px; }
+            .mobile-operation-nav button { font-size:.46rem; }
+            .pdv-grid { grid-template-columns:1fr; }
+            .admin-order-summary,#tab-consignacao .admin-order-summary,#home-insumos,#home-estoque { grid-template-columns:1fr; }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1524,6 +1688,7 @@
                 <button class="nav-item" onclick="switchTab('tab-consignacao')"><span class="nav-icon">🏢</span>Consignação</button>
             </section>
         </div>
+        <button class="nav-item mobile-operation-logout" style="display:none" onclick="fazerLogout()">Sair do painel 🚪</button>
     </nav>
 
     <nav class="sidebar sidebar--right" id="sidebar-gestao" aria-label="Menu de gestão">
@@ -1549,10 +1714,18 @@
         <button class="nav-item sidebar-logout" onclick="fazerLogout()">Sair do painel 🚪</button>
     </nav>
 
+    <nav class="mobile-operation-nav" aria-label="Atalhos da operação">
+        <button type="button" data-mobile-tab="tab-inicio" onclick="switchTab('tab-inicio')"><span aria-hidden="true">⌂</span>Início</button>
+        <button type="button" data-mobile-tab="tab-pedidos" onclick="switchTab('tab-pedidos')"><span aria-hidden="true">🛒</span>Pedidos</button>
+        <button type="button" data-mobile-tab="tab-pdv" onclick="switchTab('tab-pdv')"><span aria-hidden="true">💰</span>Balcão</button>
+        <button type="button" data-mobile-tab="tab-estoque" onclick="switchTab('tab-estoque')"><span aria-hidden="true">📦</span>Estoque</button>
+        <button type="button" onclick="toggleMenu('operacao')"><span aria-hidden="true">☰</span>Mais</button>
+    </nav>
+
     <div id="tab-inicio" class="tab-content">
         <section class="admin-home" aria-label="Painel administrativo">
             <div class="admin-home-intro">
-                <span class="admin-home-kicker">Painel administrativo</span>
+                <span class="admin-home-kicker"><span class="desktop-label">Painel administrativo</span><span class="mobile-label">Central de operação</span></span>
             </div>
             <div class="admin-home-grid">
                 <button type="button" class="admin-home-card admin-home-card--pedidos" onclick="switchTab('tab-pedidos')">
@@ -2336,6 +2509,7 @@
         }, { passive: true });
 
         document.addEventListener('touchmove', e => {
+            if (isMobileOperationMode()) return;
             const touchMoveX = e.changedTouches[0].screenX;
             const touchMoveY = e.changedTouches[0].screenY;
 
@@ -2350,6 +2524,10 @@
         }, { passive: false });
 
         document.addEventListener('touchend', e => {
+            if (isMobileOperationMode()) {
+                isSwiping = false;
+                return;
+            }
             const touchEndX = e.changedTouches[0].screenX;
             const touchEndY = e.changedTouches[0].screenY;
             const sidebar = document.getElementById('sidebar-gestao');
@@ -2536,12 +2714,28 @@
         let sel = null; let adminCart = []; let statsMensal = {}; let nfeContexto = null;
         let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoEmpresaAtual = null;
         let embalagens = [];
+        const ABAS_OPERACAO_MOBILE = new Set(['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao']);
+
+        function isMobileOperationMode() {
+            return window.matchMedia('(max-width: 800px)').matches;
+        }
+
+        function atualizarNavegacaoOperacaoMobile(idAtivo) {
+            document.querySelectorAll('.mobile-operation-nav [data-mobile-tab]').forEach(botao => {
+                botao.classList.toggle('active', botao.dataset.mobileTab === idAtivo);
+            });
+        }
+
+        function garantirAbaPermitidaNoDispositivo(id) {
+            return isMobileOperationMode() && !ABAS_OPERACAO_MOBILE.has(id) ? 'tab-inicio' : id;
+        }
 
         function fecharMenus() {
             document.querySelectorAll('.sidebar').forEach(menu => menu.classList.remove('active'));
             document.getElementById('overlay-menu').style.display = 'none';
         }
         function toggleMenu(lado = 'gestao') {
+            if (isMobileOperationMode()) lado = 'operacao';
             const alvo = document.getElementById(lado === 'operacao' ? 'sidebar-operacao' : 'sidebar-gestao');
             const estavaAberto = alvo?.classList.contains('active');
             fecharMenus();
@@ -2588,11 +2782,13 @@
         }
 
         function switchTab(id) {
+            id = garantirAbaPermitidaNoDispositivo(id);
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); if ((n.getAttribute('onclick') || '').includes(id)) n.classList.add('active'); });
             const destino = document.getElementById(id);
             if (!destino) return;
             destino.classList.add('active');
+            atualizarNavegacaoOperacaoMobile(id);
             fecharMenus();
             const float = document.getElementById('pdv-floating-cart');
             if (float) float.style.display = (id === 'tab-pdv' && adminCart.length > 0) ? 'flex' : 'none';
@@ -6017,6 +6213,11 @@
             const edgeThreshold = 100; // Área de borda maior (antes era 60)
 
             if (Math.abs(deltaX) > threshold && document.getElementById('overlay').style.display !== 'block') {
+                if (isMobileOperationMode()) {
+                    if (document.querySelector('.sidebar.active')) fecharMenus();
+                    else if (deltaX > 0 && touchstartX < edgeThreshold) toggleMenu('operacao');
+                    return;
+                }
                 if (deltaX > 0) {
                     // Borda esquerda abre a operação; fora dela mantém a navegação entre telas.
                     if (document.querySelector('.sidebar.active')) fecharMenus();
@@ -6031,11 +6232,19 @@
             }
         }
         function navigateTabs(direction) {
-            const abas = ['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-automacoes', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-avaliacoes', 'tab-cupons', 'tab-stats', 'tab-rastreio'];
+            const abas = isMobileOperationMode()
+                ? Array.from(ABAS_OPERACAO_MOBILE)
+                : ['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-automacoes', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-avaliacoes', 'tab-cupons', 'tab-stats', 'tab-rastreio'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
         }
+
+        window.addEventListener('resize', () => {
+            const abaAtiva = document.querySelector('.tab-content.active')?.id || 'tab-inicio';
+            if (isMobileOperationMode() && !ABAS_OPERACAO_MOBILE.has(abaAtiva)) switchTab('tab-inicio');
+            else atualizarNavegacaoOperacaoMobile(abaAtiva);
+        });
 
         verificarPermissaoNotificacao();
         // --- LÓGICA DE SELEÇÃO POR SEGURAR (LONG PRESS) ---
