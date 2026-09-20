@@ -235,7 +235,7 @@
             border-radius: var(--radius-sm);
             margin-bottom: 15px;
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: minmax(0, 1fr) auto;
             gap: 15px;
             transition: 0.3s;
             align-items: center;
@@ -267,23 +267,6 @@
             font-weight: 900;
             color: var(--text-gold);
             font-size: 1.1rem;
-        }
-
-        .order-checkbox {
-            display: none;
-            /* Escondido por padrão */
-            width: 20px;
-            height: 20px;
-            accent-color: var(--text-gold);
-            cursor: pointer;
-        }
-
-        .selection-mode .order-checkbox {
-            display: block !important;
-        }
-
-        .selection-mode .order-row {
-            border-color: rgba(197, 160, 89, 0.3);
         }
 
         .status-container {
@@ -390,10 +373,6 @@
                 font-size: 0.55rem;
             }
 
-            .order-checkbox {
-                width: 20px !important;
-                height: 20px !important;
-            }
         }
 
         /* Monitoramento Real-Time Premium */
@@ -815,33 +794,6 @@
             transform: scale(1.05);
         }
 
-        @media (max-width: 600px) {
-            #bulk-actions-bar {
-                width: 92% !important;
-                min-width: unset !important;
-                padding: 8px 12px !important;
-                gap: 8px !important;
-                bottom: 20px !important;
-                border-radius: 15px !important;
-            }
-
-            #bulk-count {
-                font-size: 0.55rem !important;
-                padding: 6px 8px !important;
-            }
-
-            #bulk-status {
-                font-size: 0.6rem !important;
-                padding: 8px !important;
-            }
-
-            #bulk-actions-bar button {
-                padding: 10px 12px !important;
-                font-size: 0.6rem !important;
-                border-radius: 10px !important;
-            }
-        }
-
         .modal-header {
             padding: 20px 25px;
             background: #000;
@@ -1170,7 +1122,6 @@
             table { display: block; width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
             #toast-admin { width: calc(100vw - 24px); padding: 14px 18px; border-radius: 18px; text-align: center; line-height: 1.35; }
             #pdv-floating-cart { left: 12px !important; right: 12px !important; bottom: 12px !important; width: auto !important; min-width: 0 !important; max-width: none !important; }
-            #bulk-actions-bar { max-width: calc(100vw - 24px); flex-wrap: wrap; }
         }
 
         @media (max-width: 430px) {
@@ -1182,8 +1133,7 @@
             .admin-home-card { min-height: 0; padding: 20px 16px; }
             .resumo-item { min-width: 100%; }
             .order-row { grid-template-columns: minmax(0, 1fr); }
-            .order-row .order-checkbox, .order-row .status-container { grid-column: 1; }
-            .order-checkbox { width: 24px !important; height: 24px !important; }
+            .order-row .status-container { grid-column: 1; }
         }
         .produto-campo { margin-bottom: 14px; }
         .produto-campo > label {
@@ -1573,7 +1523,7 @@
             .pedidos-filtros { margin-left:-2px; margin-right:-2px; padding:2px 2px 8px; scrollbar-width:none; }
             .pedidos-filtros::-webkit-scrollbar { display:none; }
             .order-row { grid-template-columns:minmax(0,1fr); padding:14px 12px; }
-            .order-row .order-checkbox,.order-row .status-container { grid-column:1; }
+            .order-row .status-container { grid-column:1; }
             .status-container { width:100%; align-items:stretch; text-align:left; }
             .status-badge,.btn-whats-mini { width:100%!important; }
 
@@ -1583,7 +1533,6 @@
             .pdv-name { min-height:34px; font-size:.72rem; }
             .pdv-price { font-size:1rem; }
             #pdv-floating-cart { bottom:calc(86px + env(safe-area-inset-bottom))!important; }
-            #bulk-actions-bar { bottom:calc(88px + env(safe-area-inset-bottom))!important; }
 
             #tab-estoque .card>div:first-child,
             #tab-embalagens .card>div:first-child,
@@ -1835,24 +1784,6 @@
         </div>
     </div>
 
-    <!-- Barra de Ações em Massa -->
-    <div id="bulk-actions-bar"
-        style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--gold-metallic); padding:10px 20px; border-radius:20px; z-index:2000; box-shadow: 0 15px 45px rgba(0,0,0,0.9); align-items:center; gap:12px; border: 1px solid rgba(0,0,0,0.3); width: max-content; min-width: 320px;">
-        <div style="background:#000; color:var(--gold); padding:8px 12px; border-radius:12px; font-weight:900; font-size:0.7rem; border:1px solid rgba(197,160,89,0.3);"
-            id="bulk-count">0 SELECIONADOS</div>
-        <select id="bulk-status"
-            style="padding:10px 15px; border-radius:12px; border:none; background:rgba(0,0,0,0.8); color:#fff; font-weight:800; font-size:0.7rem; margin:0; width:auto; flex:1;">
-            <option value="">NOVO STATUS...</option>
-            <option value="Novo Pedido">Novo Pedido</option>
-            <option value="Confirmado">Confirmado</option>
-            <option value="Em Preparo">Em Preparo</option>
-            <option value="Saiu para Entrega">Saiu para Entrega</option>
-            <option value="Concluído">Concluído</option>
-            <option value="Cancelado">Cancelado</option>
-        </select>
-        <button onclick="aplicarBulkStatus()"
-            style="background:#000; color:#fff; border:none; padding:12px 20px; border-radius:12px; font-weight:900; cursor:pointer; font-size:0.75rem; letter-spacing:1px;">APLICAR</button>
-    </div>
     <div id="tab-historico" class="tab-content">
         <div class="card">
             <h2>Histórico Total</h2>
@@ -4719,15 +4650,7 @@
 
                         const cardPedido = `
                             <div class="order-row ${st === 'Concluído' ? 'order-row--concluido' : st === 'Cancelado' ? 'order-row--cancelado' : ''}" data-pedido-status="${st === 'Concluído' ? 'concluido' : st === 'Cancelado' ? 'cancelado' : 'andamento'}" data-pedido-origem="${isPdv ? 'pdv' : 'site'}"
-                                 onclick="handleOrderClick(event, '${safeData}')"
-                                 onmousedown="startLongPress(event, '${p.id}')" 
-                                 onmouseup="cancelLongPress()" 
-                                 onmouseleave="cancelLongPress()"
-                                 ontouchstart="startLongPress(event, '${p.id}')" 
-                                 ontouchend="cancelLongPress()">
-                                <div style="display:flex; align-items:center;">
-                                    <input type="checkbox" class="order-checkbox" value="${p.id}" onclick="event.stopPropagation(); toggleBulkBar()" style="accent-color:var(--text-gold);">
-                                </div>
+                                 onclick="abrirPedido('${safeData}')">
                                 <div class="order-info">
                                     <span class="order-code">PEDIDO ${codigoPedido(p)}</span>
                                     <span class="order-name">${escapeAdmin(nomeLimpo.toUpperCase())}</span>
@@ -6247,29 +6170,6 @@
         });
 
         verificarPermissaoNotificacao();
-        // --- LÓGICA DE SELEÇÃO POR SEGURAR (LONG PRESS) ---
-        let pressTimer;
-        let isSelectionMode = false;
-
-        function startLongPress(e, id) {
-            if (isSelectionMode) return;
-            pressTimer = window.setTimeout(() => ativarModoSelecao(id), 600);
-        }
-
-        function cancelLongPress() {
-            clearTimeout(pressTimer);
-        }
-
-        function ativarModoSelecao(firstId) {
-            isSelectionMode = true;
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('selection-mode'));
-            const cb = document.querySelector(`.order-checkbox[value="${firstId}"]`);
-            if (cb) {
-                cb.checked = true;
-                toggleBulkBar();
-                showToast("Modo de seleção ativado");
-            }
-        }
 
         function filtrarPedidos(filtro='todos', botao=null) {
             window.filtroPedidosAtual = filtro;
@@ -6283,65 +6183,6 @@
             });
             const vazio = document.getElementById('pedidos-filtro-vazio');
             if (vazio) vazio.style.display = cards.length && !visiveis ? 'block' : 'none';
-        }
-
-        function handleOrderClick(e, safeData) {
-            if (isSelectionMode) {
-                const cb = e.currentTarget.querySelector('.order-checkbox');
-                cb.checked = !cb.checked;
-                toggleBulkBar();
-            } else {
-                abrirPedido(safeData);
-            }
-        }
-
-        function toggleBulkBar() {
-            const checks = document.querySelectorAll('.order-checkbox:checked');
-            const bar = document.getElementById('bulk-actions-bar');
-            const count = document.getElementById('bulk-count');
-
-            if (checks.length > 0) {
-                bar.style.display = 'flex';
-                count.innerText = `${checks.length} SELECIONADOS`;
-                isSelectionMode = true;
-                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('selection-mode'));
-            } else {
-                bar.style.display = 'none';
-                isSelectionMode = false;
-                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('selection-mode'));
-            }
-        }
-
-        function selecionarTodos(val) {
-            document.querySelectorAll('.order-checkbox').forEach(c => c.checked = val);
-            toggleBulkBar();
-        }
-
-        async function aplicarBulkStatus() {
-            const status = document.getElementById('bulk-status').value;
-            if (!status) return alert("Selecione um status!");
-
-            const checks = document.querySelectorAll('.order-checkbox:checked');
-            const ids = Array.from(checks).map(c => c.value);
-
-            if (!confirm(`Mudar status de ${ids.length} pedidos para "${status}"?`)) return;
-
-            showToast("Atualizando...");
-            const { data: sessaoAtual } = await db.auth.getSession();
-            const accessToken = sessaoAtual?.session?.access_token;
-            if (!accessToken) return showToast("Sessão expirada. Entre novamente no painel.");
-            const resultados = await Promise.all(ids.map(pedidoId =>
-                db.functions.invoke('atualizar-status-pedido', {
-                    body: { pedido_id: pedidoId, status },
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                })
-            ));
-            if (resultados.some(resultado => resultado.error || !resultado.data?.ok)) {
-                showToast("Alguns pedidos não foram atualizados");
-            }
-
-            document.getElementById('bulk-actions-bar').style.display = 'none';
-            await carregar();
         }
     </script>
 </body>
