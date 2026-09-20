@@ -711,7 +711,7 @@
                 </div>
                 <h1 class="step-title" style="font-size: 2rem; color: var(--blue-navy); margin-bottom: 15px;">Avaliação Concluída!</h1>
                 <p class="step-subtitle" style="font-size: 1rem; margin-bottom: 20px; color: #555;">
-                    Obrigado por compartilhar seu feedback! Ele é fundamental para mantermos a qualidade do nosso produto artesanal.
+                    Obrigado por compartilhar seu feedback! Ele é fundamental para mantermos a qualidade dos produtos Tio Nan.
                 </p>
 
                 <!-- Box de Cupom (Exibido Dinamicamente) -->
@@ -874,7 +874,7 @@
 
             let html = '';
             produtosCatalog.forEach(p => {
-                const fotoRaw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
+                const fotoRaw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "fotos/produto-em-breve.svg";
                 const foto = getLocalPhoto(p.nome, fixDrive(fotoRaw), false);
                 const isSelected = produtosSelecionados.includes(p.id.toString()) ? 'selected' : '';
 
@@ -1012,7 +1012,7 @@
                 const produto = produtosCatalog.find(p => p.id.toString() === pId.toString());
                 if (!produto) return;
 
-                const fotoRaw = (produto.foto_1 && produto.foto_1.trim().length > 5) ? produto.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
+                const fotoRaw = (produto.foto_1 && produto.foto_1.trim().length > 5) ? produto.foto_1.trim() : "fotos/produto-em-breve.svg";
                 const foto = getLocalPhoto(produto.nome, fixDrive(fotoRaw), false);
                 const currentData = avaliacoesData[pId] || { stars: 0, comment: '', decision: [] };
                 const decs = Array.isArray(currentData.decision) ? currentData.decision : (currentData.decision ? [currentData.decision] : []);

@@ -68,18 +68,32 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let newsletterTimer = null;
-function agendarNewsletterModal() {
+function newsletterPodeAbrir() {
+    const ageOverlay = document.getElementById('age-verification-overlay');
+    const cartOverlay = document.getElementById('cart-overlay');
+    const productModal = document.getElementById('modal-produto-overlay');
+    const reviewLightbox = document.getElementById('review-lightbox');
+
+    if (ageOverlay && getComputedStyle(ageOverlay).display !== 'none') return false;
+    if (cartOverlay?.classList.contains('active')) return false;
+    if (productModal?.classList.contains('active')) return false;
+    if (reviewLightbox && getComputedStyle(reviewLightbox).display !== 'none') return false;
+    if (document.body.classList.contains('stop-scroll')) return false;
+    return true;
+}
+
+function agendarNewsletterModal(delay = 15000) {
     if (newsletterTimer || localStorage.getItem('newsletterCadastro') === 'true' || sessionStorage.getItem('newsletterDispensado') === 'true') return;
     newsletterTimer = window.setTimeout(() => {
         newsletterTimer = null;
         const modal = document.getElementById('newsletter-modal');
-        const ageOverlay = document.getElementById('age-verification-overlay');
-        if (!modal || (ageOverlay && getComputedStyle(ageOverlay).display !== 'none')) return agendarNewsletterModal();
+        if (!modal) return;
+        if (!newsletterPodeAbrir()) return agendarNewsletterModal(4000);
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('newsletter-open');
         window.setTimeout(() => document.getElementById('newsletter-email')?.focus(), 300);
-    }, 15000);
+    }, delay);
 }
 
 function fecharNewsletterModal() {
@@ -1117,11 +1131,11 @@ function liberarBotao() {
 
 const DESCRICOES_PREMIUM = {
     "Gengibre, Guaco e Mel": "Uma alquimia perfeita para quem aprecia intensidade e conforto. O calor picante do gengibre fresco desperta o paladar, enquanto o guaco traz notas herbais profundas que remetem à tradição do campo. A finalização fica por conta da doçura aveludada do mel, que suaviza a potência da cachaça e deixa um retrogosto acolhedor. Ideal para dias frios ou para momentos de puro relaxamento.",
-    "Café": "O encontro perfeito entre o corpo robusto da cachaça artesanal e o aroma intenso do café torrado. Apresenta notas de chocolate amargo e um final persistente, ideal para paladares que buscam sofisticação em cada dose.",
+    "Café": "O encontro perfeito entre o corpo robusto da cachaça Tio Nan e o aroma intenso do café torrado. Apresenta notas de chocolate amargo e um final persistente, ideal para paladares que buscam sofisticação em cada dose.",
     "Butiá": "Uma explosão de tropicalidade gaúcha. O sabor exótico e levemente ácido do butiá harmoniza perfeitamente com a doçura da cana, revelando aromas silvestres e uma refrescância incomparável.",
     "Morango com Pimenta": "A sedutora dança entre a doçura vibrante e o fogo sutil. O frescor suculento do morango maduro envolve a boca de imediato, preparando o terreno para a picância instigante da pimenta dedo-de-moça. É uma bebida de contrastes marcantes: começa doce e encerra com um toque levemente ardente que convida ao próximo gole.",
-    "Jabuticaba": "O \"ouro negro\" brasileiro em forma de elixir. A jabuticaba traz uma adstringência elegante e uma doçura natural que dança com a suavidade da destilação artesanal, evocando tradição e frescor.",
-    "Morango": "Frescor frutado e doçura equilibrada. O sabor puro do morango silvestre se funde à cachaça artesanal, resultando em uma bebida leve, aromática e extremamente agradável para qualquer ocasião."
+    "Jabuticaba": "O \"ouro negro\" brasileiro em forma de elixir. A jabuticaba traz uma adstringência elegante e uma doçura natural que encontra a suavidade da cachaça, evocando tradição e frescor.",
+    "Morango": "Frescor frutado e doçura equilibrada. O sabor puro do morango silvestre se funde à cachaça Tio Nan, resultando em uma bebida leve, aromática e extremamente agradável para qualquer ocasião."
 };
 
 
@@ -1675,7 +1689,7 @@ function abrirModalProduto(dadosEncoded) {
     if (p.temEstoque && p.estoque <= 5) tagsHtml += `<span class="modal-tag" style="background:rgba(255,0,0,0.1); color:var(--red-premium); border-color:rgba(255,0,0,0.2);">🔥 ÚLTIMAS UNIDADES</span>`;
     document.getElementById('modal-tags').innerHTML = tagsHtml;
 
-    document.getElementById('modal-desc').innerText = p.descricao || 'Uma cachaça artesanal feita com muito carinho pelo Tio Nan.';
+    document.getElementById('modal-desc').innerText = p.descricao || 'Uma cachaça Tio Nan feita para transformar bons encontros em brindes especiais.';
 
     const harmWrapper = document.getElementById('modal-harm-wrapper');
     if (p.harmonizacao) {
@@ -2870,7 +2884,7 @@ async function carregarTestimonialsHome() {
                 const id = p.id;
                 const nome = p.nome;
 
-                const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "https://via.placeholder.com/300x300?text=Sem+Foto";
+                const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "fotos/produto-em-breve.svg";
                 let foto1 = fixDrive(foto1Raw);
                 foto1 = getLocalPhoto(nome, foto1, false);
 
