@@ -596,6 +596,49 @@
             z-index: 10;
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .pdv-page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}
+        .pdv-page-head h2{margin:0 0 4px}
+        .pdv-page-head p{margin:0;color:#718096;font-size:.78rem}
+        .pdv-busca{width:min(360px,100%);margin:0!important;background:#fff!important}
+        .pdv-cart-item{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #e7e0d5}
+        .pdv-cart-item__info{min-width:0}
+        .pdv-cart-item__nome{display:block;color:#19385f;font-size:.82rem;line-height:1.3;overflow-wrap:anywhere}
+        .pdv-cart-item__preco{display:block;margin-top:4px;color:#b17b23;font-size:.9rem}
+        .pdv-qty{display:grid;grid-template-columns:42px 48px 42px;height:44px;border:1px solid #ded7cc;border-radius:12px;background:#f8f6f1;overflow:hidden}
+        .pdv-qty button{width:42px;min-height:44px;padding:0;border:0;background:transparent;color:#19385f;font-size:1.3rem;font-weight:900;touch-action:manipulation}
+        .pdv-qty output{display:flex;align-items:center;justify-content:center;border-inline:1px solid #ded7cc;color:#19385f;font-weight:900}
+        .pdv-modal-body{min-height:0;padding:25px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+        .pdv-modal-footer{flex:0 0 auto;padding:20px 25px;background:#f8f6f1;border-top:1px solid #ded7cc}
+        .pdv-modal-footer #pdv-total{margin:0 0 14px;color:#19385f!important;text-align:center;font-size:1.45rem}
+        .pdv-modal-footer #btn-finalizar-pdv{min-height:58px;color:#fff!important;box-shadow:0 10px 24px rgba(38,147,92,.18)}
+        .pdv-modal-footer #btn-finalizar-pdv:disabled{opacity:.65;cursor:wait}
+        .pdv-posvenda{display:grid;gap:16px;padding:24px}
+        .pdv-posvenda__sucesso{text-align:center;padding:8px 10px 2px}
+        .pdv-posvenda__icone{display:flex;align-items:center;justify-content:center;width:62px;height:62px;margin:0 auto 13px;border-radius:50%;background:#e9f9ef;color:#177847;font-size:1.8rem;font-weight:900}
+        .pdv-posvenda__sucesso h3{margin:0;color:#19385f;font-size:1.35rem}
+        .pdv-posvenda__sucesso p{margin:7px 0 0;color:#718096;font-size:.8rem}
+        .pdv-posvenda__resumo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+        .pdv-posvenda__resumo div{padding:12px;border:1px solid #e5ddd1;border-radius:13px;background:#faf8f4;min-width:0}
+        .pdv-posvenda__resumo small{display:block;margin-bottom:5px;color:#7a8798;font-size:.58rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
+        .pdv-posvenda__resumo b{display:block;color:#19385f;font-size:.8rem;overflow-wrap:anywhere}
+        .pdv-posvenda__itens{padding:14px;border:1px solid #e5ddd1;border-radius:13px;color:#53657c;font-size:.78rem;line-height:1.5}
+        .pdv-posvenda__acoes{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+        .pdv-posvenda__acoes button{min-height:50px;padding:12px;border:0;border-radius:12px;background:#19385f;color:#fff;font-weight:900;font-size:.68rem;letter-spacing:.3px}
+        .pdv-posvenda__acoes .principal{background:#c59a4a;color:#19385f}
+        .resultados-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:18px 0}
+        .resultado-card{padding:17px;border:1px solid #e5ddd1;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(25,56,95,.06);min-width:0}
+        .resultado-card span{display:block;min-height:30px;color:#718096;font-size:.62rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
+        .resultado-card b{display:block;margin-top:8px;color:#19385f;font-size:1.25rem;overflow-wrap:anywhere}
+        .resultado-ranking{display:grid;gap:9px;margin-top:14px}
+        .resultado-ranking__item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 15px;border:1px solid #e5ddd1;border-radius:13px;background:#faf8f4}
+        .resultado-ranking__item b{color:#19385f;font-size:.78rem}
+        .resultado-ranking__item span{color:#177847;font-size:.72rem;font-weight:900;white-space:nowrap}
+        #corpo-estatisticas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+        .stat-month-card{padding:18px;border:1px solid #e5ddd1;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(25,56,95,.06);cursor:pointer;transition:.2s}
+        .stat-month-card:hover{border-color:#c59a4a;transform:translateY(-2px)}
+        .stat-month-card>div:first-child{color:#a77b2b!important;border-color:#e7e0d5!important}
+        .stat-month-card>div:not(:first-child) span{color:#718096!important}
+        .stat-month-card>div:not(:first-child) b{color:#19385f!important}
 
         @keyframes popIn {
             0% {
@@ -1462,7 +1505,7 @@
                 right:8px;
                 bottom:calc(8px + env(safe-area-inset-bottom));
                 display:grid;
-                grid-template-columns:repeat(4,minmax(0,1fr));
+                grid-template-columns:repeat(5,minmax(0,1fr));
                 gap:3px;
                 padding:7px;
                 border:1px solid #ded7cc;
@@ -1535,11 +1578,39 @@
             .status-badge,.btn-whats-mini { width:100%!important; }
 
             .pdv-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding-bottom:90px; }
-            .pdv-card { min-width:0; padding:12px 8px; border-radius:15px; }
-            .pdv-card img { height:90px; margin:5px 0; }
-            .pdv-name { min-height:34px; font-size:.72rem; }
+            .pdv-page-head{display:grid;grid-template-columns:1fr;gap:12px;margin:2px 0 14px}
+            .pdv-page-head h2{font-size:1.08rem;margin:0 0 4px}
+            .pdv-busca{width:100%;min-height:46px}
+            .pdv-card { display:flex;min-width:0;min-height:246px;padding:10px 8px;border-radius:15px;flex-direction:column;overflow:visible;touch-action:manipulation; }
+            .pdv-card:hover{transform:none}
+            .pdv-card img { height:96px; margin:4px 0 8px; }
+            .pdv-name { min-height:38px; font-size:.68rem;line-height:1.25; }
             .pdv-price { font-size:1rem; }
+            .pdv-btn-add{min-height:42px;margin-top:auto;padding:9px 5px;font-size:.61rem;line-height:1.15}
+            .pdv-card-badge{top:-7px;right:-6px;width:29px;height:29px;font-size:.78rem}
             #pdv-floating-cart { bottom:calc(86px + env(safe-area-inset-bottom))!important; }
+            #modal-sacola-pdv{width:calc(100vw - 10px)!important;max-width:calc(100vw - 10px)!important;max-height:calc(100dvh - 10px)!important;padding:0!important;overflow:hidden!important}
+            #modal-sacola-pdv .modal-header{flex:0 0 auto}
+            .pdv-modal-body{padding:15px 13px}
+            .pdv-cart-item{grid-template-columns:minmax(0,1fr) 120px;gap:8px;padding:12px 0}
+            .pdv-qty{grid-template-columns:38px 44px 38px;width:120px}
+            .pdv-qty button{width:38px}
+            .pdv-modal-footer{padding:13px 13px calc(13px + env(safe-area-inset-bottom,0px))}
+            .pdv-modal-footer #pdv-total{font-size:1.22rem;margin-bottom:10px}
+            .pdv-modal-footer #btn-finalizar-pdv{min-height:52px;padding:13px!important}
+            .pdv-posvenda{padding:18px 14px calc(18px + env(safe-area-inset-bottom,0px));overflow-y:auto}
+            .pdv-posvenda__resumo{grid-template-columns:1fr 1fr}
+            .pdv-posvenda__resumo div:first-child{grid-column:1/-1}
+            .pdv-posvenda__acoes{grid-template-columns:1fr}
+            .resultados-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 18px}
+            .resultado-card{padding:13px}
+            .resultado-card:first-child{grid-column:1/-1}
+            .resultado-card span{min-height:0;font-size:.56rem}
+            .resultado-card b{font-size:1.08rem}
+            .resultado-ranking__item{padding:12px}
+            .resultado-ranking__item span{white-space:normal;text-align:right}
+            #corpo-estatisticas{grid-template-columns:1fr}
+            .stat-month-card{padding:15px}
 
             #tab-estoque .card>div:first-child,
             #tab-embalagens .card>div:first-child,
@@ -1583,6 +1654,13 @@
                 border-radius:18px;
             }
             #modal-pedido {
+                width:calc(100vw - 12px)!important;
+                max-width:calc(100vw - 12px)!important;
+                max-height:calc(100dvh - 12px)!important;
+                padding:0!important;
+                overflow:hidden!important;
+            }
+            #modal-posvenda-pdv {
                 width:calc(100vw - 12px)!important;
                 max-width:calc(100vw - 12px)!important;
                 max-height:calc(100dvh - 12px)!important;
@@ -1714,6 +1792,7 @@
         <button type="button" data-mobile-tab="tab-pedidos" onclick="switchTab('tab-pedidos')"><span aria-hidden="true">🛒</span>Pedidos</button>
         <button type="button" data-mobile-tab="tab-pdv" onclick="switchTab('tab-pdv')"><span aria-hidden="true">💰</span>Balcão</button>
         <button type="button" data-mobile-tab="tab-estoque" onclick="switchTab('tab-estoque')"><span aria-hidden="true">📦</span>Estoque</button>
+        <button type="button" data-mobile-tab="tab-stats" onclick="switchTab('tab-stats')"><span aria-hidden="true">▥</span>Resultados</button>
     </nav>
 
     <div id="tab-inicio" class="tab-content">
@@ -1933,6 +2012,10 @@
     </div>
 
     <div id="tab-pdv" class="tab-content">
+        <div class="pdv-page-head">
+            <div><h2>Venda no balcão</h2><p>Toque no produto para adicionar e abra a sacola para concluir.</p></div>
+            <input id="pdv-busca" class="pdv-busca" type="search" inputmode="search" placeholder="Buscar produto…" oninput="filtrarProdutosPdv(this.value)">
+        </div>
         <div id="pdv-floating-cart"
             style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; max-width:500px; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900; cursor:pointer;"
             onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span
@@ -2019,13 +2102,19 @@
 
     <div id="tab-stats" class="tab-content">
         <div class="card">
-            <h2>Resumo Geral</h2>
-            <div class="resumo-total">
-                <div class="resumo-item"><span>Total Vendas</span><b id="total-fat-geral">R$ 0,00</b></div>
-                <div class="resumo-item"><span>Lucro Real</span><b id="total-lucro-geral" style="color:var(--green)">R$
-                        0,00</b></div>
+            <h2 style="margin-bottom:5px">Resultados</h2>
+            <p style="margin:0;color:#718096;font-size:.78rem">Análise das vendas concluídas, custos e produtos vendidos.</p>
+            <div class="resultados-grid">
+                <div class="resultado-card"><span>Faturamento</span><b id="total-fat-geral">R$ 0,00</b></div>
+                <div class="resultado-card"><span>Lucro estimado</span><b id="total-lucro-geral" style="color:#177847">R$ 0,00</b></div>
+                <div class="resultado-card"><span>Garrafas vendidas</span><b id="total-garrafas-geral">0</b></div>
+                <div class="resultado-card"><span>Vendas concluídas</span><b id="total-vendas-geral">0</b></div>
+                <div class="resultado-card"><span>Ticket médio</span><b id="ticket-medio-geral">R$ 0,00</b></div>
             </div>
+            <h3 style="margin:22px 0 5px;color:#19385f">Produtos mais vendidos</h3>
+            <div id="corpo-ranking-produtos" class="resultado-ranking"><p>Sem vendas concluídas.</p></div>
         </div>
+        <h3 style="margin:20px 0 10px;color:#19385f">Resultados por mês</h3>
         <div id="corpo-estatisticas"></div>
     </div>
 
@@ -2349,7 +2438,7 @@
             <h2>Sacola</h2>
             <button onclick="fecharTodosModais()" class="modal-fechar-btn">×</button>
         </div>
-        <div style="padding: 25px; overflow-y: auto; flex: 1;">
+        <div class="pdv-modal-body">
             <div id="pdv-itens"></div>
             <input type="tel" id="pdv-telefone" placeholder="Telefone do Cliente (Auto-preenchido)"
                 oninput="mascaraTelefone(this)" readonly style="opacity:0.6; background:#111;">
@@ -2408,13 +2497,21 @@
                 <option value="Novo Pedido">EM ABERTO (NÃO PAGO)</option>
             </select>
         </div>
-        <div style="padding: 25px; background: #000; border-top: 1px solid #222;">
+        <div class="pdv-modal-footer">
             <h3 id="pdv-total"
                 style="color:var(--gold); text-align:center; margin-bottom:20px; font-weight: 900; font-size: 1.6rem;">
                 R$ 0,00</h3><button id="btn-finalizar-pdv" onclick="finalizarVendaPDV()"
                 style="width:100%; padding:22px; background:var(--green); border:none; color:#000; border-radius:18px; font-weight:900; text-transform: uppercase;">CONCLUIR
                 VENDA</button>
         </div>
+    </div>
+
+    <div id="modal-posvenda-pdv" class="modal-box" style="padding:0;flex-direction:column;">
+        <div class="modal-header">
+            <h2>Venda concluída</h2>
+            <button type="button" onclick="novaVendaPdv()" class="modal-fechar-btn" aria-label="Fechar e iniciar nova venda">×</button>
+        </div>
+        <div id="pdv-posvenda-conteudo" class="pdv-posvenda"></div>
     </div>
 
     <div id="modal-cliente" class="modal-box" style="padding: 0; flex-direction: column;">
@@ -2688,9 +2785,10 @@
         let onlineDevices = {}; // Armazena quem está com o site aberto agora
 
         let sel = null; let adminCart = []; let statsMensal = {}; let nfeContexto = null;
+        let ultimoPedidoPdv = null; let ultimoResultadoPdv = null;
         let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoEmpresaAtual = null;
         let embalagens = [];
-        const ABAS_OPERACAO_MOBILE = new Set(['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao']);
+        const ABAS_OPERACAO_MOBILE = new Set(['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-stats']);
 
         function isMobileOperationMode() {
             return window.matchMedia('(max-width: 800px)').matches;
@@ -4645,7 +4743,8 @@
 
                 // Processar Pedidos
                 let htmlV = ''; let htmlH = '';
-                statsMensal = {}; let fatG = 0; let lucG = 0;
+                statsMensal = {}; let fatG = 0; let lucG = 0; let garrafasG = 0; let vendasG = 0;
+                const rankingProdutos = new Map();
 
                 if (pedidos) {
                     const vendaBalcao = p => String(p.frete_detalhes?.origem || '').toLowerCase() === 'pdv';
@@ -4674,13 +4773,31 @@
                         const safeData = encodeURIComponent(JSON.stringify(p));
 
                         if (st === "Concluído") {
+                            const itensEstruturados = Array.isArray(p.itens_json) ? p.itens_json : [];
+                            let garrafasPedido = 0;
+                            if (itensEstruturados.length) {
+                                itensEstruturados.forEach(item => {
+                                    const quantidade = Math.max(0, Number(item.quantidade || item.qtd || 0));
+                                    const unidades = Math.max(1, Number(item.unidades_por_kit || 1));
+                                    garrafasPedido += quantidade * unidades;
+                                    const nomeProduto = String(item.nome || item.name || 'Produto');
+                                    rankingProdutos.set(nomeProduto, (rankingProdutos.get(nomeProduto) || 0) + quantidade);
+                                });
+                            } else {
+                                const quantidades = [...String(p.itens || '').matchAll(/\(x\s*(\d+)\)/gi)].map(match => Number(match[1] || 0));
+                                garrafasPedido = quantidades.reduce((total, quantidade) => total + quantidade, 0);
+                            }
                             let mesAno = extrairMesAno(p.created_at);
-                            if (!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, orders: [] };
+                            if (!statsMensal[mesAno]) statsMensal[mesAno] = { f: 0, l: 0, g: 0, v: 0, orders: [] };
                             statsMensal[mesAno].f += val;
                             statsMensal[mesAno].l += (val - cus - frt);
+                            statsMensal[mesAno].g += garrafasPedido;
+                            statsMensal[mesAno].v += 1;
                             statsMensal[mesAno].orders.push(p);
                             fatG += val;
                             lucG += (val - cus - frt);
+                            garrafasG += garrafasPedido;
+                            vendasG += 1;
                         }
 
                         // Extração e Limpeza Definitiva para WhatsApp Business
@@ -4734,6 +4851,14 @@
                 document.getElementById('corpo-historico').innerHTML = htmlH || "<p style='text-align:center; opacity:0.5; padding: 20px;'>Histórico vazio.</p>";
                 document.getElementById('total-fat-geral').innerText = `R$ ${fatG.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
                 document.getElementById('total-lucro-geral').innerText = `R$ ${lucG.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                document.getElementById('total-garrafas-geral').innerText = Math.round(garrafasG).toLocaleString('pt-BR');
+                document.getElementById('total-vendas-geral').innerText = vendasG.toLocaleString('pt-BR');
+                document.getElementById('ticket-medio-geral').innerText = `R$ ${(vendasG ? fatG / vendasG : 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('corpo-ranking-produtos').innerHTML = [...rankingProdutos.entries()]
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 8)
+                    .map(([nome, quantidade], indice) => `<div class="resultado-ranking__item"><b>${indice + 1}. ${escapeAdmin(nome)}</b><span>${Number(quantidade).toLocaleString('pt-BR')} vendido${Number(quantidade) === 1 ? '' : 's'}</span></div>`)
+                    .join('') || '<p style="color:#718096">Sem vendas concluídas.</p>';
 
                 // Processar Estatísticas Mensais
                 let htmlStats = "";
@@ -4750,6 +4875,10 @@
                             <div style="display:flex; justify-content: space-between; font-size: 0.85rem; margin-top: 8px;">
                                 <span style="color:rgba(255,255,255,0.4);">LUCRO LÍQUIDO</span>
                                 <b style="color:var(--text-gold);">R$ ${statsMensal[mes].l.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                            </div>
+                            <div style="display:flex; justify-content: space-between; gap:10px; font-size: 0.72rem; margin-top: 10px; color:#718096;">
+                                <span>${statsMensal[mes].v} venda${statsMensal[mes].v === 1 ? '' : 's'}</span>
+                                <span>${Math.round(statsMensal[mes].g)} garrafa${Math.round(statsMensal[mes].g) === 1 ? '' : 's'}</span>
                             </div>
                         </div>`;
                 });
@@ -4803,13 +4932,13 @@
                             </div>`;
 
                         htmlPDV += `
-                            <div class="pdv-card" style="${esgotado ? 'opacity:0.4' : 'cursor:pointer;'}" onclick="${esgotado ? '' : `addPDV('${id}', '${nS}', ${pr}, ${cus})`}">
+                            <div class="pdv-card" data-pdv-search="${escapeAdmin(n.toLowerCase())}" style="${esgotado ? 'opacity:0.4' : 'cursor:pointer;'}" ${esgotado ? '' : `role="button" tabindex="0" onclick="addPDV('${id}', '${nS}', ${pr}, ${cus}, ${Number(e)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();addPDV('${id}', '${nS}', ${pr}, ${cus}, ${Number(e)})}"`}>
                                 <div id="pdv-badge-${id}" class="pdv-card-badge">0</div>
                                 ${p.somente_catalogo ? '' : `<button class="btn-edit-product" onclick="event.stopPropagation(); abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')">✏️</button>`}
                                 <img src="${fotoExibida}" alt="${escapeAdmin(n)}" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'">
                                 <div class="pdv-name">${n.toUpperCase()}</div>
                                 <div class="pdv-price">R$ ${pr.toFixed(2)}</div>
-                                <button class="pdv-btn-add" ${esgotado ? 'disabled' : ''}>
+                                <button type="button" class="pdv-btn-add" onclick="event.stopPropagation();${esgotado ? '' : `addPDV('${id}', '${nS}', ${pr}, ${cus}, ${Number(e)})`}" ${esgotado ? 'disabled' : ''}>
                                     ${esgotado ? 'ESGOTADO' : 'ADICIONAR'}
                                 </button>
                             </div>`;
@@ -4817,6 +4946,7 @@
                 }
                 document.getElementById('corpo-estoque').innerHTML = htmlE;
                 document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV;
+                filtrarProdutosPdv(document.getElementById('pdv-busca')?.value || '');
                 const homeEstoque = document.getElementById('home-estoque');
                 if (homeEstoque) homeEstoque.innerHTML = produtosAdmin.map(p => `<span><em>${escapeAdmin(p.nome)}</em><b>${Number(p.estoque || 0)}</b></span>`).join('') || '<span><em>Nenhum produto cadastrado</em><b>0</b></span>';
                 const homeInsumos = document.getElementById('home-insumos');
@@ -5781,7 +5911,22 @@
             }
         }
 
-        function addPDV(id, n, p, c) { let i = adminCart.find(x => x.id === id); if (i) i.qtd++; else adminCart.push({ id, name: n, price: p, cost: c, qtd: 1 }); updatePDVCart(); showToast("Na sacola"); }
+        function filtrarProdutosPdv(termo = '') {
+            const busca = String(termo || '').trim().toLocaleLowerCase('pt-BR');
+            document.querySelectorAll('#corpo-pdv-grid .pdv-card').forEach(card => {
+                card.style.display = !busca || String(card.dataset.pdvSearch || '').includes(busca) ? '' : 'none';
+            });
+        }
+
+        function addPDV(id, n, p, c, estoqueDisponivel = Infinity) {
+            const item = adminCart.find(produto => String(produto.id) === String(id));
+            const limite = Number.isFinite(Number(estoqueDisponivel)) ? Number(estoqueDisponivel) : Infinity;
+            if (item && item.qtd >= limite) return showToast(`Estoque máximo de ${n} atingido.`);
+            if (item) item.qtd += 1;
+            else adminCart.push({ id, name: n, price: Number(p), cost: Number(c), stock: limite, qtd: 1 });
+            updatePDVCart();
+            showToast(`${n} adicionado à sacola`);
+        }
         function updatePDVCart() {
             const float = document.getElementById('pdv-floating-cart'); if (!float) return;
 
@@ -5808,7 +5953,7 @@
                 document.getElementById('pdv-add-cliente-btn').style.cursor = "pointer";
                 return;
             }
-            if (document.querySelector('.nav-item.active').getAttribute('onclick').includes('tab-pdv')) float.style.display = 'flex';
+            if (document.getElementById('tab-pdv')?.classList.contains('active')) float.style.display = 'flex';
             let tq = 0, tv = 0;
             document.getElementById('pdv-itens').innerHTML = adminCart.map(i => {
                 tq += i.qtd; tv += (i.price * i.qtd);
@@ -5820,7 +5965,7 @@
                     badge.style.display = 'flex';
                 }
 
-                return `<div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center; border-bottom: 1px solid #1a1a1a; padding-bottom: 15px;"><div style="flex:1;"><span style="font-weight:700;">${i.name}</span><br><b style="color:var(--gold);">R$ ${(i.price * i.qtd).toFixed(2)}</b></div><div class="estoque-controles" style="height:45px; width:120px; margin-top:0;"><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', -1)">−</button><span style="width:40px;text-align:center;font-weight:900;">${i.qtd}</span><button class="btn-step" style="font-size:1.2rem;" onclick="changePDV('${i.id}', 1)">+</button></div></div>`;
+                return `<div class="pdv-cart-item"><div class="pdv-cart-item__info"><span class="pdv-cart-item__nome">${escapeAdmin(i.name)}</span><b class="pdv-cart-item__preco">R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</b></div><div class="pdv-qty"><button type="button" aria-label="Diminuir ${escapeAdmin(i.name)}" onclick="changePDV('${i.id}',-1)">−</button><output aria-label="Quantidade">${i.qtd}</output><button type="button" aria-label="Aumentar ${escapeAdmin(i.name)}" onclick="changePDV('${i.id}',1)">+</button></div></div>`;
             }).join('');
             const frete = parseFloat(document.getElementById('pdv-frete').value || 0);
             const desconto = parseFloat(document.getElementById('pdv-desconto').value || 0);
@@ -5829,7 +5974,15 @@
             document.getElementById('pdv-float-total').innerText = `R$ ${totalFinal.toFixed(2)}`;
             document.getElementById('pdv-total').innerText = `Total: R$ ${totalFinal.toFixed(2)}`;
         }
-        function changePDV(id, d) { let i = adminCart.find(x => x.id === id); if (i) { i.qtd += d; if (i.qtd <= 0) adminCart = adminCart.filter(x => x.id !== id); } updatePDVCart(); }
+        function changePDV(id, delta) {
+            const item = adminCart.find(produto => String(produto.id) === String(id));
+            if (!item) return;
+            const novaQuantidade = item.qtd + Number(delta || 0);
+            if (novaQuantidade > Number(item.stock ?? Infinity)) return showToast(`Estoque máximo de ${item.name} atingido.`);
+            if (novaQuantidade <= 0) adminCart = adminCart.filter(produto => String(produto.id) !== String(id));
+            else item.qtd = novaQuantidade;
+            updatePDVCart();
+        }
         function abrirSacolaPDV() {
             carregarDatalistPDV();
             carregarEmbalagensPDV();
@@ -5898,6 +6051,9 @@
         }
 
         async function finalizarVendaPDV() {
+            if (!adminCart.length) return showToast('Adicione pelo menos um produto à sacola.');
+            const botaoFinalizar = document.getElementById('btn-finalizar-pdv');
+            if (botaoFinalizar.disabled) return;
             const statusPdv = document.getElementById('pdv-status').value;
             const telPdv = document.getElementById('pdv-telefone').value;
             const nomePdv = document.getElementById('pdv-cliente').value || "Balcão";
@@ -5905,13 +6061,18 @@
             const fretePdv = parseFloat(document.getElementById('pdv-frete').value || 0);
             const descontoPdv = parseFloat(document.getElementById('pdv-desconto').value || 0);
             const totalProdutos = adminCart.reduce((a, b) => a + (b.price * b.qtd), 0);
+            const enderecoPdv = {
+                cep: document.getElementById('pdv-cep').value.trim(),
+                rua: document.getElementById('pdv-rua').value.trim(),
+                numero: document.getElementById('pdv-numero').value.trim(),
+                bairro: document.getElementById('pdv-bairro').value.trim()
+            };
+            const pedidoEmEdicaoId = editandoPedidoId;
 
             let enderecoFinal = "Balcão";
             if (entregaPdv === 'Tele') {
-                const rua = document.getElementById('pdv-rua').value;
-                const num = document.getElementById('pdv-numero').value;
-                const bai = document.getElementById('pdv-bairro').value;
-                enderecoFinal = `${rua}, ${num} - ${bai}`;
+                if (!enderecoPdv.rua || !enderecoPdv.numero || !enderecoPdv.bairro) return showToast('Complete rua, número e bairro para a entrega.');
+                enderecoFinal = `${enderecoPdv.rua}, ${enderecoPdv.numero} - ${enderecoPdv.bairro}`;
             }
 
             const payload = {
@@ -5940,100 +6101,136 @@
             payload.emitir_nfe = document.getElementById('pdv-emitir-nfe').checked;
             payload.enviar_email = payload.emitir_nfe && Boolean(payload.cliente_email);
             if (payload.emitir_nfe && !confirm('A NF-e será gerada e enviada no Bling no ambiente fiscal configurado. Confirmar esta venda?')) return;
-            fecharTodosModais(); showToast("Registrando venda e sincronizando com o Bling...");
+            const textoBotao = botaoFinalizar.innerText;
+            botaoFinalizar.disabled = true;
+            botaoFinalizar.innerText = statusPdv === 'Novo Pedido' ? 'SALVANDO PEDIDO…' : 'CONCLUINDO VENDA…';
+            showToast(statusPdv === 'Novo Pedido' ? 'Salvando pedido…' : 'Registrando e sincronizando…');
 
-            let res;
-            if (editandoPedidoId) {
-                // MODO EDIÇÃO: Atualiza o pedido existente
-                res = await db.from('pedidos').update(payload).eq('id', editandoPedidoId);
-                editandoPedidoId = null; // Limpa após editar
-            } else if (statusPdv === 'Novo Pedido') {
-                payload.referencia = crypto.randomUUID();
-                payload.tracking_token = crypto.randomUUID();
-                delete payload.embalagem_id;
-                delete payload.emitir_nfe;
-                delete payload.enviar_email;
-                res = await db.from('pedidos').insert([payload]);
-            } else {
-                // Venda nova: toda a baixa e a sincronização são processadas no servidor.
-                const { data: sessao } = await db.auth.getSession();
-                const response = await fetch(`${supabaseUrl}/functions/v1/pdv-venda`, { method:'POST', headers:{ Authorization:`Bearer ${sessao?.session?.access_token || ''}`, apikey:supabaseKey, 'content-type':'application/json' }, body:JSON.stringify(payload) });
-                const data = await response.json().catch(() => ({}));
-                res = { data, error: response.ok && data?.ok ? null : new Error(data?.error || 'Falha ao concluir a venda.') };
-            }
-
-            const insertError = res.error;
-
-            if (insertError) {
-                console.error(insertError);
-                showToast(insertError.message || "Erro ao salvar e sincronizar a venda.");
-            } else {
-                const msgSucesso = (statusPdv === "Novo Pedido") ? "Pedido salvo!" : "Venda realizada!";
-                showToast(msgSucesso);
-                adminCart = []; // Limpa a sacola agora
-                updatePDVCart(); // Reseta os campos e o ID de edição
-                carregar(); // Recarrega as abas de Pedidos e Histórico
-
-                // RESET TOTAL DOS CAMPOS PDV
-                document.getElementById('pdv-telefone').value = "";
-                document.getElementById('pdv-cliente').value = "";
-                document.getElementById('pdv-cliente').disabled = false;
-                document.getElementById('pdv-add-cliente-btn').disabled = false;
-                document.getElementById('pdv-add-cliente-btn').style.opacity = "1";
-                document.getElementById('pdv-add-cliente-btn').style.cursor = "pointer";
-
-                document.getElementById('pdv-entrega').value = "Balcão";
-                document.getElementById('pdv-frete').value = "";
-                document.getElementById('pdv-desconto').value = "";
-                document.getElementById('pdv-pagamento').value = "Pix";
-                document.getElementById('pdv-status').value = "Concluído";
-                document.getElementById('pdv-embalagem').value = "";
-                document.getElementById('pdv-emitir-nfe').checked = false;
-
-                document.getElementById('pdv-cep').value = "";
-                document.getElementById('pdv-bairro').value = "";
-                document.getElementById('pdv-rua').value = "";
-                document.getElementById('pdv-numero').value = "";
-                document.getElementById('pdv-bloco-endereco').style.display = "none";
-                if (statusPdv === 'Concluído') switchTab('tab-pedidos');
-            }
-
-            // Salva/Atualiza cliente (mesmo sem telefone, se houver nome válido)
-            if (nomePdv && nomePdv !== "Balcão") {
-                const telLimpo = telPdv ? telPdv.replace(/\D/g, "") : "";
-                const dadosCli = {
-                    nome: nomePdv
-                };
-                if (telLimpo) dadosCli.telefone = telLimpo;
-
-                // Só salva endereço se for Tele
-                if (entregaPdv === 'Tele') {
-                    dadosCli.cep = document.getElementById('pdv-cep').value || "";
-                    dadosCli.rua = document.getElementById('pdv-rua').value || "";
-                    dadosCli.numero = document.getElementById('pdv-numero').value || "";
-                    dadosCli.bairro = document.getElementById('pdv-bairro').value || "";
-                }
-
-                if (telLimpo) {
-                    await db.from('clientes').upsert([dadosCli], { onConflict: 'telefone' });
-                    carregarClientes();
+            try {
+                let res;
+                if (pedidoEmEdicaoId) {
+                    res = await db.from('pedidos').update(payload).eq('id', pedidoEmEdicaoId).select('*').single();
+                } else if (statusPdv === 'Novo Pedido') {
+                    payload.referencia = crypto.randomUUID();
+                    payload.tracking_token = crypto.randomUUID();
+                    delete payload.embalagem_id;
+                    delete payload.emitir_nfe;
+                    delete payload.enviar_email;
+                    res = await db.from('pedidos').insert([payload]).select('*').single();
                 } else {
-                    // Sem telefone: verifica se já existe por nome para não clonar (LIMPA O NOME DE POSSÍVEIS TELEFONES ENTRE PARÊNTESES)
-                    let nomeLimpoPdv = nomePdv.trim();
-                    if (nomeLimpoPdv.includes('(')) {
-                        nomeLimpoPdv = nomeLimpoPdv.split('(')[0].trim();
-                    }
-
-                    const { data } = await db.from('clientes').select('nome').eq('nome', nomeLimpoPdv);
-
-                    if (!data || data.length === 0) {
-                        await db.from('clientes').insert([{ ...dadosCli, nome: nomeLimpoPdv }]);
-                        carregarClientes();
-                    }
+                    const { data: sessao } = await db.auth.getSession();
+                    const response = await fetch(`${supabaseUrl}/functions/v1/pdv-venda`, { method:'POST', headers:{ Authorization:`Bearer ${sessao?.session?.access_token || ''}`, apikey:supabaseKey, 'content-type':'application/json' }, body:JSON.stringify(payload) });
+                    const data = await response.json().catch(() => ({}));
+                    res = { data, error: response.ok && data?.ok ? null : new Error(data?.error || 'Falha ao concluir a venda.') };
                 }
-            }
 
-            carregar();
+                const avisoParcial = res.error && res.data?.pedido_id ? res.error.message : '';
+                if (res.error && !res.data?.pedido_id) throw res.error;
+                const resultado = res.data || {};
+                const pedidoId = resultado.pedido_id || resultado.id || pedidoEmEdicaoId;
+                let pedidoFinal = resultado.id && resultado.referencia ? resultado : null;
+                if (!pedidoFinal && pedidoId) {
+                    const { data } = await db.from('pedidos').select('*').eq('id', pedidoId).maybeSingle();
+                    pedidoFinal = data;
+                }
+                if (!pedidoFinal && resultado.referencia) {
+                    const { data } = await db.from('pedidos').select('*').eq('referencia', resultado.referencia).maybeSingle();
+                    pedidoFinal = data;
+                }
+                if (!pedidoFinal) pedidoFinal = { ...payload, id: pedidoId || null, referencia: resultado.referencia || payload.referencia || '' };
+
+                if (nomePdv && nomePdv !== 'Balcão') {
+                    const telefone = telPdv.replace(/\D/g, '');
+                    const dadosCliente = { nome: nomePdv, ...(telefone ? { telefone } : {}), ...(entregaPdv === 'Tele' ? enderecoPdv : {}) };
+                    if (telefone) await db.from('clientes').upsert([dadosCliente], { onConflict: 'telefone' });
+                    else {
+                        const { data: existente } = await db.from('clientes').select('id').eq('nome', nomePdv.trim()).limit(1);
+                        if (!existente?.length) await db.from('clientes').insert([dadosCliente]);
+                    }
+                    carregarClientes();
+                }
+
+                editandoPedidoId = null;
+                adminCart = [];
+                resetarFormularioPdv();
+                updatePDVCart();
+                await carregar(true);
+                abrirResumoPosVendaPdv(pedidoFinal, resultado, statusPdv, avisoParcial);
+                showToast(avisoParcial ? 'Venda salva com uma pendência.' : statusPdv === 'Novo Pedido' ? 'Pedido salvo!' : 'Venda concluída!');
+            } catch (error) {
+                console.error(error);
+                showToast(error?.message || 'Erro ao salvar e sincronizar a venda.');
+            } finally {
+                botaoFinalizar.disabled = false;
+                botaoFinalizar.innerText = textoBotao;
+                updatePdvBtnText();
+            }
+        }
+
+        function resetarFormularioPdv() {
+            document.getElementById('pdv-telefone').value = '';
+            document.getElementById('pdv-cliente').value = '';
+            document.getElementById('pdv-cliente').disabled = false;
+            document.getElementById('pdv-add-cliente-btn').disabled = false;
+            document.getElementById('pdv-add-cliente-btn').style.opacity = '1';
+            document.getElementById('pdv-add-cliente-btn').style.cursor = 'pointer';
+            document.getElementById('pdv-edit-cliente-btn').disabled = true;
+            document.getElementById('pdv-edit-cliente-btn').style.opacity = '.45';
+            document.getElementById('pdv-entrega').value = 'Balcão';
+            document.getElementById('pdv-frete').value = '';
+            document.getElementById('pdv-desconto').value = '';
+            document.getElementById('pdv-pagamento').value = 'Pix';
+            document.getElementById('pdv-status').value = 'Concluído';
+            document.getElementById('pdv-embalagem').value = '';
+            document.getElementById('pdv-emitir-nfe').checked = false;
+            ['pdv-cep','pdv-bairro','pdv-rua','pdv-numero'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('pdv-bloco-endereco').style.display = 'none';
+        }
+
+        function abrirResumoPosVendaPdv(pedido, resultado = {}, statusPdv = 'Concluído', aviso = '') {
+            ultimoPedidoPdv = pedido;
+            ultimoResultadoPdv = resultado;
+            sel = pedido;
+            const total = Number(pedido.total || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+            const referencia = codigoPedido(pedido);
+            const notaGerada = Boolean(resultado.nota || pedido.bling_nfe_id);
+            const titulo = statusPdv === 'Novo Pedido' ? 'Pedido salvo com sucesso' : 'Venda concluída com sucesso';
+            document.getElementById('pdv-posvenda-conteudo').innerHTML = `
+                <div class="pdv-posvenda__sucesso"><span class="pdv-posvenda__icone">✓</span><h3>${titulo}</h3><p>Tudo deste atendimento ficou reunido aqui.</p></div>
+                <div class="pdv-posvenda__resumo">
+                    <div><small>Pedido</small><b>${escapeAdmin(referencia)}</b></div>
+                    <div><small>Cliente</small><b>${escapeAdmin(pedido.cliente_nome || 'Balcão')}</b></div>
+                    <div><small>Total</small><b>${total}</b></div>
+                </div>
+                ${aviso ? `<div style="padding:12px 14px;border:1px solid #edc77e;border-radius:12px;background:#fff8e8;color:#79551a;font-size:.75rem;line-height:1.45"><strong>Venda registrada, mas há uma pendência:</strong><br>${escapeAdmin(aviso)}</div>` : ''}
+                <div class="pdv-posvenda__itens"><strong>Itens</strong><br>${escapeAdmin(pedido.itens || 'Itens registrados no pedido')}</div>
+                <div class="pdv-posvenda__acoes">
+                    <button type="button" onclick="verPedidoUltimaVendaPdv()">VER PEDIDO COMPLETO</button>
+                    <button type="button" onclick="abrirNotaUltimaVendaPdv()">${notaGerada ? 'ABRIR NOTA FISCAL' : 'EMITIR / BAIXAR NF-e'}</button>
+                    <button type="button" onclick="switchTab('tab-stats');fecharTodosModais()">VER RESULTADOS</button>
+                    <button type="button" class="principal" onclick="novaVendaPdv()">NOVA VENDA</button>
+                </div>`;
+            document.getElementById('modal-posvenda-pdv').style.display = 'flex';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function verPedidoUltimaVendaPdv() {
+            if (!ultimoPedidoPdv) return showToast('Pedido não encontrado.');
+            fecharTodosModais();
+            abrirPedido(encodeURIComponent(JSON.stringify(ultimoPedidoPdv)));
+        }
+
+        function abrirNotaUltimaVendaPdv() {
+            if (!ultimoPedidoPdv) return showToast('Pedido não encontrado.');
+            sel = ultimoPedidoPdv;
+            fecharTodosModais();
+            abrirNotaFiscalDoPedido();
+        }
+
+        function novaVendaPdv() {
+            fecharTodosModais();
+            switchTab('tab-pdv');
+            document.getElementById('pdv-busca')?.focus();
         }
 
         async function editarPedidoNoPdv() {
