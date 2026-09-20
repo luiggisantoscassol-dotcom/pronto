@@ -6,7 +6,7 @@ const NATURES:Record<string,{env:string,nome:string}>={
   venda:{env:"BLING_NATURE_CONSIGNACAO_VENDA_ID",nome:"Venda de mercadoria consignada"},
   devolucao:{env:"BLING_NATURE_CONSIGNACAO_DEVOLUCAO_ID",nome:"Retorno/devolução de consignação"}
 };
-const allowed=(origin:string|null)=>{if(!origin)return true;try{const u=new URL(origin);return u.protocol==="https:"&&(u.hostname==="tionan.com.br"||u.hostname==="www.tionan.com.br"||u.hostname.endsWith(".vercel.app"))||u.protocol==="http:"&&(u.hostname==="localhost"||u.hostname==="127.0.0.1")}catch{return false}};
+const allowed=(origin:string|null)=>{if(!origin)return true;try{const u=new URL(origin);return u.protocol==="https:"&&(u.hostname==="tionan.com.br"||u.hostname==="www.tionan.com.br"||u.hostname.endsWith(".vercel.app"))||u.protocol==="http:"&&(u.hostname==="localhost"||u.hostname==="127.0.0.1"||u.hostname==="192.168.1.36")}catch{return false}};
 const cors=(o:string|null)=>({"access-control-allow-origin":o&&allowed(o)?o:"https://www.tionan.com.br","access-control-allow-headers":"authorization, x-client-info, apikey, content-type","access-control-allow-methods":"POST, OPTIONS",vary:"Origin"});
 const json=(o:string|null,b:unknown,s=200)=>new Response(JSON.stringify(b),{status:s,headers:{...cors(o),"content-type":"application/json; charset=utf-8"}});
 const authorized=(s:unknown)=>[5,6].includes(Number(s));

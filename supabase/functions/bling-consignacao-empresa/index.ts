@@ -6,7 +6,7 @@ const allowed = (origin: string | null) => {
   try {
     const u = new URL(origin);
     return (u.protocol === "https:" && (u.hostname === "tionan.com.br" || u.hostname === "www.tionan.com.br" || u.hostname.endsWith(".vercel.app"))) ||
-      (u.protocol === "http:" && (u.hostname === "localhost" || u.hostname === "127.0.0.1"));
+      (u.protocol === "http:" && (u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "192.168.1.36"));
   } catch { return false; }
 };
 const cors = (o: string | null) => ({

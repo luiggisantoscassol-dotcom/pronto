@@ -6,7 +6,7 @@ const isAllowedOrigin = (origin: string | null) => {
   try {
     const url = new URL(origin);
     return url.protocol === "https:" && (url.hostname === "tionan.com.br" || url.hostname === "www.tionan.com.br" || url.hostname.endsWith(".vercel.app"))
-      || (url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1"));
+      || (url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "192.168.1.36"));
   } catch {
     return false;
   }
