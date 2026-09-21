@@ -570,6 +570,14 @@
             transform: scale(1.05);
             box-shadow: 0 5px 15px rgba(197, 160, 89, 0.3);
         }
+        .pdv-price-row{margin-bottom:15px}
+        .pdv-price-row .pdv-price{margin:0}
+        .pdv-card-controls{display:none;margin-top:auto;align-items:stretch}
+        .pdv-card-controls.is-active{display:block}
+        .pdv-card-remove{display:grid;width:40px;min-height:44px;padding:0;place-items:center;border:1px solid #f0c9c5;border-radius:10px;background:#fff3f2;color:#a52a2a;font-size:1rem;cursor:pointer;touch-action:manipulation}
+        .pdv-card-stepper{display:grid;grid-template-columns:38px minmax(30px,1fr) 38px;min-width:0;min-height:44px;border:1px solid #d8c49d;border-radius:10px;background:#fff;overflow:hidden}
+        .pdv-card-stepper button{min-height:44px;padding:0;border:0;background:#f6efe3;color:#19385f;font-size:1.15rem;font-weight:900;cursor:pointer;touch-action:manipulation}
+        .pdv-card-stepper output{display:flex;align-items:center;justify-content:center;border-inline:1px solid #e5d8bf;color:#19385f;font-weight:900}
         .pdv-opcoes-venda{margin:12px 0;padding:16px;border:1px solid #ded7cc;border-radius:14px;background:#f7f4ee;color:#19385f}
         .pdv-opcoes-venda>label:first-child{display:block;margin-bottom:7px;font-size:.8rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
         .pdv-opcoes-venda select{margin-bottom:12px;background:#fff;color:#19385f}
@@ -600,13 +608,17 @@
         .pdv-page-head h2{margin:0 0 4px}
         .pdv-page-head p{margin:0;color:#718096;font-size:.78rem}
         .pdv-busca{width:min(360px,100%);margin:0!important;background:#fff!important}
-        .pdv-cart-item{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #e7e0d5}
+        .pdv-cart-item{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #e7e0d5}
         .pdv-cart-item__info{min-width:0}
         .pdv-cart-item__nome{display:block;color:#19385f;font-size:.82rem;line-height:1.3;overflow-wrap:anywhere}
         .pdv-cart-item__preco{display:block;margin-top:4px;color:#b17b23;font-size:.9rem}
         .pdv-qty{display:grid;grid-template-columns:42px 48px 42px;height:44px;border:1px solid #ded7cc;border-radius:12px;background:#f8f6f1;overflow:hidden}
         .pdv-qty button{width:42px;min-height:44px;padding:0;border:0;background:transparent;color:#19385f;font-size:1.3rem;font-weight:900;touch-action:manipulation}
         .pdv-qty output{display:flex;align-items:center;justify-content:center;border-inline:1px solid #ded7cc;color:#19385f;font-weight:900}
+        .pdv-cart-actions{display:grid;grid-template-columns:40px 132px;gap:8px;justify-content:end}
+        .pdv-cart-remove{display:grid;width:40px;min-height:44px;padding:0;place-items:center;border:1px solid #f0c9c5;border-radius:12px;background:#fff3f2;color:#a52a2a;font-size:1rem;cursor:pointer;touch-action:manipulation}
+        .pdv-floating-total{display:flex;align-items:center;gap:10px;margin-left:auto}
+        .pdv-floating-remove{display:grid;width:44px;min-height:44px;padding:0;place-items:center;border:1px solid rgba(255,255,255,.45);border-radius:13px;background:rgba(255,255,255,.14);color:#fff;font-size:1rem;cursor:pointer;touch-action:manipulation}
         .pdv-modal-body{min-height:0;padding:25px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
         .pdv-modal-footer{flex:0 0 auto;padding:20px 25px;background:#f8f6f1;border-top:1px solid #ded7cc}
         .pdv-modal-footer #pdv-total{margin:0 0 14px;color:#19385f!important;text-align:center;font-size:1.45rem}
@@ -1024,6 +1036,12 @@
         .admin-home-breakdown>span{display:flex;min-height:70px;padding:10px 12px;box-sizing:border-box;flex-direction:column;justify-content:space-between;gap:7px;background:#f8f6f1;border:1px solid #ebe4d9;border-radius:13px;color:#718096;line-height:1.2}
         .admin-home-breakdown em{font-size:.66rem;font-style:normal;font-weight:750;letter-spacing:.25px}
         .admin-home-breakdown b{color:#19385f;font-size:1.35rem;line-height:1;white-space:nowrap}
+        .admin-home-breakdown>span.is-low-stock{background:#fff0ef;border-color:#df5b55;box-shadow:inset 0 0 0 1px rgba(194,54,48,.08)}
+        .admin-home-breakdown>span.is-low-stock em,.admin-home-breakdown>span.is-low-stock b{color:#a52a2a}
+        .admin-home-breakdown>span.is-medium-stock{background:#edf5ff;border-color:#5b8fc8;box-shadow:inset 0 0 0 1px rgba(31,95,159,.06)}
+        .admin-home-breakdown>span.is-medium-stock em,.admin-home-breakdown>span.is-medium-stock b{color:#1f5f9f}
+        .admin-home-breakdown>span.is-healthy-stock{background:#ecfaf2;border-color:#58b984;box-shadow:inset 0 0 0 1px rgba(23,120,71,.06)}
+        .admin-home-breakdown>span.is-healthy-stock em,.admin-home-breakdown>span.is-healthy-stock b{color:#177847}
         #home-insumos{grid-template-columns:repeat(4,minmax(0,1fr))}
         #home-estoque{grid-template-columns:repeat(3,minmax(0,1fr))}
         .admin-home-link{display:flex;align-items:center;gap:9px;margin-top:auto;color:#a77b2b;font-size:.7rem;font-weight:900;letter-spacing:1.1px;text-transform:uppercase}
@@ -1171,7 +1189,7 @@
             button, .btn-status, .pdv-btn-add, .btn-refresh-mini { white-space: normal; overflow-wrap: anywhere; }
             table { display: block; width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
             #toast-admin { width: calc(100vw - 24px); padding: 14px 18px; border-radius: 18px; text-align: center; line-height: 1.35; }
-            #pdv-floating-cart { left: 12px !important; right: 12px !important; bottom: 12px !important; width: auto !important; min-width: 0 !important; max-width: none !important; }
+            #pdv-floating-cart { left: 12px !important; right: 12px !important; bottom: 12px !important; width: auto !important; min-width: 0 !important; max-width: none !important; padding:12px 14px!important; transform:none!important; }
         }
 
         @media (max-width: 430px) {
@@ -1179,7 +1197,8 @@
             .sidebar h3 { grid-column: 1; }
             .pdv-grid { grid-template-columns: 1fr; }
             .admin-order-summary, #tab-consignacao .admin-order-summary { grid-template-columns: 1fr; }
-            .admin-home-breakdown, #home-insumos, #home-estoque, .admin-home-card--envase #home-insumos { grid-template-columns: 1fr; }
+            .admin-home-breakdown, #home-estoque { grid-template-columns: 1fr; }
+            #home-insumos, .admin-home-card--envase #home-insumos { grid-template-columns:repeat(2,minmax(0,1fr)); }
             .admin-home-card { min-height: 0; padding: 20px 16px; }
             .resumo-item { min-width: 100%; }
             .order-row { grid-template-columns: minmax(0, 1fr); }
@@ -1592,7 +1611,12 @@
             #modal-sacola-pdv{width:calc(100vw - 10px)!important;max-width:calc(100vw - 10px)!important;max-height:calc(100dvh - 10px)!important;padding:0!important;overflow:hidden!important}
             #modal-sacola-pdv .modal-header{flex:0 0 auto}
             .pdv-modal-body{padding:15px 13px}
-            .pdv-cart-item{grid-template-columns:minmax(0,1fr) 120px;gap:8px;padding:12px 0}
+            .pdv-card-remove{width:36px;min-height:42px}
+            .pdv-card-stepper{grid-template-columns:32px minmax(26px,1fr) 32px;min-height:42px}
+            .pdv-card-stepper button{min-height:42px}
+            .pdv-cart-item{grid-template-columns:minmax(0,1fr);gap:9px;padding:12px 0}
+            .pdv-cart-actions{grid-template-columns:44px minmax(0,1fr);width:100%}
+            .pdv-cart-remove{width:44px}
             .pdv-qty{grid-template-columns:38px 44px 38px;width:120px}
             .pdv-qty button{width:38px}
             .pdv-modal-footer{padding:13px 13px calc(13px + env(safe-area-inset-bottom,0px))}
@@ -1701,7 +1725,8 @@
             .mobile-operation-nav { left:4px; right:4px; padding:5px 3px; }
             .mobile-operation-nav button { font-size:.46rem; }
             .pdv-grid { grid-template-columns:1fr; }
-            .admin-order-summary,#tab-consignacao .admin-order-summary,#home-insumos,#home-estoque { grid-template-columns:1fr; }
+            .admin-order-summary,#tab-consignacao .admin-order-summary,#home-estoque { grid-template-columns:1fr; }
+            #home-insumos,.admin-home-card--envase #home-insumos { grid-template-columns:repeat(2,minmax(0,1fr)); }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2018,8 +2043,8 @@
         </div>
         <div id="pdv-floating-cart"
             style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); width:92%; max-width:500px; background:#000; border:2px solid var(--gold); padding:20px; border-radius:25px; z-index:1000; display:none; justify-content:space-between; align-items:center; font-weight:900; cursor:pointer;"
-            onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span
-                id="pdv-float-total">R$ 0,00</span></div>
+            onclick="abrirSacolaPDV()"><span>🛒 <span id="pdv-float-qtd">0</span> ITENS</span><span class="pdv-floating-total"><span
+                id="pdv-float-total">R$ 0,00</span><button type="button" class="pdv-floating-remove" aria-label="Cancelar e limpar sacola" title="Limpar sacola" onclick="event.stopPropagation();limparPDV()">🗑</button></span></div>
         <div class="pdv-grid" id="corpo-pdv-grid"></div>
     </div>
 
@@ -4937,10 +4962,19 @@
                                 ${p.somente_catalogo ? '' : `<button class="btn-edit-product" onclick="event.stopPropagation(); abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')">✏️</button>`}
                                 <img src="${fotoExibida}" alt="${escapeAdmin(n)}" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'">
                                 <div class="pdv-name">${n.toUpperCase()}</div>
-                                <div class="pdv-price">R$ ${pr.toFixed(2)}</div>
+                                <div class="pdv-price-row">
+                                    <div class="pdv-price">R$ ${pr.toFixed(2)}</div>
+                                </div>
                                 <button type="button" class="pdv-btn-add" onclick="event.stopPropagation();${esgotado ? '' : `addPDV('${id}', '${nS}', ${pr}, ${cus}, ${Number(e)})`}" ${esgotado ? 'disabled' : ''}>
                                     ${esgotado ? 'ESGOTADO' : 'ADICIONAR'}
                                 </button>
+                                ${esgotado ? '' : `<div id="pdv-controls-${id}" class="pdv-card-controls" onclick="event.stopPropagation()">
+                                    <div class="pdv-card-stepper">
+                                        <button type="button" aria-label="Diminuir ${nS}" onclick="event.stopPropagation();changePDV('${id}',-1)">−</button>
+                                        <output id="pdv-card-qtd-${id}" aria-label="Quantidade de ${nS}">0</output>
+                                        <button type="button" aria-label="Aumentar ${nS}" onclick="event.stopPropagation();changePDV('${id}',1)">+</button>
+                                    </div>
+                                </div>`}
                             </div>`;
                     });
                 }
@@ -4948,7 +4982,11 @@
                 document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV;
                 filtrarProdutosPdv(document.getElementById('pdv-busca')?.value || '');
                 const homeEstoque = document.getElementById('home-estoque');
-                if (homeEstoque) homeEstoque.innerHTML = produtosAdmin.map(p => `<span><em>${escapeAdmin(p.nome)}</em><b>${Number(p.estoque || 0)}</b></span>`).join('') || '<span><em>Nenhum produto cadastrado</em><b>0</b></span>';
+                if (homeEstoque) homeEstoque.innerHTML = produtosAdmin.map(p => {
+                    const saldo = Number(p.estoque || 0);
+                    const classeSaldo = saldo <= 10 ? 'is-low-stock' : saldo <= 20 ? 'is-medium-stock' : 'is-healthy-stock';
+                    return `<span class="${classeSaldo}"><em>${escapeAdmin(p.nome)}</em><b>${saldo}</b></span>`;
+                }).join('') || '<span><em>Nenhum produto cadastrado</em><b>0</b></span>';
                 const homeInsumos = document.getElementById('home-insumos');
                 if (homeInsumos) homeInsumos.innerHTML = (insumosResumo || []).map(i => `<span><em>${escapeAdmin(i.nome)}</em><b>${Number(i.quantidade || 0)}</b></span>`).join('') || '<span><em>Nenhum insumo cadastrado</em><b>0</b></span>';
                 const totalConsignado = (saldosConsignacaoResumo || []).reduce((total, saldo) => total + Number(saldo.quantidade || 0), 0);
@@ -5925,7 +5963,6 @@
             if (item) item.qtd += 1;
             else adminCart.push({ id, name: n, price: Number(p), cost: Number(c), stock: limite, qtd: 1 });
             updatePDVCart();
-            showToast(`${n} adicionado à sacola`);
         }
         function updatePDVCart() {
             const float = document.getElementById('pdv-floating-cart'); if (!float) return;
@@ -5935,6 +5972,8 @@
                 b.innerText = '0';
                 b.style.display = 'none';
             });
+            document.querySelectorAll('#corpo-pdv-grid .pdv-card-controls').forEach(controle => controle.classList.remove('is-active'));
+            document.querySelectorAll('#corpo-pdv-grid .pdv-btn-add:not(:disabled)').forEach(botao => botao.style.display = 'block');
 
             if (adminCart.length === 0) {
                 float.style.display = 'none';
@@ -5965,7 +6004,14 @@
                     badge.style.display = 'flex';
                 }
 
-                return `<div class="pdv-cart-item"><div class="pdv-cart-item__info"><span class="pdv-cart-item__nome">${escapeAdmin(i.name)}</span><b class="pdv-cart-item__preco">R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</b></div><div class="pdv-qty"><button type="button" aria-label="Diminuir ${escapeAdmin(i.name)}" onclick="changePDV('${i.id}',-1)">−</button><output aria-label="Quantidade">${i.qtd}</output><button type="button" aria-label="Aumentar ${escapeAdmin(i.name)}" onclick="changePDV('${i.id}',1)">+</button></div></div>`;
+                const controleCard = document.getElementById(`pdv-controls-${i.id}`);
+                const quantidadeCard = document.getElementById(`pdv-card-qtd-${i.id}`);
+                if (controleCard) controleCard.classList.add('is-active');
+                if (quantidadeCard) quantidadeCard.textContent = i.qtd;
+                const botaoAdicionar = controleCard?.previousElementSibling;
+                if (botaoAdicionar?.classList.contains('pdv-btn-add')) botaoAdicionar.style.display = 'none';
+
+                return `<div class="pdv-cart-item"><div class="pdv-cart-item__info"><span class="pdv-cart-item__nome">${escapeAdmin(i.name)}</span><b class="pdv-cart-item__preco">R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</b></div><div class="pdv-cart-actions"><button type="button" class="pdv-cart-remove" aria-label="Remover ${escapeAdmin(i.name)} da sacola" title="Remover da sacola" onclick="removePDV('${i.id}')">🗑</button><div class="pdv-qty"><button type="button" aria-label="Diminuir ${escapeAdmin(i.name)}" onclick="changePDV('${i.id}',-1)">−</button><output aria-label="Quantidade">${i.qtd}</output><button type="button" aria-label="Aumentar ${escapeAdmin(i.name)}" onclick="changePDV('${i.id}',1)">+</button></div></div></div>`;
             }).join('');
             const frete = parseFloat(document.getElementById('pdv-frete').value || 0);
             const desconto = parseFloat(document.getElementById('pdv-desconto').value || 0);
@@ -5981,6 +6027,14 @@
             if (novaQuantidade > Number(item.stock ?? Infinity)) return showToast(`Estoque máximo de ${item.name} atingido.`);
             if (novaQuantidade <= 0) adminCart = adminCart.filter(produto => String(produto.id) !== String(id));
             else item.qtd = novaQuantidade;
+            updatePDVCart();
+        }
+        function removePDV(id) {
+            adminCart = adminCart.filter(produto => String(produto.id) !== String(id));
+            updatePDVCart();
+        }
+        function limparPDV() {
+            adminCart = [];
             updatePDVCart();
         }
         function abrirSacolaPDV() {
