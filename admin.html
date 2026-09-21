@@ -1357,6 +1357,7 @@
             border-radius: 16px;
             background: #f7f4ee;
         }
+        .produto-foto-upload>div{min-width:0}
         .produto-foto-preview {
             width: 112px;
             aspect-ratio: 1;
@@ -1375,11 +1376,16 @@
             font-weight: 800;
         }
         .produto-foto-status.tem-foto { color: #18794e; }
-        .produto-foto-upload input[type="file"] { margin: 0; padding: 10px; background: #fff; }
+        .produto-foto-upload input[type="file"]{display:block;width:100%;max-width:100%;min-width:0;min-height:48px;margin:0;padding:7px;box-sizing:border-box;overflow:hidden;border:1px solid #ded7cc;border-radius:12px;background:#fff;color:#53657c;font-size:.72rem}
+        .produto-foto-upload input[type="file"]::file-selector-button{min-height:34px;margin-right:9px;padding:7px 11px;border:0;border-radius:9px;background:#19385f;color:#fff;font:inherit;font-weight:800;cursor:pointer}
+        .produto-foto-upload input[type="file"]::-webkit-file-upload-button{min-height:34px;margin-right:9px;padding:7px 11px;border:0;border-radius:9px;background:#19385f;color:#fff;font:inherit;font-weight:800}
         @media (max-width: 720px) {
             .produto-precos-grid { grid-template-columns: 1fr; gap: 0; }
             .produto-foto-upload { grid-template-columns: 82px minmax(0, 1fr); }
+            .produto-foto-upload.sem-preview{grid-template-columns:minmax(0,1fr)}
             .produto-foto-preview { width: 82px; }
+            .produto-foto-status{margin-bottom:8px;font-size:.68rem;line-height:1.25}
+            .produto-foto-upload input[type="file"]{font-size:.64rem!important}
         }
 
         /* Navegação dividida: rotina à esquerda e gestão à direita. */
@@ -1667,8 +1673,9 @@
 
             .produto-precos-grid { grid-template-columns:1fr; }
             .produto-foto-upload { grid-template-columns:72px minmax(0,1fr); padding:10px; }
+            .produto-foto-upload.sem-preview{grid-template-columns:minmax(0,1fr)}
             .produto-foto-preview { width:72px; }
-            .produto-foto-upload input[type="file"] { width:100%; }
+            .produto-foto-upload input[type="file"] { width:100%; max-width:100%; }
 
             .modal-box,.modal-box[style] {
                 width:calc(100vw - 12px)!important;
@@ -5115,6 +5122,7 @@
             if (preview) {
                 preview.src = temFoto ? url : '';
                 preview.style.display = temFoto ? 'block' : 'none';
+                preview.closest('.produto-foto-upload')?.classList.toggle('sem-preview', !temFoto);
             }
             if (status) {
                 status.textContent = temFoto ? '✓ Foto já cadastrada' : 'Nenhuma foto cadastrada';
