@@ -1043,7 +1043,7 @@
         .admin-home-breakdown>span.is-healthy-stock{background:#ecfaf2;border-color:#58b984;box-shadow:inset 0 0 0 1px rgba(23,120,71,.06)}
         .admin-home-breakdown>span.is-healthy-stock em,.admin-home-breakdown>span.is-healthy-stock b{color:#177847}
         #home-insumos{grid-template-columns:repeat(4,minmax(0,1fr))}
-        #home-estoque{grid-template-columns:repeat(5,minmax(0,1fr));align-self:center}
+        #home-estoque{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-self:center}
         #home-estoque>span{min-width:0;min-height:84px;padding:12px 13px;justify-content:flex-start;gap:10px}
         #home-estoque em{display:-webkit-box;min-height:2.4em;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-size:.66rem;line-height:1.2;text-transform:uppercase}
         #home-estoque b{display:flex;align-items:baseline;gap:6px;margin-top:auto;font-size:1.55rem}
@@ -1107,8 +1107,11 @@
             .admin-home-card--pedidos .admin-home-metric,.admin-home-card--consignacao .admin-home-metric,.admin-home-card--embalagens .admin-home-metric{font-size:clamp(2.55rem,5.6vh,3.4rem)}
             .admin-home-card--envase #home-insumos{grid-template-columns:repeat(4,minmax(0,1fr))}
             .admin-home-card--envase .admin-home-breakdown>span{min-height:58px;padding:9px 10px}
-            .admin-home-card--estoque #home-estoque{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+            .admin-home-card--estoque #home-estoque{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px}
             .admin-home-card--estoque #home-estoque>span{min-height:78px;padding:10px 12px}
+            body:has(#home-estoque.is-expanded){overflow-y:auto}
+            #tab-inicio.active:has(#home-estoque.is-expanded){height:auto;min-height:calc(100dvh - 90px)}
+            .admin-home-grid:has(#home-estoque.is-expanded){grid-template-rows:auto minmax(285px,1.16fr)}
             .admin-home-icon{width:clamp(36px,5vh,46px);height:clamp(36px,5vh,46px);margin-bottom:clamp(7px,1vh,12px);font-size:clamp(1rem,2.2vh,1.3rem)}
             .admin-home-card h2{margin-bottom:clamp(6px,1vh,11px);font-size:clamp(.95rem,1.9vh,1.15rem)}
             .admin-home-metric{margin-bottom:clamp(8px,1.3vh,16px);font-size:clamp(2rem,5.5vh,3.2rem)}
@@ -4591,7 +4594,7 @@
             if (gengibre) catalogo.push(gengibre);
             const idsIncluidos = new Set(catalogo.map(p => String(p.id)));
             produtos
-                .filter(p => !idsIncluidos.has(String(p.id)) && !p.excluido && p.tipo_produto === 'kit')
+                .filter(p => !idsIncluidos.has(String(p.id)) && !p.excluido)
                 .forEach(p => catalogo.push(p));
             return catalogo;
         }
@@ -4601,8 +4604,8 @@
             if (btn && !silencioso) btn.classList.add('loading');
             try {
                 // Carregar Produtos
-                // Busca também os três itens que possam ter sido ocultados por engano.
-                // O catálogo abaixo continua limitando o painel somente aos produtos oficiais.
+                // Os produtos principais entram primeiro; os demais produtos cadastrados
+                // completam automaticamente a grade e os controles de venda/estoque.
                 const { data: produtos } = await db.from('produtos').select('*').order('nome');
                 const produtosAdmin = montarCatalogoAdmin(produtos);
                 allProducts = produtosAdmin;
@@ -5016,11 +5019,14 @@
                 document.getElementById('corpo-pdv-grid').innerHTML = htmlPDV;
                 filtrarProdutosPdv(document.getElementById('pdv-busca')?.value || '');
                 const homeEstoque = document.getElementById('home-estoque');
-                if (homeEstoque) homeEstoque.innerHTML = produtosAdmin.map(p => {
-                    const saldo = Number(p.estoque || 0);
-                    const classeSaldo = saldo <= 10 ? 'is-low-stock' : saldo <= 20 ? 'is-medium-stock' : 'is-healthy-stock';
-                    return `<span class="${classeSaldo}" title="${escapeAdmin(p.nome)}: ${saldo} garrafa${saldo===1?'':'s'}"><em>${escapeAdmin(p.nome)}</em><b>${saldo}<small>${saldo===1?'garrafa':'garrafas'}</small></b></span>`;
-                }).join('') || '<span><em>Nenhum produto cadastrado</em><b>0</b></span>';
+                if (homeEstoque) {
+                    homeEstoque.innerHTML = produtosAdmin.map(p => {
+                        const saldo = Number(p.estoque || 0);
+                        const classeSaldo = saldo <= 10 ? 'is-low-stock' : saldo <= 20 ? 'is-medium-stock' : 'is-healthy-stock';
+                        return `<span class="${classeSaldo}" title="${escapeAdmin(p.nome)}: ${saldo} garrafa${saldo===1?'':'s'}"><em>${escapeAdmin(p.nome)}</em><b>${saldo}<small>${saldo===1?'garrafa':'garrafas'}</small></b></span>`;
+                    }).join('') || '<span><em>Nenhum produto cadastrado</em><b>0</b></span>';
+                    homeEstoque.classList.toggle('is-expanded', produtosAdmin.length > 5);
+                }
                 const homeInsumos = document.getElementById('home-insumos');
                 if (homeInsumos) homeInsumos.innerHTML = (insumosResumo || []).map(i => `<span><em>${escapeAdmin(i.nome)}</em><b>${Number(i.quantidade || 0)}</b></span>`).join('') || '<span><em>Nenhum insumo cadastrado</em><b>0</b></span>';
                 const totalConsignado = (saldosConsignacaoResumo || []).reduce((total, saldo) => total + Number(saldo.quantidade || 0), 0);
