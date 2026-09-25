@@ -45,13 +45,20 @@ Deno.serve(async (request) => {
     if (batch.estornado_em) return json(origin, { error: "Este envase já foi estornado." }, 409);
     if (batch.bling_status !== "sincronizado") return json(origin, { error: "Este envase não entrou no Bling. Corrija a sincronização antes do estorno." }, 409);
     const { data: product } = await db.from("produtos").select("estoque").eq("bling_id", batch.produto_bling_id).maybeSingle();
-    if (Number(product?.estoque || 0) < Number(batch.garrafas || 0)) {
-      return json(origin, { error: `Não é possível estornar ${batch.garrafas} garrafas: o saldo disponível de ${batch.produto_nome} é ${Number(product?.estoque || 0)}. Parte deste lote pode já ter sido vendida.` }, 409);
+    const saldoDisponivel = Math.max(0, Number(product?.estoque || 0));
+    const quantidadeSolicitada = input.quantidade === undefined || input.quantidade === null
+      ? Number(batch.garrafas || 0)
+      : Number(input.quantidade);
+    if (!Number.isInteger(quantidadeSolicitada) || quantidadeSolicitada < 1 || quantidadeSolicitada > Number(batch.garrafas || 0)) {
+      return json(origin, { error: `Informe uma quantidade entre 1 e ${batch.garrafas}.` }, 400);
+    }
+    if (saldoDisponivel < quantidadeSolicitada) {
+      return json(origin, { error: `Não é possível estornar ${quantidadeSolicitada} garrafas: o saldo disponível de ${batch.produto_nome} é ${saldoDisponivel}.` }, 409);
     }
     const syncSecret = Deno.env.get("BLING_SYNC_SECRET");
     if (!syncSecret) return json(origin, { error: "Integração do Bling não configurada." }, 500);
     const callStock = async (action: "entrada_estoque" | "saida_estoque") => {
-      const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/bling-sync`, { method: "POST", headers: { "content-type": "application/json", "x-bling-sync-secret": syncSecret }, body: JSON.stringify({ action, produto_bling_id: batch.produto_bling_id, deposito_bling_id: batch.deposito_bling_id, quantidade: batch.garrafas, observacoes: `${action === "saida_estoque" ? "Estorno" : "Compensação"} do envase lote ${batch.lote}: ${motivo}` }) });
+      const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/bling-sync`, { method: "POST", headers: { "content-type": "application/json", "x-bling-sync-secret": syncSecret }, body: JSON.stringify({ action, produto_bling_id: batch.produto_bling_id, deposito_bling_id: batch.deposito_bling_id, quantidade: quantidadeSolicitada, observacoes: `${action === "saida_estoque" ? "Estorno" : "Compensação"} ${quantidadeSolicitada < Number(batch.garrafas) ? "parcial " : ""}do envase lote ${batch.lote}: ${motivo}` }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result?.error || "O Bling recusou a movimentação de estoque.");
       return result;
@@ -59,7 +66,7 @@ Deno.serve(async (request) => {
     let saida;
     try { saida = await callStock("saida_estoque"); }
     catch (error) { return json(origin, { error: error instanceof Error ? error.message : "Falha ao retirar as garrafas do Bling." }, 422); }
-    const { data: estorno, error: estornoError } = await db.rpc("estornar_envase", { p_envase: envaseId, p_motivo: motivo });
+    const { data: estorno, error: estornoError } = await db.rpc("estornar_envase_parcial", { p_envase: envaseId, p_quantidade: quantidadeSolicitada, p_motivo: motivo });
     if (estornoError) {
       try { await callStock("entrada_estoque"); } catch { /* requer conferência manual somente se a compensação também falhar */ }
       return json(origin, { error: `A saída foi compensada porque o estorno interno falhou: ${estornoError.message}` }, 422);

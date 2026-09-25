@@ -3547,7 +3547,7 @@
                     ${new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}
                     <span style="color:#8a96a7;font-weight:600;letter-spacing:0;margin-left:8px">${itens.length} ${itens.length===1?'envase':'envases'}</span>
                 </div>
-                ${itens.map(l => `<div class="estoque-row" onclick='verEnvase(${JSON.stringify(l).replace(/'/g,"&#39;")})' style="cursor:pointer;${l.estornado_em?'opacity:.62':''}"><div><b>${escapeAdmin(l.produto_nome)}</b><div class="order-meta-line">Lote ${escapeAdmin(l.lote)}</div></div><div style="text-align:right"><b>${l.garrafas} garrafas</b><br>${l.estornado_em?'<span class="admin-chip error">ESTORNADO</span>':`<span class="admin-chip ${l.bling_status==='sincronizado'?'ok':l.bling_status==='erro'?'error':'warn'}">BLING: ${escapeAdmin(l.bling_status)}</span>`}</div></div>`).join('')}
+                ${itens.map(l => `<div class="estoque-row" onclick='verEnvase(${JSON.stringify(l).replace(/'/g,"&#39;")})' style="cursor:pointer;${l.estornado_em?'opacity:.62':''}"><div><b>${escapeAdmin(l.produto_nome)}</b><div class="order-meta-line">Lote ${escapeAdmin(l.lote)}</div></div><div style="text-align:right"><b>${l.garrafas} garrafas</b><br>${l.estornado_em?`<span class="admin-chip error">${l.estorno_tipo==='parcial'?'ESTORNO PARCIAL':'ESTORNADO'}</span>`:`<span class="admin-chip ${l.bling_status==='sincronizado'?'ok':l.bling_status==='erro'?'error':'warn'}">BLING: ${escapeAdmin(l.bling_status)}</span>`}</div></div>`).join('')}
             `).join('') || '<p>Nenhum envase registrado.</p>';
         }
 
@@ -3717,7 +3717,11 @@
 
         function verEnvase(l) {
             const encoded = encodeURIComponent(JSON.stringify(l));
-            document.getElementById('detalhe-envase').innerHTML = `<h2>${escapeAdmin(l.produto_nome)}</h2>${l.estornado_em?'<span class="admin-chip error">ENVASE ESTORNADO</span>':''}<p><b>Lote:</b> ${escapeAdmin(l.lote)}</p><p><b>Data:</b> ${new Date(l.data_envase+'T12:00:00').toLocaleDateString('pt-BR')}</p><p><b>Garrafas:</b> ${l.garrafas}</p><p><b>Selos colados:</b> ${l.selos_aplicados}</p><p><b>Selos perdidos:</b> ${l.selos_perdidos}</p><p><b>Depósito Bling:</b> ${escapeAdmin(l.deposito_bling_id)}</p><p><b>Sincronização:</b> ${escapeAdmin(l.bling_status)}</p>${l.bling_erro?`<p style="color:#a22"><b>Erro:</b> ${escapeAdmin(l.bling_erro)}</p>`:''}${l.motivo_estorno?`<p><b>Motivo do estorno:</b> ${escapeAdmin(l.motivo_estorno)}</p>`:''}<p><b>Observações:</b> ${escapeAdmin(l.observacoes||'—')}</p>${l.estornado_em?'':`<div style="display:flex;gap:10px;margin-top:22px"><button class="btn-status" onclick="abrirEditarEnvase(decodeURIComponent('${encoded}'))">EDITAR DADOS</button><button class="btn-status" style="background:#8b2424" onclick="estornarEnvase(decodeURIComponent('${encoded}'))">ESTORNAR</button></div>`}`;
+            const qtdEstornada = Number(l.garrafas_estornadas || 0);
+            const resumoEstorno = l.estornado_em
+                ? `<span class="admin-chip error">${l.estorno_tipo==='parcial'?'ESTORNO PARCIAL':'ENVASE ESTORNADO'}</span>${l.estorno_tipo==='parcial'?`<p><b>Garrafas estornadas:</b> ${qtdEstornada}</p><p><b>Garrafas mantidas/vendidas:</b> ${Math.max(0, Number(l.garrafas)-qtdEstornada)}</p>`:''}`
+                : '';
+            document.getElementById('detalhe-envase').innerHTML = `<h2>${escapeAdmin(l.produto_nome)}</h2>${resumoEstorno}<p><b>Lote:</b> ${escapeAdmin(l.lote)}</p><p><b>Data:</b> ${new Date(l.data_envase+'T12:00:00').toLocaleDateString('pt-BR')}</p><p><b>Garrafas produzidas:</b> ${l.garrafas}</p><p><b>Selos colados:</b> ${l.selos_aplicados}</p><p><b>Selos perdidos:</b> ${l.selos_perdidos}</p><p><b>Depósito Bling:</b> ${escapeAdmin(l.deposito_bling_id)}</p><p><b>Sincronização:</b> ${escapeAdmin(l.bling_status)}</p>${l.bling_erro?`<p style="color:#a22"><b>Erro:</b> ${escapeAdmin(l.bling_erro)}</p>`:''}${l.motivo_estorno?`<p><b>Motivo do estorno:</b> ${escapeAdmin(l.motivo_estorno)}</p>`:''}<p><b>Observações:</b> ${escapeAdmin(l.observacoes||'—')}</p>${l.estornado_em?'':`<div style="display:flex;gap:10px;margin-top:22px"><button class="btn-status" onclick="abrirEditarEnvase(decodeURIComponent('${encoded}'))">EDITAR DADOS</button><button class="btn-status" style="background:#8b2424" onclick="estornarEnvase(decodeURIComponent('${encoded}'))">ESTORNAR</button></div>`}`;
             document.getElementById('modal-detalhe-envase').style.display='block'; document.getElementById('overlay').style.display='block';
         }
 
@@ -3735,11 +3739,26 @@
         }
 
         async function estornarEnvase(json) {
-            const l=JSON.parse(json), motivo=prompt('Informe o motivo do estorno:'); if(motivo===null)return;
+            const l=JSON.parse(json);
+            showToast('Conferindo o saldo disponível...');
+            const {data:produto,error:erroSaldo}=await db.from('produtos').select('estoque').eq('bling_id',l.produto_bling_id).maybeSingle();
+            if(erroSaldo)return showToast(`Não foi possível conferir o saldo: ${erroSaldo.message}`);
+            const saldo=Math.max(0,Number(produto?.estoque||0));
+            const maximo=Math.min(Number(l.garrafas||0),saldo);
+            if(maximo<1)return showToast('Não há garrafas disponíveis deste produto para estornar.');
+            let quantidade=Number(l.garrafas);
+            if(maximo<Number(l.garrafas)){
+                const informado=prompt(`Este lote produziu ${l.garrafas} garrafas, mas apenas ${saldo} ainda estão disponíveis.\n\nQuantas garrafas deseja estornar?`,String(maximo));
+                if(informado===null)return;
+                quantidade=Number(informado);
+                if(!Number.isInteger(quantidade)||quantidade<1||quantidade>maximo)return showToast(`Informe uma quantidade entre 1 e ${maximo}.`);
+            }
+            const motivo=prompt('Informe o motivo do estorno:'); if(motivo===null)return;
             if(motivo.trim().length<3)return showToast('Informe o motivo do estorno.');
-            if(!confirm(`Estornar o lote ${l.lote}? Serão retiradas ${l.garrafas} garrafas do sistema e do Bling, e os insumos serão devolvidos.`))return;
+            const parcial=quantidade<Number(l.garrafas);
+            if(!confirm(`${parcial?'Estornar parcialmente':'Estornar'} o lote ${l.lote}? Serão retiradas ${quantidade} garrafa${quantidade===1?'':'s'} do sistema e do Bling, e somente os insumos correspondentes serão devolvidos.${parcial?`\n\nAs ${Number(l.garrafas)-quantidade} garrafa(s) já movimentadas permanecerão registradas.`:''}`))return;
             showToast('Conferindo saldo e estornando o envase...');
-            try{await chamarAdmin('estornar_envase_completo',{envase_id:l.id,motivo:motivo.trim()});fecharTodosModais();showToast('Envase estornado no sistema e no Bling.');await carregar(true);carregarControleEnvase();}
+            try{await chamarAdmin('estornar_envase_completo',{envase_id:l.id,quantidade,motivo:motivo.trim()});fecharTodosModais();showToast(parcial?`Estorno parcial concluído: ${quantidade} garrafa(s) retirada(s) e ${Number(l.garrafas)-quantidade} mantida(s) no histórico.`:'Envase estornado no sistema e no Bling.');await carregar(true);carregarControleEnvase();}
             catch(e){showToast(`Estorno não concluído: ${e.message}`);}
         }
 
