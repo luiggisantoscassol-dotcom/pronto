@@ -4594,7 +4594,7 @@
             if (gengibre) catalogo.push(gengibre);
             const idsIncluidos = new Set(catalogo.map(p => String(p.id)));
             produtos
-                .filter(p => !idsIncluidos.has(String(p.id)) && !p.excluido)
+                .filter(p => !idsIncluidos.has(String(p.id)) && !p.excluido && Boolean(String(p.bling_id || '').trim()))
                 .forEach(p => catalogo.push(p));
             return catalogo;
         }
