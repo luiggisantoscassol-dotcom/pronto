@@ -1043,6 +1043,17 @@
         .admin-home-breakdown>span.is-healthy-stock{background:#ecfaf2;border-color:#58b984;box-shadow:inset 0 0 0 1px rgba(23,120,71,.06)}
         .admin-home-breakdown>span.is-healthy-stock em,.admin-home-breakdown>span.is-healthy-stock b{color:#177847}
         #home-insumos{grid-template-columns:repeat(4,minmax(0,1fr))}
+        .home-envase-formatos{display:grid;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 24px}
+        .admin-home-card--envase{cursor:default}
+        .home-envase-formato{position:relative;display:flex;min-height:92px;padding:13px 12px;box-sizing:border-box;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:8px;text-align:left;background:#f8f6f1;border:1px solid #ebe4d9;border-radius:14px;color:#19385f;cursor:pointer;transition:transform .2s ease,border-color .2s ease}
+        .home-envase-formato:hover{transform:translateY(-2px);border-color:#c59a4a}
+        .home-envase-formato strong{font-size:1.2rem;line-height:1}
+        .home-envase-formato small{color:#718096;font-size:.61rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+        .home-envase-alerta{display:inline-flex;max-width:100%;align-items:center;gap:5px;padding:5px 7px;border-radius:999px;font-size:.52rem;font-weight:900;line-height:1.2;text-transform:uppercase}
+        .home-envase-alerta.is-ok{background:#e8f7ef;color:#177847}
+        .home-envase-alerta.is-warning{background:#fff4d8;color:#946615}
+        .home-envase-alerta.is-critical{background:#ffe5e3;color:#a52a2a}
+        .home-envase-alerta.is-warning::before,.home-envase-alerta.is-critical::before{content:'';flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(197,154,74,.12)}
         #home-estoque{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-self:center}
         #home-estoque>span{min-width:0;min-height:84px;padding:12px 13px;justify-content:flex-start;gap:10px}
         #home-estoque em{display:-webkit-box;min-height:2.4em;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-size:.66rem;line-height:1.2;text-transform:uppercase}
@@ -1617,6 +1628,10 @@
             .admin-home-metric,.admin-home-breakdown { grid-column:1/-1; margin:16px 0!important; }
             .admin-home-link { grid-column:1/-1; }
             #home-insumos,#home-estoque { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .home-envase-formatos{grid-column:1/-1;margin:16px 0!important;gap:8px}
+            .home-envase-formato{min-height:100px;padding:12px 10px}
+            .home-envase-formato strong{font-size:1rem}
+            .home-envase-alerta{font-size:.48rem;padding:5px 6px}
 
             .admin-order-summary,
             #tab-consignacao .admin-order-summary { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
@@ -1900,13 +1915,16 @@
                     <strong class="admin-home-metric" id="home-embalagens">—<small>carregando caixas disponíveis</small></strong>
                     <span class="admin-home-link">Gerenciar caixas <span aria-hidden="true">→</span></span>
                 </button>
-                <button type="button" class="admin-home-card admin-home-card--envase" onclick="switchTab('tab-envase')">
+                <section class="admin-home-card admin-home-card--envase">
                     <span class="admin-home-group">Produção</span>
                     <span class="admin-home-icon" aria-hidden="true">🧴</span>
                     <h2>Controle de envase</h2>
-                    <div class="admin-home-breakdown" id="home-insumos"><span><em>Carregando saldos…</em><b>—</b></span></div>
-                    <span class="admin-home-link">Controlar envase <span aria-hidden="true">→</span></span>
-                </button>
+                    <div class="home-envase-formatos" id="home-insumos">
+                        <button type="button" class="home-envase-formato" onclick="abrirInsumosEnvaseInicio('700')"><small>Tradicional</small><strong>700 ml</strong><span class="home-envase-alerta">Carregando…</span></button>
+                        <button type="button" class="home-envase-formato" onclick="abrirInsumosEnvaseInicio('750')"><small>Quadrada</small><strong>750 ml</strong><span class="home-envase-alerta">Carregando…</span></button>
+                    </div>
+                    <span class="admin-home-link">Abra uma embalagem para conferir <span aria-hidden="true">→</span></span>
+                </section>
             </div>
         </section>
     </div>
@@ -3632,6 +3650,29 @@
             });
         }
 
+        function renderizarResumoEnvaseInicio() {
+            const destino = document.getElementById('home-insumos');
+            if (!destino) return;
+            destino.innerHTML = ['700','750'].map(formato => {
+                const itens = listarInsumosPorFormato(formato);
+                const semSaldo = itens.filter(item => Number(item.quantidade || 0) <= 0).length;
+                const acabando = itens.filter(item => Number(item.quantidade || 0) > 0 && Number(item.quantidade || 0) <= 10).length;
+                const classe = semSaldo ? 'is-critical' : acabando ? 'is-warning' : 'is-ok';
+                const aviso = semSaldo
+                    ? `${semSaldo} ${semSaldo === 1 ? 'item sem saldo' : 'itens sem saldo'}`
+                    : acabando
+                        ? `${acabando} ${acabando === 1 ? 'item acabando' : 'itens acabando'}`
+                        : 'Saldos normais';
+                const descricao = formato === '750' ? 'Quadrada' : 'Tradicional';
+                return `<button type="button" class="home-envase-formato" onclick="abrirInsumosEnvaseInicio('${formato}')"><small>${descricao}</small><strong>${formato} ml</strong><span class="home-envase-alerta ${classe}">${aviso}</span></button>`;
+            }).join('');
+        }
+
+        function abrirInsumosEnvaseInicio(formato) {
+            switchTab('tab-envase');
+            abrirInsumosPorGarrafa(formato);
+        }
+
         function abrirInsumosPorGarrafa(formato) {
             const quadrada = formato === '750';
             const itens = listarInsumosPorFormato(formato);
@@ -3665,6 +3706,7 @@
                 if (seletor && produtosReceita?.length) seletor.innerHTML = produtosReceita.map(produto => `<option value="${escapeAdmin(produto.bling_id)}">${escapeAdmin(produto.nome)}</option>`).join('');
             }
             atualizarResumoFormatosEnvase();
+            renderizarResumoEnvaseInicio();
             const lotesPorData = (lotes || []).reduce((grupos, lote) => {
                 (grupos[lote.data_envase] ||= []).push(lote); return grupos;
             }, {});
@@ -4741,12 +4783,15 @@
 
                 // Resumos da página inicial. As consultas independentes rodam juntas para
                 // manter os cartões úteis sem atrasar as demais áreas do painel.
-                const [{ data: insumosResumo }, { data: saldosConsignacaoResumo }, { count: empresasConsignacaoResumo }, { data: embalagensResumo }] = await Promise.all([
-                    db.from('insumos_envase').select('nome,quantidade').order('nome'),
+                const [{ data: insumosResumo }, { data: saldosConsignacaoResumo }, { count: empresasConsignacaoResumo }, { data: embalagensResumo }, { data: receitasResumo }] = await Promise.all([
+                    db.from('insumos_envase').select('id,codigo,nome,quantidade').order('nome'),
                     db.from('consignacao_saldos').select('quantidade'),
                     db.from('consignacao_empresas').select('id', { count: 'exact', head: true }).eq('ativa', true),
-                    db.from('embalagens').select('estoque,capacidade_garrafas').eq('ativo', true)
+                    db.from('embalagens').select('estoque,capacidade_garrafas').eq('ativo', true),
+                    db.from('receitas_envase').select('produto_bling_id,insumo_id')
                 ]);
+                insumosEnvaseAtuais = insumosResumo || [];
+                receitasEnvaseAtuais = receitasResumo || [];
 
                 // Processar Rastreio (Visitantes por Dispositivo)
                 let trackerMap = {};
@@ -5146,7 +5191,7 @@
                     homeEstoque.classList.toggle('is-expanded', produtosAdmin.length > 5);
                 }
                 const homeInsumos = document.getElementById('home-insumos');
-                if (homeInsumos) homeInsumos.innerHTML = (insumosResumo || []).map(i => `<span><em>${escapeAdmin(i.nome)}</em><b>${Number(i.quantidade || 0)}</b></span>`).join('') || '<span><em>Nenhum insumo cadastrado</em><b>0</b></span>';
+                if (homeInsumos) renderizarResumoEnvaseInicio();
                 const totalConsignado = (saldosConsignacaoResumo || []).reduce((total, saldo) => total + Number(saldo.quantidade || 0), 0);
                 const homeConsignacao = document.getElementById('home-consignacao');
                 const homeEmbalagens = document.getElementById('home-embalagens');
