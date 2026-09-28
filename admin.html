@@ -1078,6 +1078,33 @@
         .envase-formato-card__conteudo strong{display:block;font-family:var(--font-premium);font-size:1.25rem;line-height:1.12;letter-spacing:.5px;text-transform:uppercase}
         .envase-formato-card__resumo{display:block;margin-top:12px;color:#718096;font-size:.72rem;font-weight:750;line-height:1.35}
         .envase-formato-card__seta{position:relative;z-index:1;display:grid;width:40px;height:40px;place-items:center;border-radius:50%;background:#19385f;color:#fff;font-size:1.25rem}
+        .envase-produtos-grupos{display:grid;gap:20px;margin-top:18px}
+        .envase-produto-grupo{padding:20px;background:#f8f6f1;border:1px solid #e2dacd;border-radius:22px}
+        .envase-produto-grupo__cabecalho{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:15px}
+        .envase-produto-grupo__cabecalho span{display:block;margin-bottom:5px;color:#a77b2b;font-size:.58rem;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}
+        .envase-produto-grupo__cabecalho h3{margin:0;color:#19385f;font-family:var(--font-premium);font-size:1.25rem;letter-spacing:.5px;text-transform:uppercase}
+        .envase-produto-grupo__cabecalho p{max-width:440px;margin:0;color:#718096;font-size:.72rem;line-height:1.4;text-align:right}
+        .envase-produtos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+        .envase-produto-card{position:relative;display:flex;min-width:0;min-height:272px;padding:17px;box-sizing:border-box;flex-direction:column;gap:13px;background:#fff;border:1px solid #ddd5c9;border-radius:18px;box-shadow:0 8px 24px rgba(25,56,95,.06);overflow:hidden}
+        .envase-produto-card::after{content:'';position:absolute;right:-45px;bottom:-58px;width:135px;height:135px;border-radius:50%;background:rgba(197,154,74,.08);pointer-events:none}
+        .envase-produto-card.is-critical{border-color:#df6a64;background:linear-gradient(145deg,#fff,#fff3f2)}
+        .envase-produto-card.is-warning{border-color:#dab864;background:linear-gradient(145deg,#fff,#fff9e9)}
+        .envase-produto-card.is-ready{border-color:#74bd91;background:linear-gradient(145deg,#fff,#f2fbf6)}
+        .envase-produto-card__topo{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+        .envase-produto-card__linha{display:block;margin-bottom:6px;color:#9a762f;font-size:.52rem;font-weight:900;letter-spacing:.9px;text-transform:uppercase}
+        .envase-produto-card h4{margin:0;color:#19385f;font-size:.82rem;line-height:1.25;text-transform:uppercase}
+        .envase-produto-card__status{flex:0 0 auto;padding:5px 7px;border-radius:999px;background:#edf2f7;color:#52677e;font-size:.48rem;font-weight:900;letter-spacing:.4px;text-transform:uppercase}
+        .envase-produto-card.is-critical .envase-produto-card__status{background:#ffe0de;color:#a52a2a}
+        .envase-produto-card.is-warning .envase-produto-card__status{background:#fff0c8;color:#8d6416}
+        .envase-produto-card.is-ready .envase-produto-card__status{background:#ddf4e6;color:#177847}
+        .envase-produto-card__metricas{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+        .envase-produto-card__metrica{min-width:0;padding:10px;background:rgba(255,255,255,.78);border:1px solid rgba(218,210,198,.8);border-radius:12px}
+        .envase-produto-card__metrica small{display:block;min-height:2.2em;color:#718096;font-size:.52rem;font-weight:800;line-height:1.1;text-transform:uppercase}
+        .envase-produto-card__metrica b{display:block;margin-top:5px;color:#19385f;font-size:1.35rem;line-height:1}
+        .envase-produto-card__detalhe{position:relative;z-index:1;margin:0;color:#617186;font-size:.63rem;font-weight:700;line-height:1.4}
+        .envase-produto-card__acoes{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.15fr);gap:8px;margin-top:auto}
+        .envase-produto-card__acoes button{min-height:39px;padding:8px;border:1px solid #d8e0e9;border-radius:11px;background:#f4f7fa;color:#19385f;font-size:.54rem;font-weight:900;letter-spacing:.45px;text-transform:uppercase;cursor:pointer}
+        .envase-produto-card__acoes button:last-child{border-color:#19385f;background:#19385f;color:#fff}
         .envase-insumos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:18px}
         .envase-insumo-card{display:flex;min-height:150px;padding:16px;box-sizing:border-box;flex-direction:column;align-items:flex-start;gap:9px;background:#f9f7f2;border:1px solid #e1d9cd;border-radius:16px}
         .envase-insumo-card span{color:#718096;font-size:.63rem;font-weight:850;letter-spacing:.6px;line-height:1.3;text-transform:uppercase}
@@ -1649,6 +1676,18 @@
             .envase-formato-card__conteudo small{font-size:.51rem}
             .envase-formato-card__resumo{margin-top:9px;font-size:.61rem}
             .envase-formato-card__seta{position:absolute;right:10px;top:14px;width:32px;height:32px;font-size:1rem}
+            .envase-produto-grupo{padding:14px 10px;border-radius:17px}
+            .envase-produto-grupo__cabecalho{display:block;margin-bottom:11px;padding:0 3px}
+            .envase-produto-grupo__cabecalho h3{font-size:1rem}
+            .envase-produto-grupo__cabecalho p{margin-top:7px;text-align:left;font-size:.64rem}
+            .envase-produtos-grid{grid-template-columns:1fr;gap:9px}
+            .envase-produto-card{min-height:0;padding:14px;border-radius:15px}
+            .envase-produto-card h4{font-size:.76rem}
+            .envase-produto-card__metricas{grid-template-columns:repeat(3,minmax(0,1fr))}
+            .envase-produto-card__metrica{padding:8px 7px}
+            .envase-produto-card__metrica small{font-size:.46rem}
+            .envase-produto-card__metrica b{font-size:1.1rem}
+            .envase-produto-card__acoes{grid-template-columns:1fr 1.2fr}
             .envase-insumos-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
             .envase-insumo-card{min-height:145px;padding:12px 10px}
             .envase-insumo-card b{font-size:1.55rem}
@@ -2157,22 +2196,11 @@
         <div class="card">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
                 <div><h2 style="margin:0">Controle de envase</h2><small>Insumos, lotes e entrada de produto acabado no Bling</small></div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0;background:#26935c" onclick="abrirCompraInsumos()">+ REGISTRAR COMPRA</button><button class="btn-status" style="width:auto;margin:0" onclick="abrirNovoEnvase()">+ REGISTRAR ENVASE</button></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0;background:#26935c" onclick="abrirCompraInsumos()">+ REGISTRAR COMPRA</button></div>
             </div>
-            <h3 style="margin-top:30px;margin-bottom:5px">Insumos por embalagem</h3>
-            <small>Abra uma embalagem para conferir e ajustar somente os insumos usados nela.</small>
-            <div class="envase-formatos-grid">
-                <button type="button" class="envase-formato-card" onclick="abrirInsumosPorGarrafa('700')">
-                    <span class="envase-formato-card__icone">🍾</span>
-                    <span class="envase-formato-card__conteudo"><small>Linha tradicional</small><strong>Garrafa 700 ml</strong><span id="envase-resumo-700" class="envase-formato-card__resumo">Carregando insumos…</span></span>
-                    <span class="envase-formato-card__seta">→</span>
-                </button>
-                <button type="button" class="envase-formato-card" onclick="abrirInsumosPorGarrafa('750')">
-                    <span class="envase-formato-card__icone">▣</span>
-                    <span class="envase-formato-card__conteudo"><small>Linha quadrada</small><strong>Garrafa 750 ml</strong><span id="envase-resumo-750" class="envase-formato-card__resumo">Carregando insumos…</span></span>
-                    <span class="envase-formato-card__seta">→</span>
-                </button>
-            </div>
+            <h3 style="margin-top:30px;margin-bottom:5px">Produção por produto</h3>
+            <small>Cada bloco reúne a receita, os alertas e o registro de envase do produto. Insumos compartilhados continuam com um único saldo.</small>
+            <div id="envase-produtos-grupos" class="envase-produtos-grupos"><p>Carregando produtos e receitas…</p></div>
             <h3 style="margin-top:30px">Lotes realizados</h3>
             <div id="corpo-lotes-envase"></div>
         </div>
@@ -3603,7 +3631,9 @@
         const nomesProdutosEnvase = {
             '16687078597': 'Cachaça Prata 700 ml',
             '16699660347': 'Cachaça Ouro 700 ml',
-            '16699719562': 'Gengibre, Guaco e Mel 700 ml'
+            '16699719562': 'Gengibre, Guaco e Mel 700 ml',
+            '16712114193': 'Cachaça Prata 750 ml',
+            '16712113631': 'Cachaça Ouro 750 ml'
         };
 
         async function chamarAdmin(action, extra = {}) {
@@ -3627,6 +3657,8 @@
 
         let insumosEnvaseAtuais = [];
         let receitasEnvaseAtuais = [];
+        let produtosEnvaseAtuais = [];
+        let lotesEnvaseAtuais = [];
 
         function listarInsumosPorFormato(formato) {
             const codigoGarrafa = formato === '750' ? 'garrafa_quadrada_750' : 'garrafa_700';
@@ -3694,24 +3726,109 @@
             document.getElementById('overlay').style.display='block';
         }
 
+        function itensReceitaProduto(produtoBlingId) {
+            const id = String(produtoBlingId || '');
+            return receitasEnvaseAtuais
+                .filter(receita => String(receita.produto_bling_id || '') === id)
+                .map(receita => {
+                    const insumo = insumosEnvaseAtuais.find(item => item.id === receita.insumo_id);
+                    return insumo ? { ...insumo, tipo_consumo:receita.tipo_consumo || 'por_garrafa', quantidade_por_garrafa:Math.max(1,Number(receita.quantidade_por_garrafa || 1)) } : null;
+                })
+                .filter(Boolean);
+        }
+
+        function formatoProdutoEnvase(produtoBlingId) {
+            const codigos = new Set(itensReceitaProduto(produtoBlingId).map(item => item.codigo));
+            return codigos.has('garrafa_quadrada_750') ? '750' : '700';
+        }
+
+        function capacidadeProdutoEnvase(produtoBlingId) {
+            const itens = itensReceitaProduto(produtoBlingId);
+            if (!itens.length) return 0;
+            return Math.max(0, Math.min(...itens.map(item => Math.floor(Number(item.quantidade || 0) / Math.max(1,Number(item.quantidade_por_garrafa || 1))))));
+        }
+
+        function abrirInsumosPorProduto(produtoBlingId) {
+            const produto = produtosEnvaseAtuais.find(item => String(item.bling_id) === String(produtoBlingId));
+            const itens = itensReceitaProduto(produtoBlingId).sort((a,b) => {
+                const prioridade = codigo => codigo.startsWith('garrafa') ? 1 : (codigo.startsWith('tampa') || codigo.startsWith('rolha')) ? 2 : codigo.startsWith('lacre') ? 3 : codigo.startsWith('rotulo') ? 4 : 5;
+                return prioridade(a.codigo)-prioridade(b.codigo) || a.nome.localeCompare(b.nome,'pt-BR');
+            });
+            document.getElementById('insumos-formato-titulo').textContent = produto?.nome || nomesProdutosEnvase[String(produtoBlingId)] || 'Receita do produto';
+            document.getElementById('insumos-formato-descricao').textContent = 'Receita completa deste produto. Os itens marcados como compartilhados também são usados por outras receitas.';
+            document.getElementById('corpo-insumos-formato').innerHTML = itens.map(item => {
+                const usos = new Set(receitasEnvaseAtuais.filter(receita => receita.insumo_id === item.id).map(receita => String(receita.produto_bling_id))).size;
+                const compartilhado = usos > 1 ? '<span class="envase-insumo-card__tag">SALDO COMPARTILHADO</span>' : '<span class="envase-insumo-card__tag">EXCLUSIVO DESTE PRODUTO</span>';
+                return `<div class="envase-insumo-card"><span>${escapeAdmin(item.nome)}</span>${compartilhado}<b>${Number(item.quantidade || 0)}</b><button type="button" onclick="abrirAjusteInsumo('${item.id}', '${escapeAdmin(item.nome).replace(/'/g,"\\'")}', ${Number(item.quantidade || 0)})">AJUSTAR SALDO</button></div>`;
+            }).join('') || '<p>Este produto ainda não possui uma receita de envase configurada.</p>';
+            document.getElementById('modal-insumos-formato').style.display='flex';
+            document.getElementById('modal-insumos-formato').style.flexDirection='column';
+            document.getElementById('overlay').style.display='block';
+        }
+
+        function renderizarProdutosControleEnvase() {
+            const destino = document.getElementById('envase-produtos-grupos');
+            if (!destino) return;
+            const prioridade = new Map(['16687078597','16699660347','16699719562','16712114193','16712113631'].map((id,indice) => [id,indice]));
+            const produtos = produtosEnvaseAtuais
+                .filter(produto => receitasEnvaseAtuais.some(receita => String(receita.produto_bling_id) === String(produto.bling_id)))
+                .sort((a,b) => (prioridade.get(String(a.bling_id)) ?? 99) - (prioridade.get(String(b.bling_id)) ?? 99) || String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+            const grupos = [
+                { formato:'700', titulo:'Linha tradicional · 700 ml', texto:'Garrafas tradicionais com tampas e rótulos próprios.' },
+                { formato:'750', titulo:'Linha quadrada · 750 ml', texto:'Garrafas quadradas com rolha, lacre e rótulos próprios.' }
+            ];
+            destino.innerHTML = grupos.map(grupo => {
+                const produtosGrupo = produtos.filter(produto => formatoProdutoEnvase(produto.bling_id) === grupo.formato);
+                if (!produtosGrupo.length) return '';
+                const cards = produtosGrupo.map(produto => {
+                    const itens = itensReceitaProduto(produto.bling_id);
+                    const semSaldo = itens.filter(item => Number(item.quantidade || 0) <= 0);
+                    const acabando = itens.filter(item => Number(item.quantidade || 0) > 0 && Number(item.quantidade || 0) <= 10);
+                    const classe = semSaldo.length ? 'is-critical' : acabando.length ? 'is-warning' : 'is-ready';
+                    const status = semSaldo.length ? `${semSaldo.length} sem saldo` : acabando.length ? `${acabando.length} acabando` : 'Receita disponível';
+                    const alerta = semSaldo.length
+                        ? `Falta: ${semSaldo.slice(0,2).map(item => item.nome).join(' · ')}${semSaldo.length > 2 ? ` e mais ${semSaldo.length-2}` : ''}`
+                        : acabando.length
+                            ? `Atenção: ${acabando.slice(0,2).map(item => item.nome).join(' · ')}${acabando.length > 2 ? ` e mais ${acabando.length-2}` : ''}`
+                            : `${itens.length} insumos com saldo para produção.`;
+                    const ultimoLote = lotesEnvaseAtuais.find(lote => String(lote.produto_bling_id) === String(produto.bling_id) && !lote.estornado_em);
+                    const ultimo = ultimoLote ? `${escapeAdmin(ultimoLote.lote)} · ${new Date(ultimoLote.data_envase+'T12:00:00').toLocaleDateString('pt-BR')}` : 'Nenhum lote ativo';
+                    return `<article class="envase-produto-card ${classe}">
+                        <div class="envase-produto-card__topo"><div><span class="envase-produto-card__linha">${grupo.formato === '750' ? 'Garrafa quadrada' : 'Garrafa tradicional'}</span><h4>${escapeAdmin(produto.nome)}</h4></div><span class="envase-produto-card__status">${status}</span></div>
+                        <div class="envase-produto-card__metricas">
+                            <div class="envase-produto-card__metrica"><small>Prontas</small><b>${Math.max(0,Number(produto.estoque || 0))}</b></div>
+                            <div class="envase-produto-card__metrica"><small>Possível produzir</small><b>${capacidadeProdutoEnvase(produto.bling_id)}</b></div>
+                            <div class="envase-produto-card__metrica"><small>Insumos</small><b>${itens.length}</b></div>
+                        </div>
+                        <p class="envase-produto-card__detalhe">${escapeAdmin(alerta)}<br><strong>Último lote:</strong> ${ultimo}</p>
+                        <div class="envase-produto-card__acoes"><button type="button" onclick="abrirInsumosPorProduto('${escapeAdmin(produto.bling_id)}')">Ver insumos</button><button type="button" onclick="abrirNovoEnvase('${escapeAdmin(produto.bling_id)}')">Registrar envase</button></div>
+                    </article>`;
+                }).join('');
+                return `<section class="envase-produto-grupo"><div class="envase-produto-grupo__cabecalho"><div><span>Produção</span><h3>${grupo.titulo}</h3></div><p>${grupo.texto}</p></div><div class="envase-produtos-grid">${cards}</div></section>`;
+            }).join('') || '<p>Nenhum produto com receita de envase configurada.</p>';
+        }
+
         async function carregarControleEnvase() {
-            const [{ data: insumos, error: ei }, { data: lotes, error: el }, { data: receitas, error: er }] = await Promise.all([
+            const [{ data: insumos, error: ei }, { data: lotes, error: el }, { data: receitas, error: er }, { data: produtosReceita, error: ep }] = await Promise.all([
                 db.from('insumos_envase').select('*').order('nome'),
                 db.from('envases').select('*').order('criado_em', { ascending:false }).limit(100),
-                db.from('receitas_envase').select('produto_bling_id,insumo_id')
+                db.from('receitas_envase').select('produto_bling_id,insumo_id,tipo_consumo,quantidade_por_garrafa'),
+                db.from('produtos').select('nome,bling_id,estoque').eq('excluido',false).eq('tipo_produto','unitario').order('nome')
             ]);
-            if (ei || el || er) return showToast('Execute a nova migração do controle de envase no Supabase.');
+            if (ei || el || er || ep) return showToast('Não foi possível carregar o controle de envase.');
             insumosEnvaseAtuais = insumos || [];
             receitasEnvaseAtuais = receitas || [];
+            produtosEnvaseAtuais = produtosReceita || [];
+            lotesEnvaseAtuais = lotes || [];
             const idsReceitas = [...new Set((receitas || []).map(item => String(item.produto_bling_id || '')).filter(Boolean))];
             if (idsReceitas.length) {
-                const { data: produtosReceita } = await db.from('produtos').select('nome,bling_id').in('bling_id',idsReceitas).eq('excluido',false).order('nome');
                 (produtosReceita || []).forEach(produto => { nomesProdutosEnvase[String(produto.bling_id)] = produto.nome; });
                 const seletor = document.getElementById('env-produto');
                 if (seletor && produtosReceita?.length) seletor.innerHTML = produtosReceita.map(produto => `<option value="${escapeAdmin(produto.bling_id)}">${escapeAdmin(produto.nome)}</option>`).join('');
             }
             atualizarResumoFormatosEnvase();
             renderizarResumoEnvaseInicio();
+            renderizarProdutosControleEnvase();
             const lotesPorData = (lotes || []).reduce((grupos, lote) => {
                 (grupos[lote.data_envase] ||= []).push(lote); return grupos;
             }, {});
@@ -3867,8 +3984,15 @@
             fecharTodosModais(); showToast('Saldo atualizado.'); carregarControleEnvase();
         }
 
-        async function abrirNovoEnvase() {
+        async function abrirNovoEnvase(produtoBlingId = '') {
+            const seletorProduto = document.getElementById('env-produto');
+            if (produtoBlingId && [...seletorProduto.options].some(option => option.value === String(produtoBlingId))) seletorProduto.value = String(produtoBlingId);
             document.getElementById('env-data').value = new Date().toISOString().slice(0,10);
+            document.getElementById('env-lote').value = '';
+            document.getElementById('env-garrafas').value = '';
+            document.getElementById('env-selos').value = '';
+            document.getElementById('env-perdidos').value = '0';
+            document.getElementById('env-observacoes').value = '';
             document.getElementById('modal-envase').style.display='block'; document.getElementById('overlay').style.display='block';
             try {
                 const data = await chamarAdmin('listar_depositos_bling');
