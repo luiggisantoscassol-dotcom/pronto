@@ -1044,7 +1044,7 @@
         .admin-home-breakdown>span.is-healthy-stock em,.admin-home-breakdown>span.is-healthy-stock b{color:#177847}
         #home-insumos{grid-template-columns:repeat(4,minmax(0,1fr))}
         .home-envase-formatos{display:grid;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 24px}
-        .admin-home-card--envase{cursor:default}
+        .admin-home-card--envase{cursor:pointer}
         .home-envase-formato{position:relative;display:flex;min-height:92px;padding:13px 12px;box-sizing:border-box;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:8px;text-align:left;background:#f8f6f1;border:1px solid #ebe4d9;border-radius:14px;color:#19385f;cursor:pointer;transition:transform .2s ease,border-color .2s ease}
         .home-envase-formato:hover{transform:translateY(-2px);border-color:#c59a4a}
         .home-envase-formato strong{font-size:1.2rem;line-height:1}
@@ -1915,13 +1915,13 @@
                     <strong class="admin-home-metric" id="home-embalagens">—<small>carregando caixas disponíveis</small></strong>
                     <span class="admin-home-link">Gerenciar caixas <span aria-hidden="true">→</span></span>
                 </button>
-                <section class="admin-home-card admin-home-card--envase">
+                <section class="admin-home-card admin-home-card--envase" role="button" tabindex="0" onclick="switchTab('tab-envase')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('tab-envase')}">
                     <span class="admin-home-group">Produção</span>
                     <span class="admin-home-icon" aria-hidden="true">🧴</span>
                     <h2>Controle de envase</h2>
                     <div class="home-envase-formatos" id="home-insumos">
-                        <button type="button" class="home-envase-formato" onclick="abrirInsumosEnvaseInicio('700')"><small>Tradicional</small><strong>700 ml</strong><span class="home-envase-alerta">Carregando…</span></button>
-                        <button type="button" class="home-envase-formato" onclick="abrirInsumosEnvaseInicio('750')"><small>Quadrada</small><strong>750 ml</strong><span class="home-envase-alerta">Carregando…</span></button>
+                        <button type="button" class="home-envase-formato" onclick="event.stopPropagation();abrirInsumosEnvaseInicio('700')"><small>Tradicional</small><strong>700 ml</strong><span class="home-envase-alerta">Carregando…</span></button>
+                        <button type="button" class="home-envase-formato" onclick="event.stopPropagation();abrirInsumosEnvaseInicio('750')"><small>Quadrada</small><strong>750 ml</strong><span class="home-envase-alerta">Carregando…</span></button>
                     </div>
                     <span class="admin-home-link">Abra uma embalagem para conferir <span aria-hidden="true">→</span></span>
                 </section>
@@ -3664,7 +3664,7 @@
                         ? `${acabando} ${acabando === 1 ? 'item acabando' : 'itens acabando'}`
                         : 'Saldos normais';
                 const descricao = formato === '750' ? 'Quadrada' : 'Tradicional';
-                return `<button type="button" class="home-envase-formato" onclick="abrirInsumosEnvaseInicio('${formato}')"><small>${descricao}</small><strong>${formato} ml</strong><span class="home-envase-alerta ${classe}">${aviso}</span></button>`;
+                return `<button type="button" class="home-envase-formato" onclick="event.stopPropagation();abrirInsumosEnvaseInicio('${formato}')"><small>${descricao}</small><strong>${formato} ml</strong><span class="home-envase-alerta ${classe}">${aviso}</span></button>`;
             }).join('');
         }
 
