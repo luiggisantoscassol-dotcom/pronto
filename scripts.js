@@ -1207,9 +1207,9 @@ function apresentacaoCardProduto(produto) {
     const nome = nomeProdutoOficial(produto);
     if (blingId === '16699719562') return { titulo: 'Gengibre, Guaco e Mel', subtitulo: 'Bebida alcoólica mista · 700 ml' };
     if (blingId === '16699660347') return { titulo: 'Cachaça Ouro', subtitulo: 'Envelhecida em carvalho por 2 anos · Premium · 700 ml' };
-    if (blingId === '16687078597') return { titulo: 'Cachaça Prata', subtitulo: 'Cachaça prata · 700 ml' };
+    if (blingId === '16687078597') return { titulo: 'Cachaça Prata', subtitulo: 'Tradicional · 700 ml' };
     if (blingId === '16712113631') return { titulo: 'Cachaça Ouro', subtitulo: 'Garrafa quadrada · 750 ml · Premium' };
-    if (blingId === '16712114193') return { titulo: 'Cachaça Prata', subtitulo: 'Garrafa quadrada · 750 ml' };
+    if (blingId === '16712114193') return { titulo: 'Cachaça Prata', subtitulo: 'Garrafa quadrada · 750 ml · Tradicional' };
     if (produto?.tipo_produto === 'kit') {
         const titulo = nome.replace(/\s+TIO\s+NAN\s*$/i, '').replace(/\s+700\s*ML\s*/ig, ' ').replace(/\s{2,}/g, ' ').trim();
         const unidades = Math.max(1, Number(produto?.unidades_por_kit || 1));
