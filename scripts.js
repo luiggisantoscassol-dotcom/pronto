@@ -1188,6 +1188,7 @@ function fotoProdutoOficial(produto, isFoto2 = false) {
     const fotoCadastrada = fixDrive(isFoto2 ? produto?.foto_2 : produto?.foto_1);
     if (fotoCadastrada) return fotoCadastrada;
     if (produto?.tipo_produto === 'kit') return 'fotos/produto-em-breve.svg';
+    if (blingId === '16712113631' || blingId === '16712114193') return 'fotos/produto-em-breve.svg';
     if (blingId === '16699719562') return isFoto2 ? 'fotos/gengibre-2.webp' : 'fotos/gengibre-guaco-mel.webp?v=5';
     if (blingId === '16699660347') return 'fotos/cachaca-ouro.webp?v=2';
     if (blingId === '16687078597') return 'fotos/produto-em-breve.svg';
@@ -1195,8 +1196,8 @@ function fotoProdutoOficial(produto, isFoto2 = false) {
 }
 
 // O cadastro administrativo/Bling é a fonte oficial para a apresentação dos
-// três produtos. Mantém a vitrine, o detalhe e novos itens do carrinho em
-// 700 ml mesmo se um nome antigo de 750 ml ainda estiver salvo no banco.
+// produtos. As variações de embalagem possuem IDs próprios para que pedido,
+// estoque e documento fiscal permaneçam vinculados ao item correto.
 function nomeProdutoOficial(produto) {
     return String(produto?.nome || '');
 }
@@ -1207,6 +1208,8 @@ function apresentacaoCardProduto(produto) {
     if (blingId === '16699719562') return { titulo: 'Gengibre, Guaco e Mel', subtitulo: 'Bebida alcoólica mista · 700 ml' };
     if (blingId === '16699660347') return { titulo: 'Cachaça Ouro', subtitulo: 'Envelhecida em carvalho por 2 anos · Premium · 700 ml' };
     if (blingId === '16687078597') return { titulo: 'Cachaça Prata', subtitulo: 'Cachaça prata · 700 ml' };
+    if (blingId === '16712113631') return { titulo: 'Cachaça Ouro', subtitulo: 'Garrafa quadrada · 750 ml · Premium' };
+    if (blingId === '16712114193') return { titulo: 'Cachaça Prata', subtitulo: 'Garrafa quadrada · 750 ml' };
     if (produto?.tipo_produto === 'kit') {
         const titulo = nome.replace(/\s+TIO\s+NAN\s*$/i, '').replace(/\s+700\s*ML\s*/ig, ' ').replace(/\s{2,}/g, ' ').trim();
         const unidades = Math.max(1, Number(produto?.unidades_por_kit || 1));
@@ -1263,7 +1266,7 @@ async function loadProducts() {
             .replace(/[^a-z0-9]+/g, ' ')
             .replace(/^cachaca\s+(de\s+)?/, '')
             .trim();
-        const ordemProdutosBling = ['16699719562', '16699660347', '16687078597'];
+        const ordemProdutosBling = ['16699719562', '16699660347', '16712113631', '16687078597', '16712114193'];
         const prioridadeProduto = new Map(ordemProdutosBling.map((id, indice) => [id, indice]));
         const produtosExibidos = (produtos || [])
             .filter(produto => ordemProdutosBling.includes(String(produto.bling_id || '')) || (produto.tipo_produto === 'kit' && produto.visivel === true))

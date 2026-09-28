@@ -191,6 +191,7 @@
       const savedPhoto = String(p.foto_1 || '').trim();
       if (savedPhoto) return savedPhoto;
       if (p.tipo_produto === 'kit') return 'fotos/produto-em-breve.svg';
+      if (blingId === '16712113631' || blingId === '16712114193') return 'fotos/produto-em-breve.svg';
       if (blingId === '16699719562') return 'fotos/gengibre-guaco-mel.webp?v=5';
       if (blingId === '16699660347') return 'fotos/cachaca-ouro.webp?v=2';
       if (blingId === '16687078597') return 'fotos/produto-em-breve.svg';
@@ -376,7 +377,8 @@
         ? 'Tem sabores que parecem um abraço. Nesta bebida, o gengibre chega primeiro com sua personalidade marcante, o guaco traz um toque especial e o mel deixa tudo mais equilibrado e gostoso de beber. O resultado é uma combinação autêntica, feita para servir sem pressa, compartilhar com gente querida e transformar qualquer encontro em um bom brinde.'
         : (p.descricao || 'Uma cachaça Tio Nan para celebrar bons encontros e transformar cada brinde em história.');
       updateSeo(p, review, description);
-      const volume = p.volume || '700 ml';
+      const produto750 = ['16712113631', '16712114193'].includes(String(p.bling_id || '')) || /750\s*ml/i.test(String(p.nome || ''));
+      const volume = p.volume || (produto750 ? '750 ml' : '700 ml');
       const alcohol = gengibreGuacoMel ? '28% vol.' : (p.teor_alcoolico ? `${p.teor_alcoolico}% vol.` : 'Consulte o rótulo');
       const category = gengibreGuacoMel ? 'Bebida mista' : 'Cachaça premium';
       const productType = gengibreGuacoMel ? 'Bebida mista à base de Cachaça Prata Tio Nan' : 'Cachaça Tio Nan';
