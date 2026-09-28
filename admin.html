@@ -2179,6 +2179,14 @@
             <div class="produto-campo"><label for="cad-custo">Preço de custo (R$)</label><input type="number" id="cad-custo" min="0" step="0.01" placeholder="Custo do produto"></div>
             <div class="produto-campo"><label for="cad-estoque">Estoque inicial</label><input type="number" id="cad-estoque" value="0" min="0" readonly aria-describedby="cad-estoque-ajuda"></div>
             <small id="cad-estoque-ajuda" style="display:block;margin:-4px 4px 14px;color:#718096">O produto nasce com saldo zero. Registre as garrafas pela aba Controle de Envase para atualizar o sistema e o Bling juntos.</small>
+            <div id="cad-envase-config" style="margin:0 0 16px;padding:16px;border:1px solid #ded7cc;border-radius:16px;background:#f7f4ee">
+                <b style="display:block;margin-bottom:5px;color:#19385f">Receita de envase</b>
+                <small style="display:block;margin-bottom:12px;color:#718096">Define automaticamente quais garrafas, fechamentos, lacres, rótulos e selos serão consumidos.</small>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
+                    <div class="produto-campo" style="margin:0"><label for="cad-formato">Embalagem</label><select id="cad-formato"><option value="tradicional_700">Tradicional · 700 ml</option><option value="quadrada_750">Quadrada · 750 ml</option></select></div>
+                    <div class="produto-campo" style="margin:0"><label for="cad-categoria">Categoria</label><select id="cad-categoria"><option value="prata">Cachaça Prata</option><option value="ouro">Cachaça Ouro</option><option value="bebida_mista">Bebida mista</option></select></div>
+                </div>
+            </div>
             <div class="produto-campo"><label for="cad-bling-id">ID do Bling (opcional)</label><input type="text" id="cad-bling-id" inputmode="numeric" placeholder="Somente para vincular um produto existente"></div>
             <small style="display:block;margin:-4px 4px 14px;color:#718096">Deixe em branco para criar automaticamente no Bling.</small>
             <div id="cad-componentes" style="display:none;margin:0 0 16px;padding:18px;border:1px solid #ded7cc;border-radius:16px;background:#f7f4ee;color:#19385f">
@@ -3545,11 +3553,19 @@
         }
 
         async function carregarControleEnvase() {
-            const [{ data: insumos, error: ei }, { data: lotes, error: el }] = await Promise.all([
+            const [{ data: insumos, error: ei }, { data: lotes, error: el }, { data: receitas, error: er }] = await Promise.all([
                 db.from('insumos_envase').select('*').order('nome'),
-                db.from('envases').select('*').order('criado_em', { ascending:false }).limit(100)
+                db.from('envases').select('*').order('criado_em', { ascending:false }).limit(100),
+                db.from('receitas_envase').select('produto_bling_id')
             ]);
-            if (ei || el) return showToast('Execute a nova migração do controle de envase no Supabase.');
+            if (ei || el || er) return showToast('Execute a nova migração do controle de envase no Supabase.');
+            const idsReceitas = [...new Set((receitas || []).map(item => String(item.produto_bling_id || '')).filter(Boolean))];
+            if (idsReceitas.length) {
+                const { data: produtosReceita } = await db.from('produtos').select('nome,bling_id').in('bling_id',idsReceitas).eq('excluido',false).order('nome');
+                (produtosReceita || []).forEach(produto => { nomesProdutosEnvase[String(produto.bling_id)] = produto.nome; });
+                const seletor = document.getElementById('env-produto');
+                if (seletor && produtosReceita?.length) seletor.innerHTML = produtosReceita.map(produto => `<option value="${escapeAdmin(produto.bling_id)}">${escapeAdmin(produto.nome)}</option>`).join('');
+            }
             document.getElementById('corpo-insumos-envase').innerHTML = (insumos || []).map(i => `<div class="admin-summary-card" style="display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-height:145px"><span>${escapeAdmin(i.nome)}</span><b style="font-size:2rem;line-height:1">${i.quantidade}</b><button onclick="abrirAjusteInsumo('${i.id}', '${escapeAdmin(i.nome).replace(/'/g,"\\'")}', ${i.quantidade})" style="border:1px solid #d9e3ee;background:#f4f8fc;color:#1f5f9f;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer">AJUSTAR SALDO</button></div>`).join('');
             const lotesPorData = (lotes || []).reduce((grupos, lote) => {
                 (grupos[lote.data_envase] ||= []).push(lote); return grupos;
@@ -3718,7 +3734,8 @@
             const lote = document.getElementById('env-lote').value.trim(), data = document.getElementById('env-data').value;
             const garrafas = Number(document.getElementById('env-garrafas').value), selos = Number(document.getElementById('env-selos').value), perdidos = Number(document.getElementById('env-perdidos').value || 0);
             if (!deposito || !lote || !data || !Number.isInteger(garrafas) || garrafas < 1 || !Number.isInteger(selos) || selos < 0 || !Number.isInteger(perdidos) || perdidos < 0) return showToast('Preencha todos os dados corretamente.');
-            const { data: envaseId, error } = await db.rpc('registrar_envase', { p_produto_bling_id:produto, p_produto_nome:nomesProdutosEnvase[produto], p_lote:lote, p_data:data, p_garrafas:garrafas, p_selos_aplicados:selos, p_selos_perdidos:perdidos, p_deposito_bling_id:deposito, p_observacoes:document.getElementById('env-observacoes').value.trim() || null });
+            const nomeProduto = nomesProdutosEnvase[produto] || document.getElementById('env-produto').selectedOptions?.[0]?.textContent || 'Produto';
+            const { data: envaseId, error } = await db.rpc('registrar_envase', { p_produto_bling_id:produto, p_produto_nome:nomeProduto, p_lote:lote, p_data:data, p_garrafas:garrafas, p_selos_aplicados:selos, p_selos_perdidos:perdidos, p_deposito_bling_id:deposito, p_observacoes:document.getElementById('env-observacoes').value.trim() || null });
             if (error) return showToast(`Erro: ${error.message}`);
             try {
                 const entrada = await chamarAdmin('entrada_estoque_bling', { produto_bling_id:produto, deposito_bling_id:deposito, quantidade:garrafas, envase_id:envaseId, observacoes:`Envase lote ${lote}` });
@@ -5321,6 +5338,8 @@
 
         async function cadastrarProduto() {
             const tipoProduto = document.getElementById('cad-tipo').value;
+            const formatoEnvase = document.getElementById('cad-formato').value;
+            const categoriaEnvase = document.getElementById('cad-categoria').value;
             const n = document.getElementById('cad-nome').value.trim();
             const p = parseFloat(document.getElementById('cad-preco').value);
             const precoOriginal = parseFloat(document.getElementById('cad-preco-original').value || 0);
@@ -5352,8 +5371,16 @@
                     teor_alcoolico: teor, harmonizacao: harm,
                     tipo_produto: tipoProduto, componentes
                 }});
+                let avisoReceita = '';
+                if (tipoProduto === 'unitario' && resultado.produto?.bling_id) {
+                    const { error: erroReceita } = await db.rpc('configurar_receita_envase', {
+                        p_produto_bling_id:String(resultado.produto.bling_id), p_produto_nome:n,
+                        p_formato:formatoEnvase, p_categoria:categoriaEnvase
+                    });
+                    if (erroReceita) avisoReceita = ` · receita pendente: ${erroReceita.message}`;
+                }
                 document.getElementById('cad-tipo').value = 'unitario'; document.getElementById('cad-nome').value = ''; document.getElementById('cad-preco').value = ''; document.getElementById('cad-preco-original').value = ''; document.getElementById('cad-desconto').value = ''; document.getElementById('cad-custo').value = ''; document.getElementById('cad-estoque').value = '0'; document.getElementById('cad-bling-id').value = ''; document.getElementById('cad-foto1-arquivo').value = ''; document.getElementById('cad-foto2-arquivo').value = ''; atualizarIndicadorFoto('cad', 1, ''); atualizarIndicadorFoto('cad', 2, ''); document.getElementById('cad-descricao').value = ''; document.getElementById('cad-teor').value = ''; document.getElementById('cad-harmonizacao').value = ''; document.getElementById('cad-comp-prata').value = '0'; document.getElementById('cad-comp-ouro').value = '0'; document.getElementById('cad-comp-gengibre').value = '0'; toggleCadastroTipo();
-                showToast(`${resultado.criado_no_bling ? 'Produto criado' : 'Produto vinculado'} com sucesso · Bling ${resultado.produto?.bling_id || ''}`);
+                showToast(`${resultado.criado_no_bling ? 'Produto criado' : 'Produto vinculado'} com sucesso · Bling ${resultado.produto?.bling_id || ''}${avisoReceita}`);
                 switchTab('tab-estoque');
                 await carregar();
             } catch (error) {
@@ -5370,6 +5397,8 @@
             if (bloco) bloco.style.display = kit ? 'block' : 'none';
             const calcular = document.getElementById('cad-calcular-original');
             if (calcular) calcular.style.display = kit ? 'block' : 'none';
+            const receita = document.getElementById('cad-envase-config');
+            if (receita) receita.style.display = kit ? 'none' : 'block';
             const total = ['cad-comp-prata','cad-comp-ouro','cad-comp-gengibre'].reduce((s,id) => s + Math.max(0, Number(document.getElementById(id)?.value || 0)), 0);
             const saida = document.getElementById('cad-comp-total');
             if (saida) saida.textContent = `Total: ${total} ${total === 1 ? 'garrafa' : 'garrafas'}`;
