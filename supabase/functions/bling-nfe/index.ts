@@ -4,6 +4,7 @@ import { sendInvoiceEmail, sendOrderStatusUpdate } from "../_shared/order-email.
 const API_BASE = "https://api.bling.com.br/Api/v3";
 const ALLOWED_NATURE_KEYS = new Set([
   "consumidor_final",
+  "brinde",
   "revenda_rs_normal",
   "revenda_rs_simples",
   "revenda_fora_rs_normal",
@@ -34,6 +35,7 @@ const json = (origin: string | null, body: unknown, status = 200) => new Respons
 
 const natureIds = () => ({
   consumidor_final: Deno.env.get("BLING_NATURE_CONSUMIDOR_FINAL_ID") || "",
+  brinde: Deno.env.get("BLING_NATURE_BRINDE_ID") || "15111377049",
   revenda_rs_normal: Deno.env.get("BLING_NATURE_REVENDA_RS_NORMAL_ID") || "",
   revenda_rs_simples: Deno.env.get("BLING_NATURE_REVENDA_RS_SIMPLES_ID") || "",
   revenda_fora_rs_normal: Deno.env.get("BLING_NATURE_REVENDA_FORA_RS_NORMAL_ID") || "",
@@ -138,7 +140,7 @@ Deno.serve(async (request) => {
   }
 
   const { data: order, error: orderError } = await db.from("pedidos")
-    .select("id,referencia,status,bling_id,bling_nfe_id,bling_nfe_status,bling_nfe_numero,bling_nfe_chave_acesso,bling_nfe_natureza_chave,bling_estoque_lancado_em,estoque_estornado_em,cliente_nome,cliente_email,cliente_cpf,cliente_telefone,tracking_token,endereco,itens_json,total,frete,pagamento,status_pagamento")
+    .select("id,referencia,status,tipo_operacao,bling_id,bling_nfe_id,bling_nfe_status,bling_nfe_numero,bling_nfe_chave_acesso,bling_nfe_natureza_chave,bling_estoque_lancado_em,estoque_estornado_em,cliente_nome,cliente_email,cliente_cpf,cliente_telefone,tracking_token,endereco,itens_json,total,frete,pagamento,status_pagamento")
     .eq("id", pedidoId).single();
   if (orderError || !order) return json(origin, { error: "Pedido não encontrado." }, 404);
   if (!order.bling_id) return json(origin, { error: "Sincronize este pedido com o Bling antes de emitir a NF-e." }, 409);
@@ -204,6 +206,8 @@ Deno.serve(async (request) => {
       bling_nfe_id: note.id || order.bling_nfe_id || null,
       bling_nfe_status: note.situacao || "gerada",
       bling_nfe_numero: note.numero || null,
+      bling_nfe_serie: note.serie || null,
+      bling_nfe_data_emissao: note.data_emissao ? String(note.data_emissao).slice(0, 10) : null,
       bling_nfe_chave_acesso: note.chave_acesso || null,
       bling_nfe_ultima_consulta_em: new Date().toISOString(),
       bling_nfe_erro: null,
@@ -284,13 +288,13 @@ Deno.serve(async (request) => {
         emailEnviado = Boolean(emailResult.ok);
         if (!emailResult.ok && !emailResult.skipped) emailErro = emailResult.error || "Falha no envio";
       }
-      return json(origin, { ok: true, nota_cancelada: Boolean(noteId), estoque_estornado: true, estoque: stockResult, email_enviado: emailEnviado, email_erro: emailErro });
+      return json(origin, { ok: true, nota_cancelada: Boolean(noteId), estoque_estornado: true, xml_contabilidade_excluido: true, estoque: stockResult, email_enviado: emailEnviado, email_erro: emailErro });
     }
 
     if (action === "revisar") {
       const compradorTipo = String(input.comprador_tipo || "consumidor");
       const regime = String(input.regime_tributario || "normal") === "simples" ? "simples" : "normal";
-      const suggested = compradorTipo === "revendedor"
+      const suggested = order.tipo_operacao === "brinde" ? "brinde" : compradorTipo === "revendedor"
         ? `revenda_${destinoUf === "RS" ? "rs" : "fora_rs"}_${regime}`
         : "consumidor_final";
       return json(origin, {
@@ -329,7 +333,7 @@ Deno.serve(async (request) => {
         return json(origin, { error: "Confirme explicitamente o ambiente fiscal exibido antes de emitir." }, 409);
       }
       const natureKey = String(input.natureza_chave || "");
-      if (!ALLOWED_NATURE_KEYS.has(natureKey)) return json(origin, { error: "Selecione uma das quatro naturezas permitidas." }, 400);
+      if (!ALLOWED_NATURE_KEYS.has(natureKey)) return json(origin, { error: "Selecione uma das naturezas fiscais permitidas." }, 400);
       const natureId = configured[natureKey as keyof typeof configured];
       if (!natureId || !/^\d+$/.test(natureId)) return json(origin, { error: "Essa natureza ainda não foi configurada no servidor." }, 409);
 

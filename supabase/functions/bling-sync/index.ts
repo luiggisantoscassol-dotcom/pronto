@@ -1,7 +1,8 @@
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
   const API_BASE = "https://api.bling.com.br/Api/v3";
-  const CONSUMER_FINAL_NATURE_ID = 15111377049;
+  const CONSUMER_FINAL_NATURE_ID = Number(Deno.env.get("BLING_NATURE_CONSUMIDOR_FINAL_ID") || "0");
+  const GIFT_NATURE_ID = Number(Deno.env.get("BLING_NATURE_BRINDE_ID") || "15111377049");
   const BLING_PAYMENT_METHOD_IDS: Record<string, number> = {
     pix: 11024643,
     visa: 11024694,
@@ -363,12 +364,16 @@
         const reference = String(input.referencia || "");
         if (!reference) return json({ error: "Informe a referência do pedido." }, 400);
         const { data: order, error: orderError } = await db.from("pedidos")
-          .select("referencia,total,frete,endereco,itens_json,frete_detalhes,cliente_nome,cliente_telefone,cliente_email,cliente_cpf,status_pagamento,pagamento,pagamento_metodo,pagamento_parcelas,bling_id,bling_estoque_lancado_em")
+          .select("referencia,tipo_operacao,total,frete,endereco,itens_json,frete_detalhes,cliente_nome,cliente_telefone,cliente_email,cliente_cpf,status_pagamento,pagamento,pagamento_metodo,pagamento_parcelas,bling_id,bling_estoque_lancado_em")
           .eq("referencia", reference).single();
         if (orderError || !order) return json({ error: "Pedido não encontrado." }, 404);
         const isCashOrder = String(order.pagamento || "").toLowerCase().startsWith("dinheiro");
         const isTestOrder = order.status_pagamento === "pago_teste" || String(order.pagamento_metodo || "").toLowerCase() === "teste";
-        if (order.status_pagamento !== "pago" && !isCashOrder && !isTestOrder) {
+        const isGift = order.tipo_operacao === "brinde";
+        if ((!isGift && !CONSUMER_FINAL_NATURE_ID) || (isGift && !GIFT_NATURE_ID)) {
+          return json({ error: `A natureza fiscal de ${isGift ? "brinde" : "consumidor final"} ainda não foi configurada no servidor.` }, 409);
+        }
+        if (!isGift && order.status_pagamento !== "pago" && !isCashOrder && !isTestOrder) {
           return json({ error: "O pedido ainda não possui pagamento aprovado." }, 409);
         }
         const existingSaleId = order.bling_id ? String(order.bling_id) : null;
@@ -548,8 +553,8 @@
         const today = new Date().toISOString().slice(0, 10);
         const providerMethod = String(order.pagamento_metodo || "").trim().toLowerCase();
         const paymentKey = isCashOrder ? "dinheiro" : providerMethod;
-        const blingPaymentMethodId = BLING_PAYMENT_METHOD_IDS[paymentKey];
-        if (!blingPaymentMethodId) throw new Error(`Forma de pagamento do Mercado Pago não mapeada: ${providerMethod || "não informada"}.`);
+        const blingPaymentMethodId = isGift ? null : BLING_PAYMENT_METHOD_IDS[paymentKey];
+        if (!isGift && !blingPaymentMethodId) throw new Error(`Forma de pagamento do Mercado Pago não mapeada: ${providerMethod || "não informada"}.`);
         const subtotalItens = items.reduce((total: number, item: Record<string, unknown>) => total + Number(item.preco || 0) * Number(item.quantidade || 1), 0);
         const totalMercadorias = Math.max(0, Number(order.total || 0) - Number(order.frete || 0));
         const fatorDescontoPedido = subtotalItens > 0 ? totalMercadorias / subtotalItens : 1;
@@ -601,8 +606,10 @@
               },
             } : {}),
           },
-          observacoes: `Pedido único do site ${order.referencia}. Cliente informado neste pedido: ${order.cliente_nome}; CPF: ${cpf}; telefone: ${phone}; e-mail: ${email}; entrega: ${order.endereco}`,
-          parcelas: [{
+          observacoes: isGift
+            ? `Remessa gratuita em bonificação, doação ou brinde. Operação sem cobrança. Referência interna: ${order.referencia}. Destinatário: ${order.cliente_nome}; CPF: ${cpf}; telefone: ${phone}; e-mail: ${email}; entrega: ${order.endereco}`
+            : `Pedido único do site ${order.referencia}. Cliente informado neste pedido: ${order.cliente_nome}; CPF: ${cpf}; telefone: ${phone}; e-mail: ${email}; entrega: ${order.endereco}`,
+          parcelas: isGift ? [] : [{
             dataVencimento: today,
             valor: Number(order.total || 0),
             formaPagamento: { id: blingPaymentMethodId },
@@ -614,7 +621,7 @@
           }],
           itens: blingItems.map((item: Record<string, unknown>) => ({
             ...(item.bling_id ? { produto: { id: Number(item.bling_id) } } : {}),
-            naturezaOperacao: { id: CONSUMER_FINAL_NATURE_ID },
+            naturezaOperacao: { id: isGift ? GIFT_NATURE_ID : CONSUMER_FINAL_NATURE_ID },
             descricao: String(item.nome || "Produto Tio Nan"),
             unidade: "UN",
             quantidade: Number(item.quantidade || 1),

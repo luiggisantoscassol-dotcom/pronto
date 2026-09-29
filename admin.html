@@ -67,6 +67,14 @@
                 radial-gradient(circle at 90% 90%, rgba(197, 160, 89, 0.03) 0%, transparent 50%);
         }
 
+        body.admin-modal-open {
+            position: fixed;
+            left: 0;
+            right: 0;
+            width: 100%;
+            overflow: hidden !important;
+        }
+
         header {
             position: fixed;
             top: 0;
@@ -584,6 +592,9 @@
         .pdv-opcoes-venda .pdv-check{display:flex;align-items:center;gap:10px;font-weight:800;line-height:1.35}
         .pdv-opcoes-venda .pdv-check input{width:20px;height:20px;margin:0;flex:0 0 auto}
         .pdv-opcoes-venda small{display:block;margin-top:9px;color:#64748b;line-height:1.45}
+        .pdv-brinde-aviso{display:none;margin:0 0 12px;padding:12px;border:1px solid #d6ad58;border-radius:12px;background:#fff8e8;color:#714d12;font-size:.72rem;font-weight:800;line-height:1.45}
+        .pdv-opcoes-venda.is-brinde{border-color:#d6ad58;background:#fffaf0}
+        .pdv-opcoes-venda.is-brinde .pdv-brinde-aviso{display:block}
 
         .pdv-card-badge {
             position: absolute;
@@ -758,6 +769,8 @@
             z-index: 3000;
             max-height: 90vh;
             overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
             box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
         }
 
@@ -1109,8 +1122,35 @@
         .envase-insumo-card{display:flex;min-height:150px;padding:16px;box-sizing:border-box;flex-direction:column;align-items:flex-start;gap:9px;background:#f9f7f2;border:1px solid #e1d9cd;border-radius:16px}
         .envase-insumo-card span{color:#718096;font-size:.63rem;font-weight:850;letter-spacing:.6px;line-height:1.3;text-transform:uppercase}
         .envase-insumo-card b{color:#19385f;font-size:2rem;line-height:1}
+        .envase-insumo-card b small{font-size:.72rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
         .envase-insumo-card button{margin-top:auto;border:1px solid #d9e3ee;background:#f4f8fc;color:#1f5f9f;border-radius:10px;padding:8px 12px;font-weight:850;cursor:pointer}
         .envase-insumo-card__tag{display:inline-flex!important;margin:0!important;padding:4px 7px;border-radius:999px;background:#eee8dc;color:#8a6a31!important;font-size:.52rem!important;letter-spacing:.6px!important}
+        .selos-toolbar{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:20px 0}
+        .selos-filtros{display:grid;grid-template-columns:repeat(4,minmax(145px,1fr));gap:10px;flex:1;min-width:min(100%,620px)}
+        .selos-filtros label{margin:0;color:#617186;font-size:.58rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
+        .selos-filtros input,.selos-filtros select{margin-top:6px}
+        .selos-resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
+        .selos-resumo-card{min-width:0;padding:16px;border:1px solid #e2dacd;border-radius:16px;background:linear-gradient(145deg,#fff,#f8f5ef)}
+        .selos-resumo-card span{display:block;color:#718096;font-size:.57rem;font-weight:900;letter-spacing:.8px;text-transform:uppercase}
+        .selos-resumo-card b{display:block;margin-top:7px;color:#19385f;font-size:1.65rem;line-height:1}
+        .selos-resumo-card small{display:block;margin-top:7px;color:#7b8796;font-size:.6rem;line-height:1.35}
+        .selos-resumo-card.is-warning{border-color:#d6aa55;background:#fff9e9}
+        .selos-resumo-card.is-error{border-color:#df7771;background:#fff3f2}
+        .selos-backup-status{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0;padding:15px 17px;border:1px solid #dce3eb;border-radius:16px;background:#f7f9fc}
+        .selos-backup-status.is-ok{border-color:#a9ddbe;background:#eef9f2}.selos-backup-status.is-error{border-color:#e6aaa7;background:#fff5f4}.selos-backup-status.is-running{border-color:#e4c77f;background:#fff9e9}
+        .selos-backup-status strong{display:block;color:#19385f;font-size:.72rem;letter-spacing:.35px}.selos-backup-status small{display:block;margin-top:4px;color:#6b7b8e;font-size:.62rem;line-height:1.45}
+        .selos-backup-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.selos-backup-actions a{font-size:.6rem;font-weight:900;color:#19385f;text-decoration:none}
+        .selos-tabela-wrap{overflow:auto;border:1px solid #e2dacd;border-radius:16px;background:#fff}
+        .selos-tabela{width:100%;min-width:980px;border-collapse:collapse;color:#19385f;font-size:.7rem}
+        .selos-tabela th{padding:12px 11px;background:#f4f0e8;color:#6a7788;font-size:.53rem;letter-spacing:.7px;text-align:left;text-transform:uppercase;white-space:nowrap}
+        .selos-tabela td{padding:13px 11px;border-top:1px solid #eee8df;vertical-align:top}
+        .selos-tabela tr:hover td{background:#fbfaf7}
+        .selos-tipo{display:inline-flex;padding:5px 7px;border-radius:999px;background:#edf3f8;color:#19385f;font-size:.5rem;font-weight:900;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+        .selos-tipo.is-negative{background:#ffe7e5;color:#a42d2d}.selos-tipo.is-positive{background:#e2f5ea;color:#177847}.selos-tipo.is-neutral{background:#fff1ce;color:#8d6416}
+        .selos-valor{font-weight:900;white-space:nowrap}.selos-valor.is-negative{color:#a42d2d}.selos-valor.is-positive{color:#177847}.selos-valor.is-neutral{color:#8d6416}
+        .selos-vazio{padding:38px;text-align:center;color:#718096}
+        .selos-modal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .selos-modal-grid .wide{grid-column:1/-1}
         .order-row:hover,.pdv-card:hover,.review-card-admin:hover{background:#fff;border-color:#c59a4a}
         .order-row.order-row--concluido{background:linear-gradient(135deg,#e6f7eb,#d7f0df)!important;border-color:#54a873!important;box-shadow:0 9px 24px rgba(47,125,88,.14)}
         .order-row.order-row--cancelado{background:linear-gradient(135deg,#fff0f0,#f9dddd)!important;border-color:#d06a6a!important;box-shadow:0 9px 24px rgba(155,44,44,.13)}
@@ -1122,7 +1162,10 @@
         .pedidos-filtros{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:0 0 20px}
         .pedidos-filtro{border:1px solid #d9dfe6;background:#fff;color:#486078;border-radius:999px;padding:9px 15px;font-size:.68rem;font-weight:900;letter-spacing:.5px;cursor:pointer}
         .pedidos-filtro.active{background:#19385f;color:#fff;border-color:#19385f}
-        @media(max-width:700px){.pedidos-filtros{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}.pedidos-filtro{flex:0 0 auto}}
+        @media(max-width:700px){
+            .pedidos-filtros{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch;overflow:visible;gap:8px;padding-bottom:4px}
+            .pedidos-filtro{width:100%;min-width:0;padding:9px 6px;white-space:normal;line-height:1.2}
+        }
         input,select,textarea{background:#fff!important;color:#19385f!important;border-color:#dcd5ca!important}
         input::placeholder,textarea::placeholder{color:#8b96a5}
         .modal-box{background:#fff;border-color:#ded5c7;box-shadow:0 30px 90px rgba(25,56,95,.24)}
@@ -1318,6 +1361,27 @@
         .compra-item input { margin:0; }
         .nota-compra-row { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(180px,.8fr) auto; gap:16px; align-items:center; padding:16px 18px; border:1px solid #e7e0d5; border-radius:15px; background:#fff; }
         .nota-compra-row small { display:block; margin-top:5px; color:#718096; }
+        #tab-notas-compra{max-width:1480px}
+        .documentos-card{width:100%;max-width:1380px;margin:0 auto;box-sizing:border-box}
+        .documentos-cabecalho{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+        .documentos-cabecalho h2{margin:10px 0 5px}.documentos-cabecalho p{max-width:760px;margin:0;color:#66768b;font-size:.82rem;line-height:1.5}
+        .documentos-cabecalho__acoes{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.documentos-configuracoes-btn{min-height:34px;padding:8px 11px;border:1px solid #d8dfea;border-radius:10px;background:#fff;color:#68788e;font-size:.54rem;font-weight:900;letter-spacing:.55px;cursor:pointer}.documentos-configuracoes-btn:hover{border-color:#9eafc2;color:#19385f}
+        .documentos-adicionar{width:auto!important;margin:0!important;background:#26935c!important}
+        .documentos-privacidade{display:flex;align-items:center;gap:12px;margin:18px 0;padding:13px 15px;border:1px solid #cfe2d7;border-radius:13px;background:#f1faf5;color:#486b58;font-size:.72rem}.documentos-privacidade b{color:#1d7045}.documentos-privacidade span{line-height:1.45}
+        .documentos-config{display:grid;grid-template-columns:minmax(240px,1fr) auto;align-items:end;gap:12px;padding:16px;border:1px solid #e2dacd;border-radius:15px;background:#faf8f4}.documentos-config label,.documentos-competencia-barra label{display:block;color:#617186;font-size:.62rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}.documentos-config input,.documentos-competencia-barra input{margin-top:7px}.documentos-config .btn-status{width:auto;margin:0}
+        .documentos-configuracoes-corpo{padding:20px;overflow-y:auto}
+        .documentos-competencia-barra{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:20px 0;flex-wrap:wrap}.documentos-competencia-barra>label{min-width:220px}.documentos-acoes{display:flex;gap:9px;flex-wrap:wrap}.documentos-acoes .btn-status{width:auto;margin:0}.documentos-acoes .secundario{background:#fff;color:#19385f;border:1px solid #cfd9e4}
+        .documentos-resumo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}.documentos-resumo>div{min-width:0;padding:15px;border:1px solid #e2dacd;border-radius:15px;background:linear-gradient(145deg,#fff,#f8f5ef)}.documentos-resumo span{display:block;color:#718096;font-size:.57rem;font-weight:900;letter-spacing:.75px;text-transform:uppercase}.documentos-resumo b{display:block;margin-top:7px;color:#19385f;font-size:1.25rem;line-height:1.2;overflow-wrap:anywhere}
+        .documentos-envio-status{margin-bottom:20px;padding:12px 14px;border-radius:12px;background:#f4f8fc;color:#53677e;font-size:.7rem;line-height:1.45}.documentos-envio-status.is-ok{background:#eef9f2;color:#276842}.documentos-envio-status.is-warning{background:#fff8e8;color:#865f18}
+        .documentos-iphone-launcher{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0;padding:14px 16px;border:1px solid #d8dfea;border-radius:15px;background:linear-gradient(145deg,#f8fbff,#f3f6fa)}.documentos-iphone-launcher__info{display:flex;min-width:0;align-items:center;gap:12px}.documentos-iphone-launcher__icone{display:grid;flex:0 0 44px;width:44px;height:44px;place-items:center;border-radius:13px;background:#e7eef7;font-size:1.25rem}.documentos-iphone-launcher b,.documentos-iphone-launcher small{display:block}.documentos-iphone-launcher b{color:#19385f;font-size:.72rem}.documentos-iphone-launcher small{margin-top:3px;color:#6f7f93;font-size:.62rem;line-height:1.4}.documentos-iphone-launcher button{width:auto;min-width:190px;margin:0}
+        .documentos-iphone-modal-corpo{min-width:0;padding:20px;overflow-x:hidden;overflow-y:auto}.documentos-iphone{padding:17px;border:1px solid #d8dfea;border-radius:16px;background:linear-gradient(145deg,#f8fbff,#f3f6fa)}.documentos-iphone__topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.documentos-iphone__topo h3{margin:3px 0 5px;color:#19385f}.documentos-iphone__topo p{max-width:720px;margin:0;color:#64758a;font-size:.7rem;line-height:1.5}.documentos-iphone__acao{display:flex;min-width:290px;gap:8px}.documentos-iphone__acao input{min-width:0;margin:0}.documentos-iphone__acao button{width:auto;min-width:145px;margin:0}.documentos-iphone__dispositivos{display:grid;gap:8px;margin-top:14px}.documentos-iphone__dispositivo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 12px;border:1px solid #dde4ec;border-radius:12px;background:#fff}.documentos-iphone__dispositivo b,.documentos-iphone__dispositivo small{display:block}.documentos-iphone__dispositivo b{color:#19385f;font-size:.7rem}.documentos-iphone__dispositivo small{margin-top:3px;color:#718096;font-size:.6rem}.documentos-iphone__dispositivo button{min-height:36px;padding:7px 10px;border:1px solid #edcaca;border-radius:9px;background:#fff4f4;color:#922f2f;font-size:.56rem;font-weight:900;cursor:pointer}.documentos-iphone__credencial{margin-top:14px;padding:15px;border:1px solid #e0c98f;border-radius:14px;background:#fff9e9}.documentos-iphone__credencial>strong{display:block;color:#785813;font-size:.72rem}.documentos-iphone__credencial>p{margin:5px 0 12px;color:#705f39;font-size:.65rem;line-height:1.45}.documentos-iphone__copiar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:8px}.documentos-iphone__copiar input{min-width:0;margin:0;background:#fff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.66rem}.documentos-iphone__copiar button{width:auto;margin:0;padding:9px 13px}.documentos-iphone details{margin-top:14px;padding-top:12px;border-top:1px solid #dce3eb}.documentos-iphone summary{color:#19385f;font-size:.65rem;font-weight:900;cursor:pointer}.documentos-iphone ol{margin:10px 0 0 20px;color:#5f7085;font-size:.65rem;line-height:1.65}.documentos-iphone code{font-size:.62rem;overflow-wrap:anywhere}
+        .documentos-lista-cabecalho{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:22px 0 11px}.documentos-lista-cabecalho h3{margin:0}.documentos-lista-cabecalho input{width:min(360px,100%);margin:0}
+        .documentos-meses{display:grid;gap:12px}.documentos-mes{overflow:hidden;border:1px solid #ded7cc;border-radius:17px;background:#fff}.documentos-mes.is-open{border-color:#b9c7d7;box-shadow:0 12px 28px rgba(25,56,95,.07)}.documentos-mes__cabecalho{display:grid;width:100%;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:16px 18px;border:0;background:linear-gradient(145deg,#fff,#f8f6f1);color:#19385f;text-align:left;cursor:pointer}.documentos-mes__titulo b{display:block;font-family:var(--font-premium);font-size:.9rem;letter-spacing:.6px}.documentos-mes__titulo small{display:block;margin-top:4px;color:#718096;font-size:.6rem}.documentos-mes__status{padding:6px 9px;border-radius:999px;background:#edf8f1;color:#287047;font-size:.54rem;font-weight:900;letter-spacing:.4px}.documentos-mes__status.has-pending{background:#fff4dc;color:#8b631c}.documentos-mes__seta{font-size:1.1rem;transition:transform .2s}.documentos-mes.is-open .documentos-mes__seta{transform:rotate(180deg)}.documentos-mes__corpo{display:none;padding:0 14px 14px}.documentos-mes.is-open .documentos-mes__corpo{display:block}.documentos-mes__acoes{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 0;flex-wrap:wrap}.documentos-mes__acoes button{min-height:36px;width:auto;margin:0;padding:9px 12px;font-size:.54rem}.documentos-mes__acoes .secundario{border:1px solid #cfd9e4;background:#fff;color:#19385f}.documentos-mes__acoes .reenviar{border:1px solid #e0d2b8;background:#fffaf0;color:#75571f}.documentos-tabela-wrap{overflow:hidden;border:1px solid #e2dacd;border-radius:14px;background:#fff}.documentos-tabela-head,.documento-row{display:grid;grid-template-columns:100px minmax(190px,1.1fr) minmax(180px,1fr) 150px 145px minmax(170px,auto);align-items:center;gap:12px}.documentos-tabela-head{padding:11px 14px;background:#f4f1eb;color:#68788e;font-size:.56rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}.documento-row{padding:14px;border-top:1px solid #eee8df}.documento-row:first-child{border-top:0}.documento-row__arquivo{min-width:0}.documento-row__arquivo b,.documento-row__descricao b{display:block;color:#19385f;font-size:.72rem;line-height:1.35;overflow-wrap:anywhere}.documento-row__arquivo small,.documento-row__descricao small{display:block;margin-top:4px;color:#7b8796;font-size:.62rem;line-height:1.35}.documento-row__tipo{color:#53677e;font-size:.68rem;font-weight:800}.documento-row__acoes{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}.documento-row__acoes button{min-height:36px;padding:7px 10px;border:1px solid #d3dce6;border-radius:9px;background:#f4f8fc;color:#19385f;font-size:.54rem;font-weight:900;cursor:pointer}.documento-row__acoes .excluir{border-color:#efcccc;background:#fff5f5;color:#9a3030}.documento-row__acoes .protegido{border-color:#e2ddd4;background:#f7f5f1;color:#8a8175;cursor:help}.documentos-vazio{padding:34px;text-align:center;color:#718096}
+        @media(min-width:901px){.documentos-tabela-wrap{max-width:100%;overflow:hidden}.documentos-tabela-head,.documento-row{grid-template-columns:minmax(90px,.65fr) minmax(150px,1.3fr) minmax(150px,1.15fr) minmax(120px,.85fr) minmax(88px,.6fr) minmax(155px,1fr);gap:10px}.documentos-tabela-head span:last-child{text-align:right}.documento-row{min-width:0}.documento-row>div{min-width:0}.documento-row__tipo{overflow-wrap:anywhere}.documento-row__acoes button{min-height:34px;padding:7px 9px;font-size:.5rem}}
+        #modal-documento-contabil{overflow-x:hidden!important}
+        .documento-modal-corpo{min-width:0;max-width:100%;padding:22px;overflow-x:hidden;overflow-y:auto;box-sizing:border-box}.documento-modal-intro{margin:0 0 14px;color:#617186}.documento-origens{display:grid;min-width:0;grid-template-columns:1fr 1fr;gap:10px}.documento-origem{display:flex;min-width:0;min-height:125px;padding:16px;flex-direction:column;align-items:flex-start;justify-content:center;border:1px solid #ded6ca;border-radius:16px;background:#faf8f4;cursor:pointer}.documento-origem:hover{border-color:#c59a4a;background:#fffaf0}.documento-origem span{font-size:1.5rem}.documento-origem b{margin-top:8px;color:#19385f}.documento-origem small{margin-top:4px;color:#718096}.arquivo-oculto{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none}.documento-formulario{min-width:0;max-width:100%;margin-top:18px;padding-top:18px;border-top:1px solid #e5ded3;box-sizing:border-box}.documento-formulario .produto-precos-grid,.documento-formulario .produto-campo{min-width:0;max-width:100%}.documento-formulario input,.documento-formulario select{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box}.documento-arquivo-selecionado{min-width:0;margin-bottom:14px;padding:13px 14px;border-radius:13px;background:#eef5fb;box-sizing:border-box}.documento-arquivo-selecionado span,.documento-arquivo-selecionado small{display:block;color:#68798d;font-size:.6rem}.documento-arquivo-selecionado b{display:block;margin:4px 0;color:#19385f;overflow-wrap:anywhere}.documento-limites{display:block;margin-top:14px;color:#7a8797;font-size:.62rem;text-align:center}
+        @media(max-width:900px){.documentos-tabela-head{display:none}.documentos-tabela-wrap{overflow:visible;border:0;background:transparent}.documentos-lista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.documento-row{display:flex;min-width:0;padding:15px;flex-direction:column;align-items:stretch;gap:10px;border:1px solid #e2dacd!important;border-radius:15px;background:#fff}.documento-row__data{font-size:.66rem;color:#718096}.documento-row__status{align-self:flex-start}.documento-row__acoes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.documento-row__acoes button{width:100%}}
+        @media(max-width:639px){.documentos-cabecalho__acoes{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr)}.documentos-configuracoes-btn{min-height:44px}.documentos-config{grid-template-columns:1fr}.documentos-config .btn-status{width:100%}.documentos-competencia-barra{align-items:stretch;flex-direction:column}.documentos-competencia-barra>label{min-width:0}.documentos-acoes{display:grid;grid-template-columns:1fr}.documentos-acoes .btn-status{width:100%}.documentos-resumo{grid-template-columns:repeat(2,minmax(0,1fr))}.documentos-resumo>div:last-child{grid-column:1/-1}.documentos-lista-cabecalho{align-items:stretch;flex-direction:column}.documentos-lista-cabecalho input{width:100%}.documentos-lista{grid-template-columns:1fr}.documentos-mes__cabecalho{grid-template-columns:minmax(0,1fr) auto;padding:14px}.documentos-mes__status{grid-column:1/-1;grid-row:2;justify-self:start}.documentos-mes__seta{grid-column:2;grid-row:1}.documentos-mes__corpo{padding:0 10px 10px}.documentos-mes__acoes{display:grid;grid-template-columns:1fr 1fr}.documentos-mes__acoes button{width:100%}.documentos-mes__acoes button:first-child{grid-column:1/-1}.documento-row__acoes{grid-template-columns:1fr 1fr}.documento-origens{grid-template-columns:1fr 1fr}.documento-origem{min-height:112px;padding:13px}.documento-modal-corpo{padding:16px}.documento-formulario .produto-precos-grid{grid-template-columns:minmax(0,1fr);gap:0}#documento-data,#documento-competencia-modal{width:100%!important;min-width:0!important;max-width:100%!important}.documentos-iphone-launcher{align-items:stretch;flex-direction:column}.documentos-iphone-launcher button{width:100%;min-width:0}.documentos-iphone-modal-corpo{padding:14px}.documentos-iphone{padding:14px}.documentos-iphone__topo{flex-direction:column}.documentos-iphone__acao{width:100%;min-width:0;flex-direction:column}.documentos-iphone__acao button{width:100%}.documentos-iphone__dispositivo{grid-template-columns:minmax(0,1fr)}.documentos-iphone__dispositivo button{width:100%}.documentos-iphone__copiar{grid-template-columns:minmax(0,1fr)}.documentos-iphone__copiar button{width:100%}}
         .mkt-image-upload { display:grid; grid-template-columns:92px minmax(0,1fr); gap:14px; align-items:center; padding:13px; border:1px dashed #c9b995; border-radius:14px; background:#fff; }
         .mkt-image-upload img { display:none; width:92px; aspect-ratio:1; object-fit:cover; border-radius:11px; background:#f4f0e8; }
         .mkt-image-upload img[src]:not([src=""]) { display:block; }
@@ -1692,6 +1756,9 @@
             .envase-insumo-card{min-height:145px;padding:12px 10px}
             .envase-insumo-card b{font-size:1.55rem}
             .envase-insumo-card button{width:100%;padding:8px 5px;font-size:.58rem}
+            .selos-resumo{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.selos-resumo-card{padding:12px 10px}.selos-resumo-card b{font-size:1.35rem}.selos-backup-status{align-items:flex-start;flex-direction:column}.selos-backup-actions{width:100%}.selos-backup-actions .btn-status{flex:1}
+            .selos-toolbar{width:100%;min-width:0;align-items:stretch}.selos-filtros{width:100%;min-width:0;grid-template-columns:repeat(2,minmax(0,1fr))}.selos-filtros label,.selos-filtros input,.selos-filtros select{min-width:0;max-width:100%;width:100%}.selos-toolbar>.btn-status{width:100%!important}
+            .selos-modal-grid{grid-template-columns:1fr}.selos-modal-grid .wide{grid-column:1}
             .pedidos-filtros { margin-left:-2px; margin-right:-2px; padding:2px 2px 8px; scrollbar-width:none; }
             .pedidos-filtros::-webkit-scrollbar { display:none; }
             .order-row { grid-template-columns:minmax(0,1fr); padding:14px 12px; }
@@ -1833,8 +1900,12 @@
             #home-estoque { grid-template-columns:repeat(2,minmax(0,1fr)); }
             #home-insumos,.admin-home-card--envase #home-insumos { grid-template-columns:repeat(2,minmax(0,1fr)); }
         }
+        @media (max-width:430px) {
+            .selos-filtros { grid-template-columns:minmax(0,1fr); }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="documentos-contabilidade.js?v=20260929-1305"></script>
 </head>
 
 <body>
@@ -1886,8 +1957,9 @@
                 <button class="nav-item" onclick="switchTab('tab-estoque')"><span class="nav-icon">📦</span>Produtos e estoque</button>
                 <button class="nav-item" onclick="switchTab('tab-cadastro')"><span class="nav-icon">➕</span>Cadastrar produto</button>
                 <button class="nav-item" onclick="switchTab('tab-envase')"><span class="nav-icon">🧴</span>Controle de envase</button>
+                <button class="nav-item" onclick="switchTab('tab-livro-selos')"><span class="nav-icon">📘</span>Livro de selos — Modelo 4</button>
                 <button class="nav-item" onclick="switchTab('tab-embalagens')"><span class="nav-icon">📫</span>Embalagens para envio</button>
-                <button class="nav-item" onclick="switchTab('tab-notas-compra')"><span class="nav-icon">🧾</span>Notas de compra</button>
+                <button class="nav-item" onclick="switchTab('tab-notas-compra')"><span class="nav-icon">🧾</span>Notas / Contabilidade</button>
                 <button class="nav-item" onclick="switchTab('tab-consignacao')"><span class="nav-icon">🏢</span>Consignação</button>
             </section>
         </div>
@@ -2199,19 +2271,48 @@
                 <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0;background:#26935c" onclick="abrirCompraInsumos()">+ REGISTRAR COMPRA</button></div>
             </div>
             <h3 style="margin-top:30px;margin-bottom:5px">Produção por produto</h3>
-            <small>Cada bloco reúne a receita, os alertas e o registro de envase do produto. Insumos compartilhados continuam com um único saldo.</small>
+            <small>Cada bloco reúne a receita, os alertas e o registro de envase do produto. O cálculo considera também os litros disponíveis. Cada cachaça tem saldo próprio, compartilhado somente entre suas versões de 700 ml e 750 ml.</small>
             <div id="envase-produtos-grupos" class="envase-produtos-grupos"><p>Carregando produtos e receitas…</p></div>
             <h3 style="margin-top:30px">Lotes realizados</h3>
             <div id="corpo-lotes-envase"></div>
         </div>
     </div>
 
+    <div class="tab-content" id="tab-livro-selos">
+        <div class="card" style="max-width:1440px;margin:0 auto">
+            <div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap">
+                <div><span class="admin-home-group">Controle fiscal interno</span><h2 style="margin:10px 0 5px">Livro de Selos — Modelo 4</h2><small>Registro contínuo de entradas, aplicações, inutilizações, devoluções e saídas vinculadas às notas fiscais.</small></div>
+                <div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0;background:#26935c" onclick="abrirMovimentoSelo()">+ NOVO LANÇAMENTO</button><button class="btn-status" style="width:auto;margin:0;background:#19385f;color:#fff" onclick="exportarLivroSelos()">EXPORTAR PERÍODO</button><button class="btn-status" style="width:auto;margin:0;background:#6b4f82;color:#fff" onclick="baixarBackupLivroSelos(this)">BAIXAR BACKUP COMPLETO</button></div>
+            </div>
+            <div id="selos-backup-status" class="selos-backup-status is-running"><div><strong>BACKUP AUTOMÁTICO NO GOOGLE DRIVE</strong><small>Carregando o histórico de proteção…</small></div></div>
+            <div class="selos-resumo" id="selos-resumo"><div class="selos-resumo-card"><span>Carregando</span><b>—</b></div></div>
+            <div style="padding:13px 15px;border:1px solid #d9e4ee;border-radius:13px;background:#f4f8fc;color:#52677e;font-size:.68rem;line-height:1.5"><b style="color:#19385f">Sem duplicidade:</b> a aplicação no envase reduz o saldo físico; a saída fiscal é registrada quando a NF-e é autorizada. O painel compara os dois controles e destaca selos aplicados que ainda aguardam documento fiscal.</div>
+            <div class="selos-toolbar">
+                <div class="selos-filtros">
+                    <label>Tipo de selo<select id="selos-filtro-insumo" onchange="renderizarLivroSelos()"><option value="">Todos</option></select></label>
+                    <label>Data inicial<input id="selos-filtro-inicio" type="date" onchange="renderizarLivroSelos()"></label>
+                    <label>Data final<input id="selos-filtro-fim" type="date" onchange="renderizarLivroSelos()"></label>
+                    <label>Movimentação<select id="selos-filtro-tipo" onchange="renderizarLivroSelos()"><option value="">Todas</option><option value="entrada">Entradas</option><option value="aplicacao_envase">Aplicações no envase</option><option value="inutilizacao">Perdas/inutilizações</option><option value="saida_fiscal">Saídas fiscais</option><option value="devolucao">Devoluções</option><option value="estorno">Estornos</option><option value="ajuste">Ajustes</option></select></label>
+                </div>
+                <button type="button" class="btn-status" style="width:auto;margin:0;background:#fff;color:#19385f;border:1px solid #d7dee7" onclick="limparFiltrosLivroSelos()">LIMPAR FILTROS</button>
+            </div>
+            <div id="selos-conferencia" style="margin-bottom:14px"></div>
+            <div id="selos-lista" class="selos-tabela-wrap"><div class="selos-vazio">Carregando o livro…</div></div>
+        </div>
+    </div>
+
     <div class="tab-content" id="tab-notas-compra">
-        <div class="card" style="max-width:1180px;margin:0 auto">
-            <div style="display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap"><div><h2 style="margin:0 0 6px">Notas de compra e custos</h2><small>Documentos privados de garrafas, tampas, lacres, rótulos, selos IPI e demais insumos.</small></div><button class="btn-status" style="width:auto;margin:0;background:#26935c" onclick="abrirCompraInsumos()">+ NOVA COMPRA</button></div>
-            <div style="margin:18px 0;padding:14px 16px;border-radius:13px;background:#f4f8fc;color:#435b75;font-size:.78rem"><strong>Armazenamento privado:</strong> os arquivos não ficam públicos no site. O download usa um link temporário disponível somente para o administrador autenticado.</div>
-            <input id="busca-notas-compra" type="search" placeholder="Buscar por fornecedor, número da nota ou insumo…" oninput="renderizarNotasCompra()">
-            <div id="lista-notas-compra" class="whats-list"><p>Carregando documentos…</p></div>
+        <div class="card documentos-card">
+            <div class="documentos-cabecalho">
+                <div><span class="admin-home-group">Arquivo fiscal e financeiro</span><h2>Notas / Contabilidade</h2><p>Notas fiscais, XML, comprovantes, boletos, recibos e demais documentos enviados à contabilidade. Os XML das NF-e emitidas nos pedidos são incluídos automaticamente no ZIP, em uma pasta própria, e permanecem visíveis somente nos pedidos.</p></div>
+                <div class="documentos-cabecalho__acoes"><button type="button" class="documentos-configuracoes-btn" onclick="abrirConfiguracoesDocumentos()" aria-label="Configurações de contabilidade">⚙ CONFIGURAÇÕES</button><button class="btn-status documentos-adicionar" onclick="abrirAdicionarDocumento()">+ ADICIONAR DOCUMENTO</button></div>
+            </div>
+            <div class="documentos-privacidade"><b>🔒 Arquivos privados</b><span>O acesso acontece por links temporários e exige autenticação administrativa.</span></div>
+            <div id="documentos-resumo" class="documentos-resumo"><div><span>Documentos</span><b>—</b></div><div><span>Ainda não enviados</span><b>—</b></div><div><span>Último envio</span><b>—</b></div></div>
+            <div id="documentos-ultimo-envio" class="documentos-envio-status">Carregando histórico…</div>
+            <div class="documentos-lista-cabecalho"><h3>Documentos por mês</h3><input id="busca-notas-compra" type="search" placeholder="Buscar em todos os meses…" oninput="renderizarDocumentosContabeis()"></div>
+            <input id="documentos-competencia" type="hidden">
+            <div id="documentos-meses" class="documentos-meses"><p class="documentos-vazio">Carregando documentos…</p></div>
         </div>
     </div>
 
@@ -2370,6 +2471,28 @@
         <button class="btn-status" onclick="ajustarSaldoEmbalagem()">CONFIRMAR AJUSTE</button>
     </div>
 
+    <div class="modal-box" id="modal-movimento-selo" style="width:min(760px,calc(100vw - 28px));max-width:760px;max-height:92vh;overflow:auto" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><span class="sidebar-kicker">Livro Modelo 4</span><h2 style="margin:5px 0 0;text-align:left">Novo lançamento de selo</h2></div><button type="button" class="modal-fechar-btn" onclick="fecharTodosModais()" aria-label="Fechar">×</button></div>
+        <div class="selos-modal-grid" style="margin-top:18px">
+            <div><label>Tipo de selo</label><select id="selo-mov-insumo"></select></div>
+            <div><label>Movimentação</label><select id="selo-mov-tipo" onchange="atualizarFormularioMovimentoSelo()"><option value="entrada">Entrada de selos</option><option value="inutilizacao">Perda / inutilização</option><option value="devolucao">Devolução à origem</option><option value="ajuste_positivo">Ajuste positivo</option><option value="ajuste_negativo">Ajuste negativo</option></select></div>
+            <div><label>Data do movimento</label><input id="selo-mov-data" type="date"></div>
+            <div><label>Quantidade</label><input id="selo-mov-quantidade" type="number" min="1" step="1"></div>
+            <div class="selo-campo-entrada"><label>Número da guia</label><input id="selo-mov-guia" autocomplete="off"></div>
+            <div class="selo-campo-entrada"><label>Data da guia</label><input id="selo-mov-guia-data" type="date"></div>
+            <div><label>Numeração inicial</label><input id="selo-mov-num-inicial" type="number" min="0" step="1"></div>
+            <div><label>Numeração final</label><input id="selo-mov-num-final" type="number" min="0" step="1"></div>
+            <div><label>Grupo</label><input id="selo-mov-grupo" placeholder="Ex.: Bebidas alcoólicas"></div>
+            <div><label>Subgrupo</label><input id="selo-mov-subgrupo" placeholder="Ex.: Aguardente"></div>
+            <div><label>Cor</label><input id="selo-mov-cor"></div>
+            <div><label>Série</label><input id="selo-mov-serie"></div>
+            <div class="wide"><label>Observações</label><textarea id="selo-mov-observacoes" style="width:100%;min-height:78px" placeholder="Informações complementares do lançamento"></textarea></div>
+        </div>
+        <div id="selo-mov-ajuda" style="margin-top:12px;padding:11px 13px;border-radius:11px;background:#f4f0e8;color:#68778a;font-size:.67rem;line-height:1.45"></div>
+        <button type="button" id="selo-mov-salvar" class="btn-status" onclick="salvarMovimentoSelo(this)">REGISTRAR NO LIVRO</button>
+        <button type="button" onclick="fecharTodosModais()" style="width:100%;margin-top:8px;padding:11px;border:0;background:transparent;color:#6f7d90;font-weight:800;cursor:pointer">CANCELAR</button>
+    </div>
+
     <div class="modal-box" id="modal-envase" style="max-width:680px" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:15px"><h2 style="margin:0">Novo envase</h2><button type="button" onclick="fecharModalEnvase()" aria-label="Fechar" style="border:0;background:#f3f0ea;color:#19385f;border-radius:50%;width:40px;height:40px;font-size:1.35rem;cursor:pointer">×</button></div>
         <label>Produto</label><select id="env-produto"><option value="16687078597">Cachaça Prata 700 ml</option><option value="16699660347">Cachaça Ouro 700 ml</option><option value="16699719562">Gengibre, Guaco e Mel 700 ml</option></select>
@@ -2450,12 +2573,13 @@
         <h2>Ajustar insumo</h2>
         <p id="ajuste-insumo-nome" style="color:#53657c"></p>
         <input type="hidden" id="ajuste-insumo-id">
+        <input type="hidden" id="ajuste-insumo-codigo">
         <div style="text-align:center;background:#f6f3ed;border:1px solid #e2dacd;border-radius:18px;padding:22px;margin:18px 0 24px">
             <span style="display:block;color:#708099;font-size:.72rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase">Saldo atual</span>
             <strong id="ajuste-insumo-atual" style="display:block;color:#19385f;font-size:3rem;line-height:1.1;margin-top:8px">0</strong>
-            <small style="color:#8a96a7">unidades</small>
+            <small id="ajuste-insumo-unidade" style="color:#8a96a7">unidades</small>
         </div>
-        <label>Novo saldo</label><input id="ajuste-insumo-novo" type="number" min="0" step="1">
+        <label id="ajuste-insumo-novo-label">Novo saldo</label><input id="ajuste-insumo-novo" type="number" min="0" step="1">
         <label>Motivo do ajuste</label><input id="ajuste-insumo-motivo" value="Contagem de estoque">
         <button class="btn-status" onclick="salvarAjusteInsumo()">SALVAR AJUSTE</button>
     </div>
@@ -2470,13 +2594,71 @@
                 <div class="produto-campo"><label for="compra-valor">Valor total (opcional)</label><input id="compra-valor" type="number" min="0" step="0.01" placeholder="0,00"></div>
             </div>
             <div class="produto-precos-grid">
-                <div class="produto-campo"><label for="compra-insumo">Item comprado</label><select id="compra-insumo"></select></div>
-                <div class="produto-campo"><label for="compra-quantidade">Quantidade recebida</label><input id="compra-quantidade" type="number" min="1" step="1" value="1"></div>
+                <div class="produto-campo"><label for="compra-insumo">Item comprado</label><select id="compra-insumo" onchange="atualizarUnidadeCompraInsumo()"></select></div>
+                <div class="produto-campo"><label id="compra-quantidade-label" for="compra-quantidade">Quantidade recebida</label><input id="compra-quantidade" type="number" min="1" step="1" value="1"></div>
             </div>
             <small style="display:block;margin:-4px 0 18px;color:#718096">Cada registro e cada nota fiscal ficam vinculados a um único item. O saldo será atualizado automaticamente.</small>
             <div class="produto-campo"><label for="compra-arquivo">Nota fiscal ou comprovante (opcional)</label><input id="compra-arquivo" type="file" accept="application/pdf,application/xml,text/xml,image/jpeg,image/png,image/webp"><small style="display:block;margin-top:6px;color:#718096">PDF, XML, JPG, PNG ou WebP de até 15 MB. O arquivo ficará privado.</small></div>
             <div class="produto-campo"><label for="compra-observacoes">Observações (opcional)</label><textarea id="compra-observacoes" style="width:100%;min-height:80px;padding:13px;border:1px solid #ded7cc;border-radius:12px;font:inherit"></textarea></div>
             <button id="btn-salvar-compra" class="btn-status" onclick="salvarCompraInsumos(this)">SALVAR COMPRA E ATUALIZAR ESTOQUE</button>
+        </div>
+    </div>
+
+    <div class="modal-box" id="modal-documento-contabil" style="max-width:620px;padding:0;flex-direction:column;max-height:92vh" onclick="event.stopPropagation()">
+        <div class="modal-header"><div><span class="sidebar-kicker">Cadastro rápido</span><h2>Adicionar documento</h2></div><button onclick="fecharTodosModais()" class="modal-fechar-btn" aria-label="Fechar">×</button></div>
+        <div class="documento-modal-corpo">
+            <p class="documento-modal-intro">Escolha como deseja incluir o documento.</p>
+            <div class="documento-origens">
+                <label for="documento-camera" class="documento-origem"><span>📷</span><b>Tirar foto</b><small>Usar a câmera do celular</small></label>
+                <label for="documento-arquivo" class="documento-origem"><span>📎</span><b>Escolher arquivo</b><small>PDF, XML ou imagem</small></label>
+            </div>
+            <input id="documento-camera" class="arquivo-oculto" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onchange="prepararDocumentoSelecionado(this.files?.[0])">
+            <input id="documento-arquivo" class="arquivo-oculto" type="file" accept=".xml,application/xml,text/xml,.pdf,application/pdf,image/jpeg,image/png,image/webp" onchange="prepararDocumentoSelecionado(this.files?.[0])">
+            <div id="documento-formulario" class="documento-formulario" hidden>
+                <div class="documento-arquivo-selecionado"><span>Arquivo selecionado</span><b id="documento-arquivo-nome">—</b><small id="documento-arquivo-detalhe"></small></div>
+                <div class="produto-precos-grid">
+                    <div class="produto-campo"><label for="documento-tipo">Tipo</label><select id="documento-tipo"><option value="">Selecione</option></select></div>
+                    <div class="produto-campo"><label for="documento-data">Data</label><input id="documento-data" type="date" onchange="sincronizarCompetenciaDocumento()"></div>
+                    <div class="produto-campo"><label for="documento-competencia-modal">Competência</label><input id="documento-competencia-modal" type="month"></div>
+                </div>
+                <div class="produto-campo"><label for="documento-descricao">Descrição (opcional)</label><input id="documento-descricao" placeholder="Ex.: Pagamento do fornecedor de garrafas"></div>
+                <button id="btn-salvar-documento" class="btn-status" onclick="salvarDocumentoContabil(this)">SALVAR DOCUMENTO</button>
+            </div>
+            <small class="documento-limites">XML, PDF, JPG, JPEG, PNG ou WebP · até 15 MB.</small>
+        </div>
+    </div>
+
+    <div class="modal-box" id="modal-configuracoes-documentos" style="max-width:620px;padding:0;flex-direction:column;max-height:92vh" onclick="event.stopPropagation()">
+        <div class="modal-header"><div><span class="sidebar-kicker">Notas / Contabilidade</span><h2 style="margin:0;text-align:left">Configurações</h2></div><button type="button" onclick="fecharTodosModais()" class="modal-fechar-btn" aria-label="Fechar">×</button></div>
+        <div class="documentos-configuracoes-corpo">
+            <div class="documentos-config">
+                <div><label for="documentos-email-contador">E-mail da contabilidade</label><input id="documentos-email-contador" type="email" placeholder="contador@escritorio.com.br"></div>
+                <button type="button" class="btn-status" onclick="salvarEmailContabilidade(this)">SALVAR E-MAIL</button>
+            </div>
+            <div class="documentos-iphone-launcher">
+                <div class="documentos-iphone-launcher__info"><span class="documentos-iphone-launcher__icone" aria-hidden="true">📱</span><div><b>Atalho do iPhone</b><small>Gerencie tokens e aparelhos autorizados.</small></div></div>
+                <button type="button" class="btn-status secundario" onclick="abrirConfiguracaoIphone()">GERENCIAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-box" id="modal-configuracao-iphone" style="width:min(920px,calc(100vw - 28px));max-width:920px;padding:0;flex-direction:column;max-height:92vh;overflow:hidden" onclick="event.stopPropagation()">
+        <div class="modal-header"><div><span class="sidebar-kicker">Atalho do iOS</span><h2 style="margin:0;text-align:left">Compartilhar pelo iPhone</h2></div><button type="button" onclick="fecharTodosModais()" class="modal-fechar-btn" aria-label="Fechar">×</button></div>
+        <div class="documentos-iphone-modal-corpo">
+            <section class="documentos-iphone" aria-labelledby="documentos-iphone-titulo">
+                <div class="documentos-iphone__topo">
+                    <div><span class="admin-home-group">Configuração segura</span><h3 id="documentos-iphone-titulo">Enviar para Tio Nan</h3><p>Envie PDFs, XMLs ou imagens diretamente pelo menu Compartilhar. A credencial criada aqui permite somente adicionar documentos nesta central.</p></div>
+                    <div class="documentos-iphone__acao"><input id="documentos-iphone-nome" value="Meu iPhone" maxlength="80" aria-label="Nome do iPhone"><button type="button" class="btn-status" onclick="gerarAcessoIphone(this)">GERAR ACESSO</button></div>
+                </div>
+                <div id="documentos-iphone-credencial" class="documentos-iphone__credencial" hidden>
+                    <strong>Copie agora: o token não será mostrado novamente.</strong>
+                    <p>Use-o somente no cabeçalho <code>x-tio-nan-token</code> do Atalho. Não envie por mensagem nem coloque o token em uma URL.</p>
+                    <label>Token do iPhone<div class="documentos-iphone__copiar"><input id="documentos-iphone-token" readonly><button type="button" class="btn-status" onclick="copiarConfiguracaoIphone('documentos-iphone-token',this)">COPIAR TOKEN</button></div></label>
+                    <label style="display:block;margin-top:10px">Endpoint<div class="documentos-iphone__copiar"><input id="documentos-iphone-endpoint" readonly><button type="button" class="btn-status" onclick="copiarConfiguracaoIphone('documentos-iphone-endpoint',this)">COPIAR URL</button></div></label>
+                </div>
+                <div id="documentos-iphone-dispositivos" class="documentos-iphone__dispositivos"><small>Abra esta configuração para carregar as conexões.</small></div>
+                <details><summary>COMO MONTAR O ATALHO “ENVIAR PARA TIO NAN”</summary><ol><li>No app Atalhos, crie “Enviar para Tio Nan” e ative <b>Mostrar na Folha de Compartilhamento</b> para Arquivos, Imagens e PDFs.</li><li>Crie uma Lista com os tipos exibidos nesta central e use <b>Escolher da Lista</b>.</li><li>Adicione <b>Pedir Entrada</b>, selecione Texto e use a pergunta “Descrição do documento”.</li><li>Logo depois, adicione <b>Codificar URL</b> e escolha a <b>Entrada fornecida</b>. Essa etapa preserva corretamente todos os acentos.</li><li>Use <b>Obter Detalhes de Arquivos</b> para obter o Nome da Entrada do Atalho.</li><li>Em <b>Obter Conteúdo de URL</b>, use POST e a URL acima. Adicione os cabeçalhos <code>x-tio-nan-token</code>, <code>x-document-type</code> (Item escolhido), <code>x-document-description</code> (<b>Texto codificado</b>) e <code>x-file-name</code> (Nome).</li><li>Em Corpo da Requisição, selecione <b>Arquivo</b> e escolha <b>Entrada do Atalho</b>. Não use Formulário.</li><li>Obtenha o valor <code>message</code> da resposta e use <b>Mostrar Resultado</b>.</li></ol></details>
+            </section>
         </div>
     </div>
 
@@ -2565,6 +2747,7 @@
                 <label for="nfe-natureza" style="display:block;font-size:.68rem;font-weight:900;text-transform:uppercase;margin-bottom:8px">Natureza de operação</label>
                 <select id="nfe-natureza" style="margin-bottom:6px">
                     <option value="consumidor_final">Venda para consumidor final</option>
+                    <option value="brinde">Remessa em bonificação, doação ou brinde</option>
                     <option value="revenda_rs_normal">Revenda no RS — regime normal</option>
                     <option value="revenda_rs_simples">Revenda no RS — Simples Nacional</option>
                     <option value="revenda_fora_rs_normal">Revenda fora do RS — regime normal</option>
@@ -2640,10 +2823,16 @@
                 <option value="Elo">Cartão Elo</option>
             </select>
             <div class="pdv-opcoes-venda">
+                <label for="pdv-tipo-operacao">Tipo de operação</label>
+                <select id="pdv-tipo-operacao" onchange="atualizarTipoOperacaoPdv()">
+                    <option value="venda">Venda normal</option>
+                    <option value="brinde">Brinde / doação com NF-e</option>
+                </select>
+                <div id="pdv-brinde-aviso" class="pdv-brinde-aviso">Sem cobrança ao destinatário. O valor dos produtos será mantido apenas para fins fiscais, a NF-e será obrigatória e a operação não entrará no faturamento ou lucro.</div>
                 <label for="pdv-embalagem">Embalagem usada</label>
                 <select id="pdv-embalagem"><option value="">Sem caixa adicional</option></select>
-                <label class="pdv-check"><input id="pdv-emitir-nfe" type="checkbox"> Gerar e enviar a NF-e no Bling ao concluir</label>
-                <small>A caixa é opcional. Se escolhida, será baixada do controle de embalagens. A NF-e será emitida como consumidor final no ambiente fiscal configurado.</small>
+                <label class="pdv-check"><input id="pdv-emitir-nfe" type="checkbox"> Gerar a NF-e no Bling ao concluir</label>
+                <small id="pdv-ajuda-fiscal">A caixa é opcional. Se escolhida, será baixada do controle de embalagens. A NF-e será emitida como consumidor final no ambiente fiscal configurado.</small>
             </div>
             <select id="pdv-status" onchange="updatePdvBtnText()">
                 <option value="Concluído" selected>CONCLUÍDO (JÁ PAGO)</option>
@@ -2661,7 +2850,7 @@
 
     <div id="modal-posvenda-pdv" class="modal-box" style="padding:0;flex-direction:column;">
         <div class="modal-header">
-            <h2>Venda concluída</h2>
+            <h2 id="pdv-posvenda-titulo">Venda concluída</h2>
             <button type="button" onclick="novaVendaPdv()" class="modal-fechar-btn" aria-label="Fechar e iniciar nova venda">×</button>
         </div>
         <div id="pdv-posvenda-conteudo" class="pdv-posvenda"></div>
@@ -2941,7 +3130,9 @@
         let ultimoPedidoPdv = null; let ultimoResultadoPdv = null;
         let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoEmpresaAtual = null;
         let embalagens = [];
-        const ABAS_OPERACAO_MOBILE = new Set(['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-stats']);
+        let contextoInsumosEnvaseAberto = null;
+        let scrollPaginaAntesDoModal = 0;
+        const ABAS_OPERACAO_MOBILE = new Set(['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-livro-selos', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-stats']);
 
         function isMobileOperationMode() {
             return window.matchMedia('(max-width: 800px)').matches;
@@ -2971,7 +3162,31 @@
                 document.getElementById('overlay-menu').style.display = 'block';
             }
         }
-        function fecharTodosModais() { document.querySelectorAll('.modal-box').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
+        function sincronizarBloqueioScrollModais() {
+            const modalAberto = [...document.querySelectorAll('.modal-box')].some(modal => {
+                const estilo = window.getComputedStyle(modal);
+                return estilo.display !== 'none' && estilo.visibility !== 'hidden';
+            });
+            if (modalAberto && !document.body.classList.contains('admin-modal-open')) {
+                scrollPaginaAntesDoModal = window.scrollY || document.documentElement.scrollTop || 0;
+                document.body.style.top = `-${scrollPaginaAntesDoModal}px`;
+                document.body.classList.add('admin-modal-open');
+            } else if (!modalAberto && document.body.classList.contains('admin-modal-open')) {
+                document.body.classList.remove('admin-modal-open');
+                document.body.style.top = '';
+                window.scrollTo(0, scrollPaginaAntesDoModal);
+            }
+        }
+
+        const observadorModaisAdmin = new MutationObserver(sincronizarBloqueioScrollModais);
+        document.querySelectorAll('.modal-box').forEach(modal => observadorModaisAdmin.observe(modal, { attributes:true, attributeFilter:['style','class'] }));
+
+        function fecharTodosModais(manterContextoInsumo = false) {
+            document.querySelectorAll('.modal-box').forEach(m => m.style.display = 'none');
+            document.getElementById('overlay').style.display = 'none';
+            if (!manterContextoInsumo) contextoInsumosEnvaseAberto = null;
+            sincronizarBloqueioScrollModais();
+        }
         function fecharModalAoClicarFora() {
             const envaseAberto = document.getElementById('modal-envase')?.style.display === 'block';
             if (!envaseAberto) fecharTodosModais();
@@ -2979,6 +3194,7 @@
         function fecharModalEnvase() {
             document.getElementById('modal-envase').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
+            sincronizarBloqueioScrollModais();
         }
         function showToast(m) { const t = document.getElementById('toast-admin'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
 
@@ -3027,6 +3243,7 @@
             if (id === 'tab-avaliacoes') carregarAvaliacoes();
             if (id === 'tab-cupons') carregarCupons();
             if (id === 'tab-envase') carregarControleEnvase();
+            if (id === 'tab-livro-selos') carregarLivroSelos();
             if (id === 'tab-notas-compra') carregarNotasCompra();
             if (id === 'tab-embalagens') carregarEmbalagens();
             if (id === 'tab-consignacao') carregarConsignacao();
@@ -3660,6 +3877,22 @@
         let produtosEnvaseAtuais = [];
         let lotesEnvaseAtuais = [];
 
+        function insumoEhLiquido(codigo) {
+            return String(codigo || '').startsWith('liquido_');
+        }
+
+        function formatarQuantidadeInsumo(insumo) {
+            const quantidade = Math.max(0, Number(insumo?.quantidade || 0));
+            if (insumoEhLiquido(insumo?.codigo)) {
+                return `${(quantidade / 1000).toLocaleString('pt-BR', { minimumFractionDigits:0, maximumFractionDigits:3 })} <small>litros</small>`;
+            }
+            return quantidade.toLocaleString('pt-BR');
+        }
+
+        function capacidadeItemReceita(item) {
+            return Math.max(0, Math.floor(Number(item?.quantidade || 0) / Math.max(1, Number(item?.quantidade_por_garrafa || 1))));
+        }
+
         function listarInsumosPorFormato(formato) {
             const codigoGarrafa = formato === '750' ? 'garrafa_quadrada_750' : 'garrafa_700';
             const garrafa = insumosEnvaseAtuais.find(item => item.codigo === codigoGarrafa);
@@ -3678,10 +3911,21 @@
                 .sort((a,b) => prioridade(a.codigo)-prioridade(b.codigo) || a.nome.localeCompare(b.nome,'pt-BR'));
         }
 
+        function capacidadeInsumoNoFormato(insumo, formato) {
+            const produtosDoFormato = new Set(produtosEnvaseAtuais
+                .filter(produto => formatoProdutoEnvase(produto.bling_id) === formato)
+                .map(produto => String(produto.bling_id)));
+            const consumos = receitasEnvaseAtuais
+                .filter(receita => receita.insumo_id === insumo.id && produtosDoFormato.has(String(receita.produto_bling_id)))
+                .map(receita => Math.max(1, Number(receita.quantidade_por_garrafa || 1)));
+            const maiorConsumo = consumos.length ? Math.max(...consumos) : 1;
+            return Math.max(0, Math.floor(Number(insumo.quantidade || 0) / maiorConsumo));
+        }
+
         function atualizarResumoFormatosEnvase() {
             ['700','750'].forEach(formato => {
                 const itens = listarInsumosPorFormato(formato);
-                const zerados = itens.filter(item => Number(item.quantidade || 0) <= 0).length;
+                const zerados = itens.filter(item => capacidadeInsumoNoFormato(item, formato) <= 0).length;
                 const destino = document.getElementById(`envase-resumo-${formato}`);
                 if (destino) destino.textContent = `${itens.length} ${itens.length === 1 ? 'insumo' : 'insumos'} · ${zerados ? `${zerados} sem saldo` : 'todos com saldo'}`;
             });
@@ -3692,8 +3936,8 @@
             if (!destino) return;
             destino.innerHTML = ['700','750'].map(formato => {
                 const itens = listarInsumosPorFormato(formato);
-                const semSaldo = itens.filter(item => Number(item.quantidade || 0) <= 0).length;
-                const acabando = itens.filter(item => Number(item.quantidade || 0) > 0 && Number(item.quantidade || 0) <= 10).length;
+                const semSaldo = itens.filter(item => capacidadeInsumoNoFormato(item, formato) <= 0).length;
+                const acabando = itens.filter(item => capacidadeInsumoNoFormato(item, formato) > 0 && capacidadeInsumoNoFormato(item, formato) <= 10).length;
                 const classe = semSaldo ? 'is-critical' : acabando ? 'is-warning' : 'is-ok';
                 const aviso = semSaldo
                     ? `${semSaldo} ${semSaldo === 1 ? 'item sem saldo' : 'itens sem saldo'}`
@@ -3710,20 +3954,22 @@
             abrirInsumosPorGarrafa(formato);
         }
 
-        function abrirInsumosPorGarrafa(formato) {
+        function abrirInsumosPorGarrafa(formato, scrollTop = 0) {
             const quadrada = formato === '750';
             const itens = listarInsumosPorFormato(formato);
+            contextoInsumosEnvaseAberto = { tipo:'formato', valor:String(formato), scrollTop:Number(scrollTop || 0) };
             document.getElementById('insumos-formato-titulo').textContent = quadrada ? 'Garrafa quadrada · 750 ml' : 'Garrafa tradicional · 700 ml';
             document.getElementById('insumos-formato-descricao').textContent = quadrada
                 ? 'Garrafas quadradas, rolhas, lacres e rótulos próprios. O selo de aguardente utiliza o saldo fiscal compartilhado.'
                 : 'Garrafas tradicionais, tampas, lacres, rótulos e os selos fiscais usados pelos produtos atuais.';
             document.getElementById('corpo-insumos-formato').innerHTML = itens.map(item => {
                 const compartilhado = item.codigo.startsWith('selo_ipi') ? '<span class="envase-insumo-card__tag">SALDO COMPARTILHADO</span>' : '';
-                return `<div class="envase-insumo-card"><span>${escapeAdmin(item.nome)}</span>${compartilhado}<b>${Number(item.quantidade || 0)}</b><button type="button" onclick="abrirAjusteInsumo('${item.id}', '${escapeAdmin(item.nome).replace(/'/g,"\\'")}', ${Number(item.quantidade || 0)})">AJUSTAR SALDO</button></div>`;
+                return `<div class="envase-insumo-card"><span>${escapeAdmin(item.nome)}</span>${compartilhado}<b>${formatarQuantidadeInsumo(item)}</b><button type="button" onclick="abrirAjusteInsumo('${item.id}', '${escapeAdmin(item.nome).replace(/'/g,"\\'")}', ${Number(item.quantidade || 0)}, '${escapeAdmin(item.codigo)}')">AJUSTAR SALDO</button></div>`;
             }).join('') || '<p>Nenhum insumo configurado para esta embalagem.</p>';
             document.getElementById('modal-insumos-formato').style.display='flex';
             document.getElementById('modal-insumos-formato').style.flexDirection='column';
             document.getElementById('overlay').style.display='block';
+            requestAnimationFrame(() => { document.getElementById('modal-insumos-formato').scrollTop = Number(scrollTop || 0); });
         }
 
         function itensReceitaProduto(produtoBlingId) {
@@ -3745,25 +3991,27 @@
         function capacidadeProdutoEnvase(produtoBlingId) {
             const itens = itensReceitaProduto(produtoBlingId);
             if (!itens.length) return 0;
-            return Math.max(0, Math.min(...itens.map(item => Math.floor(Number(item.quantidade || 0) / Math.max(1,Number(item.quantidade_por_garrafa || 1))))));
+            return Math.max(0, Math.min(...itens.map(capacidadeItemReceita)));
         }
 
-        function abrirInsumosPorProduto(produtoBlingId) {
+        function abrirInsumosPorProduto(produtoBlingId, scrollTop = 0) {
             const produto = produtosEnvaseAtuais.find(item => String(item.bling_id) === String(produtoBlingId));
             const itens = itensReceitaProduto(produtoBlingId).sort((a,b) => {
                 const prioridade = codigo => codigo.startsWith('garrafa') ? 1 : (codigo.startsWith('tampa') || codigo.startsWith('rolha')) ? 2 : codigo.startsWith('lacre') ? 3 : codigo.startsWith('rotulo') ? 4 : 5;
                 return prioridade(a.codigo)-prioridade(b.codigo) || a.nome.localeCompare(b.nome,'pt-BR');
             });
+            contextoInsumosEnvaseAberto = { tipo:'produto', valor:String(produtoBlingId), scrollTop:Number(scrollTop || 0) };
             document.getElementById('insumos-formato-titulo').textContent = produto?.nome || nomesProdutosEnvase[String(produtoBlingId)] || 'Receita do produto';
             document.getElementById('insumos-formato-descricao').textContent = 'Receita completa deste produto. Os itens marcados como compartilhados também são usados por outras receitas.';
             document.getElementById('corpo-insumos-formato').innerHTML = itens.map(item => {
                 const usos = new Set(receitasEnvaseAtuais.filter(receita => receita.insumo_id === item.id).map(receita => String(receita.produto_bling_id))).size;
                 const compartilhado = usos > 1 ? '<span class="envase-insumo-card__tag">SALDO COMPARTILHADO</span>' : '<span class="envase-insumo-card__tag">EXCLUSIVO DESTE PRODUTO</span>';
-                return `<div class="envase-insumo-card"><span>${escapeAdmin(item.nome)}</span>${compartilhado}<b>${Number(item.quantidade || 0)}</b><button type="button" onclick="abrirAjusteInsumo('${item.id}', '${escapeAdmin(item.nome).replace(/'/g,"\\'")}', ${Number(item.quantidade || 0)})">AJUSTAR SALDO</button></div>`;
+                return `<div class="envase-insumo-card"><span>${escapeAdmin(item.nome)}</span>${compartilhado}<b>${formatarQuantidadeInsumo(item)}</b><button type="button" onclick="abrirAjusteInsumo('${item.id}', '${escapeAdmin(item.nome).replace(/'/g,"\\'")}', ${Number(item.quantidade || 0)}, '${escapeAdmin(item.codigo)}')">AJUSTAR SALDO</button></div>`;
             }).join('') || '<p>Este produto ainda não possui uma receita de envase configurada.</p>';
             document.getElementById('modal-insumos-formato').style.display='flex';
             document.getElementById('modal-insumos-formato').style.flexDirection='column';
             document.getElementById('overlay').style.display='block';
+            requestAnimationFrame(() => { document.getElementById('modal-insumos-formato').scrollTop = Number(scrollTop || 0); });
         }
 
         function renderizarProdutosControleEnvase() {
@@ -3782,8 +4030,9 @@
                 if (!produtosGrupo.length) return '';
                 const cards = produtosGrupo.map(produto => {
                     const itens = itensReceitaProduto(produto.bling_id);
-                    const semSaldo = itens.filter(item => Number(item.quantidade || 0) <= 0);
-                    const acabando = itens.filter(item => Number(item.quantidade || 0) > 0 && Number(item.quantidade || 0) <= 10);
+                    const capacidade = capacidadeProdutoEnvase(produto.bling_id);
+                    const semSaldo = itens.filter(item => capacidadeItemReceita(item) <= 0);
+                    const acabando = itens.filter(item => capacidadeItemReceita(item) > 0 && capacidadeItemReceita(item) <= 10);
                     const classe = semSaldo.length ? 'is-critical' : acabando.length ? 'is-warning' : 'is-ready';
                     const status = semSaldo.length ? `${semSaldo.length} sem saldo` : acabando.length ? `${acabando.length} acabando` : 'Receita disponível';
                     const alerta = semSaldo.length
@@ -3797,7 +4046,7 @@
                         <div class="envase-produto-card__topo"><div><span class="envase-produto-card__linha">${grupo.formato === '750' ? 'Garrafa quadrada' : 'Garrafa tradicional'}</span><h4>${escapeAdmin(produto.nome)}</h4></div><span class="envase-produto-card__status">${status}</span></div>
                         <div class="envase-produto-card__metricas">
                             <div class="envase-produto-card__metrica"><small>Prontas</small><b>${Math.max(0,Number(produto.estoque || 0))}</b></div>
-                            <div class="envase-produto-card__metrica"><small>Possível produzir</small><b>${capacidadeProdutoEnvase(produto.bling_id)}</b></div>
+                            <div class="envase-produto-card__metrica"><small>Possível produzir</small><b>${capacidade}</b></div>
                             <div class="envase-produto-card__metrica"><small>Insumos</small><b>${itens.length}</b></div>
                         </div>
                         <p class="envase-produto-card__detalhe">${escapeAdmin(alerta)}<br><strong>Último lote:</strong> ${ultimo}</p>
@@ -3841,17 +4090,280 @@
             `).join('') || '<p>Nenhum envase registrado.</p>';
         }
 
+        let movimentosLivroSelos = [];
+        let insumosLivroSelos = [];
+
+        const nomesMovimentoSelo = {
+            saldo_inicial:'Saldo inicial', entrada:'Entrada', aplicacao_envase:'Aplicação no envase',
+            inutilizacao:'Perda / inutilização', devolucao:'Devolução', saida_fiscal:'Saída fiscal',
+            estorno_saida_fiscal:'Estorno de saída fiscal', ajuste_positivo:'Ajuste positivo',
+            ajuste_negativo:'Ajuste negativo', estorno_envase:'Estorno de envase'
+        };
+
+        function classeMovimentoSelo(movimento) {
+            if (Number(movimento.impacto_saldo_fiscal || 0) > 0) return 'is-positive';
+            if (Number(movimento.impacto_saldo_fiscal || 0) < 0) return 'is-negative';
+            return 'is-neutral';
+        }
+
+        function movimentosLivroSelosFiltrados() {
+            const insumo = document.getElementById('selos-filtro-insumo')?.value || '';
+            const inicio = document.getElementById('selos-filtro-inicio')?.value || '';
+            const fim = document.getElementById('selos-filtro-fim')?.value || '';
+            const tipo = document.getElementById('selos-filtro-tipo')?.value || '';
+            return movimentosLivroSelos.filter(movimento => {
+                const tipoCorresponde = !tipo || movimento.tipo === tipo || (tipo === 'estorno' && movimento.tipo.startsWith('estorno_')) || (tipo === 'ajuste' && movimento.tipo.startsWith('ajuste_'));
+                return (!insumo || movimento.insumo_id === insumo) && (!inicio || movimento.data_movimento >= inicio) && (!fim || movimento.data_movimento <= fim) && tipoCorresponde;
+            });
+        }
+
+        function saldosFiscaisAposMovimento() {
+            const saldos = new Map(), resultado = new Map();
+            [...movimentosLivroSelos].sort((a,b) => String(a.data_movimento).localeCompare(String(b.data_movimento)) || String(a.criado_em).localeCompare(String(b.criado_em))).forEach(movimento => {
+                const atual = Number(saldos.get(movimento.insumo_id) || 0) + Number(movimento.impacto_saldo_fiscal || 0);
+                saldos.set(movimento.insumo_id, atual); resultado.set(movimento.id, atual);
+            });
+            return resultado;
+        }
+
+        function renderizarResumoLivroSelos() {
+            const destino = document.getElementById('selos-resumo');
+            if (!destino) return;
+            const cards = insumosLivroSelos.map(insumo => {
+                const movimentos = movimentosLivroSelos.filter(item => item.insumo_id === insumo.id);
+                const saldoFiscal = movimentos.reduce((total,item) => total + Number(item.impacto_saldo_fiscal || 0), 0);
+                const saldoFisico = Number(insumo.quantidade || 0);
+                const aplicadosAguardando = Math.max(0, saldoFiscal - saldoFisico);
+                const classe = saldoFisico < 0 || saldoFiscal < 0 ? 'is-error' : aplicadosAguardando > 0 ? 'is-warning' : '';
+                return `<div class="selos-resumo-card ${classe}"><span>${escapeAdmin(insumo.nome)}</span><b>${saldoFisico.toLocaleString('pt-BR')}</b><small>Saldo físico · fiscal ${saldoFiscal.toLocaleString('pt-BR')}${aplicadosAguardando ? ` · ${aplicadosAguardando.toLocaleString('pt-BR')} aplicados aguardando NF` : ' · conferido'}</small></div>`;
+            });
+            const totalInutilizados = movimentosLivroSelos.filter(item => item.tipo === 'inutilizacao').reduce((total,item) => total + Number(item.quantidade || 0),0);
+            const totalSaidas = movimentosLivroSelos.filter(item => item.tipo === 'saida_fiscal').reduce((total,item) => total + Number(item.quantidade || 0),0)
+                - movimentosLivroSelos.filter(item => item.tipo === 'estorno_saida_fiscal').reduce((total,item) => total + Number(item.quantidade || 0),0);
+            cards.push(`<div class="selos-resumo-card"><span>Movimentação fiscal</span><b>${Math.max(0,totalSaidas).toLocaleString('pt-BR')}</b><small>saídas líquidas por NF-e · ${totalInutilizados.toLocaleString('pt-BR')} inutilizados</small></div>`);
+            destino.innerHTML = cards.join('') || '<div class="selos-resumo-card"><span>Sem tipos cadastrados</span><b>0</b></div>';
+        }
+
+        function renderizarLivroSelos() {
+            const destino = document.getElementById('selos-lista');
+            if (!destino) return;
+            const filtrados = movimentosLivroSelosFiltrados();
+            const saldosApos = saldosFiscaisAposMovimento();
+            const linhas = filtrados.map(movimento => {
+                const impacto = Number(movimento.impacto_saldo_fiscal || 0);
+                const classe = classeMovimentoSelo(movimento);
+                const referencia = movimento.nfe_numero ? `NF-e ${escapeAdmin(movimento.nfe_numero)}${movimento.nfe_serie ? ` · série ${escapeAdmin(movimento.nfe_serie)}` : ''}`
+                    : movimento.envase_id ? `Envase ${escapeAdmin(String(movimento.envase_id).slice(0,8))}`
+                    : movimento.guia_numero ? `Guia ${escapeAdmin(movimento.guia_numero)}` : '—';
+                const faixa = movimento.numeracao_inicial !== null && movimento.numeracao_inicial !== undefined
+                    ? `${Number(movimento.numeracao_inicial).toLocaleString('pt-BR')} a ${Number(movimento.numeracao_final ?? movimento.numeracao_inicial).toLocaleString('pt-BR')}` : '—';
+                return `<tr><td>${new Date(movimento.data_movimento+'T12:00:00').toLocaleDateString('pt-BR')}</td><td><b>${escapeAdmin(movimento.insumo?.nome || 'Selo')}</b><small style="display:block;color:#7a8796;margin-top:4px">${escapeAdmin([movimento.grupo,movimento.subgrupo,movimento.cor,movimento.serie].filter(Boolean).join(' · ') || 'classificação não informada')}</small></td><td><span class="selos-tipo ${classe}">${escapeAdmin(nomesMovimentoSelo[movimento.tipo] || movimento.tipo)}</span></td><td class="selos-valor ${classe}">${Number(movimento.quantidade || 0).toLocaleString('pt-BR')}</td><td class="selos-valor ${classe}">${impacto > 0 ? '+' : ''}${impacto.toLocaleString('pt-BR')}</td><td class="selos-valor">${Number(saldosApos.get(movimento.id)||0).toLocaleString('pt-BR')}</td><td>${referencia}</td><td>${faixa}</td><td>${escapeAdmin(movimento.criado_por_email || 'Sistema')}<small style="display:block;color:#7a8796;margin-top:4px">${new Date(movimento.criado_em).toLocaleString('pt-BR')}</small></td><td>${escapeAdmin(movimento.observacoes || '—')}</td></tr>`;
+            }).join('');
+            destino.innerHTML = linhas ? `<table class="selos-tabela"><thead><tr><th>Data</th><th>Tipo de selo</th><th>Movimento</th><th>Quantidade</th><th>Impacto fiscal</th><th>Saldo fiscal</th><th>Documento/origem</th><th>Numeração</th><th>Responsável</th><th>Observações</th></tr></thead><tbody>${linhas}</tbody></table>` : '<div class="selos-vazio">Nenhum lançamento encontrado para os filtros escolhidos.</div>';
+            const divergencias = insumosLivroSelos.map(insumo => {
+                const saldoFiscal = movimentosLivroSelos.filter(item => item.insumo_id === insumo.id).reduce((total,item) => total + Number(item.impacto_saldo_fiscal || 0),0);
+                const diferenca = saldoFiscal - Number(insumo.quantidade || 0);
+                return { nome:insumo.nome, diferenca };
+            }).filter(item => item.diferenca !== 0);
+            document.getElementById('selos-conferencia').innerHTML = divergencias.length
+                ? `<div style="padding:13px 15px;border-radius:13px;background:#fff5dc;border:1px solid #e4c77f;color:#805c17;font-size:.68rem"><b>Conferência:</b> ${divergencias.map(item => `${escapeAdmin(item.nome)}: ${Math.abs(item.diferenca).toLocaleString('pt-BR')} ${item.diferenca > 0 ? 'aplicados aguardando saída fiscal' : 'a conferir'}`).join(' · ')}</div>`
+                : '<div style="padding:13px 15px;border-radius:13px;background:#eaf7ef;border:1px solid #a9ddbe;color:#177847;font-size:.68rem"><b>Conferido:</b> os saldos físico e fiscal não apresentam diferença.</div>';
+        }
+
+        async function carregarLivroSelos() {
+            const destino = document.getElementById('selos-lista');
+            if (destino) destino.innerHTML = '<div class="selos-vazio">Carregando o livro…</div>';
+            carregarStatusBackupLivroSelos();
+            const [{data:insumos,error:erroInsumos},{data:movimentos,error:erroMovimentos}] = await Promise.all([
+                db.from('insumos_envase').select('id,codigo,nome,quantidade').like('codigo','selo_ipi_%').order('nome'),
+                db.from('livro_selos_movimentos').select('*,insumo:insumos_envase(id,codigo,nome,quantidade)').order('data_movimento',{ascending:false}).order('criado_em',{ascending:false}).limit(2000)
+            ]);
+            if (erroInsumos || erroMovimentos) {
+                if (destino) destino.innerHTML = `<div class="selos-vazio" style="color:#a52a2a">Não foi possível carregar o Livro Modelo 4: ${escapeAdmin(erroInsumos?.message || erroMovimentos?.message || 'erro desconhecido')}</div>`;
+                return;
+            }
+            insumosLivroSelos = insumos || [];
+            movimentosLivroSelos = movimentos || [];
+            const filtro = document.getElementById('selos-filtro-insumo');
+            const valorAtual = filtro?.value || '';
+            if (filtro) {
+                filtro.innerHTML = '<option value="">Todos</option>'+insumosLivroSelos.map(item => `<option value="${escapeAdmin(item.id)}">${escapeAdmin(item.nome)}</option>`).join('');
+                filtro.value = valorAtual;
+            }
+            renderizarResumoLivroSelos();
+            renderizarLivroSelos();
+        }
+
+        async function carregarStatusBackupLivroSelos() {
+            const destino = document.getElementById('selos-backup-status');
+            if (!destino) return;
+            // O backup diário é executado pelo Apps Script. Tentativas manuais usam
+            // outra rota de autenticação e não devem mascarar a saúde da automação.
+            const { data, error } = await db.from('livro_selos_backups').select('*').eq('origem','automatico').order('iniciado_em',{ascending:false}).limit(1).maybeSingle();
+            const pastaUrl = 'https://drive.google.com/drive/folders/1TYgeD-IK-gOdZnhKf1S03Q3e3i3FLSnY';
+            if (error) {
+                destino.className='selos-backup-status is-error';
+                destino.innerHTML=`<div><strong>BACKUP AUTOMÁTICO AGUARDANDO CONFIGURAÇÃO</strong><small>O histórico de backups ainda não está disponível no servidor.</small></div><div class="selos-backup-actions"><a href="${pastaUrl}" target="_blank" rel="noopener">ABRIR PASTA NO DRIVE ↗</a></div>`;
+                return;
+            }
+            if (!data) {
+                destino.className='selos-backup-status is-running';
+                destino.innerHTML=`<div><strong>BACKUP AUTOMÁTICO NO GOOGLE DRIVE</strong><small>Nenhum backup automático executado ainda. A rotina diária será registrada aqui.</small></div><div class="selos-backup-actions"><a href="${pastaUrl}" target="_blank" rel="noopener">ABRIR PASTA ↗</a></div>`;
+                return;
+            }
+            const concluido = data.status === 'concluido', processando = data.status === 'processando';
+            const referencia = new Date(data.concluido_em || data.iniciado_em).getTime();
+            const atrasado = concluido && Number.isFinite(referencia) && (Date.now() - referencia) > 36 * 60 * 60 * 1000;
+            destino.className=`selos-backup-status ${concluido&&!atrasado?'is-ok':processando?'is-running':'is-error'}`;
+            const quando = new Date(data.concluido_em || data.iniciado_em).toLocaleString('pt-BR');
+            const detalhe = atrasado
+                ? `O último backup automático foi concluído em ${quando}. A rotina diária não registrou uma nova cópia no prazo esperado.`
+                : concluido
+                ? `${Number(data.total_lancamentos||0).toLocaleString('pt-BR')} lançamentos protegidos · ${quando}`
+                : processando ? `Backup iniciado em ${quando}.` : `Falhou em ${quando}: ${escapeAdmin(data.mensagem_erro || 'erro não informado')}`;
+            destino.innerHTML=`<div><strong>${atrasado?'ATENÇÃO: BACKUP AUTOMÁTICO ATRASADO':concluido?'BACKUP AUTOMÁTICO CONCLUÍDO':processando?'BACKUP AUTOMÁTICO EM ANDAMENTO':'ATENÇÃO: BACKUP AUTOMÁTICO FALHOU'}</strong><small>${detalhe}${concluido&&!atrasado?' · rotina diária às 03h':''}</small></div><div class="selos-backup-actions">${data.pdf_arquivo_url?`<a href="${escapeAdmin(data.pdf_arquivo_url)}" target="_blank" rel="noopener">VER PDF ↗</a>`:''}${data.arquivo_url?`<a href="${escapeAdmin(data.arquivo_url)}" target="_blank" rel="noopener">JSON TÉCNICO ↗</a>`:''}<a href="${pastaUrl}" target="_blank" rel="noopener">ABRIR PASTA ↗</a></div>`;
+        }
+
+        function limparFiltrosLivroSelos() {
+            ['selos-filtro-insumo','selos-filtro-inicio','selos-filtro-fim','selos-filtro-tipo'].forEach(id => { const campo=document.getElementById(id); if(campo) campo.value=''; });
+            renderizarLivroSelos();
+        }
+
+        function abrirMovimentoSelo() {
+            if (!insumosLivroSelos.length) return showToast('Nenhum tipo de selo foi encontrado.');
+            document.getElementById('selo-mov-insumo').innerHTML = insumosLivroSelos.map(item => `<option value="${escapeAdmin(item.id)}" data-codigo="${escapeAdmin(item.codigo)}">${escapeAdmin(item.nome)} · saldo ${Number(item.quantidade || 0).toLocaleString('pt-BR')}</option>`).join('');
+            document.getElementById('selo-mov-tipo').value='entrada';
+            document.getElementById('selo-mov-data').value=new Date().toISOString().slice(0,10);
+            document.getElementById('selo-mov-quantidade').value='';
+            document.getElementById('selo-mov-guia').value=''; document.getElementById('selo-mov-guia-data').value='';
+            document.getElementById('selo-mov-num-inicial').value=''; document.getElementById('selo-mov-num-final').value='';
+            document.getElementById('selo-mov-cor').value=''; document.getElementById('selo-mov-serie').value=''; document.getElementById('selo-mov-observacoes').value='';
+            const aguardente = document.getElementById('selo-mov-insumo').selectedOptions?.[0]?.dataset.codigo === 'selo_ipi_aguardente';
+            document.getElementById('selo-mov-grupo').value = aguardente ? 'Bebidas alcoólicas' : 'Bebidas mistas';
+            document.getElementById('selo-mov-subgrupo').value = aguardente ? 'Aguardente' : 'Bebida mista';
+            atualizarFormularioMovimentoSelo();
+            document.getElementById('modal-movimento-selo').style.display='block'; document.getElementById('overlay').style.display='block';
+        }
+
+        function atualizarFormularioMovimentoSelo() {
+            const tipo = document.getElementById('selo-mov-tipo')?.value;
+            document.querySelectorAll('.selo-campo-entrada').forEach(campo => campo.style.display = tipo === 'entrada' ? 'block' : 'none');
+            const textos = {entrada:'A entrada aumenta os saldos físico e fiscal. Informe a guia e a faixa de numeração para manter a rastreabilidade.',inutilizacao:'A inutilização reduz os saldos físico e fiscal e permanece no histórico.',devolucao:'A devolução reduz os saldos físico e fiscal. Use as observações para registrar o documento de devolução.',ajuste_positivo:'Use somente para corrigir uma contagem comprovada. O histórico não será apagado.',ajuste_negativo:'Use somente para corrigir uma contagem comprovada. O histórico não será apagado.'};
+            document.getElementById('selo-mov-ajuda').textContent = textos[tipo] || '';
+        }
+
+        async function salvarMovimentoSelo(botao) {
+            const tipo=document.getElementById('selo-mov-tipo').value, quantidade=Number(document.getElementById('selo-mov-quantidade').value||0), data=document.getElementById('selo-mov-data').value;
+            const numeroInicial=document.getElementById('selo-mov-num-inicial').value, numeroFinal=document.getElementById('selo-mov-num-final').value;
+            if (!Number.isInteger(quantidade) || quantidade<1 || !data) return showToast('Informe data e quantidade válidas.');
+            if ((numeroInicial && !numeroFinal) || (!numeroInicial && numeroFinal)) return showToast('Informe o início e o fim da numeração.');
+            if (numeroInicial && Number(numeroFinal)-Number(numeroInicial)+1 !== quantidade) return showToast('A faixa de numeração precisa corresponder à quantidade.');
+            if (tipo==='entrada' && (!document.getElementById('selo-mov-guia').value.trim() || !document.getElementById('selo-mov-guia-data').value)) return showToast('Informe o número e a data da guia de entrada.');
+            const original=botao.textContent;
+            try {
+                botao.disabled=true; botao.textContent='REGISTRANDO…';
+                const {error}=await db.rpc('registrar_movimento_manual_selo',{p_insumo:document.getElementById('selo-mov-insumo').value,p_tipo:tipo,p_quantidade:quantidade,p_data:data,p_guia_numero:document.getElementById('selo-mov-guia').value.trim()||null,p_guia_data:document.getElementById('selo-mov-guia-data').value||null,p_numeracao_inicial:numeroInicial?Number(numeroInicial):null,p_numeracao_final:numeroFinal?Number(numeroFinal):null,p_grupo:document.getElementById('selo-mov-grupo').value.trim()||null,p_subgrupo:document.getElementById('selo-mov-subgrupo').value.trim()||null,p_cor:document.getElementById('selo-mov-cor').value.trim()||null,p_serie:document.getElementById('selo-mov-serie').value.trim()||null,p_observacoes:document.getElementById('selo-mov-observacoes').value.trim()||null});
+                if(error) throw error;
+                fecharTodosModais(); showToast('Lançamento registrado no Livro Modelo 4.');
+                await carregarLivroSelos(); await carregarControleEnvase();
+            } catch(error) { alert(`Não foi possível registrar o lançamento.\n\n${error.message||error}`); }
+            finally { botao.disabled=false; botao.textContent=original; }
+        }
+
+        function exportarLivroSelos() {
+            const movimentos=movimentosLivroSelosFiltrados();
+            if(!movimentos.length) return showToast('Não há lançamentos no período escolhido.');
+            const inicio=document.getElementById('selos-filtro-inicio').value, fim=document.getElementById('selos-filtro-fim').value;
+            const janela=window.open('','_blank');
+            if(!janela) return showToast('Permita a abertura da janela para gerar o PDF.');
+            janela.opener=null;
+            const saldosApos=saldosFiscaisAposMovimento();
+            const linhas=movimentos.map(m=>`<tr><td>${new Date(m.data_movimento+'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${escapeAdmin(m.insumo?.nome||'Selo')}</td><td>${escapeAdmin(nomesMovimentoSelo[m.tipo]||m.tipo)}</td><td>${Number(m.quantidade||0).toLocaleString('pt-BR')}</td><td>${Number(m.impacto_saldo_fiscal||0).toLocaleString('pt-BR')}</td><td>${Number(saldosApos.get(m.id)||0).toLocaleString('pt-BR')}</td><td>${escapeAdmin(m.guia_numero||m.nfe_numero||m.envase_id||'—')}</td><td>${escapeAdmin(m.serie||m.nfe_serie||'—')}</td><td>${escapeAdmin(m.observacoes||'—')}</td></tr>`).join('');
+            janela.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Livro Modelo 4</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;color:#142f50}h1{font-family:Georgia,serif;text-align:center;font-size:20px;margin:0 0 5px}p{text-align:center;font-size:11px;margin:0 0 18px}table{width:100%;border-collapse:collapse;font-size:9px}th,td{border:1px solid #9da9b5;padding:6px;text-align:left;vertical-align:top}th{background:#edf1f5;text-transform:uppercase}footer{margin-top:14px;font-size:9px;color:#68778a}@media print{button{display:none}}</style></head><body><h1>Registro de Entrada e Saída do Selo de Controle — Modelo 4</h1><p>Tio Nan · período ${inicio?new Date(inicio+'T12:00:00').toLocaleDateString('pt-BR'):'início'} a ${fim?new Date(fim+'T12:00:00').toLocaleDateString('pt-BR'):'atual'}</p><table><thead><tr><th>Data</th><th>Selo</th><th>Movimento</th><th>Quantidade</th><th>Impacto fiscal</th><th>Saldo fiscal</th><th>Documento/origem</th><th>Série</th><th>Observações</th></tr></thead><tbody>${linhas}</tbody></table><footer>Gerado em ${new Date().toLocaleString('pt-BR')} · Documento de controle interno sujeito à conferência fiscal.</footer><script>window.onload=()=>window.print()<\/script></body></html>`);
+            janela.document.close();
+        }
+
+        async function buscarLivroSelosCompletoParaBackup() {
+            const tamanhoPagina = 1000;
+            const movimentos = [];
+            for (let inicio = 0; ; inicio += tamanhoPagina) {
+                const { data, error } = await db.from('livro_selos_movimentos')
+                    .select('*,insumo:insumos_envase(id,codigo,nome,quantidade)')
+                    .order('data_movimento',{ascending:true})
+                    .order('criado_em',{ascending:true})
+                    .range(inicio,inicio+tamanhoPagina-1);
+                if (error) throw error;
+                movimentos.push(...(data || []));
+                if (!data || data.length < tamanhoPagina) break;
+            }
+            const { data:insumos, error:erroInsumos } = await db.from('insumos_envase')
+                .select('id,codigo,nome,quantidade,atualizado_em')
+                .like('codigo','selo_ipi_%')
+                .order('nome');
+            if (erroInsumos) throw erroInsumos;
+            return { movimentos, insumos:insumos || [] };
+        }
+
+        async function baixarBackupLivroSelos(botao) {
+            const textoOriginal = botao?.textContent || 'BAIXAR BACKUP COMPLETO';
+            try {
+                if (botao) { botao.disabled=true; botao.textContent='PREPARANDO BACKUP…'; }
+                const { movimentos, insumos } = await buscarLivroSelosCompletoParaBackup();
+                const saldosFiscais = Object.fromEntries(insumos.map(insumo => [insumo.codigo,
+                    movimentos.filter(movimento => movimento.insumo_id === insumo.id)
+                        .reduce((total,movimento) => total+Number(movimento.impacto_saldo_fiscal || 0),0)
+                ]));
+                const conteudo = {
+                    formato:'tio-nan-livro-selos-modelo-4',
+                    versao:1,
+                    gerado_em:new Date().toISOString(),
+                    observacao:'Backup integral e sem filtros. Quantidades físicas refletem o saldo no momento da geração.',
+                    resumo:{ tipos_de_selo:insumos.length, total_de_lancamentos:movimentos.length },
+                    saldos_fiscais_por_codigo:saldosFiscais,
+                    insumos,
+                    movimentos
+                };
+                const dadosSemHash = JSON.stringify(conteudo);
+                const hash = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(dadosSemHash));
+                conteudo.integridade_sha256 = [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2,'0')).join('');
+                const blob = new Blob([JSON.stringify(conteudo,null,2)],{type:'application/json;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+                const agora = new Date();
+                const carimbo = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(agora.getDate()).padStart(2,'0')}_${String(agora.getHours()).padStart(2,'0')}-${String(agora.getMinutes()).padStart(2,'0')}`;
+                const link = document.createElement('a');
+                link.href=url; link.download=`backup-livro-selos-modelo-4_${carimbo}.json`;
+                document.body.appendChild(link); link.click(); link.remove();
+                setTimeout(() => URL.revokeObjectURL(url),1000);
+                showToast(`Backup concluído: ${movimentos.length} lançamento(s).`);
+            } catch(error) {
+                alert(`Não foi possível gerar o backup do Livro de Selos.\n\n${error.message || error}`);
+            } finally {
+                if (botao) { botao.disabled=false; botao.textContent=textoOriginal; }
+            }
+        }
+
         let insumosCompra = [];
-        let notasCompra = [];
-        let itensNotasCompra = [];
+        let documentosContabeis = [];
+        let tiposDocumentosContabeis = [];
+        let enviosDocumentosContabeis = [];
+        let arquivoDocumentoSelecionado = null;
+        let documentosContabeisService = null;
+        let conexoesIphoneCarregadas = false;
+        const mesesDocumentosAbertos = new Set();
         const NOTAS_COMPRA_BUCKET = 'notas-compra';
 
+        function obterDocumentosContabeisService() {
+            if (!documentosContabeisService) documentosContabeisService = new window.DocumentosContabeisService(db, { bucket:NOTAS_COMPRA_BUCKET });
+            return documentosContabeisService;
+        }
+
         async function abrirCompraInsumos() {
-            const { data, error } = await db.from('insumos_envase').select('id,nome,quantidade').order('nome');
+            const { data, error } = await db.from('insumos_envase').select('id,codigo,nome,quantidade').order('nome');
             if (error) return showToast(`Não foi possível carregar os insumos: ${error.message}`);
             insumosCompra = data || [];
-            document.getElementById('compra-insumo').innerHTML = insumosCompra.map(insumo => `<option value="${escapeAdmin(insumo.id)}">${escapeAdmin(insumo.nome)} · saldo ${Number(insumo.quantidade || 0)}</option>`).join('');
+            document.getElementById('compra-insumo').innerHTML = insumosCompra.map(insumo => `<option value="${escapeAdmin(insumo.id)}">${escapeAdmin(insumo.nome)} · saldo ${insumoEhLiquido(insumo.codigo) ? `${(Number(insumo.quantidade || 0)/1000).toLocaleString('pt-BR',{maximumFractionDigits:3})} L` : Number(insumo.quantidade || 0).toLocaleString('pt-BR')}</option>`).join('');
             document.getElementById('compra-quantidade').value = '1';
+            atualizarUnidadeCompraInsumo();
             document.getElementById('compra-fornecedor').value = '';
             document.getElementById('compra-numero').value = '';
             document.getElementById('compra-data').value = new Date().toISOString().slice(0, 10);
@@ -3861,6 +4373,18 @@
             document.getElementById('modal-compra-insumos').style.display = 'flex';
             document.getElementById('overlay').style.display = 'block';
             setTimeout(() => document.getElementById('compra-fornecedor').focus(), 50);
+        }
+
+        function atualizarUnidadeCompraInsumo() {
+            const insumo = insumosCompra.find(item => String(item.id) === String(document.getElementById('compra-insumo')?.value));
+            const liquido = insumoEhLiquido(insumo?.codigo);
+            const campo = document.getElementById('compra-quantidade');
+            const label = document.getElementById('compra-quantidade-label');
+            if (!campo || !label) return;
+            label.textContent = liquido ? 'Litros recebidos' : 'Quantidade recebida';
+            campo.min = liquido ? '0.001' : '1';
+            campo.step = liquido ? '0.001' : '1';
+            if (liquido && Number(campo.value) < 0.001) campo.value = '1';
         }
 
         function tipoArquivoNota(arquivo) {
@@ -3877,16 +4401,18 @@
             const valor = valorTexto === '' ? null : Number(valorTexto);
             const observacoes = document.getElementById('compra-observacoes').value.trim();
             const insumoId = document.getElementById('compra-insumo').value;
-            const quantidade = Number(document.getElementById('compra-quantidade').value || 0);
-            const itens = insumoId && Number.isInteger(quantidade) && quantidade > 0 ? [{ insumo_id:insumoId, quantidade }] : [];
+            const quantidadeInformada = Number(document.getElementById('compra-quantidade').value || 0);
+            const insumoSelecionado = insumosCompra.find(item => String(item.id) === String(insumoId));
+            const compraLiquido = insumoEhLiquido(insumoSelecionado?.codigo);
+            const quantidade = compraLiquido ? Math.round(quantidadeInformada * 1000) : quantidadeInformada;
+            const quantidadeValida = Number.isFinite(quantidadeInformada) && quantidadeInformada > 0 && Number.isInteger(quantidade) && (!compraLiquido ? Number.isInteger(quantidadeInformada) : Math.abs(quantidadeInformada * 1000 - quantidade) < 0.0001);
+            const itens = insumoId && quantidadeValida ? [{ insumo_id:insumoId, quantidade }] : [];
             const arquivo = document.getElementById('compra-arquivo').files?.[0] || null;
             if (fornecedor.length < 2) return showToast('Informe o fornecedor da compra.');
             if (!data) return showToast('Informe a data de emissão.');
             if (!itens.length) return showToast('Selecione o item e informe uma quantidade válida.');
             if (valor !== null && (!Number.isFinite(valor) || valor < 0)) return showToast('Informe um valor total válido.');
-            if (arquivo && arquivo.size > 15 * 1024 * 1024) return showToast('O arquivo deve ter no máximo 15 MB.');
-            const mime = arquivo ? tipoArquivoNota(arquivo) : '';
-            if (arquivo && !['application/pdf','application/xml','image/jpeg','image/png','image/webp'].includes(mime)) return showToast('Use um arquivo PDF, XML, JPG, PNG ou WebP.');
+            let mime = '';
             const compraId = crypto.randomUUID();
             let arquivoPath = '';
             const textoOriginal = botao.textContent;
@@ -3894,6 +4420,8 @@
                 botao.disabled = true;
                 botao.textContent = arquivo ? 'ENVIANDO DOCUMENTO…' : 'SALVANDO COMPRA…';
                 if (arquivo) {
+                    const infoArquivo = await obterDocumentosContabeisService().identificarArquivo(arquivo);
+                    mime = infoArquivo.mime;
                     const extensao = arquivo.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin';
                     arquivoPath = `${data.slice(0,7)}/${compraId}/nota.${extensao}`;
                     const { error: uploadError } = await db.storage.from(NOTAS_COMPRA_BUCKET).upload(arquivoPath, arquivo, { contentType:mime, cacheControl:'3600', upsert:false });
@@ -3919,69 +4447,336 @@
             }
         }
 
-        async function carregarNotasCompra() {
-            const lista = document.getElementById('lista-notas-compra');
-            if (!lista) return;
-            lista.innerHTML = '<p>Carregando documentos…</p>';
-            const [{ data:notas, error:erroNotas }, { data:itens, error:erroItens }] = await Promise.all([
-                db.from('compras_insumos').select('*').order('data_emissao', { ascending:false }).order('criado_em', { ascending:false }).limit(300),
-                db.from('compra_insumo_itens').select('compra_id,quantidade,insumo:insumos_envase(nome)')
+        const competenciaDoDia = (data = new Date()) => `${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,'0')}`;
+        const nomeCompetencia = valor => {
+            if (!/^\d{4}-\d{2}$/.test(String(valor || ''))) return 'Documentos';
+            const [ano,mes] = valor.split('-').map(Number);
+            return new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric'}).format(new Date(ano,mes-1,1)).toUpperCase();
+        };
+        const tamanhoArquivo = bytes => Number(bytes || 0) >= 1024*1024 ? `${(Number(bytes)/(1024*1024)).toLocaleString('pt-BR',{maximumFractionDigits:1})} MB` : `${Math.max(1,Math.round(Number(bytes || 0)/1024))} KB`;
+
+        async function carregarNotasCompra() { return carregarDocumentosContabeis(); }
+
+        async function carregarDocumentosContabeis() {
+            const meses = document.getElementById('documentos-meses');
+            if (!meses) return;
+            meses.innerHTML = '<p class="documentos-vazio">Carregando documentos…</p>';
+            const [{data:tipos,error:erroTipos},{data:documentos,error:erroDocumentos},{data:config,error:erroConfig},{data:envios,error:erroEnvios}] = await Promise.all([
+                db.from('documentos_contabeis_tipos').select('codigo,nome,ordem').eq('ativo',true).order('ordem'),
+                db.from('documentos_contabeis').select('*,tipo:documentos_contabeis_tipos(nome)').order('competencia',{ascending:false}).order('data_documento',{ascending:false}).order('criado_em',{ascending:false}),
+                db.from('documentos_contabeis_config').select('email_contador').eq('id',true).maybeSingle(),
+                db.from('documentos_contabeis_envios').select('*').order('criado_em',{ascending:false}).limit(200)
             ]);
-            if (erroNotas || erroItens) {
-                lista.innerHTML = `<p style="color:#a52a2a">${escapeAdmin(erroNotas?.message || erroItens?.message || 'Não foi possível carregar as notas.')}</p>`;
+            const erro = erroTipos || erroDocumentos || erroConfig || erroEnvios;
+            if (erro) {
+                meses.innerHTML = `<p class="documentos-vazio" style="color:#9b2c2c">Não foi possível carregar a central: ${escapeAdmin(erro.message)}</p>`;
                 return;
             }
-            notasCompra = notas || [];
-            itensNotasCompra = itens || [];
-            renderizarNotasCompra();
+            tiposDocumentosContabeis = tipos || [];
+            documentosContabeis = documentos || [];
+            enviosDocumentosContabeis = envios || [];
+            document.getElementById('documentos-email-contador').value = config?.email_contador || '';
+            const atual = competenciaDoDia();
+            if (!mesesDocumentosAbertos.size) mesesDocumentosAbertos.add(atual);
+            document.getElementById('documentos-competencia').value = atual;
+            preencherTiposDocumento();
+            renderizarDocumentosContabeis();
         }
 
-        function renderizarNotasCompra() {
-            const lista = document.getElementById('lista-notas-compra');
-            if (!lista) return;
-            const busca = normalizarNomeProduto(document.getElementById('busca-notas-compra')?.value || '');
-            const filtradas = notasCompra.filter(nota => {
-                const itens = itensNotasCompra.filter(item => item.compra_id === nota.id).map(item => item.insumo?.nome || '').join(' ');
-                return !busca || normalizarNomeProduto(`${nota.fornecedor} ${nota.numero_documento || ''} ${itens}`).includes(busca);
+        function abrirConfiguracoesDocumentos() {
+            abrirModalAdmin('modal-configuracoes-documentos');
+        }
+
+        function abrirConfiguracaoIphone() {
+            abrirModalAdmin('modal-configuracao-iphone');
+            const credencial = document.getElementById('documentos-iphone-credencial');
+            if (credencial) credencial.hidden = true;
+            carregarConexoesIphone();
+        }
+
+        async function requisitarConfiguracaoIphone(action, dados = {}) {
+            const {data:{session}} = await db.auth.getSession();
+            if (!session) throw new Error('Faça login novamente no painel.');
+            const resposta = await fetch(`${supabaseUrl}/functions/v1/documentos-atalho-iphone`, {
+                method:'POST', headers:{Authorization:`Bearer ${session.access_token}`,apikey:supabaseKey,'content-type':'application/json'},
+                body:JSON.stringify({action,...dados})
             });
-            lista.innerHTML = filtradas.map(nota => {
-                const itens = itensNotasCompra.filter(item => item.compra_id === nota.id);
-                const resumo = itens.map(item => `${Number(item.quantidade)}× ${escapeAdmin(item.insumo?.nome || 'Insumo')}`).join(' · ');
-                const valor = nota.valor_total === null ? 'Valor não informado' : Number(nota.valor_total).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-                const botao = nota.arquivo_path ? `<button class="btn-status" style="width:auto;margin:0;background:#1f5f9f" onclick="baixarNotaCompra('${escapeAdmin(nota.id)}')">BAIXAR ARQUIVO</button>` : '<span class="admin-chip warn">SEM ANEXO</span>';
-                return `<div class="nota-compra-row"><div><strong>${escapeAdmin(nota.fornecedor)}</strong><small>${nota.numero_documento ? `NF ${escapeAdmin(nota.numero_documento)} · ` : ''}${new Date(nota.data_emissao+'T12:00:00').toLocaleDateString('pt-BR')}</small><small>${resumo || 'Itens não informados'}</small></div><div><b>${escapeAdmin(valor)}</b>${nota.arquivo_nome ? `<small>${escapeAdmin(nota.arquivo_nome)}</small>` : ''}</div><div>${botao}</div></div>`;
-            }).join('') || '<p style="text-align:center;color:#718096;padding:30px">Nenhuma nota de compra encontrada.</p>';
+            const retorno = await resposta.json().catch(() => ({}));
+            if (!resposta.ok) throw new Error(retorno.error || `Falha (${resposta.status})`);
+            return retorno;
         }
 
-        async function baixarNotaCompra(id) {
-            const nota = notasCompra.find(item => String(item.id) === String(id));
-            if (!nota?.arquivo_path) return showToast('Esta compra não possui arquivo anexado.');
-            const { data, error } = await db.storage.from(NOTAS_COMPRA_BUCKET).createSignedUrl(nota.arquivo_path, 60, { download:nota.arquivo_nome || 'nota-compra' });
-            if (error || !data?.signedUrl) return showToast(`Não foi possível abrir o documento: ${error?.message || 'link não gerado'}`);
-            window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+        async function carregarConexoesIphone() {
+            const lista = document.getElementById('documentos-iphone-dispositivos');
+            if (!lista) return;
+            try {
+                const retorno = await requisitarConfiguracaoIphone('list-devices');
+                conexoesIphoneCarregadas = true;
+                const dispositivos = retorno.devices || [];
+                lista.innerHTML = dispositivos.map(item => {
+                    const ativo = item.ativo && !item.revogado_em;
+                    const ultimoUso = item.ultimo_uso_em ? new Date(item.ultimo_uso_em).toLocaleString('pt-BR') : 'ainda não utilizado';
+                    return `<div class="documentos-iphone__dispositivo"><div><b>${escapeAdmin(item.nome)} · ${ativo ? 'ATIVO' : 'REVOGADO'}</b><small>Identificador ${escapeAdmin(item.token_prefix)}… · último contato: ${escapeAdmin(ultimoUso)}</small></div>${ativo ? `<button type="button" onclick="revogarAcessoIphone('${escapeAdmin(item.id)}')">REVOGAR</button>` : ''}</div>`;
+                }).join('') || '<small>Nenhum iPhone conectado. Gere um acesso para configurar o Atalho.</small>';
+            } catch(error) {
+                lista.innerHTML = `<small style="color:#973535">Não foi possível carregar as conexões: ${escapeAdmin(error.message || error)}</small>`;
+            }
         }
 
-        function abrirAjusteInsumo(id, nome, atual) {
+        async function gerarAcessoIphone(botao) {
+            const nome = document.getElementById('documentos-iphone-nome').value.trim();
+            if (nome.length < 2) return showToast('Informe um nome para identificar o iPhone.');
+            const texto = botao.textContent;
+            try {
+                botao.disabled = true; botao.textContent = 'GERANDO…';
+                const retorno = await requisitarConfiguracaoIphone('create-device',{nome});
+                document.getElementById('documentos-iphone-token').value = retorno.token;
+                document.getElementById('documentos-iphone-endpoint').value = retorno.upload_url;
+                document.getElementById('documentos-iphone-credencial').hidden = false;
+                conexoesIphoneCarregadas = false;
+                await carregarConexoesIphone();
+                showToast('Acesso criado. Copie o token agora.');
+                document.getElementById('documentos-iphone-credencial').scrollIntoView({behavior:'smooth',block:'center'});
+            } catch(error) { alert(`Não foi possível gerar o acesso do iPhone.\n\n${error.message || error}`); }
+            finally { botao.disabled = false; botao.textContent = texto; }
+        }
+
+        async function copiarConfiguracaoIphone(id, botao) {
+            const campo = document.getElementById(id);
+            if (!campo?.value) return showToast('Nada para copiar.');
+            try {
+                if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(campo.value);
+                else { campo.focus(); campo.select(); campo.setSelectionRange(0, campo.value.length); document.execCommand('copy'); }
+                const texto = botao.textContent; botao.textContent = 'COPIADO ✓';
+                setTimeout(() => { botao.textContent = texto; }, 1600);
+            } catch { showToast('Selecione o conteúdo e copie manualmente.'); }
+        }
+
+        async function revogarAcessoIphone(id) {
+            if (!confirm('Revogar este acesso? O Atalho deixará de enviar documentos imediatamente.')) return;
+            try {
+                await requisitarConfiguracaoIphone('revoke-device',{id});
+                conexoesIphoneCarregadas = false;
+                await carregarConexoesIphone();
+                showToast('Acesso do iPhone revogado.');
+            } catch(error) { alert(`Não foi possível revogar o acesso.\n\n${error.message || error}`); }
+        }
+
+        function preencherTiposDocumento() {
+            const seletor = document.getElementById('documento-tipo');
+            if (!seletor) return;
+            const valor = seletor.value;
+            seletor.innerHTML = '<option value="">Selecione</option>' + tiposDocumentosContabeis.map(tipo => `<option value="${escapeAdmin(tipo.codigo)}">${escapeAdmin(tipo.nome)}</option>`).join('');
+            if ([...seletor.options].some(option => option.value === valor)) seletor.value = valor;
+        }
+
+        function renderizarDocumentosContabeis() {
+            const destino = document.getElementById('documentos-meses');
+            if (!destino) return;
+            const busca = normalizarNomeProduto(document.getElementById('busca-notas-compra')?.value || '');
+            const filtrados = documentosContabeis.filter(documento => !busca || normalizarNomeProduto(`${documento.arquivo_nome} ${documento.descricao || ''} ${documento.tipo?.nome || documento.tipo_codigo}`).includes(busca));
+            const pendentes = documentosContabeis.filter(item => item.status !== 'enviado_contabilidade').length;
+            const ultimo = enviosDocumentosContabeis.find(item => item.status === 'enviado');
+            document.getElementById('documentos-resumo').innerHTML = `<div><span>Documentos</span><b>${documentosContabeis.length}</b></div><div><span>Ainda não enviados</span><b>${pendentes}</b></div><div><span>Último envio</span><b>${ultimo?.enviado_em ? new Date(ultimo.enviado_em).toLocaleDateString('pt-BR') : 'Ainda não enviado'}</b></div>`;
+            const status = document.getElementById('documentos-ultimo-envio');
+            if (ultimo) {
+                status.className = `documentos-envio-status ${pendentes ? 'is-warning' : 'is-ok'}`;
+                status.innerHTML = `✓ Último envio para a contabilidade em <b>${new Date(ultimo.enviado_em).toLocaleString('pt-BR')}</b>.${pendentes ? ` <b>${pendentes} documento(s) novo(s) aguardando envio.</b>` : ' Todos os documentos estão enviados.'}`;
+            } else {
+                status.className = 'documentos-envio-status';
+                status.textContent = documentosContabeis.length ? 'Nenhum envio para a contabilidade foi registrado ainda.' : 'Nenhum documento arquivado ainda.';
+            }
+            const atual = competenciaDoDia();
+            const competencias = [...new Set([...(busca ? [] : [atual]), ...filtrados.map(item => String(item.competencia || '').slice(0,7)).filter(valor => /^\d{4}-\d{2}$/.test(valor))])].sort((a,b) => b.localeCompare(a));
+            destino.innerHTML = competencias.map(competencia => {
+                const documentosMes = filtrados.filter(item => String(item.competencia || '').startsWith(competencia)).sort((a,b) => String(b.data_documento).localeCompare(String(a.data_documento)) || String(b.criado_em).localeCompare(String(a.criado_em)));
+                const novos = documentosMes.filter(item => item.status !== 'enviado_contabilidade').length;
+                const aberto = mesesDocumentosAbertos.has(competencia);
+                const linhas = documentosMes.map(documento => {
+                    const enviado = documento.status === 'enviado_contabilidade';
+                    const descricao = documento.descricao || 'Sem descrição';
+                    const acaoExcluir = documento.compra_insumo_id
+                        ? '<button type="button" class="protegido" title="Documento vinculado a uma compra de insumo">VINCULADO 🔒</button>'
+                        : `<button type="button" class="excluir" onclick="excluirDocumentoContabil('${escapeAdmin(documento.id)}')">EXCLUIR</button>`;
+                    return `<article class="documento-row"><div class="documento-row__data">${new Date(documento.data_documento+'T12:00:00').toLocaleDateString('pt-BR')}</div><div class="documento-row__arquivo"><b>📎 ${escapeAdmin(documento.arquivo_nome)}</b><small>${tamanhoArquivo(documento.arquivo_bytes)}</small></div><div class="documento-row__descricao"><b>${escapeAdmin(descricao)}</b>${documento.compra_insumo_id ? '<small>Vinculado a uma compra de insumo</small>' : ''}</div><div class="documento-row__tipo">${escapeAdmin(documento.tipo?.nome || documento.tipo_codigo)}</div><div class="documento-row__status"><span class="admin-chip ${enviado ? 'ok' : ''}">${enviado ? 'ENVIADO' : 'NOVO'}</span></div><div class="documento-row__acoes"><button type="button" onclick="visualizarDocumentoContabil('${escapeAdmin(documento.id)}')">VISUALIZAR</button>${acaoExcluir}</div></article>`;
+                }).join('') || '<p class="documentos-vazio">Nenhum documento neste mês.</p>';
+                return `<section class="documentos-mes ${aberto ? 'is-open' : ''}"><button type="button" class="documentos-mes__cabecalho" onclick="alternarMesDocumentos('${competencia}')" aria-expanded="${aberto}"><span class="documentos-mes__titulo"><b>${escapeAdmin(nomeCompetencia(competencia))}</b><small>${documentosMes.length} documento(s) · mais recentes primeiro</small></span><span class="documentos-mes__status ${novos ? 'has-pending' : ''}">${novos ? `${novos} NOVO(S)` : documentosMes.length ? 'TUDO ENVIADO' : 'SEM DOCUMENTOS'}</span><span class="documentos-mes__seta" aria-hidden="true">⌄</span></button><div class="documentos-mes__corpo"><div class="documentos-mes__acoes"><button type="button" class="btn-status secundario" onclick="baixarDocumentosCompetencia(this,'${competencia}')" ${documentosMes.length ? '' : 'disabled'}>BAIXAR MÊS</button><button type="button" class="btn-status" onclick="enviarDocumentosContabilidade(this,'${competencia}','new')" ${novos ? '' : 'disabled'}>ENVIAR NOVOS (${novos})</button><button type="button" class="btn-status reenviar" onclick="enviarDocumentosContabilidade(this,'${competencia}','all')" ${documentosMes.length ? '' : 'disabled'}>REENVIAR TODOS</button></div><div class="documentos-tabela-wrap"><div class="documentos-tabela-head"><span>Data</span><span>Documento</span><span>Fornecedor / descrição</span><span>Tipo</span><span>Status</span><span>Ações</span></div><div class="documentos-lista">${linhas}</div></div></div></section>`;
+            }).join('') || '<p class="documentos-vazio">Nenhum documento encontrado.</p>';
+        }
+
+        function alternarMesDocumentos(competencia) {
+            document.getElementById('documentos-competencia').value = competencia;
+            if (mesesDocumentosAbertos.has(competencia)) mesesDocumentosAbertos.delete(competencia);
+            else mesesDocumentosAbertos.add(competencia);
+            renderizarDocumentosContabeis();
+        }
+
+        function abrirAdicionarDocumento() {
+            arquivoDocumentoSelecionado = null;
+            document.getElementById('documento-camera').value = '';
+            document.getElementById('documento-arquivo').value = '';
+            document.getElementById('documento-formulario').hidden = true;
+            document.getElementById('documento-descricao').value = '';
+            document.getElementById('documento-tipo').value = '';
+            const hoje = new Date().toISOString().slice(0,10);
+            document.getElementById('documento-data').value = hoje;
+            document.getElementById('documento-competencia-modal').value = hoje.slice(0,7);
+            preencherTiposDocumento();
+            document.getElementById('modal-documento-contabil').style.display = 'flex';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function prepararDocumentoSelecionado(arquivo) {
+            if (!arquivo) return;
+            arquivoDocumentoSelecionado = arquivo;
+            document.getElementById('documento-arquivo-nome').textContent = arquivo.name;
+            document.getElementById('documento-arquivo-detalhe').textContent = tamanhoArquivo(arquivo.size);
+            document.getElementById('documento-formulario').hidden = false;
+            const extensao = arquivo.name.split('.').pop().toLowerCase();
+            if (extensao === 'xml') document.getElementById('documento-tipo').value = 'xml_nfe';
+            requestAnimationFrame(() => { document.getElementById('modal-documento-contabil').scrollTop = document.getElementById('modal-documento-contabil').scrollHeight; });
+        }
+
+        function sincronizarCompetenciaDocumento() {
+            const data = document.getElementById('documento-data').value;
+            if (data) document.getElementById('documento-competencia-modal').value = data.slice(0,7);
+        }
+
+        async function salvarDocumentoContabil(botao) {
+            if (!arquivoDocumentoSelecionado) return showToast('Escolha um arquivo ou tire uma foto.');
+            const dados = {
+                arquivo:arquivoDocumentoSelecionado, tipo:document.getElementById('documento-tipo').value,
+                data:document.getElementById('documento-data').value, competencia:document.getElementById('documento-competencia-modal').value,
+                descricao:document.getElementById('documento-descricao').value
+            };
+            const texto = botao.textContent;
+            try {
+                botao.disabled = true; botao.textContent = 'ENVIANDO DOCUMENTO…';
+                await obterDocumentosContabeisService().salvar(dados);
+                document.getElementById('documentos-competencia').value = dados.competencia;
+                mesesDocumentosAbertos.add(dados.competencia);
+                fecharTodosModais();
+                showToast('Documento salvo com sucesso.');
+                await carregarDocumentosContabeis();
+            } catch (error) {
+                showToast('Não foi possível salvar o documento.');
+                alert(`Não foi possível salvar o documento.\n\n${error.message || error}`);
+            } finally { botao.disabled = false; botao.textContent = texto; }
+        }
+
+        async function visualizarDocumentoContabil(id) {
+            const documento = documentosContabeis.find(item => String(item.id) === String(id));
+            if (!documento) return showToast('Documento não encontrado.');
+            try {
+                const url = await obterDocumentosContabeisService().urlTemporaria(documento.arquivo_path);
+                window.open(url,'_blank','noopener,noreferrer');
+            } catch (error) { showToast(`Não foi possível abrir: ${error.message || error}`); }
+        }
+
+        async function excluirDocumentoContabil(id) {
+            const documento = documentosContabeis.find(item => String(item.id) === String(id));
+            if (!documento) return showToast('Documento não encontrado.');
+            if (documento.compra_insumo_id) return alert('Este documento está vinculado a uma compra de insumo e não pode ser excluído por esta tela. Edite a compra correspondente para preservar o vínculo fiscal.');
+            const avisoEmail = documento.status === 'enviado_contabilidade' ? '\n\nEle já foi enviado por e-mail. A exclusão não remove a cópia recebida pelo contador.' : '';
+            if (!confirm(`Excluir permanentemente “${documento.arquivo_nome}”?${avisoEmail}\n\nEsta ação não pode ser desfeita.`)) return;
+            try {
+                const {error:erroRegistro} = await db.from('documentos_contabeis').delete().eq('id',documento.id);
+                if (erroRegistro) throw erroRegistro;
+                const {error:erroArquivo} = await db.storage.from(NOTAS_COMPRA_BUCKET).remove([documento.arquivo_path]);
+                if (erroArquivo) showToast('Registro excluído; o arquivo físico ficou pendente de limpeza.');
+                else showToast('Documento excluído permanentemente.');
+                await carregarDocumentosContabeis();
+            } catch(error) { alert(`Não foi possível excluir o documento.\n\n${error.message || error}`); }
+        }
+
+        async function salvarEmailContabilidade(botao) {
+            const email = document.getElementById('documentos-email-contador').value.trim().toLowerCase();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('Informe um e-mail válido da contabilidade.');
+            const texto = botao.textContent;
+            try {
+                botao.disabled=true; botao.textContent='SALVANDO…';
+                const {data:{user}} = await db.auth.getUser();
+                const {error} = await db.from('documentos_contabeis_config').upsert({id:true,email_contador:email,atualizado_por:user?.id || null,atualizado_em:new Date().toISOString()});
+                if (error) throw error;
+                showToast('E-mail da contabilidade salvo.');
+            } catch(error) { showToast(`Não foi possível salvar: ${error.message || error}`); }
+            finally { botao.disabled=false;botao.textContent=texto; }
+        }
+
+        async function requisitarPacoteContabil(acao, competencia, modo = 'new') {
+            const {data:{session}} = await db.auth.getSession();
+            if (!session) throw new Error('Faça login novamente.');
+            const resposta = await fetch(`${supabaseUrl}/functions/v1/documentos-contabilidade`,{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`,apikey:supabaseKey,'content-type':'application/json'},body:JSON.stringify({action:acao,competencia,mode:modo})});
+            if (!resposta.ok) { const erro=await resposta.json().catch(()=>({})); throw new Error(erro.error || `Falha (${resposta.status})`); }
+            return resposta;
+        }
+
+        async function baixarDocumentosCompetencia(botao, competencia) {
+            const texto=botao.textContent;
+            try {
+                botao.disabled=true;botao.textContent='GERANDO ZIP…';
+                const resposta=await requisitarPacoteContabil('download',competencia,'all');
+                const blob=await resposta.blob(); const url=URL.createObjectURL(blob); const link=document.createElement('a');
+                link.href=url;link.download=`Tio-Nan_Documentos_${competencia}.zip`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+                showToast('Download preparado com sucesso.');
+            } catch(error) { alert(`Não foi possível baixar os documentos.\n\n${error.message || error}`); }
+            finally { botao.disabled=false;botao.textContent=texto; }
+        }
+
+        async function enviarDocumentosContabilidade(botao, competencia, modo = 'new') {
+            const email=document.getElementById('documentos-email-contador').value.trim();
+            if (!email) return showToast('Configure primeiro o e-mail da contabilidade.');
+            const documentosMes = documentosContabeis.filter(item => String(item.competencia || '').startsWith(competencia));
+            const selecionados = modo === 'all' ? documentosMes : documentosMes.filter(item => item.status !== 'enviado_contabilidade');
+            if (!selecionados.length) return showToast(modo === 'all' ? 'Este mês não possui documentos.' : 'Não há documentos novos neste mês.');
+            const descricaoModo = modo === 'all' ? 'REENVIAR todos' : 'Enviar somente os novos';
+            if (!confirm(`${descricaoModo} — ${selecionados.length} documento(s) de ${nomeCompetencia(competencia)} para ${email}?`)) return;
+            const texto=botao.textContent;
+            try {
+                botao.disabled=true;botao.textContent='GERANDO E ENVIANDO…';
+                const resposta=await requisitarPacoteContabil('send',competencia,modo); const retorno=await resposta.json();
+                showToast(`${retorno.quantidade} documento(s) enviados para a contabilidade.`);
+                await carregarDocumentosContabeis();
+            } catch(error) { alert(`Não foi possível enviar para a contabilidade.\n\n${error.message || error}`); }
+            finally { botao.disabled=false;botao.textContent=texto; }
+        }
+
+        function abrirAjusteInsumo(id, nome, atual, codigo = '') {
             const modalFormato = document.getElementById('modal-insumos-formato');
+            if (modalFormato && contextoInsumosEnvaseAberto) contextoInsumosEnvaseAberto.scrollTop = modalFormato.scrollTop;
             if (modalFormato) modalFormato.style.display='none';
+            const liquido = insumoEhLiquido(codigo);
             document.getElementById('ajuste-insumo-id').value=id;
+            document.getElementById('ajuste-insumo-codigo').value=codigo;
             document.getElementById('ajuste-insumo-nome').innerText=nome;
-            document.getElementById('ajuste-insumo-atual').innerText=atual;
-            document.getElementById('ajuste-insumo-novo').value=atual;
-            document.getElementById('ajuste-insumo-motivo').value='Contagem de estoque';
+            document.getElementById('ajuste-insumo-atual').innerText=liquido ? (Number(atual || 0)/1000).toLocaleString('pt-BR',{maximumFractionDigits:3}) : atual;
+            document.getElementById('ajuste-insumo-unidade').innerText=liquido ? 'litros' : 'unidades';
+            document.getElementById('ajuste-insumo-novo-label').innerText=liquido ? 'Novo saldo em litros' : 'Novo saldo';
+            const campo = document.getElementById('ajuste-insumo-novo');
+            campo.step=liquido?'0.001':'1'; campo.min='0'; campo.value=liquido ? Number(atual || 0)/1000 : atual;
+            document.getElementById('ajuste-insumo-motivo').value=liquido ? 'Medição do volume disponível' : 'Contagem de estoque';
             document.getElementById('modal-ajuste-insumo').style.display='block'; document.getElementById('overlay').style.display='block';
             setTimeout(() => document.getElementById('ajuste-insumo-novo').select(), 50);
         }
 
         async function salvarAjusteInsumo() {
             const id = document.getElementById('ajuste-insumo-id').value;
-            const quantidade = Number(document.getElementById('ajuste-insumo-novo').value);
+            const codigo = document.getElementById('ajuste-insumo-codigo').value;
+            const liquido = insumoEhLiquido(codigo);
+            const valorInformado = Number(document.getElementById('ajuste-insumo-novo').value);
+            const quantidade = liquido ? Math.round(valorInformado * 1000) : valorInformado;
             const motivo = document.getElementById('ajuste-insumo-motivo').value.trim();
-            if (!Number.isInteger(quantidade) || quantidade < 0) return showToast('Informe uma quantidade inteira válida.');
+            if (!Number.isFinite(valorInformado) || valorInformado < 0 || !Number.isInteger(quantidade) || (liquido && Math.abs(valorInformado*1000-quantidade) >= 0.0001)) return showToast(liquido ? 'Informe os litros com até três casas decimais.' : 'Informe uma quantidade inteira válida.');
             if (!motivo) return showToast('Informe o motivo do ajuste.');
             const { error } = await db.rpc('ajustar_insumo_envase', { p_insumo:id, p_quantidade:quantidade, p_motivo:motivo });
             if (error) return showToast(`Erro: ${error.message}`);
-            fecharTodosModais(); showToast('Saldo atualizado.'); carregarControleEnvase();
+            const contexto = contextoInsumosEnvaseAberto ? { ...contextoInsumosEnvaseAberto } : null;
+            await carregarControleEnvase();
+            document.getElementById('modal-ajuste-insumo').style.display = 'none';
+            if (contexto?.tipo === 'produto') abrirInsumosPorProduto(contexto.valor, contexto.scrollTop);
+            else if (contexto?.tipo === 'formato') abrirInsumosPorGarrafa(contexto.valor, contexto.scrollTop);
+            else fecharTodosModais();
+            showToast('Saldo atualizado.');
         }
 
         async function abrirNovoEnvase(produtoBlingId = '') {
@@ -5106,7 +5901,7 @@
                     const novos = abertos.filter(p => (p.status || 'Novo Pedido') === 'Novo Pedido');
                     const pagamentosPendentes = abertos.filter(p => !['Concluído','Cancelado'].includes(p.status || '') && !['pago', 'pago_teste'].includes(String(p.status_pagamento || '').toLowerCase()) && !String(p.pagamento || '').toLowerCase().startsWith('dinheiro'));
                     const pedidosNoBling = pedidos.filter(p => Boolean(p.bling_id));
-                    const vendasBalcao = pedidos.filter(p => vendaBalcao(p) && p.status !== 'Cancelado' && !p.bling_removido_em);
+                    const vendasBalcao = pedidos.filter(p => vendaBalcao(p) && p.tipo_operacao !== 'brinde' && p.status !== 'Cancelado' && !p.bling_removido_em);
                     document.getElementById('resumo-pedidos-abertos').innerText = abertos.length;
                     document.getElementById('resumo-pagamentos-pendentes').innerText = pagamentosPendentes.length;
                     document.getElementById('resumo-bling-pendentes').innerText = pedidosNoBling.length;
@@ -5120,13 +5915,14 @@
                         const frt = parseFloat(p.frete || 0);
                         const st = p.status || "Novo Pedido";
                         const isPdv = vendaBalcao(p);
+                        const isBrinde = p.tipo_operacao === 'brinde';
                         const removidoBling = Boolean(p.bling_removido_em);
                         const isA = removidoBling || st === "Cancelado" || (st === "Concluído" && !isPdv);
                         const dtF = `${formatarData(p.created_at)} às ${new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
                         const safeData = encodeURIComponent(JSON.stringify(p));
 
-                        if (st === "Concluído") {
+                        if (st === "Concluído" && !isBrinde) {
                             const itensEstruturados = Array.isArray(p.itens_json) ? p.itens_json : [];
                             let garrafasPedido = 0;
                             if (itensEstruturados.length) {
@@ -5173,7 +5969,7 @@
                                     <span class="order-details">${dtF}</span>
                                     <div class="order-meta-line">
                                         <span class="admin-chip">${entregaPedido(p)}</span>
-                                        ${isPdv ? '<span class="admin-chip ok">VENDA NO BALCÃO</span>' : '<span class="admin-chip">PEDIDO DO SITE</span>'}
+                                        ${isBrinde ? '<span class="admin-chip warn">BRINDE · SEM COBRANÇA</span>' : isPdv ? '<span class="admin-chip ok">VENDA NO BALCÃO</span>' : '<span class="admin-chip">PEDIDO DO SITE</span>'}
                                         <span class="admin-chip ${pagamentoClass}">${pagamentoLabel}</span>
                                         <span class="admin-chip ${emailClass}">${emailLabel}</span>
                                         ${removidoBling ? '<span class="admin-chip error">REMOVIDO DO BLING</span>' : ''}
@@ -5824,7 +6620,7 @@
                     <div class="order-code">PEDIDO ${codigoPedido(p)}</div>
                     <div class="order-meta-line" style="margin-bottom:14px">
                         <span class="admin-chip">${entregaPedido(p)}</span>
-                        ${isPdv ? '<span class="admin-chip ok">VENDA NO BALCÃO</span>' : '<span class="admin-chip">PEDIDO DO SITE</span>'}
+                        ${p.tipo_operacao === 'brinde' ? '<span class="admin-chip warn">BRINDE · SEM COBRANÇA</span>' : isPdv ? '<span class="admin-chip ok">VENDA NO BALCÃO</span>' : '<span class="admin-chip">PEDIDO DO SITE</span>'}
                         <span class="admin-chip ${pagamentoClass}">${pagamentoLabel}</span>
                         <span class="admin-chip ${blingClass}">${blingLabel}</span>
                     </div>
@@ -5854,7 +6650,7 @@
                     <button class="pedido-acao" onclick="editarPedidoNoPdv()" style="background:#c59a4a;color:#fff">EDITAR NO PDV</button>
                 ` : ''}
                 ${podeExecutarCancelamento ? `
-                    <button class="pedido-acao" onclick="cancelarPedidoAvulso()" style="background:#8b2424;color:#fff">${p.status === 'Cancelado' ? 'CONCLUIR CANCELAMENTO E ESTORNAR' : 'CANCELAR PEDIDO E ESTORNAR'}</button>
+                    <button class="pedido-acao" onclick="cancelarPedidoAvulso()" style="background:#8b2424;color:#fff">${p.tipo_operacao === 'brinde' ? 'CANCELAR BRINDE E ESTORNAR' : p.status === 'Cancelado' ? 'CONCLUIR CANCELAMENTO E ESTORNAR' : 'CANCELAR PEDIDO E ESTORNAR'}</button>
                 ` : ''}
                 </div>
                 <div class="pedido-total"><span>Total do pedido${freteInclusoText}</span><strong>R$ ${parseFloat(p.total).toFixed(2).replace('.', ',')}</strong></div>`;
@@ -5931,11 +6727,12 @@
             const motivo = prompt('Informe o motivo do cancelamento (mínimo de 5 caracteres):');
             if (motivo === null) return;
             if (motivo.trim().length < 5) return showToast('O motivo precisa ter pelo menos 5 caracteres.');
+            const isBrinde = sel.tipo_operacao === 'brinde';
             const aviso = sel.bling_nfe_id
-                ? 'A NF-e será cancelada no Bling/SEFAZ e as garrafas voltarão ao estoque. Esta ação não pode ser desfeita. Continuar?'
+                ? `Para ${isBrinde ? 'estornar o brinde' : 'cancelar o pedido'}, a NF-e precisa estar cancelada no Bling/SEFAZ. Depois disso, as garrafas voltarão ao estoque e o XML sairá dos próximos pacotes da contabilidade. Continuar?`
                 : 'O pedido será cancelado e as garrafas voltarão ao estoque. Esta ação não pode ser desfeita. Continuar?';
             if (!confirm(aviso)) return;
-            showToast('Cancelando pedido e conferindo o estoque...');
+                showToast(isBrinde ? 'Estornando o brinde e conferindo a NF-e…' : 'Cancelando pedido e conferindo o estoque...');
             try {
                 let cancelamentoResultado = null;
                 const { data: sessionData } = await db.auth.getSession();
@@ -5969,11 +6766,11 @@
                 }
                 fecharTodosModais();
                 if (cancelamentoResultado?.email_enviado) {
-                    showToast('Pedido cancelado, estoque estornado e cliente avisado por e-mail.');
+                    showToast(`${isBrinde ? 'Brinde' : 'Pedido'} cancelado, estoque estornado e XML removido dos próximos envios contábeis.`);
                 } else if (cancelamentoResultado?.email_erro) {
-                    showToast(`Pedido cancelado e estoque estornado. O e-mail não foi enviado: ${cancelamentoResultado.email_erro}`);
+                    showToast(`${isBrinde ? 'Brinde' : 'Pedido'} cancelado e estoque estornado. XML removido dos próximos envios; e-mail não enviado: ${cancelamentoResultado.email_erro}`);
                 } else {
-                    showToast('Pedido cancelado e estoque estornado. O pedido não possui e-mail válido para aviso.');
+                    showToast(`${isBrinde ? 'Brinde' : 'Pedido'} cancelado, estoque estornado e XML removido dos próximos envios contábeis.`);
                 }
                 await carregar(true);
             } catch (error) {
@@ -5984,6 +6781,7 @@
 
         const nomesNaturezaNfe = {
             consumidor_final: 'Venda para consumidor final',
+            brinde: 'Remessa em bonificação, doação ou brinde',
             revenda_rs_normal: 'Revenda no RS — regime normal',
             revenda_rs_simples: 'Revenda no RS — Simples Nacional',
             revenda_fora_rs_normal: 'Revenda fora do RS — regime normal',
@@ -6020,14 +6818,19 @@
 
         function atualizarSugestaoNatureza() {
             if (!nfeContexto) return;
+            const isBrinde = sel?.tipo_operacao === 'brinde';
             const tipo = document.querySelector('input[name="nfe-comprador"]:checked')?.value || 'consumidor';
             const regimeArea = document.getElementById('nfe-regime-area');
-            regimeArea.style.display = tipo === 'revendedor' ? 'block' : 'none';
+            document.querySelectorAll('input[name="nfe-comprador"],input[name="nfe-regime"]').forEach(input => input.disabled = isBrinde);
+            regimeArea.style.display = !isBrinde && tipo === 'revendedor' ? 'block' : 'none';
             const regime = document.querySelector('input[name="nfe-regime"]:checked')?.value || 'normal';
             const regiao = nfeContexto.pedido.destino_uf === 'RS' ? 'rs' : 'fora_rs';
-            const chave = tipo === 'revendedor' ? `revenda_${regiao}_${regime}` : 'consumidor_final';
+            const chave = isBrinde ? 'brinde' : tipo === 'revendedor' ? `revenda_${regiao}_${regime}` : 'consumidor_final';
             document.getElementById('nfe-natureza').value = chave;
-            document.getElementById('nfe-sugestao').textContent = tipo === 'revendedor'
+            document.getElementById('nfe-natureza').disabled = isBrinde;
+            document.getElementById('nfe-sugestao').textContent = isBrinde
+                ? 'Natureza fiscal travada para brinde. O valor é fiscal e não representa cobrança ao destinatário.'
+                : tipo === 'revendedor'
                 ? `Sugerida: ${nomesNaturezaNfe[chave]} — destino identificado: ${nfeContexto.pedido.destino_uf || 'não identificado'}.`
                 : `Sugerida: ${nomesNaturezaNfe[chave]} — o Bling aplica a regra pelo endereço do consumidor.`;
         }
@@ -6083,7 +6886,7 @@
             const ambiente = nfeContexto.ambiente_fiscal;
             const natureza = document.getElementById('nfe-natureza').value;
             if (!ambiente || ambiente === 'nao_configurado') return showToast('Emissão bloqueada: configure o ambiente fiscal no backend.');
-            if (!natureza || !nfeContexto.naturezas_configuradas?.[natureza]) return showToast('Selecione uma das quatro naturezas configuradas.');
+            if (!natureza || !nfeContexto.naturezas_configuradas?.[natureza]) return showToast('Selecione uma natureza fiscal configurada.');
             const botao = document.getElementById('nfe-btn-emitir');
             if (botao?.disabled) return;
             if (botao) { botao.disabled = true; botao.textContent = 'EMITINDO...'; }
@@ -6361,9 +7164,10 @@
             const frete = parseFloat(document.getElementById('pdv-frete').value || 0);
             const desconto = parseFloat(document.getElementById('pdv-desconto').value || 0);
             const totalFinal = (tv + frete - desconto);
+            const isBrinde = document.getElementById('pdv-tipo-operacao')?.value === 'brinde';
             document.getElementById('pdv-float-qtd').innerText = tq;
-            document.getElementById('pdv-float-total').innerText = `R$ ${totalFinal.toFixed(2)}`;
-            document.getElementById('pdv-total').innerText = `Total: R$ ${totalFinal.toFixed(2)}`;
+            document.getElementById('pdv-float-total').innerText = isBrinde ? 'BRINDE' : `R$ ${totalFinal.toFixed(2)}`;
+            document.getElementById('pdv-total').innerText = isBrinde ? `Valor fiscal: R$ ${tv.toFixed(2)} · Sem cobrança` : `Total: R$ ${totalFinal.toFixed(2)}`;
         }
         function changePDV(id, delta) {
             const item = adminCart.find(produto => String(produto.id) === String(id));
@@ -6387,6 +7191,7 @@
             carregarEmbalagensPDV();
             document.getElementById('modal-sacola-pdv').style.display = 'flex';
             document.getElementById('overlay').style.display = 'block';
+            atualizarTipoOperacaoPdv();
         }
 
         async function carregarDatalistPDV() {
@@ -6437,10 +7242,49 @@
             updatePdvBtnText(); // Reseta o texto do botão
         }
 
+        function atualizarTipoOperacaoPdv() {
+            const isBrinde = document.getElementById('pdv-tipo-operacao').value === 'brinde';
+            const opcoes = document.querySelector('#modal-sacola-pdv .pdv-opcoes-venda');
+            const emitir = document.getElementById('pdv-emitir-nfe');
+            const status = document.getElementById('pdv-status');
+            const pagamento = document.getElementById('pdv-pagamento');
+            const frete = document.getElementById('pdv-frete');
+            const desconto = document.getElementById('pdv-desconto');
+            opcoes?.classList.toggle('is-brinde', isBrinde);
+            if (isBrinde) {
+                emitir.checked = true;
+                emitir.disabled = true;
+                emitir.dataset.forcadoBrinde = '1';
+                status.value = 'Concluído';
+                status.disabled = true;
+                pagamento.disabled = true;
+                frete.value = '';
+                desconto.value = '';
+                frete.disabled = true;
+                desconto.disabled = true;
+                document.getElementById('pdv-ajuda-fiscal').textContent = 'A NF-e usará a natureza de remessa em bonificação, doação ou brinde. O XML autorizado entrará automaticamente na pasta de brindes do ZIP mensal do contador.';
+            } else {
+                emitir.disabled = false;
+                if (emitir.dataset.forcadoBrinde === '1') emitir.checked = false;
+                delete emitir.dataset.forcadoBrinde;
+                status.disabled = false;
+                pagamento.disabled = false;
+                frete.disabled = false;
+                desconto.disabled = false;
+                document.getElementById('pdv-ajuda-fiscal').textContent = 'A caixa é opcional. Se escolhida, será baixada do controle de embalagens. A NF-e será emitida como consumidor final no ambiente fiscal configurado.';
+            }
+            updatePdvBtnText();
+            updatePDVCart();
+        }
+
         function updatePdvBtnText() {
             const st = document.getElementById('pdv-status').value;
             const btn = document.getElementById('btn-finalizar-pdv');
-            if (st === "Novo Pedido") {
+            const isBrinde = document.getElementById('pdv-tipo-operacao')?.value === 'brinde';
+            if (isBrinde) {
+                btn.innerText = "REGISTRAR BRINDE E EMITIR NF-e";
+                btn.style.background = "#c59a4a";
+            } else if (st === "Novo Pedido") {
                 btn.innerText = "SALVAR PEDIDO";
                 btn.style.background = "var(--gold)";
             } else {
@@ -6453,9 +7297,19 @@
             if (!adminCart.length) return showToast('Adicione pelo menos um produto à sacola.');
             const botaoFinalizar = document.getElementById('btn-finalizar-pdv');
             if (botaoFinalizar.disabled) return;
-            const statusPdv = document.getElementById('pdv-status').value;
+            const tipoOperacao = document.getElementById('pdv-tipo-operacao').value;
+            const isBrinde = tipoOperacao === 'brinde';
+            const statusPdv = isBrinde ? 'Concluído' : document.getElementById('pdv-status').value;
             const telPdv = document.getElementById('pdv-telefone').value;
             const nomePdv = document.getElementById('pdv-cliente').value || "Balcão";
+            const clienteSelecionado = (window.clientesCachePDV || []).find(c => c.nome === nomePdv);
+            if (isBrinde) {
+                if (!clienteSelecionado || nomePdv === 'Balcão') return showToast('Escolha o destinatário cadastrado do brinde.');
+                const cpf = String(clienteSelecionado.cpf || '').replace(/\D/g, '');
+                if (cpf.length !== 11) return showToast('Cadastre o CPF do destinatário antes de emitir o brinde.');
+                const enderecoFiscalCompleto = clienteSelecionado.rua && clienteSelecionado.numero && clienteSelecionado.bairro && clienteSelecionado.cep && clienteSelecionado.cidade && clienteSelecionado.estado;
+                if (!enderecoFiscalCompleto) return showToast('Complete o endereço fiscal do destinatário antes de emitir o brinde.');
+            }
             const entregaPdv = document.getElementById('pdv-entrega').value;
             const fretePdv = parseFloat(document.getElementById('pdv-frete').value || 0);
             const descontoPdv = parseFloat(document.getElementById('pdv-desconto').value || 0);
@@ -6475,6 +7329,7 @@
             }
 
             const payload = {
+                tipo_operacao: tipoOperacao,
                 cliente: nomePdv + (telPdv ? ` (${telPdv})` : ""),
                 cliente_nome: nomePdv,
                 cliente_telefone: telPdv ? telPdv.replace(/\D/g, '') : null,
@@ -6485,25 +7340,27 @@
                 }),
                 total: parseFloat((totalProdutos + fretePdv - descontoPdv).toFixed(2)),
                 custo: parseFloat((adminCart.reduce((a, b) => a + (b.cost * b.qtd), 0)).toFixed(2)),
-                pagamento: document.getElementById('pdv-pagamento').value,
-                pagamento_metodo: String(document.getElementById('pdv-pagamento').value || '').toLowerCase(),
-                pagamento_parcelas: 1,
-                status_pagamento: statusPdv === 'Concluído' ? 'pago' : 'aguardando',
+                pagamento: isBrinde ? 'Brinde' : document.getElementById('pdv-pagamento').value,
+                pagamento_metodo: isBrinde ? 'brinde' : String(document.getElementById('pdv-pagamento').value || '').toLowerCase(),
+                pagamento_parcelas: isBrinde ? 0 : 1,
+                status_pagamento: isBrinde ? 'nao_aplicavel' : statusPdv === 'Concluído' ? 'pago' : 'aguardando',
                 status: document.getElementById('pdv-status').value,
                 frete: fretePdv,
                 endereco: enderecoFinal
             };
-            const clienteSelecionado = (window.clientesCachePDV || []).find(c => c.nome === nomePdv);
             payload.cliente_email = clienteSelecionado?.email || null;
             payload.cliente_cpf = clienteSelecionado?.cpf || null;
             payload.embalagem_id = document.getElementById('pdv-embalagem').value || null;
-            payload.emitir_nfe = document.getElementById('pdv-emitir-nfe').checked;
+            payload.emitir_nfe = isBrinde || document.getElementById('pdv-emitir-nfe').checked;
             payload.enviar_email = payload.emitir_nfe && Boolean(payload.cliente_email);
-            if (payload.emitir_nfe && !confirm('A NF-e será gerada e enviada no Bling no ambiente fiscal configurado. Confirmar esta venda?')) return;
+            const confirmacaoFiscal = isBrinde
+                ? 'Confirmar a saída gratuita? O estoque será baixado, a NF-e de brinde será emitida no Bling e o XML ficará disponível para o contador.'
+                : 'A NF-e será gerada e enviada no Bling no ambiente fiscal configurado. Confirmar esta venda?';
+            if (payload.emitir_nfe && !confirm(confirmacaoFiscal)) return;
             const textoBotao = botaoFinalizar.innerText;
             botaoFinalizar.disabled = true;
-            botaoFinalizar.innerText = statusPdv === 'Novo Pedido' ? 'SALVANDO PEDIDO…' : 'CONCLUINDO VENDA…';
-            showToast(statusPdv === 'Novo Pedido' ? 'Salvando pedido…' : 'Registrando e sincronizando…');
+            botaoFinalizar.innerText = isBrinde ? 'EMITINDO NF-e DE BRINDE…' : statusPdv === 'Novo Pedido' ? 'SALVANDO PEDIDO…' : 'CONCLUINDO VENDA…';
+            showToast(isBrinde ? 'Registrando o brinde e emitindo a NF-e…' : statusPdv === 'Novo Pedido' ? 'Salvando pedido…' : 'Registrando e sincronizando…');
 
             try {
                 let res;
@@ -6555,7 +7412,7 @@
                 updatePDVCart();
                 await carregar(true);
                 abrirResumoPosVendaPdv(pedidoFinal, resultado, statusPdv, avisoParcial);
-                showToast(avisoParcial ? 'Venda salva com uma pendência.' : statusPdv === 'Novo Pedido' ? 'Pedido salvo!' : 'Venda concluída!');
+                showToast(avisoParcial ? `${isBrinde ? 'Brinde' : 'Venda'} salvo com uma pendência.` : isBrinde ? 'Brinde registrado e NF-e emitida!' : statusPdv === 'Novo Pedido' ? 'Pedido salvo!' : 'Venda concluída!');
             } catch (error) {
                 console.error(error);
                 showToast(error?.message || 'Erro ao salvar e sincronizar a venda.');
@@ -6579,11 +7436,13 @@
             document.getElementById('pdv-frete').value = '';
             document.getElementById('pdv-desconto').value = '';
             document.getElementById('pdv-pagamento').value = 'Pix';
+            document.getElementById('pdv-tipo-operacao').value = 'venda';
             document.getElementById('pdv-status').value = 'Concluído';
             document.getElementById('pdv-embalagem').value = '';
             document.getElementById('pdv-emitir-nfe').checked = false;
             ['pdv-cep','pdv-bairro','pdv-rua','pdv-numero'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('pdv-bloco-endereco').style.display = 'none';
+            atualizarTipoOperacaoPdv();
         }
 
         function abrirResumoPosVendaPdv(pedido, resultado = {}, statusPdv = 'Concluído', aviso = '') {
@@ -6593,13 +7452,15 @@
             const total = Number(pedido.total || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
             const referencia = codigoPedido(pedido);
             const notaGerada = Boolean(resultado.nota || pedido.bling_nfe_id);
-            const titulo = statusPdv === 'Novo Pedido' ? 'Pedido salvo com sucesso' : 'Venda concluída com sucesso';
+            const isBrinde = pedido.tipo_operacao === 'brinde' || resultado.tipo_operacao === 'brinde';
+            const titulo = isBrinde ? 'Brinde registrado com sucesso' : statusPdv === 'Novo Pedido' ? 'Pedido salvo com sucesso' : 'Venda concluída com sucesso';
+            document.getElementById('pdv-posvenda-titulo').textContent = isBrinde ? 'Brinde concluído' : statusPdv === 'Novo Pedido' ? 'Pedido salvo' : 'Venda concluída';
             document.getElementById('pdv-posvenda-conteudo').innerHTML = `
                 <div class="pdv-posvenda__sucesso"><span class="pdv-posvenda__icone">✓</span><h3>${titulo}</h3><p>Tudo deste atendimento ficou reunido aqui.</p></div>
                 <div class="pdv-posvenda__resumo">
                     <div><small>Pedido</small><b>${escapeAdmin(referencia)}</b></div>
                     <div><small>Cliente</small><b>${escapeAdmin(pedido.cliente_nome || 'Balcão')}</b></div>
-                    <div><small>Total</small><b>${total}</b></div>
+                    <div><small>${isBrinde ? 'Valor fiscal' : 'Total'}</small><b>${total}${isBrinde ? ' · sem cobrança' : ''}</b></div>
                 </div>
                 ${aviso ? `<div style="padding:12px 14px;border:1px solid #edc77e;border-radius:12px;background:#fff8e8;color:#79551a;font-size:.75rem;line-height:1.45"><strong>Venda registrada, mas há uma pendência:</strong><br>${escapeAdmin(aviso)}</div>` : ''}
                 <div class="pdv-posvenda__itens"><strong>Itens</strong><br>${escapeAdmin(pedido.itens || 'Itens registrados no pedido')}</div>
@@ -6681,6 +7542,7 @@
                 }
 
                 document.getElementById('pdv-frete').value = p.frete || "";
+                document.getElementById('pdv-tipo-operacao').value = p.tipo_operacao === 'brinde' ? 'brinde' : 'venda';
                 document.getElementById('pdv-status').value = p.status;
                 document.getElementById('pdv-pagamento').value = p.pagamento || "Pix";
 
@@ -6746,6 +7608,7 @@
                 fecharTodosModais();
                 switchTab('tab-pdv');
                 updatePDVCart();
+                atualizarTipoOperacaoPdv();
                 updatePdvBtnText();
 
                 if (totalEncontrado > 0) {
@@ -6798,7 +7661,7 @@
         function navigateTabs(direction) {
             const abas = isMobileOperationMode()
                 ? Array.from(ABAS_OPERACAO_MOBILE)
-                : ['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-automacoes', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-avaliacoes', 'tab-cupons', 'tab-stats', 'tab-rastreio'];
+                : ['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-livro-selos', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-automacoes', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-avaliacoes', 'tab-cupons', 'tab-stats', 'tab-rastreio'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
