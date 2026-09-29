@@ -64,7 +64,7 @@ Deno.serve(async(req)=>{
     const reviewData=await review.json().catch(()=>({}));
     if(!review.ok)return json(origin,{error:`Venda e estoque sincronizados, mas a NF-e não pôde ser revisada: ${reviewData.error||"falha fiscal"}`,pedido_id:created.id,referencia:reference,bling_id:syncData.bling_id},502);
     const env=String(reviewData.ambiente_fiscal||"");
-    const issue=await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/bling-nfe`,{method:"POST",headers,body:JSON.stringify({action:"emitir",pedido_id:created.id,natureza_chave:isGift?"brinde":"consumidor_final",confirmar_ambiente:env,enviar_email:input.enviar_email===true})});
+    const issue=await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/bling-nfe`,{method:"POST",headers,body:JSON.stringify({action:"emitir",pedido_id:created.id,natureza_chave:isGift?"brinde":"consumidor_final",confirmar_ambiente:env,enviar_email:!isGift&&input.enviar_email===true})});
     const issueData=await issue.json().catch(()=>({}));
     if(!issue.ok)return json(origin,{error:`Venda e estoque sincronizados, mas a NF-e falhou: ${issueData.error||"falha fiscal"}`,pedido_id:created.id,referencia:reference,bling_id:syncData.bling_id},502);
     nota=issueData.nota;

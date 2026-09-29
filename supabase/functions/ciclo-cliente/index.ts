@@ -26,7 +26,7 @@ Deno.serve(async (request) => {
   if (!secret?.valor || String(input.cron_token || "") !== String(secret.valor)) return json({ error: "Não autorizado." }, 401);
   const apiKey = Deno.env.get("RESEND_API_KEY") || "";
   if (!apiKey) return json({ error: "RESEND_API_KEY não configurada." }, 500);
-  const from = Deno.env.get("RESEND_FROM") || "Tio Nan <pedidos@mail.tionan.com.br>";
+  const from = Deno.env.get("RESEND_FROM_MARKETING") || "Ofertas Tio Nan <ofertas@mail.tionan.com.br>";
   const send = async (order: Record<string, unknown>, type: "avaliacao" | "recompra", html: string) => {
     const email = String(order.cliente_email || "").trim().toLowerCase();
     if (!validEmail(email)) throw new Error("E-mail inválido.");
@@ -37,8 +37,8 @@ Deno.serve(async (request) => {
   };
   const reviewBefore = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
   const reorderBefore = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: reviews } = await db.from("pedidos").select("id,referencia,cliente_nome,cliente_email,itens_json").eq("status", "Concluído").not("cliente_email", "is", null).is("email_avaliacao_enviado_em", null).lte("concluido_em", reviewBefore).limit(20);
-  const { data: reorders } = await db.from("pedidos").select("id,referencia,cliente_nome,cliente_email,itens_json,concluido_em").eq("status", "Concluído").not("cliente_email", "is", null).is("email_recompra_enviado_em", null).lte("concluido_em", reorderBefore).order("concluido_em", { ascending: false }).limit(20);
+  const { data: reviews } = await db.from("pedidos").select("id,referencia,cliente_nome,cliente_email,itens_json").eq("status", "Concluído").neq("tipo_operacao", "brinde").not("cliente_email", "is", null).is("email_avaliacao_enviado_em", null).lte("concluido_em", reviewBefore).limit(20);
+  const { data: reorders } = await db.from("pedidos").select("id,referencia,cliente_nome,cliente_email,itens_json,concluido_em").eq("status", "Concluído").neq("tipo_operacao", "brinde").not("cliente_email", "is", null).is("email_recompra_enviado_em", null).lte("concluido_em", reorderBefore).order("concluido_em", { ascending: false }).limit(20);
   let reviewSent = 0;
   let reorderSent = 0;
   for (const order of reviews || []) {

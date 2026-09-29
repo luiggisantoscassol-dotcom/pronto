@@ -3272,7 +3272,7 @@
                 if (newsletterResultado.error) throw new Error(`Newsletter: ${newsletterResultado.error.message || newsletterResultado.error.details || 'consulta recusada'}`);
                 const carrinhosResultado = await db.from('carrinhos_abandonados').select('email,nome,status,consentimento,total,itens,ultima_atividade_em,enviar_apos,enviado_em,convertido_em,erro,atualizado_em');
                 if (carrinhosResultado.error) throw new Error(`Carrinhos: ${carrinhosResultado.error.message || carrinhosResultado.error.details || 'consulta recusada'}`);
-                const pedidosResultado = await db.from('pedidos').select('referencia,cliente_nome,cliente_email,cliente_telefone,status,itens_json,concluido_em,email_avaliacao_enviado_em,email_avaliacao_erro,email_recompra_enviado_em,email_recompra_erro,atualizado_em');
+                const pedidosResultado = await db.from('pedidos').select('referencia,tipo_operacao,cliente_nome,cliente_email,cliente_telefone,status,itens_json,concluido_em,email_avaliacao_enviado_em,email_avaliacao_erro,email_recompra_enviado_em,email_recompra_erro,atualizado_em').neq('tipo_operacao', 'brinde');
                 if (pedidosResultado.error) throw new Error(`Pedidos: ${pedidosResultado.error.message || pedidosResultado.error.details || 'consulta recusada'}`);
                 const clientesResultado = await db.from('clientes').select('nome,email,telefone');
                 if (clientesResultado.error) throw new Error(`Clientes: ${clientesResultado.error.message || clientesResultado.error.details || 'consulta recusada'}`);
@@ -6628,7 +6628,7 @@
                         <div class="admin-detail-box"><small>E-mail</small>${escapeAdmin(p.cliente_email || 'Não informado')}</div>
                         <div class="admin-detail-box"><small>Telefone</small>${escapeAdmin(p.cliente_telefone || telLimpo || 'Não informado')}</div>
                         <div class="admin-detail-box"><small>CPF</small>${escapeAdmin(p.cliente_cpf || 'Não informado')}</div>
-                        <div class="admin-detail-box"><small>Confirmação</small>${p.email_confirmacao_enviado_em ? 'E-mail enviado' : 'E-mail ainda não enviado'}</div>
+                        <div class="admin-detail-box"><small>Confirmação</small>${p.tipo_operacao === 'brinde' ? 'Não aplicável para brinde' : p.email_confirmacao_enviado_em ? 'E-mail enviado' : 'E-mail ainda não enviado'}</div>
                     </div>
                     <div class="pedido-resumo">
                         <div class="pedido-resumo-linha"><b>Itens</b>${escapeAdmin(p.itens || '')}</div>
@@ -6844,7 +6844,7 @@
             document.getElementById('nfe-btn-emitir').style.display = temNota ? 'none' : 'block';
             document.getElementById('nfe-btn-pdf').style.display = nota?.tem_danfe ? 'block' : 'none';
             document.getElementById('nfe-btn-xml').style.display = nota?.tem_xml ? 'block' : 'none';
-            document.getElementById('nfe-btn-email').style.display = temNota ? 'block' : 'none';
+            document.getElementById('nfe-btn-email').style.display = temNota && sel?.tipo_operacao !== 'brinde' ? 'block' : 'none';
         }
 
         async function abrirNotaFiscal() {
@@ -6922,6 +6922,7 @@
         }
 
         async function enviarNfePorEmail() {
+            if (sel?.tipo_operacao === 'brinde') return showToast('O envio de e-mail está desativado para pedidos de brinde.');
             if (!nfeContexto?.nota?.id && !sel?.bling_nfe_id) return showToast('Esta NF-e ainda não foi gerada.');
             const email = String(nfeContexto?.pedido?.email || sel?.cliente_email || '').trim();
             if (!email) return showToast('O pedido não possui e-mail para receber a NF-e.');

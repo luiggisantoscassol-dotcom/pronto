@@ -182,7 +182,7 @@ Deno.serve(async (request) => {
     const pedidoId = String(input.pedido_id || "");
     const motivo = String(input.motivo || "").trim();
     if (!pedidoId || motivo.length < 5) return json(origin, { error: "Informe o pedido e um motivo com pelo menos 5 caracteres." }, 400);
-    const { data: order, error: orderError } = await db.from("pedidos").select("id,referencia,status,bling_id,estoque_estornado_em,cliente_email,cliente_nome,tracking_token").eq("id", pedidoId).single();
+    const { data: order, error: orderError } = await db.from("pedidos").select("id,referencia,status,tipo_operacao,bling_id,estoque_estornado_em,cliente_email,cliente_nome,tracking_token").eq("id", pedidoId).single();
     if (orderError || !order) return json(origin, { error: "Pedido não encontrado." }, 404);
     if (order.bling_id) return json(origin, { error: "Este pedido está no Bling e deve usar o cancelamento fiscal integrado." }, 409);
     if (!order.estoque_estornado_em) {
@@ -196,7 +196,7 @@ Deno.serve(async (request) => {
     if (updateError) return json(origin, { error: "Não foi possível marcar o pedido como cancelado." }, 500);
     let emailEnviado = false;
     let emailErro: string | null = null;
-    if (order.cliente_email && order.tracking_token) {
+    if (order.tipo_operacao !== "brinde" && order.cliente_email && order.tracking_token) {
       const emailResult = await sendOrderStatusUpdate({ email: order.cliente_email, name: order.cliente_nome || "Cliente Tio Nan", reference: order.referencia, trackingToken: String(order.tracking_token), status: "Cancelado", reason: motivo });
       emailEnviado = Boolean(emailResult.ok);
       if (!emailResult.ok && !emailResult.skipped) emailErro = emailResult.error || "Falha no envio";
@@ -208,7 +208,7 @@ Deno.serve(async (request) => {
   const status = String(input.status || "");
   if (!pedidoId || !VALID_STATUSES.has(status)) return json(origin, { error: "Pedido ou status inválido." }, 400);
 
-  const { data: order, error: orderError } = await db.from("pedidos").select("id,referencia,status,cliente_email,cliente_nome,tracking_token").eq("id", pedidoId).single();
+  const { data: order, error: orderError } = await db.from("pedidos").select("id,referencia,status,tipo_operacao,cliente_email,cliente_nome,tracking_token").eq("id", pedidoId).single();
   if (orderError || !order) return json(origin, { error: "Pedido não encontrado." }, 404);
   const now = new Date().toISOString();
   const statusUpdate: Record<string, unknown> = { status, atualizado_em: now };
@@ -218,7 +218,7 @@ Deno.serve(async (request) => {
 
   let emailEnviado = false;
   let emailErro: string | null = null;
-  if (order.status !== status && order.cliente_email && order.tracking_token) {
+  if (order.tipo_operacao !== "brinde" && order.status !== status && order.cliente_email && order.tracking_token) {
     const result = await sendOrderStatusUpdate({ email: order.cliente_email, name: order.cliente_nome || "Cliente Tio Nan", reference: order.referencia, trackingToken: String(order.tracking_token), status });
     emailEnviado = Boolean(result.ok);
     if (!result.ok && !result.skipped) emailErro = result.error || "Falha no envio";

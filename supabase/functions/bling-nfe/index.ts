@@ -283,7 +283,7 @@ Deno.serve(async (request) => {
       if (cancelError) throw new Error(`Operações externas concluídas, mas não foi possível atualizar o pedido: ${cancelError.message}`);
       let emailEnviado = false;
       let emailErro: string | null = null;
-      if (order.cliente_email && order.tracking_token) {
+      if (order.tipo_operacao !== "brinde" && order.cliente_email && order.tracking_token) {
         const emailResult = await sendOrderStatusUpdate({ email: order.cliente_email, name: order.cliente_nome || "Cliente Tio Nan", reference: order.referencia, trackingToken: String(order.tracking_token), status: "Cancelado", reason: motivo });
         emailEnviado = Boolean(emailResult.ok);
         if (!emailResult.ok && !emailResult.skipped) emailErro = emailResult.error || "Falha no envio";
@@ -383,6 +383,9 @@ Deno.serve(async (request) => {
 
     if (!noteId) return json(origin, { error: "Este pedido ainda não possui NF-e no Bling." }, 404);
     if (action === "enviar_email") {
+      if (order.tipo_operacao === "brinde") {
+        return json(origin, { error: "O envio de e-mail está desativado para pedidos de brinde." }, 409);
+      }
       const recipient = String(order.cliente_email || "").trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
         return json(origin, { error: "O pedido não possui e-mail para receber a NF-e." }, 422);
