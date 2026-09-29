@@ -2,7 +2,7 @@
 
   const API_BASE = "https://api.bling.com.br/Api/v3";
   const CONSUMER_FINAL_NATURE_ID = Number(Deno.env.get("BLING_NATURE_CONSUMIDOR_FINAL_ID") || "0");
-  const GIFT_NATURE_ID = Number(Deno.env.get("BLING_NATURE_BRINDE_ID") || "15111377049");
+  const GIFT_NATURE_ID = Number(Deno.env.get("BLING_NATURE_BRINDE_ID") || "15111595974");
   const BLING_PAYMENT_METHOD_IDS: Record<string, number> = {
     pix: 11024643,
     visa: 11024694,

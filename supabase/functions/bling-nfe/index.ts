@@ -35,7 +35,7 @@ const json = (origin: string | null, body: unknown, status = 200) => new Respons
 
 const natureIds = () => ({
   consumidor_final: Deno.env.get("BLING_NATURE_CONSUMIDOR_FINAL_ID") || "",
-  brinde: Deno.env.get("BLING_NATURE_BRINDE_ID") || "15111377049",
+  brinde: Deno.env.get("BLING_NATURE_BRINDE_ID") || "15111595974",
   revenda_rs_normal: Deno.env.get("BLING_NATURE_REVENDA_RS_NORMAL_ID") || "",
   revenda_rs_simples: Deno.env.get("BLING_NATURE_REVENDA_RS_SIMPLES_ID") || "",
   revenda_fora_rs_normal: Deno.env.get("BLING_NATURE_REVENDA_FORA_RS_NORMAL_ID") || "",
@@ -345,6 +345,27 @@ Deno.serve(async (request) => {
           headers: { "content-type": "application/json" },
           body: JSON.stringify(saleUpdatePayload(sale, natureId)),
         });
+
+        // Confirma que o Bling realmente aplicou a natureza antes de autorizar
+        // a NF-e. Isso impede que um brinde seja emitido com a natureza padrão
+        // da venda caso a atualização do pedido não tenha sido efetivada.
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        const updatedSale = await bling(`/pedidos/vendas/${encodeURIComponent(String(order.bling_id))}`);
+        const updatedItems = Array.isArray(updatedSale?.data?.itens)
+          ? updatedSale.data.itens
+          : [];
+        const reportedNatureIds = updatedItems
+          .map((item: any) => String(item?.naturezaOperacao?.id || "").trim())
+          .filter(Boolean);
+        if (
+          reportedNatureIds.length > 0 &&
+          reportedNatureIds.some((id: string) => id !== String(natureId))
+        ) {
+          throw new Error(
+            `O Bling não aplicou a natureza fiscal selecionada (${natureId}). A NF-e não foi emitida para evitar tributação incorreta.`,
+          );
+        }
+
         const generated = await bling(`/pedidos/vendas/${encodeURIComponent(String(order.bling_id))}/gerar-nfe`, { method: "POST" });
         noteId = extractNfeId(generated);
         if (!noteId) throw new Error("O Bling gerou a nota, mas não retornou seu identificador. Consulte o pedido no Bling antes de tentar novamente.");
