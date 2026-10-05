@@ -117,7 +117,13 @@ Deno.serve(async (request) => {
     .order("bling_nfe_data_emissao", { ascending:true, nullsFirst:false });
   if (erroPedidos) return json(request, { error:erroPedidos.message }, 500);
   const notasPedidos = (pedidosComNfe || []).filter((pedido: any) => String(pedido.bling_nfe_data_emissao || pedido.created_at || "").slice(0, 7) === competencia);
-  if (!documentos?.length && !notasPedidos.length) return json(request, { error: acao === "send" && modo !== "all" ? "Não há documentos novos nem XML de pedidos para enviar neste mês." : "Esta competência ainda não possui documentos." }, 409);
+  const { data: movimentosConsignacao, error: erroConsignacao } = await db.from("consignacao_movimentos")
+    .select("id,tipo,data_movimento,bling_nfe_id,bling_nfe_numero,bling_nfe_status,bling_nfe_chave_acesso,bling_nfe_data_emissao,consignacao_empresas(nome,nome_fantasia)")
+    .eq("status","ativo").in("bling_nfe_status",["5","6"]).not("bling_nfe_chave_acesso","is",null)
+    .order("bling_nfe_data_emissao",{ascending:true,nullsFirst:false});
+  if (erroConsignacao) return json(request, { error:erroConsignacao.message }, 500);
+  const notasConsignacao = (movimentosConsignacao || []).filter((movimento: any) => String(movimento.bling_nfe_data_emissao || movimento.data_movimento || "").slice(0, 7) === competencia);
+  if (!documentos?.length && !notasPedidos.length && !notasConsignacao.length) return json(request, { error: acao === "send" && modo !== "all" ? "Não há documentos novos nem XML fiscais para enviar neste mês." : "Esta competência ainda não possui documentos." }, 409);
   const totalOriginal = documentos.reduce((soma, item) => soma + Number(item.arquivo_bytes || 0), 0);
   if (totalOriginal > LIMITE_ZIP) return json(request, { error: "Os documentos ultrapassam 45 MB. Faça o download em grupos menores." }, 413);
 
@@ -128,7 +134,7 @@ Deno.serve(async (request) => {
     destinatario = String(config?.email_contador || "").trim().toLowerCase();
     if (!emailValido(destinatario)) return json(request, { error: "Configure um e-mail válido da contabilidade." }, 409);
     const { data: envio, error: erroEnvio } = await db.from("documentos_contabeis_envios").insert({
-      competencia: competenciaData, destinatario, quantidade_documentos: documentos.length + notasPedidos.length,
+      competencia: competenciaData, destinatario, quantidade_documentos: documentos.length + notasPedidos.length + notasConsignacao.length,
       documento_ids: documentos.map((item) => item.id), status: "processando", criado_por: auth.user.id,
     }).select("id").single();
     if (erroEnvio) return json(request, { error: erroEnvio.message }, 500);
@@ -159,6 +165,21 @@ Deno.serve(async (request) => {
         }
       }
     }
+    if (notasConsignacao.length) {
+      const accessToken = await acessoBling(db);
+      const pastas: Record<string,string> = { remessa:"01_Remessas", venda:"02_Vendas", devolucao:"03_Devolucoes" };
+      for (const [indice, movimento] of notasConsignacao.entries()) {
+        try {
+          const xml = await baixarXmlNfe(accessToken, String(movimento.bling_nfe_chave_acesso));
+          const numero = nomeSeguro(movimento.bling_nfe_numero || movimento.bling_nfe_id || String(indice + 1));
+          const empresa = nomeSeguro(movimento.consignacao_empresas?.nome_fantasia || movimento.consignacao_empresas?.nome || "Consignataria").slice(0,60);
+          arquivos[`11_XML_NFe_Consignacao/${pastas[movimento.tipo] || "04_Outros"}/${String(indice + 1).padStart(3,"0")}_NFe-${numero}_${empresa}.xml`] = xml;
+        } catch (error) {
+          const numero = movimento.bling_nfe_numero || movimento.bling_nfe_id || movimento.id;
+          throw new Error(`Não foi possível obter o XML da consignação ${numero}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+    }
     const zip = zipSync(arquivos, { level: 6 });
     if (zip.byteLength > LIMITE_ZIP) throw new Error("O ZIP completo, incluindo os XML dos pedidos, ultrapassa 45 MB.");
     const nomeZip = `Tio-Nan_Documentos_${competencia}.zip`;
@@ -175,8 +196,8 @@ Deno.serve(async (request) => {
       headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json", "idempotency-key": `contabilidade-${envioId}` },
       body: JSON.stringify({
         from, to: [destinatario], subject: `Documentos contábeis Tio Nan — ${competencia}`,
-        html: `<div style="font-family:Arial,sans-serif;color:#17304f;max-width:620px;margin:auto"><h1 style="font-family:Georgia,serif">Documentos contábeis — ${competencia}</h1><p>Seguem anexos os ${documentos.length} documentos arquivados e ${notasPedidos.length} XML de NF-e emitida em pedidos pela Tio Nan para esta competência.</p><p style="color:#6b7280;font-size:13px">Os XML estão em 10_XML_NFe_Pedidos_Emitidos, separados entre vendas e brindes.</p><p style="color:#6b7280;font-size:13px">Envio automático do painel administrativo Tio Nan.</p></div>`,
-        text: `Seguem anexos ${documentos.length} documentos contábeis e ${notasPedidos.length} XML de NF-e de pedidos da Tio Nan para a competência ${competencia}.`,
+        html: `<div style="font-family:Arial,sans-serif;color:#17304f;max-width:620px;margin:auto"><h1 style="font-family:Georgia,serif">Documentos contábeis — ${competencia}</h1><p>Seguem anexos ${documentos.length} documentos arquivados, ${notasPedidos.length} XML de pedidos e ${notasConsignacao.length} XML de consignação para esta competência.</p><p style="color:#6b7280;font-size:13px">Os XML estão separados nas pastas 10_XML_NFe_Pedidos_Emitidos e 11_XML_NFe_Consignacao.</p><p style="color:#6b7280;font-size:13px">Envio automático do painel administrativo Tio Nan.</p></div>`,
+        text: `Seguem anexos ${documentos.length} documentos contábeis, ${notasPedidos.length} XML de pedidos e ${notasConsignacao.length} XML de consignação da Tio Nan para a competência ${competencia}.`,
         attachments: [{ filename: nomeZip, content: base64(zip) }],
       }),
     });
@@ -187,7 +208,7 @@ Deno.serve(async (request) => {
       db.from("documentos_contabeis_envios").update({ status:"enviado", resend_id:retorno.id || null, enviado_em:agora }).eq("id", envioId),
       documentos.length ? db.from("documentos_contabeis").update({ status:"enviado_contabilidade", enviado_contabilidade_em:agora, atualizado_em:agora }).in("id", documentos.map((item) => item.id)) : Promise.resolve(),
     ]);
-    return json(request, { ok:true, quantidade:documentos.length + notasPedidos.length, quantidade_documentos:documentos.length, quantidade_xml_pedidos:notasPedidos.length, enviado_em:agora, resend_id:retorno.id || null });
+    return json(request, { ok:true, quantidade:documentos.length + notasPedidos.length + notasConsignacao.length, quantidade_documentos:documentos.length, quantidade_xml_pedidos:notasPedidos.length, quantidade_xml_consignacao:notasConsignacao.length, enviado_em:agora, resend_id:retorno.id || null });
   } catch (error) {
     const mensagem = error instanceof Error ? error.message : String(error);
     if (envioId) await db.from("documentos_contabeis_envios").update({ status:"erro", erro:mensagem }).eq("id", envioId);

@@ -946,7 +946,13 @@
         .consignacao-estoque-card__saldo b{font-size:2rem!important;line-height:1;letter-spacing:-.5px;flex:0 0 auto}
         .consignacao-estoque-card__saldo small{font-size:.88rem;line-height:1.25;color:#64748b;white-space:normal}
         .consignacao-estoque-card--vazio .consignacao-estoque-card__saldo small{color:#8a94a3}
+        .consignacao-acerto-grid{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(90px,.55fr));gap:10px;align-items:center}
+        .consignacao-acerto-grid input{margin:0;text-align:center}
+        .consignacao-acerto-total{margin-top:16px;padding:16px 18px;border-radius:15px;background:#eef5ff;color:#19385f;display:flex;align-items:center;justify-content:space-between;gap:12px}
+        .consignacao-acerto-total b{font-size:1.35rem}
+        .consignacao-acerto-card{padding:16px;border:1px solid #ded7cc;border-radius:15px;background:#fff;margin-bottom:11px}
         @media(max-width:800px){#tab-consignacao .admin-order-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.consignacao-estoque-card{min-height:116px;padding:16px}.consignacao-estoque-card__saldo{gap:7px}.consignacao-estoque-card__saldo b{font-size:1.75rem!important}.consignacao-estoque-card__saldo small{font-size:.8rem}}
+        @media(max-width:640px){.consignacao-acerto-grid{grid-template-columns:1fr 1fr}.consignacao-acerto-grid__produto{grid-column:1/-1}.consignacao-acerto-grid__preco{grid-column:1/-1}.consignacao-acerto-total{align-items:flex-start;flex-direction:column}}
         .order-code{font-size:.62rem;letter-spacing:1.2px;color:var(--text-gold);font-weight:900;margin-bottom:4px}
         .order-meta-line{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
         .admin-chip{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:.56rem;font-weight:900;letter-spacing:.35px;background:rgba(255,255,255,.07);color:#ddd;border:1px solid rgba(255,255,255,.08)}
@@ -2333,6 +2339,7 @@
                 <div class="admin-summary-card"><span>Empresas ativas</span><b id="cons-resumo-empresas">0</b></div>
                 <div class="admin-summary-card"><span>Garrafas consignadas</span><b id="cons-resumo-garrafas">0</b></div>
                 <div class="admin-summary-card"><span>Garrafas disponíveis</span><b id="cons-resumo-estoque">0</b></div>
+                <div class="admin-summary-card"><span>Valor a receber</span><b id="cons-resumo-receber">R$ 0,00</b></div>
                 <div class="admin-summary-card"><span>Movimentações</span><b id="cons-resumo-movimentos">0</b></div>
             </div>
             <h3 style="margin:28px 0 12px">Estoque disponível para consignação</h3>
@@ -2570,11 +2577,22 @@
     <div class="modal-box" id="modal-movimento-consignacao" style="max-width:760px" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center"><h2>Nova movimentação</h2><button class="modal-fechar-btn" onclick="fecharTodosModais()">×</button></div>
         <input type="hidden" id="cons-mov-empresa">
-        <label>Operação</label><select id="cons-mov-tipo"><option value="remessa">Remessa em consignação</option><option value="venda">Venda de mercadoria consignada</option><option value="devolucao">Retorno/devolução</option></select>
+        <label>Operação</label><select id="cons-mov-tipo"><option value="remessa">Remessa em consignação</option><option value="devolucao">Retorno/devolução avulsa</option></select>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><label>Data</label><input id="cons-mov-data" type="date"></div><div><label>Depósito do Bling</label><select id="cons-mov-deposito"><option value="">Selecione</option></select></div></div>
         <h3>Produtos</h3><div id="cons-mov-produtos"></div>
         <label>Observações</label><textarea id="cons-mov-observacoes" style="width:100%;min-height:80px"></textarea>
         <button class="btn-status" onclick="registrarMovimentoConsignacao()">REGISTRAR MOVIMENTAÇÃO</button>
+    </div>
+
+    <div class="modal-box" id="modal-acerto-consignacao" style="width:min(860px,calc(100vw - 24px));max-width:860px;max-height:92vh;overflow:auto" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><span class="sidebar-kicker">Fechamento da empresa</span><h2 id="cons-acerto-titulo" style="margin:5px 0 0;text-align:left">Acerto de consignação</h2></div><button class="modal-fechar-btn" onclick="fecharTodosModais()">×</button></div>
+        <input type="hidden" id="cons-acerto-empresa">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px"><div><label>Data do acerto</label><input id="cons-acerto-data" type="date"></div><div><label>Depósito para devoluções</label><select id="cons-acerto-deposito"><option value="">Selecione</option></select></div></div>
+        <div class="consignacao-acerto-grid" style="margin-top:18px;padding:0 6px;color:#718096;font-size:.66rem;font-weight:900;text-transform:uppercase"><span class="consignacao-acerto-grid__produto">Produto e saldo</span><span>Vendidas</span><span>Devolvidas</span><span class="consignacao-acerto-grid__preco">Valor unitário</span></div>
+        <div id="cons-acerto-produtos" style="display:grid;gap:9px;margin-top:8px"></div>
+        <label>Observações</label><textarea id="cons-acerto-observacoes" style="width:100%;min-height:76px" placeholder="Ex.: acerto referente ao período"></textarea>
+        <div class="consignacao-acerto-total"><span><b id="cons-acerto-quantidades">0 vendidas · 0 devolvidas</b><small style="display:block;margin-top:4px">O estoque devolvido volta ao sistema e ao Bling.</small></span><strong id="cons-acerto-total">R$ 0,00</strong></div>
+        <button class="btn-status" id="cons-acerto-salvar" onclick="registrarAcertoConsignacao(this)">CONFIRMAR ACERTO</button>
     </div>
 
     <div class="modal-box" id="modal-editar-envase" style="max-width:560px">
@@ -3144,7 +3162,7 @@
 
         let sel = null; let adminCart = []; let statsMensal = {}; let nfeContexto = null;
         let ultimoPedidoPdv = null; let ultimoResultadoPdv = null;
-        let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoEmpresaAtual = null;
+        let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoAcertos = [], consignacaoEmpresaAtual = null;
         let embalagens = [];
         let contextoInsumosEnvaseAberto = null;
         let scrollPaginaAntesDoModal = 0;
@@ -5016,18 +5034,21 @@
         }
 
         async function carregarConsignacao() {
-            const [{data:empresas,error:ee},{data:movimentos,error:em},{data:saldos,error:es},{data:produtos,error:ep}] = await Promise.all([
+            const [{data:empresas,error:ee},{data:movimentos,error:em},{data:saldos,error:es},{data:produtos,error:ep},{data:acertos,error:ea}] = await Promise.all([
                 db.from('consignacao_empresas').select('*').eq('ativa',true).order('nome'),
                 db.from('consignacao_movimentos').select('*,consignacao_itens(*)').order('data_movimento',{ascending:false}).order('criado_em',{ascending:false}),
                 db.from('consignacao_saldos').select('*'),
-                db.from('produtos').select('nome,estoque,bling_id').in('bling_id',Object.keys(nomesProdutosEnvase)).eq('excluido',false).order('nome')
+                db.from('produtos').select('nome,estoque,bling_id').in('bling_id',Object.keys(nomesProdutosEnvase)).eq('excluido',false).order('nome'),
+                db.from('consignacao_acertos').select('*').order('data_acerto',{ascending:false}).order('criado_em',{ascending:false})
             ]);
-            if (ee || em || es || ep) return showToast('Não foi possível carregar os dados da consignação.');
-            consignacaoEmpresas=empresas||[]; consignacaoMovimentos=movimentos||[]; consignacaoSaldos=saldos||[];
+            if (ee || em || es || ep || ea) return showToast('Não foi possível carregar os dados da consignação.');
+            consignacaoEmpresas=empresas||[]; consignacaoMovimentos=movimentos||[]; consignacaoSaldos=saldos||[]; consignacaoAcertos=acertos||[];
             const estoqueDisponivel=(produtos||[]).reduce((total,p)=>total+Math.max(0,Number(p.estoque||0)),0);
             document.getElementById('cons-resumo-empresas').textContent=consignacaoEmpresas.length;
             document.getElementById('cons-resumo-garrafas').textContent=consignacaoSaldos.reduce((s,i)=>s+Number(i.quantidade||0),0);
             document.getElementById('cons-resumo-estoque').textContent=estoqueDisponivel;
+            const valorReceber=consignacaoAcertos.filter(a=>a.status_pagamento==='pendente').reduce((s,a)=>s+Number(a.valor_vendido||0),0);
+            document.getElementById('cons-resumo-receber').textContent=`R$ ${valorReceber.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
             document.getElementById('cons-resumo-movimentos').textContent=consignacaoMovimentos.filter(m=>m.status==='ativo').length;
             document.getElementById('cons-estoque-produtos').innerHTML=(produtos||[]).map(p=>{const saldo=Math.max(0,Number(p.estoque||0));return `<div class="admin-summary-card consignacao-estoque-card ${saldo?'':'consignacao-estoque-card--vazio'}"><span class="consignacao-estoque-card__nome">${escapeAdmin(nomesProdutosEnvase[String(p.bling_id)]||p.nome)}</span><div class="consignacao-estoque-card__saldo"><b>${saldo}</b><small>${saldo===1?'garrafa disponível':saldo>1?'garrafas disponíveis':'sem estoque'}</small></div></div>`}).join('')||'<div class="admin-summary-card consignacao-estoque-card"><span class="consignacao-estoque-card__nome">Nenhum produto vinculado</span><div class="consignacao-estoque-card__saldo"><b>0</b><small>sem estoque</small></div></div>';
             document.getElementById('corpo-consignacao').innerHTML=consignacaoEmpresas.map(e=>{
@@ -5116,11 +5137,14 @@
             consignacaoEmpresaAtual=empresa;
             const saldos=consignacaoSaldos.filter(s=>s.empresa_id===id);
             const movimentos=consignacaoMovimentos.filter(m=>m.empresa_id===id);
+            const acertos=consignacaoAcertos.filter(a=>a.empresa_id===id);
             const tipoNome={remessa:'Remessa',venda:'Venda consignada',devolucao:'Devolução'};
+            const htmlAcertos=acertos.map(a=>{const venda=movimentos.find(m=>m.acerto_id===a.id&&m.tipo==='venda'),devolucao=movimentos.find(m=>m.acerto_id===a.id&&m.tipo==='devolucao');const rotulos={recebido:'RECEBIDO',pendente:'A RECEBER',sem_venda:'SEM VENDA',estornado:'ESTORNADO'},status=rotulos[a.status_pagamento]||String(a.status_pagamento||'').toUpperCase();return `<div class="consignacao-acerto-card" style="${a.status_pagamento==='estornado'?'opacity:.58':''}"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><b>Acerto de ${new Date(a.data_acerto+'T12:00:00').toLocaleDateString('pt-BR')}</b><div class="order-meta-line">${Number(a.quantidade_vendida||0)} vendida(s) · ${Number(a.quantidade_devolvida||0)} devolvida(s)</div><strong style="display:block;margin-top:7px;color:#19385f">R$ ${Number(a.valor_vendido||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div><span class="admin-chip ${a.status_pagamento==='recebido'?'ok':a.status_pagamento==='pendente'?'warn':a.status_pagamento==='estornado'?'error':''}">${status}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${venda?`<button class="btn-status" style="width:auto;margin:0" onclick="abrirFiscalConsignacao('${venda.id}')">NF-e DA VENDA</button>`:''}${devolucao?`<button class="btn-status" style="width:auto;margin:0;background:#eef3f8;color:#19385f" onclick="abrirFiscalConsignacao('${devolucao.id}')">NF-e DA DEVOLUÇÃO</button>`:''}${a.status_pagamento==='pendente'?`<button class="btn-status" style="width:auto;margin:0;background:#e8f7ee;color:#177847" onclick="marcarAcertoConsignacaoRecebido('${a.id}')">MARCAR RECEBIDO</button>`:''}</div></div>`}).join('')||'<p>Nenhum acerto realizado.</p>';
             document.getElementById('detalhe-consignacao').innerHTML=`<div class="modal-header"><div><small style="font-weight:900;color:#c59a4a;letter-spacing:1.5px">EMPRESA CONSIGNATÁRIA</small><h2 style="margin:5px 0 0">${escapeAdmin(empresa.nome_fantasia||empresa.nome)}</h2></div><button class="modal-fechar-btn" onclick="fecharTodosModais()">×</button></div><div style="padding:24px">
               <div class="admin-detail-grid"><div class="admin-detail-box"><small>Razão social</small>${escapeAdmin(empresa.nome)}</div><div class="admin-detail-box"><small>Documento</small>${escapeAdmin(empresa.documento||'Não informado')}</div><div class="admin-detail-box"><small>Contato</small>${escapeAdmin(empresa.email||empresa.telefone||'Não informado')}</div><div class="admin-detail-box"><small>Local</small>${escapeAdmin([empresa.cidade,empresa.uf].filter(Boolean).join(' / ')||'Não informado')}</div></div>
-              <div style="display:flex;gap:10px;flex-wrap:wrap;margin:18px 0"><button class="btn-status" style="width:auto;margin:0" onclick="abrirMovimentoConsignacao('${id}')">+ MOVIMENTAÇÃO</button><button class="btn-status" style="width:auto;margin:0;background:#eef3f8;color:#19385f" onclick="editarEmpresaConsignacao('${id}')">EDITAR EMPRESA</button><button class="btn-status" style="width:auto;margin:0;background:#fff4f4;color:#8b2424;border:1px solid #e5baba" onclick="excluirEmpresaConsignacao('${id}')">EXCLUIR EMPRESA</button></div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin:18px 0"><button class="btn-status" style="width:auto;margin:0;background:#c59a4a;color:#19385f" onclick="abrirAcertoConsignacao('${id}')">✓ FAZER ACERTO</button><button class="btn-status" style="width:auto;margin:0" onclick="abrirMovimentoConsignacao('${id}')">+ MOVIMENTAÇÃO</button><button class="btn-status" style="width:auto;margin:0;background:#eef3f8;color:#19385f" onclick="editarEmpresaConsignacao('${id}')">EDITAR EMPRESA</button><button class="btn-status" style="width:auto;margin:0;background:#fff4f4;color:#8b2424;border:1px solid #e5baba" onclick="excluirEmpresaConsignacao('${id}')">EXCLUIR EMPRESA</button></div>
               <h3>Saldo em consignação</h3><div class="admin-order-summary">${saldos.map(s=>`<div class="admin-summary-card"><span>${escapeAdmin(s.produto_nome)}</span><b>${s.quantidade}</b></div>`).join('')||'<p>Nenhuma garrafa em consignação.</p>'}</div>
+              <h3 style="margin-top:26px">Acertos e valores</h3>${htmlAcertos}
               <h3 style="margin-top:26px">Movimentações e notas fiscais</h3>${movimentos.map(m=>{const itens=(m.consignacao_itens||[]).map(i=>`${i.quantidade}× ${escapeAdmin(i.produto_nome)}`).join('<br>');return `<div class="estoque-row" style="margin-bottom:12px;${m.status==='estornado'?'opacity:.55':''}"><div><b>${tipoNome[m.tipo]}</b> · ${new Date(m.data_movimento+'T12:00:00').toLocaleDateString('pt-BR')}<div class="order-meta-line">${itens}</div><div style="margin-top:8px"><span class="admin-chip ${m.bling_estoque_status==='sincronizado'||m.bling_estoque_status==='nao_aplicavel'?'ok':m.bling_estoque_status==='erro'?'error':'warn'}">ESTOQUE: ${escapeAdmin(m.bling_estoque_status)}</span> <span class="admin-chip ${m.bling_nfe_id?'ok':'warn'}">${m.bling_nfe_id?'NF-e '+escapeAdmin(m.bling_nfe_numero||'vinculada'):'SEM NF-e'}</span></div></div><div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end"><button onclick="abrirFiscalConsignacao('${m.id}')" style="border:0;border-radius:9px;padding:9px 12px;background:#19385f;color:#fff;font-weight:800;cursor:pointer">NOTA FISCAL</button>${m.status==='ativo'?`<button onclick="estornarConsignacao('${m.id}')" style="border:1px solid #e5baba;border-radius:9px;padding:9px 12px;background:#fff4f4;color:#8b2424;font-weight:800;cursor:pointer">ESTORNAR</button>`:''}</div></div>`}).join('')||'<p>Nenhuma movimentação.</p>'}
             </div>`;
             document.getElementById('modal-detalhe-consignacao').style.display='block';document.getElementById('overlay').style.display='block';
@@ -5147,6 +5171,58 @@
             document.getElementById('cons-mov-produtos').innerHTML=(produtos||[]).map(p=>`<div class="estoque-row" style="margin-bottom:9px"><div><b>${escapeAdmin(p.nome)}</b><div class="order-meta-line">Estoque disponível: ${p.estoque||0}</div></div><input class="cons-produto-qtd" data-produto-id="${p.id}" data-bling-id="${escapeAdmin(p.bling_id)}" type="number" min="0" value="0" style="width:100px;margin:0;text-align:center"></div>`).join('');
             try{const d=await chamarAdmin('listar_depositos_bling');document.getElementById('cons-mov-deposito').innerHTML=(d.depositos||[]).map(x=>`<option value="${escapeAdmin(x.id)}">${escapeAdmin(x.nome)}</option>`).join('');}catch(e){showToast(e.message)}
             fecharTodosModais();document.getElementById('modal-movimento-consignacao').style.display='block';document.getElementById('overlay').style.display='block';
+        }
+
+        async function abrirAcertoConsignacao(empresaId) {
+            const empresa=consignacaoEmpresas.find(item=>item.id===empresaId);
+            const saldos=consignacaoSaldos.filter(item=>item.empresa_id===empresaId&&Number(item.quantidade)>0);
+            if(!empresa)return showToast('Empresa não encontrada.');
+            if(!saldos.length)return showToast('Esta empresa não possui garrafas para acertar.');
+            const ids=saldos.map(item=>item.produto_id);
+            const [{data:produtos,error},depositosResultado] = await Promise.all([
+                db.from('produtos').select('id,nome,preco,custo,bling_id').in('id',ids),
+                chamarAdmin('listar_depositos_bling').catch(()=>({depositos:[]}))
+            ]);
+            if(error)return showToast(error.message);
+            const mapa=new Map((produtos||[]).map(item=>[item.id,item]));
+            document.getElementById('cons-acerto-empresa').value=empresaId;
+            document.getElementById('cons-acerto-titulo').textContent=`Acerto · ${empresa.nome_fantasia||empresa.nome}`;
+            document.getElementById('cons-acerto-data').value=new Date().toISOString().slice(0,10);
+            document.getElementById('cons-acerto-observacoes').value='';
+            document.getElementById('cons-acerto-deposito').innerHTML='<option value="">Selecione se houver devolução</option>'+((depositosResultado?.depositos||[]).map(item=>`<option value="${escapeAdmin(item.id)}">${escapeAdmin(item.nome)}</option>`).join(''));
+            document.getElementById('cons-acerto-produtos').innerHTML=saldos.map(saldo=>{const produto=mapa.get(saldo.produto_id)||{};return `<div class="consignacao-acerto-grid estoque-row" style="margin:0"><div class="consignacao-acerto-grid__produto"><b>${escapeAdmin(saldo.produto_nome)}</b><small style="display:block;color:#718096">Saldo na empresa: ${Number(saldo.quantidade)}</small></div><input class="cons-acerto-vendida" data-produto-id="${saldo.produto_id}" data-bling-id="${escapeAdmin(saldo.produto_bling_id)}" data-saldo="${Number(saldo.quantidade)}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade vendida de ${escapeAdmin(saldo.produto_nome)}"><input class="cons-acerto-devolvida" data-produto-id="${saldo.produto_id}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade devolvida de ${escapeAdmin(saldo.produto_nome)}"><input class="cons-acerto-preco consignacao-acerto-grid__preco" data-produto-id="${saldo.produto_id}" type="number" min="0" step="0.01" value="${Number(produto.preco||0).toFixed(2)}" oninput="calcularAcertoConsignacao()" aria-label="Valor unitário de ${escapeAdmin(saldo.produto_nome)}"></div>`}).join('');
+            calcularAcertoConsignacao();
+            fecharTodosModais();document.getElementById('modal-acerto-consignacao').style.display='block';document.getElementById('overlay').style.display='block';
+        }
+
+        function calcularAcertoConsignacao() {
+            let vendidas=0,devolvidas=0,total=0;
+            document.querySelectorAll('.cons-acerto-vendida').forEach(campo=>{const id=campo.dataset.produtoId,v=Math.max(0,Number(campo.value||0)),d=Math.max(0,Number(document.querySelector(`.cons-acerto-devolvida[data-produto-id="${id}"]`)?.value||0)),saldo=Number(campo.dataset.saldo||0),preco=Math.max(0,Number(document.querySelector(`.cons-acerto-preco[data-produto-id="${id}"]`)?.value||0));campo.setCustomValidity(v+d>saldo?`Venda e devolução não podem ultrapassar ${saldo}.`:'');vendidas+=v;devolvidas+=d;total+=v*preco;});
+            document.getElementById('cons-acerto-quantidades').textContent=`${vendidas} vendida${vendidas===1?'':'s'} · ${devolvidas} devolvida${devolvidas===1?'':'s'}`;
+            document.getElementById('cons-acerto-total').textContent=`R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+            return {vendidas,devolvidas,total};
+        }
+
+        async function registrarAcertoConsignacao(botao) {
+            const empresa=document.getElementById('cons-acerto-empresa').value,data=document.getElementById('cons-acerto-data').value,deposito=document.getElementById('cons-acerto-deposito').value;
+            const itens=[...document.querySelectorAll('.cons-acerto-vendida')].map(campo=>{const id=campo.dataset.produtoId;return {produto_id:id,produto_bling_id:campo.dataset.blingId,vendidas:Number(campo.value||0),devolvidas:Number(document.querySelector(`.cons-acerto-devolvida[data-produto-id="${id}"]`)?.value||0),valor_unitario:Number(document.querySelector(`.cons-acerto-preco[data-produto-id="${id}"]`)?.value||0),saldo:Number(campo.dataset.saldo||0)}}).filter(item=>item.vendidas>0||item.devolvidas>0);
+            if(!data||!itens.length)return showToast('Informe a data e ao menos uma venda ou devolução.');
+            if(itens.some(item=>!Number.isInteger(item.vendidas)||!Number.isInteger(item.devolvidas)||item.vendidas<0||item.devolvidas<0||item.vendidas+item.devolvidas>item.saldo))return showToast('Confira as quantidades: o acerto não pode ultrapassar o saldo consignado.');
+            if(itens.some(item=>item.devolvidas>0)&&!deposito)return showToast('Selecione o depósito do Bling para devolver as garrafas ao estoque.');
+            const original=botao.textContent;botao.disabled=true;botao.textContent='REGISTRANDO ACERTO…';
+            try{
+                const {data:resultado,error}=await db.rpc('registrar_acerto_consignacao',{p_empresa:empresa,p_data:data,p_itens:itens,p_deposito_bling_id:deposito||null,p_observacoes:document.getElementById('cons-acerto-observacoes').value.trim()||null});
+                if(error)throw error;
+                if(resultado?.devolucao_id){for(const item of itens.filter(x=>x.devolvidas>0)){try{await chamarAdmin('entrada_estoque_bling',{produto_bling_id:item.produto_bling_id,deposito_bling_id:deposito,quantidade:item.devolvidas,consignacao_id:resultado.devolucao_id,observacoes:'Devolução no acerto de consignação'});}catch(e){showToast(`Acerto salvo, mas o Bling recusou uma devolução: ${e.message}`);}}}
+                fecharTodosModais();showToast(`Acerto concluído · R$ ${Number(resultado?.valor_vendido||0).toLocaleString('pt-BR',{minimumFractionDigits:2})} a receber.`);await carregar(true);await carregarConsignacao();abrirDetalheConsignacao(empresa);
+            }catch(e){showToast(`Acerto não concluído: ${e.message||e}`)}finally{botao.disabled=false;botao.textContent=original}
+        }
+
+        async function marcarAcertoConsignacaoRecebido(id) {
+            if(!confirm('Confirmar que este valor foi recebido?'))return;
+            const {error}=await db.rpc('marcar_acerto_consignacao_recebido',{p_acerto:id});
+            if(error)return showToast(error.message);
+            showToast('Pagamento do acerto marcado como recebido.');await carregarConsignacao();if(consignacaoEmpresaAtual)abrirDetalheConsignacao(consignacaoEmpresaAtual.id);
         }
 
         async function registrarMovimentoConsignacao() {
@@ -5859,6 +5935,10 @@
                     .is('bling_removido_em', null)
                     .order('created_at', { ascending: false });
 
+                const { data: vendasConsignacaoResultado } = await db.from('consignacao_movimentos')
+                    .select('id,empresa_id,data_movimento,valor_total,custo_total,status,consignacao_empresas(nome,nome_fantasia),consignacao_itens(produto_nome,quantidade,valor_unitario,custo_unitario)')
+                    .eq('tipo','venda').eq('status','ativo').order('data_movimento',{ascending:false});
+
                 // Carregar Rastreio
                 const { data: rastreio } = await db.from('rastreio_carrinho').select('*').order('created_at', { ascending: false });
 
@@ -6152,6 +6232,19 @@
                         }
                     });
                 }
+
+                (vendasConsignacaoResultado||[]).forEach(venda=>{
+                    const itens=Array.isArray(venda.consignacao_itens)?venda.consignacao_itens:[];
+                    const faturamento=Number(venda.valor_total||itens.reduce((s,item)=>s+Number(item.quantidade||0)*Number(item.valor_unitario||0),0));
+                    const custo=Number(venda.custo_total||itens.reduce((s,item)=>s+Number(item.quantidade||0)*Number(item.custo_unitario||0),0));
+                    const garrafas=itens.reduce((s,item)=>s+Number(item.quantidade||0),0);
+                    const mesAno=extrairMesAno(`${venda.data_movimento}T12:00:00`);
+                    if(!statsMensal[mesAno])statsMensal[mesAno]={f:0,l:0,g:0,v:0,orders:[]};
+                    statsMensal[mesAno].f+=faturamento;statsMensal[mesAno].l+=(faturamento-custo);statsMensal[mesAno].g+=garrafas;statsMensal[mesAno].v+=1;
+                    statsMensal[mesAno].orders.push({origem_resultado:'consignacao',empresa_id:venda.empresa_id,cliente:venda.consignacao_empresas?.nome_fantasia||venda.consignacao_empresas?.nome||'Consignação',created_at:`${venda.data_movimento}T12:00:00`,total:faturamento,movimento_id:venda.id});
+                    itens.forEach(item=>rankingProdutos.set(item.produto_nome,(rankingProdutos.get(item.produto_nome)||0)+Number(item.quantidade||0)));
+                    fatG+=faturamento;lucG+=(faturamento-custo);garrafasG+=garrafas;vendasG+=1;
+                });
 
                 document.getElementById('corpo-pedidos').innerHTML = htmlV || "<p style='text-align:center; opacity:0.5; padding: 20px;'>Nenhum pedido ou venda registrado.</p>";
                 filtrarPedidos(window.filtroPedidosAtual || 'todos');
@@ -6658,10 +6751,15 @@
             data.orders.forEach(p => {
                 const dtF = `${formatarData(p.created_at)} <small style="color:#888;">${new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>`;
                 const safeData = encodeURIComponent(JSON.stringify(p));
-                html += `<tr onclick="abrirPedido('${safeData}')"><td><b>${p.cliente}</b><br><small>${dtF}</small></td><td><b style="color:var(--gold);">R$ ${parseFloat(p.total).toFixed(2)}</b></td></tr>`;
+                const acao=p.origem_resultado==='consignacao'?`abrirVendaConsignacaoResultado('${p.empresa_id}')`:`abrirPedido('${safeData}')`;
+                html += `<tr onclick="${acao}"><td><b>${escapeAdmin(p.cliente||p.cliente_nome||'Cliente')}</b><br><small>${dtF}${p.origem_resultado==='consignacao'?' · CONSIGNAÇÃO':''}</small></td><td><b style="color:var(--gold);">R$ ${parseFloat(p.total).toFixed(2)}</b></td></tr>`;
             });
             document.getElementById('corpo-mes-detalhe').innerHTML = html + "</table>";
             document.getElementById('modal-mes-detalhe').style.display = 'flex'; document.getElementById('overlay').style.display = 'block';
+        }
+
+        async function abrirVendaConsignacaoResultado(empresaId) {
+            fecharTodosModais();switchTab('tab-consignacao');await carregarConsignacao();abrirDetalheConsignacao(empresaId);
         }
 
         function abrirPedido(safeData) {

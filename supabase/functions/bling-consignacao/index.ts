@@ -10,7 +10,7 @@ const allowed=(origin:string|null)=>{if(!origin)return true;try{const u=new URL(
 const cors=(o:string|null)=>({"access-control-allow-origin":o&&allowed(o)?o:"https://www.tionan.com.br","access-control-allow-headers":"authorization, x-client-info, apikey, content-type","access-control-allow-methods":"POST, OPTIONS",vary:"Origin"});
 const json=(o:string|null,b:unknown,s=200)=>new Response(JSON.stringify(b),{status:s,headers:{...cors(o),"content-type":"application/json; charset=utf-8"}});
 const authorized=(s:unknown)=>[5,6].includes(Number(s));
-const publicNote=(r:any)=>{const d=r?.data||r||{};return{id:String(d.id||""),numero:String(d.numero||""),situacao:String(d.situacao??""),chave_acesso:String(d.chaveAcesso||""),tem_danfe:authorized(d.situacao)&&Boolean(d.chaveAcesso),tem_xml:authorized(d.situacao)&&Boolean(d.chaveAcesso)}};
+const publicNote=(r:any)=>{const d=r?.data||r||{};return{id:String(d.id||""),numero:String(d.numero||""),situacao:String(d.situacao??""),chave_acesso:String(d.chaveAcesso||""),data_emissao:d.dataEmissao||d.dataOperacao||null,tem_danfe:authorized(d.situacao)&&Boolean(d.chaveAcesso),tem_xml:authorized(d.situacao)&&Boolean(d.chaveAcesso)}};
 const detail=(d:any,s:number)=>d?.error?.fields?.map?.((f:any)=>`${f.element||"campo"}: ${f.msg||f.message||"inválido"}`).join("; ")||d?.error?.description||d?.message||`Erro Bling (${s})`;
 
 Deno.serve(async req=>{
@@ -33,7 +33,7 @@ Deno.serve(async req=>{
   let access=conn.access_token;
   if(conn.expires_at&&new Date(conn.expires_at)<=new Date(Date.now()+60000)){const credentials=btoa(`${Deno.env.get("BLING_CLIENT_ID")}:${Deno.env.get("BLING_CLIENT_SECRET")}`);const rr=await fetch(`${API_BASE}/oauth/token`,{method:"POST",headers:{authorization:`Basic ${credentials}`,"content-type":"application/x-www-form-urlencoded","enable-jwt":"1"},body:new URLSearchParams({grant_type:"refresh_token",refresh_token:conn.refresh_token})});const t=await rr.json().catch(()=>({}));if(!rr.ok)return json(origin,{error:"Não foi possível renovar a conexão com o Bling."},401);access=t.access_token;await db.from("bling_integracao").update({access_token:t.access_token,refresh_token:t.refresh_token||conn.refresh_token,expires_at:new Date(Date.now()+Number(t.expires_in||3600)*1000).toISOString(),atualizado_em:new Date().toISOString()}).eq("id","principal")}
   const bling=async(path:string,init:RequestInit={})=>{const r=await fetch(`${API_BASE}${path}`,{...init,headers:{authorization:`Bearer ${access}`,accept:"application/json","enable-jwt":"1",...(init.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(detail(d,r.status));return d};
-  const persist=async(raw:any)=>{const n=publicNote(raw);await db.from("consignacao_movimentos").update({bling_nfe_id:n.id||mov.bling_nfe_id,bling_nfe_numero:n.numero||null,bling_nfe_status:n.situacao||"gerada",bling_nfe_chave_acesso:n.chave_acesso||null,bling_nfe_erro:null}).eq("id",id);return n};
+  const persist=async(raw:any)=>{const n=publicNote(raw);await db.from("consignacao_movimentos").update({bling_nfe_id:n.id||mov.bling_nfe_id,bling_nfe_numero:n.numero||null,bling_nfe_status:n.situacao||"gerada",bling_nfe_chave_acesso:n.chave_acesso||null,bling_nfe_data_emissao:n.data_emissao||mov.bling_nfe_data_emissao||null,bling_nfe_erro:null}).eq("id",id);return n};
   try{
     let noteId=String(mov.bling_nfe_id||"");
     if(action==="emitir"){
