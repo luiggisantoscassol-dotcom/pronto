@@ -2485,8 +2485,6 @@
             <div><label>Movimentação</label><select id="selo-mov-tipo" onchange="atualizarFormularioMovimentoSelo()"><option value="entrada">Entrada de selos</option><option value="inutilizacao">Perda / inutilização</option><option value="devolucao">Devolução à origem</option><option value="ajuste_negativo">Ajuste negativo</option></select></div>
             <div><label>Data do movimento</label><input id="selo-mov-data" type="date"></div>
             <div><label>Quantidade calculada</label><input id="selo-mov-quantidade" type="number" min="1" step="1" readonly></div>
-            <div class="selo-campo-entrada"><label>Número da guia</label><input id="selo-mov-guia" autocomplete="off"></div>
-            <div class="selo-campo-entrada"><label>Data da guia</label><input id="selo-mov-guia-data" type="date"></div>
             <div><label>Numeração inicial</label><input id="selo-mov-num-inicial" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 00012001" oninput="calcularQuantidadeFaixaSelo()"></div>
             <div><label>Numeração final</label><input id="selo-mov-num-final" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 00013000" oninput="calcularQuantidadeFaixaSelo()"></div>
             <div><label>Grupo</label><input id="selo-mov-grupo" placeholder="Ex.: Bebidas alcoólicas"></div>
@@ -4287,7 +4285,6 @@
             document.getElementById('selo-mov-tipo').value='entrada';
             document.getElementById('selo-mov-data').value=new Date().toISOString().slice(0,10);
             document.getElementById('selo-mov-quantidade').value='';
-            document.getElementById('selo-mov-guia').value=''; document.getElementById('selo-mov-guia-data').value='';
             document.getElementById('selo-mov-num-inicial').value=''; document.getElementById('selo-mov-num-final').value='';
             document.getElementById('selo-mov-cor').value=''; document.getElementById('selo-mov-serie').value=''; document.getElementById('selo-mov-observacoes').value='';
             const aguardente = document.getElementById('selo-mov-insumo').selectedOptions?.[0]?.dataset.codigo === 'selo_ipi_aguardente';
@@ -4300,7 +4297,7 @@
         function atualizarFormularioMovimentoSelo() {
             const tipo = document.getElementById('selo-mov-tipo')?.value;
             document.querySelectorAll('.selo-campo-entrada').forEach(campo => campo.style.display = tipo === 'entrada' ? 'block' : 'none');
-            const textos = {entrada:'A entrada cria um lote numerado. Guia, série e intervalo são obrigatórios; a quantidade é calculada automaticamente.',inutilizacao:'Informe a próxima faixa disponível que foi inutilizada. Ela não poderá ser utilizada novamente.',devolucao:'Informe a próxima faixa devolvida à origem. Ela sairá definitivamente do saldo disponível.',ajuste_negativo:'Use somente para uma baixa comprovada, sempre indicando a faixa correspondente.'};
+            const textos = {entrada:'A entrada cria um lote numerado. Série e intervalo são obrigatórios; a quantidade é calculada automaticamente. Guarde o documento de fornecimento em Notas / Contabilidade.',inutilizacao:'Informe a próxima faixa disponível que foi inutilizada. Ela não poderá ser utilizada novamente.',devolucao:'Informe a próxima faixa devolvida à origem. Ela sairá definitivamente do saldo disponível.',ajuste_negativo:'Use somente para uma baixa comprovada, sempre indicando a faixa correspondente.'};
             document.getElementById('selo-mov-ajuda').textContent = textos[tipo] || '';
             calcularQuantidadeFaixaSelo();
         }
@@ -4312,11 +4309,10 @@
             if (!Number.isInteger(quantidade) || quantidade<1 || !data) return showToast('Informe data e quantidade válidas.');
             if (!numeroInicial || !numeroFinal || !serie) return showToast('Informe a série e o intervalo completo dos selos.');
             if (BigInt(numeroFinal)-BigInt(numeroInicial)+1n !== BigInt(quantidade)) return showToast('A faixa de numeração precisa corresponder à quantidade.');
-            if (tipo==='entrada' && (!document.getElementById('selo-mov-guia').value.trim() || !document.getElementById('selo-mov-guia-data').value)) return showToast('Informe o número e a data da guia de entrada.');
             const original=botao.textContent;
             try {
                 botao.disabled=true; botao.textContent='REGISTRANDO…';
-                const {error}=await db.rpc('registrar_movimento_manual_selo',{p_insumo:document.getElementById('selo-mov-insumo').value,p_tipo:tipo,p_quantidade:quantidade,p_data:data,p_guia_numero:document.getElementById('selo-mov-guia').value.trim()||null,p_guia_data:document.getElementById('selo-mov-guia-data').value||null,p_numeracao_inicial:numeroInicial,p_numeracao_final:numeroFinal,p_grupo:document.getElementById('selo-mov-grupo').value.trim()||null,p_subgrupo:document.getElementById('selo-mov-subgrupo').value.trim()||null,p_cor:document.getElementById('selo-mov-cor').value.trim()||null,p_serie:serie,p_numeracao_largura:Math.max(numeroInicial.length,numeroFinal.length),p_observacoes:document.getElementById('selo-mov-observacoes').value.trim()||null});
+                const {error}=await db.rpc('registrar_movimento_manual_selo',{p_insumo:document.getElementById('selo-mov-insumo').value,p_tipo:tipo,p_quantidade:quantidade,p_data:data,p_guia_numero:null,p_guia_data:null,p_numeracao_inicial:numeroInicial,p_numeracao_final:numeroFinal,p_grupo:document.getElementById('selo-mov-grupo').value.trim()||null,p_subgrupo:document.getElementById('selo-mov-subgrupo').value.trim()||null,p_cor:document.getElementById('selo-mov-cor').value.trim()||null,p_serie:serie,p_numeracao_largura:Math.max(numeroInicial.length,numeroFinal.length),p_observacoes:document.getElementById('selo-mov-observacoes').value.trim()||null});
                 if(error) throw error;
                 fecharTodosModais(); showToast('Lançamento registrado no Livro Modelo 4.');
                 await carregarLivroSelos(); await carregarControleEnvase();
@@ -4897,7 +4893,7 @@
             }
             lotesSelosEnvase = data || [];
             seletor.innerHTML = lotesSelosEnvase.length
-                ? lotesSelosEnvase.map(lote => `<option value="${escapeAdmin(lote.id)}">Guia ${escapeAdmin(lote.guia_numero)} · série ${escapeAdmin(lote.serie)} · próximo ${formatarNumeroSelo(lote.proximo_numero,lote.numeracao_largura)} · ${Number(lote.quantidade_disponivel).toLocaleString('pt-BR')} disponível(is)</option>`).join('')
+                ? lotesSelosEnvase.map(lote => `<option value="${escapeAdmin(lote.id)}">Série ${escapeAdmin(lote.serie)} · próximo ${formatarNumeroSelo(lote.proximo_numero,lote.numeracao_largura)} · ${Number(lote.quantidade_disponivel).toLocaleString('pt-BR')} disponível(is)</option>`).join('')
                 : '<option value="">Nenhuma faixa disponível</option>';
             atualizarIntervaloSelosEnvase();
         }
