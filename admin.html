@@ -1151,6 +1151,12 @@
         .selos-vazio{padding:38px;text-align:center;color:#718096}
         .selos-modal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
         .selos-modal-grid .wide{grid-column:1/-1}
+        .envase-rastreio{margin-top:18px;padding:16px;border:1px solid #d9c99f;border-radius:16px;background:#fbf8f1}
+        .envase-rastreio h3{margin:0 0 5px;color:#19385f;font-family:var(--font-premium);font-size:1rem;text-transform:uppercase}
+        .envase-rastreio>p{margin:0 0 13px;color:#6c7b8d;font-size:.68rem;line-height:1.45}
+        .envase-rastreio__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+        .envase-rastreio__grid .wide{grid-column:1/-1}
+        .envase-rastreio__resumo{margin-top:12px;padding:10px 12px;border-radius:11px;background:#edf4fa;color:#19385f;font-size:.67rem;font-weight:800;line-height:1.45}
         .order-row:hover,.pdv-card:hover,.review-card-admin:hover{background:#fff;border-color:#c59a4a}
         .order-row.order-row--concluido{background:linear-gradient(135deg,#e6f7eb,#d7f0df)!important;border-color:#54a873!important;box-shadow:0 9px 24px rgba(47,125,88,.14)}
         .order-row.order-row--cancelado{background:linear-gradient(135deg,#fff0f0,#f9dddd)!important;border-color:#d06a6a!important;box-shadow:0 9px 24px rgba(155,44,44,.13)}
@@ -1759,6 +1765,7 @@
             .selos-resumo{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.selos-resumo-card{padding:12px 10px}.selos-resumo-card b{font-size:1.35rem}.selos-backup-status{align-items:flex-start;flex-direction:column}.selos-backup-actions{width:100%}.selos-backup-actions .btn-status{flex:1}
             .selos-toolbar{width:100%;min-width:0;align-items:stretch}.selos-filtros{width:100%;min-width:0;grid-template-columns:repeat(2,minmax(0,1fr))}.selos-filtros label,.selos-filtros input,.selos-filtros select{min-width:0;max-width:100%;width:100%}.selos-toolbar>.btn-status{width:100%!important}
             .selos-modal-grid{grid-template-columns:1fr}.selos-modal-grid .wide{grid-column:1}
+            .envase-rastreio{padding:13px 10px}.envase-rastreio__grid{grid-template-columns:1fr}.envase-rastreio__grid .wide{grid-column:1}
             .pedidos-filtros { margin-left:-2px; margin-right:-2px; padding:2px 2px 8px; scrollbar-width:none; }
             .pedidos-filtros::-webkit-scrollbar { display:none; }
             .order-row { grid-template-columns:minmax(0,1fr); padding:14px 12px; }
@@ -2475,17 +2482,17 @@
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><span class="sidebar-kicker">Livro Modelo 4</span><h2 style="margin:5px 0 0;text-align:left">Novo lançamento de selo</h2></div><button type="button" class="modal-fechar-btn" onclick="fecharTodosModais()" aria-label="Fechar">×</button></div>
         <div class="selos-modal-grid" style="margin-top:18px">
             <div><label>Tipo de selo</label><select id="selo-mov-insumo"></select></div>
-            <div><label>Movimentação</label><select id="selo-mov-tipo" onchange="atualizarFormularioMovimentoSelo()"><option value="entrada">Entrada de selos</option><option value="inutilizacao">Perda / inutilização</option><option value="devolucao">Devolução à origem</option><option value="ajuste_positivo">Ajuste positivo</option><option value="ajuste_negativo">Ajuste negativo</option></select></div>
+            <div><label>Movimentação</label><select id="selo-mov-tipo" onchange="atualizarFormularioMovimentoSelo()"><option value="entrada">Entrada de selos</option><option value="inutilizacao">Perda / inutilização</option><option value="devolucao">Devolução à origem</option><option value="ajuste_negativo">Ajuste negativo</option></select></div>
             <div><label>Data do movimento</label><input id="selo-mov-data" type="date"></div>
-            <div><label>Quantidade</label><input id="selo-mov-quantidade" type="number" min="1" step="1"></div>
+            <div><label>Quantidade calculada</label><input id="selo-mov-quantidade" type="number" min="1" step="1" readonly></div>
             <div class="selo-campo-entrada"><label>Número da guia</label><input id="selo-mov-guia" autocomplete="off"></div>
             <div class="selo-campo-entrada"><label>Data da guia</label><input id="selo-mov-guia-data" type="date"></div>
-            <div><label>Numeração inicial</label><input id="selo-mov-num-inicial" type="number" min="0" step="1"></div>
-            <div><label>Numeração final</label><input id="selo-mov-num-final" type="number" min="0" step="1"></div>
+            <div><label>Numeração inicial</label><input id="selo-mov-num-inicial" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 00012001" oninput="calcularQuantidadeFaixaSelo()"></div>
+            <div><label>Numeração final</label><input id="selo-mov-num-final" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 00013000" oninput="calcularQuantidadeFaixaSelo()"></div>
             <div><label>Grupo</label><input id="selo-mov-grupo" placeholder="Ex.: Bebidas alcoólicas"></div>
             <div><label>Subgrupo</label><input id="selo-mov-subgrupo" placeholder="Ex.: Aguardente"></div>
             <div><label>Cor</label><input id="selo-mov-cor"></div>
-            <div><label>Série</label><input id="selo-mov-serie"></div>
+            <div><label>Série</label><input id="selo-mov-serie" placeholder="Ex.: A"></div>
             <div class="wide"><label>Observações</label><textarea id="selo-mov-observacoes" style="width:100%;min-height:78px" placeholder="Informações complementares do lançamento"></textarea></div>
         </div>
         <div id="selo-mov-ajuda" style="margin-top:12px;padding:11px 13px;border-radius:11px;background:#f4f0e8;color:#68778a;font-size:.67rem;line-height:1.45"></div>
@@ -2495,13 +2502,24 @@
 
     <div class="modal-box" id="modal-envase" style="max-width:680px" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:15px"><h2 style="margin:0">Novo envase</h2><button type="button" onclick="fecharModalEnvase()" aria-label="Fechar" style="border:0;background:#f3f0ea;color:#19385f;border-radius:50%;width:40px;height:40px;font-size:1.35rem;cursor:pointer">×</button></div>
-        <label>Produto</label><select id="env-produto"><option value="16687078597">Cachaça Prata 700 ml</option><option value="16699660347">Cachaça Ouro 700 ml</option><option value="16699719562">Gengibre, Guaco e Mel 700 ml</option></select>
+        <label>Produto</label><select id="env-produto" onchange="carregarLotesSelosEnvase()"><option value="16687078597">Cachaça Prata 700 ml</option><option value="16699660347">Cachaça Ouro 700 ml</option><option value="16699719562">Gengibre, Guaco e Mel 700 ml</option></select>
         <label>Depósito do Bling</label><select id="env-deposito"><option value="">Carregando depósitos...</option></select>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div><label>Número do lote</label><input id="env-lote"></div><div><label>Data do envase</label><input id="env-data" type="date"></div>
-            <div><label>Garrafas produzidas</label><input id="env-garrafas" type="number" min="1"></div><div><label>Selos IPI colados</label><input id="env-selos" type="number" min="0"></div>
-            <div><label>Selos IPI perdidos</label><input id="env-perdidos" type="number" min="0" value="0"></div>
+            <div><label>Garrafas produzidas</label><input id="env-garrafas" type="number" min="1" oninput="atualizarIntervaloSelosEnvase()"></div><div><label>Selos IPI colados</label><input id="env-selos" type="number" min="0" readonly></div>
+            <div><label>Selos IPI perdidos</label><input id="env-perdidos" type="number" min="0" value="0" oninput="atualizarIntervaloSelosEnvase()"></div>
         </div>
+        <section class="envase-rastreio">
+            <h3>Rastreabilidade dos selos</h3>
+            <p>Selecione a faixa recebida. O sistema utiliza o próximo código disponível e calcula o final em ordem crescente.</p>
+            <div class="envase-rastreio__grid">
+                <div class="wide"><label>Lote/faixa recebida</label><select id="env-selo-lote" onchange="atualizarIntervaloSelosEnvase()"><option value="">Carregando faixas…</option></select></div>
+                <div><label>Primeiro selo</label><input id="env-selo-inicial" type="text" readonly></div>
+                <div><label>Último selo</label><input id="env-selo-final" type="text" readonly></div>
+                <div class="wide" id="env-perdidos-codigos-wrap" style="display:none"><label>Códigos dos selos perdidos</label><textarea id="env-perdidos-codigos" style="width:100%;min-height:70px" placeholder="Separe os códigos por vírgula. Ex.: 00012014, 00012043" oninput="atualizarResumoSelosEnvase()"></textarea></div>
+            </div>
+            <div id="env-selo-resumo" class="envase-rastreio__resumo">Informe a quantidade de garrafas para calcular o intervalo.</div>
+        </section>
         <label>Observações</label><textarea id="env-observacoes" style="width:100%;min-height:80px"></textarea>
         <button class="btn-status" onclick="registrarEnvase()">SALVAR E DAR ENTRADA NO BLING</button>
         <button type="button" onclick="fecharModalEnvase()" style="width:100%;margin-top:10px;padding:12px;border:0;background:transparent;color:#6f7d90;font-weight:800;cursor:pointer">CANCELAR</button>
@@ -4058,12 +4076,21 @@
         }
 
         async function carregarControleEnvase() {
-            const [{ data: insumos, error: ei }, { data: lotes, error: el }, { data: receitas, error: er }, { data: produtosReceita, error: ep }] = await Promise.all([
+            const resultados = await Promise.all([
                 db.from('insumos_envase').select('*').order('nome'),
-                db.from('envases').select('*').order('criado_em', { ascending:false }).limit(100),
+                db.from('envases').select('*,faixas:selos_faixas_utilizadas(id,lote_selo_id,serie,numeracao_inicial,numeracao_final,numeracao_largura,quantidade_aplicada,quantidade_inutilizada,codigos_inutilizados)').order('criado_em', { ascending:false }).limit(100),
                 db.from('receitas_envase').select('produto_bling_id,insumo_id,tipo_consumo,quantidade_por_garrafa'),
                 db.from('produtos').select('nome,bling_id,estoque').eq('excluido',false).eq('tipo_produto','unitario').order('nome')
             ]);
+            const {data:insumos,error:ei} = resultados[0];
+            let {data:lotes,error:el} = resultados[1];
+            const {data:receitas,error:er} = resultados[2];
+            const {data:produtosReceita,error:ep} = resultados[3];
+            if (el && /selos_faixas_utilizadas|relationship|schema cache/i.test(String(el.message || el.details || ''))) {
+                const fallback = await db.from('envases').select('*').order('criado_em',{ascending:false}).limit(100);
+                lotes = fallback.data;
+                el = fallback.error;
+            }
             if (ei || el || er || ep) return showToast('Não foi possível carregar o controle de envase.');
             insumosEnvaseAtuais = insumos || [];
             receitasEnvaseAtuais = receitas || [];
@@ -4092,6 +4119,26 @@
 
         let movimentosLivroSelos = [];
         let insumosLivroSelos = [];
+        let lotesLivroSelos = [];
+        let lotesSelosEnvase = [];
+
+        function somenteDigitosSelo(valor) { return String(valor || '').replace(/\D/g,''); }
+        function formatarNumeroSelo(valor, largura = 1) {
+            const texto = String(valor ?? '');
+            return texto ? texto.padStart(Math.max(1,Number(largura || 1)),'0') : '';
+        }
+
+        function calcularQuantidadeFaixaSelo() {
+            const inicioTexto = somenteDigitosSelo(document.getElementById('selo-mov-num-inicial')?.value);
+            const fimTexto = somenteDigitosSelo(document.getElementById('selo-mov-num-final')?.value);
+            const campo = document.getElementById('selo-mov-quantidade');
+            if (!campo) return;
+            if (!inicioTexto || !fimTexto) { campo.value=''; return; }
+            try {
+                const quantidade = BigInt(fimTexto)-BigInt(inicioTexto)+1n;
+                campo.value = quantidade>0n && quantidade<=BigInt(Number.MAX_SAFE_INTEGER) ? String(quantidade) : '';
+            } catch (_) { campo.value=''; }
+        }
 
         const nomesMovimentoSelo = {
             saldo_inicial:'Saldo inicial', entrada:'Entrada', aplicacao_envase:'Aplicação no envase',
@@ -4134,8 +4181,11 @@
                 const saldoFiscal = movimentos.reduce((total,item) => total + Number(item.impacto_saldo_fiscal || 0), 0);
                 const saldoFisico = Number(insumo.quantidade || 0);
                 const aplicadosAguardando = Math.max(0, saldoFiscal - saldoFisico);
+                const faixasAtivas = lotesLivroSelos.filter(lote => lote.insumo_id === insumo.id && lote.status === 'ativo' && Number(lote.quantidade_disponivel || 0) > 0);
+                const proxima = faixasAtivas[0];
                 const classe = saldoFisico < 0 || saldoFiscal < 0 ? 'is-error' : aplicadosAguardando > 0 ? 'is-warning' : '';
-                return `<div class="selos-resumo-card ${classe}"><span>${escapeAdmin(insumo.nome)}</span><b>${saldoFisico.toLocaleString('pt-BR')}</b><small>Saldo físico · fiscal ${saldoFiscal.toLocaleString('pt-BR')}${aplicadosAguardando ? ` · ${aplicadosAguardando.toLocaleString('pt-BR')} aplicados aguardando NF` : ' · conferido'}</small></div>`;
+                const rastreio = proxima ? ` · ${faixasAtivas.length} faixa(s) ativa(s) · próximo ${formatarNumeroSelo(proxima.proximo_numero,proxima.numeracao_largura)}` : ' · sem faixa disponível';
+                return `<div class="selos-resumo-card ${classe}"><span>${escapeAdmin(insumo.nome)}</span><b>${saldoFisico.toLocaleString('pt-BR')}</b><small>Saldo físico · fiscal ${saldoFiscal.toLocaleString('pt-BR')}${aplicadosAguardando ? ` · ${aplicadosAguardando.toLocaleString('pt-BR')} aplicados aguardando NF` : ' · conferido'}${rastreio}</small></div>`;
             });
             const totalInutilizados = movimentosLivroSelos.filter(item => item.tipo === 'inutilizacao').reduce((total,item) => total + Number(item.quantidade || 0),0);
             const totalSaidas = movimentosLivroSelos.filter(item => item.tipo === 'saida_fiscal').reduce((total,item) => total + Number(item.quantidade || 0),0)
@@ -4156,7 +4206,7 @@
                     : movimento.envase_id ? `Envase ${escapeAdmin(String(movimento.envase_id).slice(0,8))}`
                     : movimento.guia_numero ? `Guia ${escapeAdmin(movimento.guia_numero)}` : '—';
                 const faixa = movimento.numeracao_inicial !== null && movimento.numeracao_inicial !== undefined
-                    ? `${Number(movimento.numeracao_inicial).toLocaleString('pt-BR')} a ${Number(movimento.numeracao_final ?? movimento.numeracao_inicial).toLocaleString('pt-BR')}` : '—';
+                    ? `${formatarNumeroSelo(movimento.numeracao_inicial,movimento.numeracao_largura)} a ${formatarNumeroSelo(movimento.numeracao_final ?? movimento.numeracao_inicial,movimento.numeracao_largura)}` : '—';
                 return `<tr><td>${new Date(movimento.data_movimento+'T12:00:00').toLocaleDateString('pt-BR')}</td><td><b>${escapeAdmin(movimento.insumo?.nome || 'Selo')}</b><small style="display:block;color:#7a8796;margin-top:4px">${escapeAdmin([movimento.grupo,movimento.subgrupo,movimento.cor,movimento.serie].filter(Boolean).join(' · ') || 'classificação não informada')}</small></td><td><span class="selos-tipo ${classe}">${escapeAdmin(nomesMovimentoSelo[movimento.tipo] || movimento.tipo)}</span></td><td class="selos-valor ${classe}">${Number(movimento.quantidade || 0).toLocaleString('pt-BR')}</td><td class="selos-valor ${classe}">${impacto > 0 ? '+' : ''}${impacto.toLocaleString('pt-BR')}</td><td class="selos-valor">${Number(saldosApos.get(movimento.id)||0).toLocaleString('pt-BR')}</td><td>${referencia}</td><td>${faixa}</td><td>${escapeAdmin(movimento.criado_por_email || 'Sistema')}<small style="display:block;color:#7a8796;margin-top:4px">${new Date(movimento.criado_em).toLocaleString('pt-BR')}</small></td><td>${escapeAdmin(movimento.observacoes || '—')}</td></tr>`;
             }).join('');
             destino.innerHTML = linhas ? `<table class="selos-tabela"><thead><tr><th>Data</th><th>Tipo de selo</th><th>Movimento</th><th>Quantidade</th><th>Impacto fiscal</th><th>Saldo fiscal</th><th>Documento/origem</th><th>Numeração</th><th>Responsável</th><th>Observações</th></tr></thead><tbody>${linhas}</tbody></table>` : '<div class="selos-vazio">Nenhum lançamento encontrado para os filtros escolhidos.</div>';
@@ -4174,16 +4224,18 @@
             const destino = document.getElementById('selos-lista');
             if (destino) destino.innerHTML = '<div class="selos-vazio">Carregando o livro…</div>';
             carregarStatusBackupLivroSelos();
-            const [{data:insumos,error:erroInsumos},{data:movimentos,error:erroMovimentos}] = await Promise.all([
+            const [{data:insumos,error:erroInsumos},{data:movimentos,error:erroMovimentos},{data:lotes,error:erroLotes}] = await Promise.all([
                 db.from('insumos_envase').select('id,codigo,nome,quantidade').like('codigo','selo_ipi_%').order('nome'),
-                db.from('livro_selos_movimentos').select('*,insumo:insumos_envase(id,codigo,nome,quantidade)').order('data_movimento',{ascending:false}).order('criado_em',{ascending:false}).limit(2000)
+                db.from('livro_selos_movimentos').select('*,insumo:insumos_envase(id,codigo,nome,quantidade)').order('data_movimento',{ascending:false}).order('criado_em',{ascending:false}).limit(2000),
+                db.from('selos_lotes').select('*').order('data_entrada',{ascending:false})
             ]);
-            if (erroInsumos || erroMovimentos) {
-                if (destino) destino.innerHTML = `<div class="selos-vazio" style="color:#a52a2a">Não foi possível carregar o Livro Modelo 4: ${escapeAdmin(erroInsumos?.message || erroMovimentos?.message || 'erro desconhecido')}</div>`;
+            if (erroInsumos || erroMovimentos || erroLotes) {
+                if (destino) destino.innerHTML = `<div class="selos-vazio" style="color:#a52a2a">Não foi possível carregar o Livro Modelo 4: ${escapeAdmin(erroInsumos?.message || erroMovimentos?.message || erroLotes?.message || 'erro desconhecido')}</div>`;
                 return;
             }
             insumosLivroSelos = insumos || [];
             movimentosLivroSelos = movimentos || [];
+            lotesLivroSelos = lotes || [];
             const filtro = document.getElementById('selos-filtro-insumo');
             const valorAtual = filtro?.value || '';
             if (filtro) {
@@ -4248,21 +4300,23 @@
         function atualizarFormularioMovimentoSelo() {
             const tipo = document.getElementById('selo-mov-tipo')?.value;
             document.querySelectorAll('.selo-campo-entrada').forEach(campo => campo.style.display = tipo === 'entrada' ? 'block' : 'none');
-            const textos = {entrada:'A entrada aumenta os saldos físico e fiscal. Informe a guia e a faixa de numeração para manter a rastreabilidade.',inutilizacao:'A inutilização reduz os saldos físico e fiscal e permanece no histórico.',devolucao:'A devolução reduz os saldos físico e fiscal. Use as observações para registrar o documento de devolução.',ajuste_positivo:'Use somente para corrigir uma contagem comprovada. O histórico não será apagado.',ajuste_negativo:'Use somente para corrigir uma contagem comprovada. O histórico não será apagado.'};
+            const textos = {entrada:'A entrada cria um lote numerado. Guia, série e intervalo são obrigatórios; a quantidade é calculada automaticamente.',inutilizacao:'Informe a próxima faixa disponível que foi inutilizada. Ela não poderá ser utilizada novamente.',devolucao:'Informe a próxima faixa devolvida à origem. Ela sairá definitivamente do saldo disponível.',ajuste_negativo:'Use somente para uma baixa comprovada, sempre indicando a faixa correspondente.'};
             document.getElementById('selo-mov-ajuda').textContent = textos[tipo] || '';
+            calcularQuantidadeFaixaSelo();
         }
 
         async function salvarMovimentoSelo(botao) {
             const tipo=document.getElementById('selo-mov-tipo').value, quantidade=Number(document.getElementById('selo-mov-quantidade').value||0), data=document.getElementById('selo-mov-data').value;
-            const numeroInicial=document.getElementById('selo-mov-num-inicial').value, numeroFinal=document.getElementById('selo-mov-num-final').value;
+            const numeroInicial=somenteDigitosSelo(document.getElementById('selo-mov-num-inicial').value), numeroFinal=somenteDigitosSelo(document.getElementById('selo-mov-num-final').value);
+            const serie=document.getElementById('selo-mov-serie').value.trim();
             if (!Number.isInteger(quantidade) || quantidade<1 || !data) return showToast('Informe data e quantidade válidas.');
-            if ((numeroInicial && !numeroFinal) || (!numeroInicial && numeroFinal)) return showToast('Informe o início e o fim da numeração.');
-            if (numeroInicial && Number(numeroFinal)-Number(numeroInicial)+1 !== quantidade) return showToast('A faixa de numeração precisa corresponder à quantidade.');
+            if (!numeroInicial || !numeroFinal || !serie) return showToast('Informe a série e o intervalo completo dos selos.');
+            if (BigInt(numeroFinal)-BigInt(numeroInicial)+1n !== BigInt(quantidade)) return showToast('A faixa de numeração precisa corresponder à quantidade.');
             if (tipo==='entrada' && (!document.getElementById('selo-mov-guia').value.trim() || !document.getElementById('selo-mov-guia-data').value)) return showToast('Informe o número e a data da guia de entrada.');
             const original=botao.textContent;
             try {
                 botao.disabled=true; botao.textContent='REGISTRANDO…';
-                const {error}=await db.rpc('registrar_movimento_manual_selo',{p_insumo:document.getElementById('selo-mov-insumo').value,p_tipo:tipo,p_quantidade:quantidade,p_data:data,p_guia_numero:document.getElementById('selo-mov-guia').value.trim()||null,p_guia_data:document.getElementById('selo-mov-guia-data').value||null,p_numeracao_inicial:numeroInicial?Number(numeroInicial):null,p_numeracao_final:numeroFinal?Number(numeroFinal):null,p_grupo:document.getElementById('selo-mov-grupo').value.trim()||null,p_subgrupo:document.getElementById('selo-mov-subgrupo').value.trim()||null,p_cor:document.getElementById('selo-mov-cor').value.trim()||null,p_serie:document.getElementById('selo-mov-serie').value.trim()||null,p_observacoes:document.getElementById('selo-mov-observacoes').value.trim()||null});
+                const {error}=await db.rpc('registrar_movimento_manual_selo',{p_insumo:document.getElementById('selo-mov-insumo').value,p_tipo:tipo,p_quantidade:quantidade,p_data:data,p_guia_numero:document.getElementById('selo-mov-guia').value.trim()||null,p_guia_data:document.getElementById('selo-mov-guia-data').value||null,p_numeracao_inicial:numeroInicial,p_numeracao_final:numeroFinal,p_grupo:document.getElementById('selo-mov-grupo').value.trim()||null,p_subgrupo:document.getElementById('selo-mov-subgrupo').value.trim()||null,p_cor:document.getElementById('selo-mov-cor').value.trim()||null,p_serie:serie,p_numeracao_largura:Math.max(numeroInicial.length,numeroFinal.length),p_observacoes:document.getElementById('selo-mov-observacoes').value.trim()||null});
                 if(error) throw error;
                 fecharTodosModais(); showToast('Lançamento registrado no Livro Modelo 4.');
                 await carregarLivroSelos(); await carregarControleEnvase();
@@ -4278,8 +4332,8 @@
             if(!janela) return showToast('Permita a abertura da janela para gerar o PDF.');
             janela.opener=null;
             const saldosApos=saldosFiscaisAposMovimento();
-            const linhas=movimentos.map(m=>`<tr><td>${new Date(m.data_movimento+'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${escapeAdmin(m.insumo?.nome||'Selo')}</td><td>${escapeAdmin(nomesMovimentoSelo[m.tipo]||m.tipo)}</td><td>${Number(m.quantidade||0).toLocaleString('pt-BR')}</td><td>${Number(m.impacto_saldo_fiscal||0).toLocaleString('pt-BR')}</td><td>${Number(saldosApos.get(m.id)||0).toLocaleString('pt-BR')}</td><td>${escapeAdmin(m.guia_numero||m.nfe_numero||m.envase_id||'—')}</td><td>${escapeAdmin(m.serie||m.nfe_serie||'—')}</td><td>${escapeAdmin(m.observacoes||'—')}</td></tr>`).join('');
-            janela.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Livro Modelo 4</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;color:#142f50}h1{font-family:Georgia,serif;text-align:center;font-size:20px;margin:0 0 5px}p{text-align:center;font-size:11px;margin:0 0 18px}table{width:100%;border-collapse:collapse;font-size:9px}th,td{border:1px solid #9da9b5;padding:6px;text-align:left;vertical-align:top}th{background:#edf1f5;text-transform:uppercase}footer{margin-top:14px;font-size:9px;color:#68778a}@media print{button{display:none}}</style></head><body><h1>Registro de Entrada e Saída do Selo de Controle — Modelo 4</h1><p>Tio Nan · período ${inicio?new Date(inicio+'T12:00:00').toLocaleDateString('pt-BR'):'início'} a ${fim?new Date(fim+'T12:00:00').toLocaleDateString('pt-BR'):'atual'}</p><table><thead><tr><th>Data</th><th>Selo</th><th>Movimento</th><th>Quantidade</th><th>Impacto fiscal</th><th>Saldo fiscal</th><th>Documento/origem</th><th>Série</th><th>Observações</th></tr></thead><tbody>${linhas}</tbody></table><footer>Gerado em ${new Date().toLocaleString('pt-BR')} · Documento de controle interno sujeito à conferência fiscal.</footer><script>window.onload=()=>window.print()<\/script></body></html>`);
+            const linhas=movimentos.map(m=>{const faixa=m.numeracao_inicial!==null&&m.numeracao_inicial!==undefined?`${formatarNumeroSelo(m.numeracao_inicial,m.numeracao_largura)} a ${formatarNumeroSelo(m.numeracao_final??m.numeracao_inicial,m.numeracao_largura)}`:'—';return `<tr><td>${new Date(m.data_movimento+'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${escapeAdmin(m.insumo?.nome||'Selo')}</td><td>${escapeAdmin(nomesMovimentoSelo[m.tipo]||m.tipo)}</td><td>${Number(m.quantidade||0).toLocaleString('pt-BR')}</td><td>${Number(m.impacto_saldo_fiscal||0).toLocaleString('pt-BR')}</td><td>${Number(saldosApos.get(m.id)||0).toLocaleString('pt-BR')}</td><td>${escapeAdmin(m.guia_numero||m.nfe_numero||m.envase_id||'—')}</td><td>${escapeAdmin(m.serie||m.nfe_serie||'—')}</td><td>${faixa}</td><td>${escapeAdmin(m.observacoes||'—')}</td></tr>`}).join('');
+            janela.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Livro Modelo 4</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;color:#142f50}h1{font-family:Georgia,serif;text-align:center;font-size:20px;margin:0 0 5px}p{text-align:center;font-size:11px;margin:0 0 18px}table{width:100%;border-collapse:collapse;font-size:9px}th,td{border:1px solid #9da9b5;padding:6px;text-align:left;vertical-align:top}th{background:#edf1f5;text-transform:uppercase}footer{margin-top:14px;font-size:9px;color:#68778a}@media print{button{display:none}}</style></head><body><h1>Registro de Entrada e Saída do Selo de Controle — Modelo 4</h1><p>Tio Nan · período ${inicio?new Date(inicio+'T12:00:00').toLocaleDateString('pt-BR'):'início'} a ${fim?new Date(fim+'T12:00:00').toLocaleDateString('pt-BR'):'atual'}</p><table><thead><tr><th>Data</th><th>Selo</th><th>Movimento</th><th>Quantidade</th><th>Impacto fiscal</th><th>Saldo fiscal</th><th>Documento/origem</th><th>Série</th><th>Faixa</th><th>Observações</th></tr></thead><tbody>${linhas}</tbody></table><footer>Gerado em ${new Date().toLocaleString('pt-BR')} · Documento de controle interno sujeito à conferência fiscal.</footer><script>window.onload=()=>window.print()<\/script></body></html>`);
             janela.document.close();
         }
 
@@ -4301,26 +4355,33 @@
                 .like('codigo','selo_ipi_%')
                 .order('nome');
             if (erroInsumos) throw erroInsumos;
-            return { movimentos, insumos:insumos || [] };
+            const [{data:lotes,error:erroLotes},{data:faixas,error:erroFaixas}] = await Promise.all([
+                db.from('selos_lotes').select('*').order('data_entrada',{ascending:true}).order('criado_em',{ascending:true}),
+                db.from('selos_faixas_utilizadas').select('*').order('criado_em',{ascending:true})
+            ]);
+            if (erroLotes || erroFaixas) throw erroLotes || erroFaixas;
+            return { movimentos, insumos:insumos || [], lotes:lotes || [], faixas:faixas || [] };
         }
 
         async function baixarBackupLivroSelos(botao) {
             const textoOriginal = botao?.textContent || 'BAIXAR BACKUP COMPLETO';
             try {
                 if (botao) { botao.disabled=true; botao.textContent='PREPARANDO BACKUP…'; }
-                const { movimentos, insumos } = await buscarLivroSelosCompletoParaBackup();
+                const { movimentos, insumos, lotes, faixas } = await buscarLivroSelosCompletoParaBackup();
                 const saldosFiscais = Object.fromEntries(insumos.map(insumo => [insumo.codigo,
                     movimentos.filter(movimento => movimento.insumo_id === insumo.id)
                         .reduce((total,movimento) => total+Number(movimento.impacto_saldo_fiscal || 0),0)
                 ]));
                 const conteudo = {
                     formato:'tio-nan-livro-selos-modelo-4',
-                    versao:1,
+                    versao:2,
                     gerado_em:new Date().toISOString(),
                     observacao:'Backup integral e sem filtros. Quantidades físicas refletem o saldo no momento da geração.',
-                    resumo:{ tipos_de_selo:insumos.length, total_de_lancamentos:movimentos.length },
+                    resumo:{ tipos_de_selo:insumos.length, total_de_lancamentos:movimentos.length, lotes_recebidos:lotes.length, faixas_consumidas:faixas.length },
                     saldos_fiscais_por_codigo:saldosFiscais,
                     insumos,
+                    lotes,
+                    faixas,
                     movimentos
                 };
                 const dadosSemHash = JSON.stringify(conteudo);
@@ -4360,7 +4421,7 @@
         async function abrirCompraInsumos() {
             const { data, error } = await db.from('insumos_envase').select('id,codigo,nome,quantidade').order('nome');
             if (error) return showToast(`Não foi possível carregar os insumos: ${error.message}`);
-            insumosCompra = data || [];
+            insumosCompra = (data || []).filter(insumo => !String(insumo.codigo || '').startsWith('selo_ipi_'));
             document.getElementById('compra-insumo').innerHTML = insumosCompra.map(insumo => `<option value="${escapeAdmin(insumo.id)}">${escapeAdmin(insumo.nome)} · saldo ${insumoEhLiquido(insumo.codigo) ? `${(Number(insumo.quantidade || 0)/1000).toLocaleString('pt-BR',{maximumFractionDigits:3})} L` : Number(insumo.quantidade || 0).toLocaleString('pt-BR')}</option>`).join('');
             document.getElementById('compra-quantidade').value = '1';
             atualizarUnidadeCompraInsumo();
@@ -4741,7 +4802,15 @@
             finally { botao.disabled=false;botao.textContent=texto; }
         }
 
-        function abrirAjusteInsumo(id, nome, atual, codigo = '') {
+        async function abrirAjusteInsumo(id, nome, atual, codigo = '') {
+            if (String(codigo).startsWith('selo_ipi_')) {
+                fecharTodosModais();
+                switchTab('tab-livro-selos');
+                showToast('O saldo dos selos é controlado por faixas. Use “Novo lançamento de selo”.');
+                await carregarLivroSelos();
+                abrirMovimentoSelo();
+                return;
+            }
             const modalFormato = document.getElementById('modal-insumos-formato');
             if (modalFormato && contextoInsumosEnvaseAberto) contextoInsumosEnvaseAberto.scrollTop = modalFormato.scrollTop;
             if (modalFormato) modalFormato.style.display='none';
@@ -4787,12 +4856,93 @@
             document.getElementById('env-garrafas').value = '';
             document.getElementById('env-selos').value = '';
             document.getElementById('env-perdidos').value = '0';
+            document.getElementById('env-perdidos-codigos').value = '';
+            document.getElementById('env-selo-inicial').value = '';
+            document.getElementById('env-selo-final').value = '';
+            document.getElementById('env-selo-resumo').textContent = 'Carregando as faixas de selos disponíveis…';
             document.getElementById('env-observacoes').value = '';
             document.getElementById('modal-envase').style.display='block'; document.getElementById('overlay').style.display='block';
+            await carregarLotesSelosEnvase();
             try {
                 const data = await chamarAdmin('listar_depositos_bling');
                 document.getElementById('env-deposito').innerHTML = (data.depositos || []).map(d => `<option value="${escapeAdmin(d.id)}">${escapeAdmin(d.nome)}</option>`).join('') || '<option value="">Nenhum depósito disponível</option>';
             } catch(e) { document.getElementById('env-deposito').innerHTML='<option value="">Erro ao carregar depósitos</option>'; showToast(e.message); }
+        }
+
+        function codigosPerdidosEnvase() {
+            return String(document.getElementById('env-perdidos-codigos')?.value || '')
+                .split(/[\s,;]+/).map(somenteDigitosSelo).filter(Boolean);
+        }
+
+        async function carregarLotesSelosEnvase() {
+            const seletor = document.getElementById('env-selo-lote');
+            const produto = document.getElementById('env-produto')?.value;
+            if (!seletor) return;
+            seletor.innerHTML = '<option value="">Carregando faixas…</option>';
+            const receitaSelo = receitasEnvaseAtuais.find(item => String(item.produto_bling_id) === String(produto) && item.tipo_consumo === 'selos');
+            if (!receitaSelo) {
+                lotesSelosEnvase = [];
+                seletor.innerHTML = '<option value="">Receita sem selo vinculado</option>';
+                atualizarIntervaloSelosEnvase();
+                return;
+            }
+            const {data,error} = await db.from('selos_lotes').select('*')
+                .eq('insumo_id',receitaSelo.insumo_id).eq('status','ativo').gt('quantidade_disponivel',0)
+                .order('data_entrada',{ascending:true}).order('criado_em',{ascending:true});
+            if (error) {
+                lotesSelosEnvase = [];
+                seletor.innerHTML = '<option value="">Erro ao carregar faixas</option>';
+                document.getElementById('env-selo-resumo').textContent = `Não foi possível carregar as faixas: ${error.message}`;
+                return;
+            }
+            lotesSelosEnvase = data || [];
+            seletor.innerHTML = lotesSelosEnvase.length
+                ? lotesSelosEnvase.map(lote => `<option value="${escapeAdmin(lote.id)}">Guia ${escapeAdmin(lote.guia_numero)} · série ${escapeAdmin(lote.serie)} · próximo ${formatarNumeroSelo(lote.proximo_numero,lote.numeracao_largura)} · ${Number(lote.quantidade_disponivel).toLocaleString('pt-BR')} disponível(is)</option>`).join('')
+                : '<option value="">Nenhuma faixa disponível</option>';
+            atualizarIntervaloSelosEnvase();
+        }
+
+        function atualizarIntervaloSelosEnvase() {
+            const garrafas = Number(document.getElementById('env-garrafas')?.value || 0);
+            const perdidos = Number(document.getElementById('env-perdidos')?.value || 0);
+            const lote = lotesSelosEnvase.find(item => String(item.id) === String(document.getElementById('env-selo-lote')?.value));
+            const inicio = document.getElementById('env-selo-inicial');
+            const fim = document.getElementById('env-selo-final');
+            const aplicados = document.getElementById('env-selos');
+            const campoPerdidos = document.getElementById('env-perdidos-codigos-wrap');
+            if (aplicados) aplicados.value = Number.isInteger(garrafas) && garrafas > 0 ? String(garrafas) : '';
+            if (campoPerdidos) campoPerdidos.style.display = Number.isInteger(perdidos) && perdidos > 0 ? 'block' : 'none';
+            if (!lote || !Number.isInteger(garrafas) || garrafas < 1 || !Number.isInteger(perdidos) || perdidos < 0) {
+                if (inicio) inicio.value = '';
+                if (fim) fim.value = '';
+                atualizarResumoSelosEnvase();
+                return;
+            }
+            const total = BigInt(garrafas + perdidos);
+            const primeiro = BigInt(lote.proximo_numero);
+            const ultimo = primeiro + total - 1n;
+            inicio.value = formatarNumeroSelo(primeiro,lote.numeracao_largura);
+            fim.value = ultimo <= BigInt(lote.numeracao_final) ? formatarNumeroSelo(ultimo,lote.numeracao_largura) : '';
+            atualizarResumoSelosEnvase();
+        }
+
+        function atualizarResumoSelosEnvase() {
+            const resumo = document.getElementById('env-selo-resumo');
+            if (!resumo) return;
+            const garrafas = Number(document.getElementById('env-garrafas')?.value || 0);
+            const perdidos = Number(document.getElementById('env-perdidos')?.value || 0);
+            const lote = lotesSelosEnvase.find(item => String(item.id) === String(document.getElementById('env-selo-lote')?.value));
+            if (!lote) { resumo.textContent = 'Cadastre primeiro uma entrada numerada deste tipo de selo no Livro de Selos.'; return; }
+            if (!Number.isInteger(garrafas) || garrafas < 1) { resumo.textContent = 'Informe a quantidade de garrafas para calcular o intervalo.'; return; }
+            if (!Number.isInteger(perdidos) || perdidos < 0) { resumo.textContent = 'Informe uma quantidade válida de selos perdidos.'; return; }
+            const total = garrafas + perdidos;
+            if (total > Number(lote.quantidade_disponivel || 0) || !document.getElementById('env-selo-final')?.value) {
+                resumo.textContent = `Faixa insuficiente: há ${Number(lote.quantidade_disponivel || 0).toLocaleString('pt-BR')} selo(s) disponível(is) neste lote.`;
+                return;
+            }
+            const codigos = codigosPerdidosEnvase();
+            const detalhePerdas = perdidos ? ` Informe exatamente ${perdidos} código(s) perdido(s); ${codigos.length} preenchido(s).` : '';
+            resumo.textContent = `${garrafas} selo(s) aplicados + ${perdidos} perdido(s) = ${total} código(s) consumidos em sequência.${detalhePerdas}`;
         }
 
         async function registrarEnvase() {
@@ -4800,8 +4950,16 @@
             const lote = document.getElementById('env-lote').value.trim(), data = document.getElementById('env-data').value;
             const garrafas = Number(document.getElementById('env-garrafas').value), selos = Number(document.getElementById('env-selos').value), perdidos = Number(document.getElementById('env-perdidos').value || 0);
             if (!deposito || !lote || !data || !Number.isInteger(garrafas) || garrafas < 1 || !Number.isInteger(selos) || selos < 0 || !Number.isInteger(perdidos) || perdidos < 0) return showToast('Preencha todos os dados corretamente.');
+            const seloLote = lotesSelosEnvase.find(item => String(item.id) === String(document.getElementById('env-selo-lote')?.value));
+            const seloInicial = somenteDigitosSelo(document.getElementById('env-selo-inicial')?.value);
+            const seloFinal = somenteDigitosSelo(document.getElementById('env-selo-final')?.value);
+            const codigosPerdidos = codigosPerdidosEnvase();
+            if (!seloLote || !seloInicial || !seloFinal) return showToast('Selecione uma faixa de selos com saldo suficiente.');
+            if (selos !== garrafas) return showToast('A quantidade de selos aplicados deve ser igual à de garrafas produzidas.');
+            if (new Set(codigosPerdidos).size !== perdidos) return showToast(`Informe ${perdidos} código(s) de selo perdido, sem repetições.`);
+            if (codigosPerdidos.some(codigo => BigInt(codigo) < BigInt(seloInicial) || BigInt(codigo) > BigInt(seloFinal))) return showToast('Todos os selos perdidos precisam pertencer ao intervalo calculado.');
             const nomeProduto = nomesProdutosEnvase[produto] || document.getElementById('env-produto').selectedOptions?.[0]?.textContent || 'Produto';
-            const { data: envaseId, error } = await db.rpc('registrar_envase', { p_produto_bling_id:produto, p_produto_nome:nomeProduto, p_lote:lote, p_data:data, p_garrafas:garrafas, p_selos_aplicados:selos, p_selos_perdidos:perdidos, p_deposito_bling_id:deposito, p_observacoes:document.getElementById('env-observacoes').value.trim() || null });
+            const { data: envaseId, error } = await db.rpc('registrar_envase', { p_produto_bling_id:produto, p_produto_nome:nomeProduto, p_lote:lote, p_data:data, p_garrafas:garrafas, p_selos_aplicados:selos, p_selos_perdidos:perdidos, p_deposito_bling_id:deposito, p_observacoes:document.getElementById('env-observacoes').value.trim() || null, p_selo_lote:seloLote.id, p_selo_num_inicial:seloInicial, p_selo_num_final:seloFinal, p_selos_perdidos_numeros:codigosPerdidos });
             if (error) return showToast(`Erro: ${error.message}`);
             try {
                 const entrada = await chamarAdmin('entrada_estoque_bling', { produto_bling_id:produto, deposito_bling_id:deposito, quantidade:garrafas, envase_id:envaseId, observacoes:`Envase lote ${lote}` });
@@ -4812,11 +4970,15 @@
 
         function verEnvase(l) {
             const encoded = encodeURIComponent(JSON.stringify(l));
+            const faixa = Array.isArray(l.faixas) ? l.faixas[0] : null;
+            const rastreio = faixa
+                ? `<p><b>Faixa de selos:</b> série ${escapeAdmin(faixa.serie)} · ${formatarNumeroSelo(faixa.numeracao_inicial,faixa.numeracao_largura)} a ${formatarNumeroSelo(faixa.numeracao_final,faixa.numeracao_largura)}</p>${Number(faixa.quantidade_inutilizada||0)>0?`<p><b>Selos perdidos:</b> ${(faixa.codigos_inutilizados||[]).map(codigo=>formatarNumeroSelo(codigo,faixa.numeracao_largura)).join(', ')}</p>`:''}`
+                : '<p><b>Faixa de selos:</b> envase anterior ao controle numerado</p>';
             const qtdEstornada = Number(l.garrafas_estornadas || 0);
             const resumoEstorno = l.estornado_em
                 ? `<span class="admin-chip error">${l.estorno_tipo==='parcial'?'ESTORNO PARCIAL':'ENVASE ESTORNADO'}</span>${l.estorno_tipo==='parcial'?`<p><b>Garrafas estornadas:</b> ${qtdEstornada}</p><p><b>Garrafas mantidas/vendidas:</b> ${Math.max(0, Number(l.garrafas)-qtdEstornada)}</p>`:''}`
                 : '';
-            document.getElementById('detalhe-envase').innerHTML = `<h2>${escapeAdmin(l.produto_nome)}</h2>${resumoEstorno}<p><b>Lote:</b> ${escapeAdmin(l.lote)}</p><p><b>Data:</b> ${new Date(l.data_envase+'T12:00:00').toLocaleDateString('pt-BR')}</p><p><b>Garrafas produzidas:</b> ${l.garrafas}</p><p><b>Selos colados:</b> ${l.selos_aplicados}</p><p><b>Selos perdidos:</b> ${l.selos_perdidos}</p><p><b>Depósito Bling:</b> ${escapeAdmin(l.deposito_bling_id)}</p><p><b>Sincronização:</b> ${escapeAdmin(l.bling_status)}</p>${l.bling_erro?`<p style="color:#a22"><b>Erro:</b> ${escapeAdmin(l.bling_erro)}</p>`:''}${l.motivo_estorno?`<p><b>Motivo do estorno:</b> ${escapeAdmin(l.motivo_estorno)}</p>`:''}<p><b>Observações:</b> ${escapeAdmin(l.observacoes||'—')}</p>${l.estornado_em?'':`<div style="display:flex;gap:10px;margin-top:22px"><button class="btn-status" onclick="abrirEditarEnvase(decodeURIComponent('${encoded}'))">EDITAR DADOS</button><button class="btn-status" style="background:#8b2424" onclick="estornarEnvase(decodeURIComponent('${encoded}'))">ESTORNAR</button></div>`}`;
+            document.getElementById('detalhe-envase').innerHTML = `<h2>${escapeAdmin(l.produto_nome)}</h2>${resumoEstorno}<p><b>Lote:</b> ${escapeAdmin(l.lote)}</p><p><b>Data:</b> ${new Date(l.data_envase+'T12:00:00').toLocaleDateString('pt-BR')}</p><p><b>Garrafas produzidas:</b> ${l.garrafas}</p><p><b>Selos colados:</b> ${l.selos_aplicados}</p><p><b>Selos perdidos:</b> ${l.selos_perdidos}</p>${rastreio}<p><b>Depósito Bling:</b> ${escapeAdmin(l.deposito_bling_id)}</p><p><b>Sincronização:</b> ${escapeAdmin(l.bling_status)}</p>${l.bling_erro?`<p style="color:#a22"><b>Erro:</b> ${escapeAdmin(l.bling_erro)}</p>`:''}${l.motivo_estorno?`<p><b>Motivo do estorno:</b> ${escapeAdmin(l.motivo_estorno)}</p>`:''}<p><b>Observações:</b> ${escapeAdmin(l.observacoes||'—')}</p>${l.estornado_em?'':`<div style="display:flex;gap:10px;margin-top:22px"><button class="btn-status" onclick="abrirEditarEnvase(decodeURIComponent('${encoded}'))">EDITAR DADOS</button><button class="btn-status" style="background:#8b2424" onclick="estornarEnvase(decodeURIComponent('${encoded}'))">ESTORNAR</button></div>`}`;
             document.getElementById('modal-detalhe-envase').style.display='block'; document.getElementById('overlay').style.display='block';
         }
 
@@ -5711,7 +5873,7 @@
                     db.from('consignacao_saldos').select('quantidade'),
                     db.from('consignacao_empresas').select('id', { count: 'exact', head: true }).eq('ativa', true),
                     db.from('embalagens').select('estoque,capacidade_garrafas').eq('ativo', true),
-                    db.from('receitas_envase').select('produto_bling_id,insumo_id')
+                    db.from('receitas_envase').select('produto_bling_id,insumo_id,tipo_consumo,quantidade_por_garrafa')
                 ]);
                 insumosEnvaseAtuais = insumosResumo || [];
                 receitasEnvaseAtuais = receitasResumo || [];
