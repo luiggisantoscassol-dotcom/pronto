@@ -2531,7 +2531,7 @@
     <div class="modal-box" id="modal-envase" style="max-width:680px" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:15px"><h2 style="margin:0">Novo envase</h2><button type="button" onclick="fecharModalEnvase()" aria-label="Fechar" style="border:0;background:#f3f0ea;color:#19385f;border-radius:50%;width:40px;height:40px;font-size:1.35rem;cursor:pointer">×</button></div>
         <label>Produto</label><select id="env-produto" onchange="carregarLotesSelosEnvase()"><option value="16687078597">Cachaça Prata 700 ml</option><option value="16699660347">Cachaça Ouro 700 ml</option><option value="16699719562">Gengibre, Guaco e Mel 700 ml</option></select>
-        <label>Depósito do Bling</label><select id="env-deposito"><option value="">Carregando depósitos...</option></select>
+        <label>Depósito fixo do Bling</label><select id="env-deposito" disabled><option value="">Carregando depósito padrão…</option></select><small style="display:block;margin:-5px 2px 12px;color:#718096">O envase sempre entra no depósito operacional definido pelo sistema.</small>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div><label>Número do lote</label><input id="env-lote"></div><div><label>Data do envase</label><input id="env-data" type="date"></div>
             <div><label>Garrafas produzidas</label><input id="env-garrafas" type="number" min="1" oninput="atualizarIntervaloSelosEnvase()"></div><div><label>Selos IPI colados</label><input id="env-selos" type="number" min="0" readonly></div>
@@ -2602,7 +2602,7 @@
         <input type="hidden" id="cons-mov-empresa">
         <label>O que deseja fazer?</label><select id="cons-mov-tipo" onchange="atualizarFormularioMovimentoConsignacao()"><option value="remessa">Enviar produtos para consignação</option><option value="devolucao">Registrar somente uma devolução</option></select>
         <div id="cons-mov-contexto" class="consignacao-contexto"></div>
-        <div class="consignacao-campos-duplos"><div><label>Data</label><input id="cons-mov-data" type="date"></div><div><label id="cons-mov-deposito-label">Depósito do Bling</label><select id="cons-mov-deposito"><option value="">Selecione</option></select></div></div>
+        <div class="consignacao-campos-duplos"><div><label>Data</label><input id="cons-mov-data" type="date"></div><div><label id="cons-mov-deposito-label">Depósito fixo do Bling</label><select id="cons-mov-deposito" disabled><option value="">Carregando depósito padrão…</option></select><small style="display:block;margin-top:5px;color:#718096">Definido pelo sistema para evitar movimentações no depósito errado.</small></div></div>
         <h3 id="cons-mov-produtos-titulo">Produtos</h3><div id="cons-mov-produtos"></div><div id="cons-mov-resumo" class="consignacao-mov-resumo"></div>
         <label>Observações</label><textarea id="cons-mov-observacoes" style="width:100%;min-height:80px"></textarea>
         <button class="btn-status" id="cons-mov-salvar" onclick="registrarMovimentoConsignacao()">ENVIAR PARA CONSIGNAÇÃO</button>
@@ -2611,7 +2611,7 @@
     <div class="modal-box" id="modal-acerto-consignacao" style="width:min(860px,calc(100vw - 24px));max-width:860px;max-height:92vh;overflow:auto" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><span class="sidebar-kicker">Fechamento da empresa</span><h2 id="cons-acerto-titulo" style="margin:5px 0 0;text-align:left">Acerto de consignação</h2></div><button class="modal-fechar-btn" onclick="fecharTodosModais()">×</button></div>
         <input type="hidden" id="cons-acerto-empresa">
-        <div class="consignacao-campos-duplos" style="margin-top:18px"><div><label>Data do acerto</label><input id="cons-acerto-data" type="date"></div><div id="cons-acerto-deposito-wrap" style="display:none"><label>Depósito de retorno no Bling</label><select id="cons-acerto-deposito"><option value="">Selecione</option></select></div></div>
+        <div class="consignacao-campos-duplos" style="margin-top:18px"><div><label>Data do acerto</label><input id="cons-acerto-data" type="date"></div><div id="cons-acerto-deposito-wrap" style="display:none"><label>Depósito fixo de retorno no Bling</label><select id="cons-acerto-deposito" disabled><option value="">Carregando depósito padrão…</option></select></div></div>
         <div id="cons-acerto-orientacao" class="consignacao-contexto"><b>Informe o que aconteceu com as garrafas</b><small>Use “vendidas” para calcular o valor a receber e “devolvidas” para retorná-las ao seu estoque.</small></div>
         <div class="consignacao-acerto-grid consignacao-acerto-cabecalho" style="margin-top:18px;padding:0 6px;color:#718096;font-size:.66rem;font-weight:900;text-transform:uppercase"><span class="consignacao-acerto-grid__produto">Produto e saldo</span><span>Vendidas</span><span>Devolvidas</span><span class="consignacao-acerto-grid__preco">Valor unitário</span></div>
         <div id="cons-acerto-produtos" style="display:grid;gap:9px;margin-top:8px"></div>
@@ -3197,6 +3197,7 @@
 
         let sel = null; let adminCart = []; let statsMensal = {}; let nfeContexto = null;
         let ultimoPedidoPdv = null; let ultimoResultadoPdv = null;
+        const DEPOSITO_BLING_PADRAO = '14889079377';
         let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoAcertos = [], consignacaoEmpresaAtual = null, consignacaoProdutosMovimento = [];
         let embalagens = [];
         let contextoInsumosEnvaseAberto = null;
@@ -3939,6 +3940,14 @@
                 throw new Error(detalhe || error?.message || 'Falha na operação');
             }
             return data;
+        }
+
+        function aplicarDepositoBlingPadrao(seletor, depositos = []) {
+            if (!seletor) return;
+            const deposito = depositos.find(item => String(item.id) === DEPOSITO_BLING_PADRAO);
+            seletor.innerHTML = `<option value="${DEPOSITO_BLING_PADRAO}">${escapeAdmin(deposito?.nome || 'Depósito operacional')} · ${DEPOSITO_BLING_PADRAO}</option>`;
+            seletor.value = DEPOSITO_BLING_PADRAO;
+            seletor.disabled = true;
         }
 
         let insumosEnvaseAtuais = [];
@@ -4914,8 +4923,8 @@
             await carregarLotesSelosEnvase();
             try {
                 const data = await chamarAdmin('listar_depositos_bling');
-                document.getElementById('env-deposito').innerHTML = (data.depositos || []).map(d => `<option value="${escapeAdmin(d.id)}">${escapeAdmin(d.nome)}</option>`).join('') || '<option value="">Nenhum depósito disponível</option>';
-            } catch(e) { document.getElementById('env-deposito').innerHTML='<option value="">Erro ao carregar depósitos</option>'; showToast(e.message); }
+                aplicarDepositoBlingPadrao(document.getElementById('env-deposito'), data.depositos || []);
+            } catch(e) { aplicarDepositoBlingPadrao(document.getElementById('env-deposito')); showToast(`Depósito padrão mantido. Não foi possível consultar o nome no Bling: ${e.message}`); }
         }
 
         function codigosPerdidosEnvase() {
@@ -5229,7 +5238,7 @@
             if(error)return showToast(error.message);
             consignacaoProdutosMovimento=produtos||[];
             document.getElementById('cons-mov-empresa').value=empresaId;document.getElementById('cons-mov-tipo').value='remessa';document.getElementById('cons-mov-data').value=new Date().toISOString().slice(0,10);document.getElementById('cons-mov-observacoes').value='';
-            try{const d=await chamarAdmin('listar_depositos_bling');document.getElementById('cons-mov-deposito').innerHTML='<option value="">Selecione o depósito</option>'+(d.depositos||[]).map(x=>`<option value="${escapeAdmin(x.id)}">${escapeAdmin(x.nome)}</option>`).join('');}catch(e){showToast(e.message)}
+            try{const d=await chamarAdmin('listar_depositos_bling');aplicarDepositoBlingPadrao(document.getElementById('cons-mov-deposito'),d.depositos||[])}catch(e){aplicarDepositoBlingPadrao(document.getElementById('cons-mov-deposito'));showToast(`Depósito padrão mantido. Não foi possível consultar o nome no Bling: ${e.message}`)}
             atualizarFormularioMovimentoConsignacao();
             fecharTodosModais();document.getElementById('modal-movimento-consignacao').style.display='block';document.getElementById('overlay').style.display='block';
         }
@@ -5274,7 +5283,7 @@
             document.getElementById('cons-acerto-titulo').textContent=`Acerto · ${empresa.nome_fantasia||empresa.nome}`;
             document.getElementById('cons-acerto-data').value=new Date().toISOString().slice(0,10);
             document.getElementById('cons-acerto-observacoes').value='';
-            document.getElementById('cons-acerto-deposito').innerHTML='<option value="">Selecione se houver devolução</option>'+((depositosResultado?.depositos||[]).map(item=>`<option value="${escapeAdmin(item.id)}">${escapeAdmin(item.nome)}</option>`).join(''));
+            aplicarDepositoBlingPadrao(document.getElementById('cons-acerto-deposito'),depositosResultado?.depositos||[]);
             document.getElementById('cons-acerto-produtos').innerHTML=saldos.map(saldo=>{const produto=mapa.get(saldo.produto_id)||{};return `<div class="consignacao-acerto-grid estoque-row" style="margin:0"><div class="consignacao-acerto-grid__produto"><b>${escapeAdmin(saldo.produto_nome)}</b><small style="display:block;color:#718096">Saldo na empresa: ${Number(saldo.quantidade)}</small></div><label class="consignacao-campo-quantidade"><small>Vendidas</small><input class="cons-acerto-vendida" data-produto-id="${saldo.produto_id}" data-bling-id="${escapeAdmin(saldo.produto_bling_id)}" data-saldo="${Number(saldo.quantidade)}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade vendida de ${escapeAdmin(saldo.produto_nome)}"></label><label class="consignacao-campo-quantidade"><small>Devolvidas</small><input class="cons-acerto-devolvida" data-produto-id="${saldo.produto_id}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade devolvida de ${escapeAdmin(saldo.produto_nome)}"></label><label class="consignacao-campo-quantidade consignacao-acerto-grid__preco"><small>Valor unitário</small><input class="cons-acerto-preco" data-produto-id="${saldo.produto_id}" type="number" min="0" step="0.01" value="${Number(produto.preco||0).toFixed(2)}" oninput="calcularAcertoConsignacao()" aria-label="Valor unitário de ${escapeAdmin(saldo.produto_nome)}"></label></div>`}).join('');
             calcularAcertoConsignacao();
             fecharTodosModais();document.getElementById('modal-acerto-consignacao').style.display='block';document.getElementById('overlay').style.display='block';
