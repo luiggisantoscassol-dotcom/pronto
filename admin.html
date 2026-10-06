@@ -948,6 +948,14 @@
         .consignacao-estoque-card--vazio .consignacao-estoque-card__saldo small{color:#8a94a3}
         .consignacao-acerto-grid{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(90px,.55fr));gap:10px;align-items:center}
         .consignacao-acerto-grid input{margin:0;text-align:center}
+        .consignacao-campo-quantidade{display:grid;gap:5px;min-width:0}
+        .consignacao-campo-quantidade small{display:none;color:#718096;font-size:.62rem;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
+        .consignacao-contexto{margin:12px 0 16px;padding:14px 16px;border:1px solid #d7e2ef;border-radius:15px;background:#eef5ff;color:#19385f;line-height:1.45}
+        .consignacao-contexto b{display:block;margin-bottom:3px}
+        .consignacao-contexto small{display:block;color:#607086}
+        .consignacao-contexto--devolucao{border-color:#ead5a9;background:#fff8e9}
+        .consignacao-mov-resumo{margin:10px 2px 0;color:#607086;font-size:.78rem;font-weight:800}
+        .consignacao-campos-duplos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
         .consignacao-acerto-total{margin-top:16px;padding:16px 18px;border-radius:15px;background:#eef5ff;color:#19385f;display:flex;align-items:center;justify-content:space-between;gap:12px}
         .consignacao-acerto-total b{font-size:1.35rem}
         .consignacao-acerto-card{padding:16px;border:1px solid #ded7cc;border-radius:15px;background:#fff;margin-bottom:11px}
@@ -967,7 +975,7 @@
         .consignacao-detalhe-acoes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
         .consignacao-detalhe-acoes .btn-status{width:100%;margin:0}
         @media(max-width:800px){#tab-consignacao .admin-order-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.consignacao-estoque-card{min-height:116px;padding:16px}.consignacao-estoque-card__saldo{gap:7px}.consignacao-estoque-card__saldo b{font-size:1.75rem!important}.consignacao-estoque-card__saldo small{font-size:.8rem}}
-        @media(max-width:640px){.consignacao-acerto-grid{grid-template-columns:1fr 1fr}.consignacao-acerto-grid__produto{grid-column:1/-1}.consignacao-acerto-grid__preco{grid-column:1/-1}.consignacao-acerto-total{align-items:flex-start;flex-direction:column}.consignacao-proximo-passo{align-items:flex-start;flex-direction:column}.consignacao-proximo-passo .btn-status{width:100%!important}.consignacao-movimento-card{grid-template-columns:minmax(0,1fr) auto;padding:14px}.consignacao-fluxo{grid-template-columns:repeat(2,minmax(0,1fr))}.consignacao-detalhe-acoes{grid-template-columns:1fr}}
+        @media(max-width:640px){.consignacao-campos-duplos{grid-template-columns:1fr}.consignacao-acerto-grid{grid-template-columns:1fr 1fr}.consignacao-acerto-grid__produto{grid-column:1/-1}.consignacao-acerto-grid__preco{grid-column:1/-1}.consignacao-acerto-cabecalho{display:none}.consignacao-campo-quantidade small{display:block}.consignacao-acerto-total{align-items:flex-start;flex-direction:column}.consignacao-proximo-passo{align-items:flex-start;flex-direction:column}.consignacao-proximo-passo .btn-status{width:100%!important}.consignacao-movimento-card{grid-template-columns:minmax(0,1fr) auto;padding:14px}.consignacao-fluxo{grid-template-columns:repeat(2,minmax(0,1fr))}.consignacao-detalhe-acoes{grid-template-columns:1fr}}
         .order-code{font-size:.62rem;letter-spacing:1.2px;color:var(--text-gold);font-weight:900;margin-bottom:4px}
         .order-meta-line{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
         .admin-chip{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:.56rem;font-weight:900;letter-spacing:.35px;background:rgba(255,255,255,.07);color:#ddd;border:1px solid rgba(255,255,255,.08)}
@@ -2592,19 +2600,20 @@
     <div class="modal-box" id="modal-movimento-consignacao" style="max-width:760px" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><span class="sidebar-kicker">Estoque da empresa</span><h2 style="margin:5px 0 0;text-align:left">Enviar ou devolver produtos</h2></div><button class="modal-fechar-btn" onclick="fecharTodosModais()">×</button></div>
         <input type="hidden" id="cons-mov-empresa">
-        <label>O que deseja fazer?</label><select id="cons-mov-tipo"><option value="remessa">Enviar produtos para consignação</option><option value="devolucao">Registrar devolução avulsa</option></select>
-        <small style="display:block;margin:-5px 2px 14px;color:#718096;line-height:1.45">Para registrar produtos vendidos e calcular o valor a receber, use <b>Fazer acerto</b> na tela da empresa.</small>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><label>Data</label><input id="cons-mov-data" type="date"></div><div><label>Depósito do Bling</label><select id="cons-mov-deposito"><option value="">Selecione</option></select></div></div>
-        <h3>Produtos</h3><div id="cons-mov-produtos"></div>
+        <label>O que deseja fazer?</label><select id="cons-mov-tipo" onchange="atualizarFormularioMovimentoConsignacao()"><option value="remessa">Enviar produtos para consignação</option><option value="devolucao">Registrar somente uma devolução</option></select>
+        <div id="cons-mov-contexto" class="consignacao-contexto"></div>
+        <div class="consignacao-campos-duplos"><div><label>Data</label><input id="cons-mov-data" type="date"></div><div><label id="cons-mov-deposito-label">Depósito do Bling</label><select id="cons-mov-deposito"><option value="">Selecione</option></select></div></div>
+        <h3 id="cons-mov-produtos-titulo">Produtos</h3><div id="cons-mov-produtos"></div><div id="cons-mov-resumo" class="consignacao-mov-resumo"></div>
         <label>Observações</label><textarea id="cons-mov-observacoes" style="width:100%;min-height:80px"></textarea>
-        <button class="btn-status" onclick="registrarMovimentoConsignacao()">REGISTRAR MOVIMENTAÇÃO</button>
+        <button class="btn-status" id="cons-mov-salvar" onclick="registrarMovimentoConsignacao()">ENVIAR PARA CONSIGNAÇÃO</button>
     </div>
 
     <div class="modal-box" id="modal-acerto-consignacao" style="width:min(860px,calc(100vw - 24px));max-width:860px;max-height:92vh;overflow:auto" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><span class="sidebar-kicker">Fechamento da empresa</span><h2 id="cons-acerto-titulo" style="margin:5px 0 0;text-align:left">Acerto de consignação</h2></div><button class="modal-fechar-btn" onclick="fecharTodosModais()">×</button></div>
         <input type="hidden" id="cons-acerto-empresa">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px"><div><label>Data do acerto</label><input id="cons-acerto-data" type="date"></div><div><label>Depósito para devoluções</label><select id="cons-acerto-deposito"><option value="">Selecione</option></select></div></div>
-        <div class="consignacao-acerto-grid" style="margin-top:18px;padding:0 6px;color:#718096;font-size:.66rem;font-weight:900;text-transform:uppercase"><span class="consignacao-acerto-grid__produto">Produto e saldo</span><span>Vendidas</span><span>Devolvidas</span><span class="consignacao-acerto-grid__preco">Valor unitário</span></div>
+        <div class="consignacao-campos-duplos" style="margin-top:18px"><div><label>Data do acerto</label><input id="cons-acerto-data" type="date"></div><div id="cons-acerto-deposito-wrap" style="display:none"><label>Depósito de retorno no Bling</label><select id="cons-acerto-deposito"><option value="">Selecione</option></select></div></div>
+        <div id="cons-acerto-orientacao" class="consignacao-contexto"><b>Informe o que aconteceu com as garrafas</b><small>Use “vendidas” para calcular o valor a receber e “devolvidas” para retorná-las ao seu estoque.</small></div>
+        <div class="consignacao-acerto-grid consignacao-acerto-cabecalho" style="margin-top:18px;padding:0 6px;color:#718096;font-size:.66rem;font-weight:900;text-transform:uppercase"><span class="consignacao-acerto-grid__produto">Produto e saldo</span><span>Vendidas</span><span>Devolvidas</span><span class="consignacao-acerto-grid__preco">Valor unitário</span></div>
         <div id="cons-acerto-produtos" style="display:grid;gap:9px;margin-top:8px"></div>
         <label>Observações</label><textarea id="cons-acerto-observacoes" style="width:100%;min-height:76px" placeholder="Ex.: acerto referente ao período"></textarea>
         <div class="consignacao-acerto-total"><span><b id="cons-acerto-quantidades">0 vendidas · 0 devolvidas</b><small style="display:block;margin-top:4px">O estoque devolvido volta ao sistema e ao Bling.</small></span><strong id="cons-acerto-total">R$ 0,00</strong></div>
@@ -3188,7 +3197,7 @@
 
         let sel = null; let adminCart = []; let statsMensal = {}; let nfeContexto = null;
         let ultimoPedidoPdv = null; let ultimoResultadoPdv = null;
-        let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoAcertos = [], consignacaoEmpresaAtual = null;
+        let consignacaoEmpresas = [], consignacaoMovimentos = [], consignacaoSaldos = [], consignacaoAcertos = [], consignacaoEmpresaAtual = null, consignacaoProdutosMovimento = [];
         let embalagens = [];
         let contextoInsumosEnvaseAberto = null;
         let scrollPaginaAntesDoModal = 0;
@@ -5218,10 +5227,35 @@
         async function abrirMovimentoConsignacao(empresaId) {
             const {data:produtos,error}=await db.from('produtos').select('id,nome,estoque,bling_id,preco').in('bling_id',Object.keys(nomesProdutosEnvase)).eq('excluido',false).order('nome');
             if(error)return showToast(error.message);
-            document.getElementById('cons-mov-empresa').value=empresaId;document.getElementById('cons-mov-data').value=new Date().toISOString().slice(0,10);document.getElementById('cons-mov-observacoes').value='';
-            document.getElementById('cons-mov-produtos').innerHTML=(produtos||[]).map(p=>`<div class="estoque-row" style="margin-bottom:9px"><div><b>${escapeAdmin(p.nome)}</b><div class="order-meta-line">Estoque disponível: ${p.estoque||0}</div></div><input class="cons-produto-qtd" data-produto-id="${p.id}" data-bling-id="${escapeAdmin(p.bling_id)}" type="number" min="0" value="0" style="width:100px;margin:0;text-align:center"></div>`).join('');
-            try{const d=await chamarAdmin('listar_depositos_bling');document.getElementById('cons-mov-deposito').innerHTML=(d.depositos||[]).map(x=>`<option value="${escapeAdmin(x.id)}">${escapeAdmin(x.nome)}</option>`).join('');}catch(e){showToast(e.message)}
+            consignacaoProdutosMovimento=produtos||[];
+            document.getElementById('cons-mov-empresa').value=empresaId;document.getElementById('cons-mov-tipo').value='remessa';document.getElementById('cons-mov-data').value=new Date().toISOString().slice(0,10);document.getElementById('cons-mov-observacoes').value='';
+            try{const d=await chamarAdmin('listar_depositos_bling');document.getElementById('cons-mov-deposito').innerHTML='<option value="">Selecione o depósito</option>'+(d.depositos||[]).map(x=>`<option value="${escapeAdmin(x.id)}">${escapeAdmin(x.nome)}</option>`).join('');}catch(e){showToast(e.message)}
+            atualizarFormularioMovimentoConsignacao();
             fecharTodosModais();document.getElementById('modal-movimento-consignacao').style.display='block';document.getElementById('overlay').style.display='block';
+        }
+
+        function atualizarFormularioMovimentoConsignacao() {
+            const tipo=document.getElementById('cons-mov-tipo').value,empresaId=document.getElementById('cons-mov-empresa').value;
+            const contexto=document.getElementById('cons-mov-contexto'),titulo=document.getElementById('cons-mov-produtos-titulo'),botao=document.getElementById('cons-mov-salvar');
+            let itens=[];
+            if(tipo==='remessa'){
+                contexto.className='consignacao-contexto';contexto.innerHTML='<b>As garrafas sairão do seu estoque</b><small>Elas passarão a aparecer como saldo desta empresa. Nenhuma venda ou cobrança será criada agora.</small>';
+                document.getElementById('cons-mov-deposito-label').textContent='Depósito de origem no Bling';titulo.textContent='O que será enviado';botao.textContent='ENVIAR PARA CONSIGNAÇÃO';
+                itens=consignacaoProdutosMovimento.map(p=>({...p,limite:Number(p.estoque||0),saldoTexto:`Disponível no seu estoque: ${Number(p.estoque||0)}`}));
+            }else{
+                contexto.className='consignacao-contexto consignacao-contexto--devolucao';contexto.innerHTML='<b>Use isto apenas quando a empresa devolver garrafas sem fazer um acerto</b><small>O saldo sairá da empresa e voltará ao seu estoque. Isto não registra venda nem calcula valor a receber.</small>';
+                document.getElementById('cons-mov-deposito-label').textContent='Depósito de retorno no Bling';titulo.textContent='O que a empresa devolveu';botao.textContent='REGISTRAR DEVOLUÇÃO';
+                const mapa=new Map(consignacaoProdutosMovimento.map(p=>[p.id,p]));
+                itens=consignacaoSaldos.filter(s=>s.empresa_id===empresaId&&Number(s.quantidade)>0).map(s=>{const p=mapa.get(s.produto_id)||{};return {id:s.produto_id,nome:s.produto_nome,bling_id:s.produto_bling_id||p.bling_id,limite:Number(s.quantidade),saldoTexto:`Disponível na empresa: ${Number(s.quantidade)}`}});
+            }
+            document.getElementById('cons-mov-produtos').innerHTML=itens.length?itens.map(p=>`<div class="estoque-row" style="margin-bottom:9px"><div><b>${escapeAdmin(p.nome)}</b><div class="order-meta-line">${escapeAdmin(p.saldoTexto)}</div></div><input class="cons-produto-qtd" data-produto-id="${p.id}" data-bling-id="${escapeAdmin(p.bling_id||'')}" data-limite="${p.limite}" type="number" min="0" max="${p.limite}" value="0" oninput="atualizarResumoMovimentoConsignacao()" style="width:100px;margin:0;text-align:center" aria-label="Quantidade de ${escapeAdmin(p.nome)}"></div>`).join(''):'<div class="consignacao-contexto consignacao-contexto--devolucao"><b>Nenhuma garrafa disponível para devolução</b><small>Esta empresa não possui saldo consignado. Se houve venda ou devolução dentro de um fechamento, volte à empresa e use “Fazer acerto”.</small></div>';
+            atualizarResumoMovimentoConsignacao();
+        }
+
+        function atualizarResumoMovimentoConsignacao(){
+            const tipo=document.getElementById('cons-mov-tipo').value,total=[...document.querySelectorAll('.cons-produto-qtd')].reduce((s,c)=>s+Math.max(0,Number(c.value||0)),0),botao=document.getElementById('cons-mov-salvar');
+            document.getElementById('cons-mov-resumo').textContent=total?`${total} garrafa${total===1?'':'s'} ${tipo==='remessa'?'será enviada':'voltará ao seu estoque'}.`:`Informe quantas garrafas ${tipo==='remessa'?'serão enviadas':'foram devolvidas'}.`;
+            botao.disabled=!total;
         }
 
         async function abrirAcertoConsignacao(empresaId) {
@@ -5241,7 +5275,7 @@
             document.getElementById('cons-acerto-data').value=new Date().toISOString().slice(0,10);
             document.getElementById('cons-acerto-observacoes').value='';
             document.getElementById('cons-acerto-deposito').innerHTML='<option value="">Selecione se houver devolução</option>'+((depositosResultado?.depositos||[]).map(item=>`<option value="${escapeAdmin(item.id)}">${escapeAdmin(item.nome)}</option>`).join(''));
-            document.getElementById('cons-acerto-produtos').innerHTML=saldos.map(saldo=>{const produto=mapa.get(saldo.produto_id)||{};return `<div class="consignacao-acerto-grid estoque-row" style="margin:0"><div class="consignacao-acerto-grid__produto"><b>${escapeAdmin(saldo.produto_nome)}</b><small style="display:block;color:#718096">Saldo na empresa: ${Number(saldo.quantidade)}</small></div><input class="cons-acerto-vendida" data-produto-id="${saldo.produto_id}" data-bling-id="${escapeAdmin(saldo.produto_bling_id)}" data-saldo="${Number(saldo.quantidade)}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade vendida de ${escapeAdmin(saldo.produto_nome)}"><input class="cons-acerto-devolvida" data-produto-id="${saldo.produto_id}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade devolvida de ${escapeAdmin(saldo.produto_nome)}"><input class="cons-acerto-preco consignacao-acerto-grid__preco" data-produto-id="${saldo.produto_id}" type="number" min="0" step="0.01" value="${Number(produto.preco||0).toFixed(2)}" oninput="calcularAcertoConsignacao()" aria-label="Valor unitário de ${escapeAdmin(saldo.produto_nome)}"></div>`}).join('');
+            document.getElementById('cons-acerto-produtos').innerHTML=saldos.map(saldo=>{const produto=mapa.get(saldo.produto_id)||{};return `<div class="consignacao-acerto-grid estoque-row" style="margin:0"><div class="consignacao-acerto-grid__produto"><b>${escapeAdmin(saldo.produto_nome)}</b><small style="display:block;color:#718096">Saldo na empresa: ${Number(saldo.quantidade)}</small></div><label class="consignacao-campo-quantidade"><small>Vendidas</small><input class="cons-acerto-vendida" data-produto-id="${saldo.produto_id}" data-bling-id="${escapeAdmin(saldo.produto_bling_id)}" data-saldo="${Number(saldo.quantidade)}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade vendida de ${escapeAdmin(saldo.produto_nome)}"></label><label class="consignacao-campo-quantidade"><small>Devolvidas</small><input class="cons-acerto-devolvida" data-produto-id="${saldo.produto_id}" type="number" min="0" max="${Number(saldo.quantidade)}" value="0" oninput="calcularAcertoConsignacao()" aria-label="Quantidade devolvida de ${escapeAdmin(saldo.produto_nome)}"></label><label class="consignacao-campo-quantidade consignacao-acerto-grid__preco"><small>Valor unitário</small><input class="cons-acerto-preco" data-produto-id="${saldo.produto_id}" type="number" min="0" step="0.01" value="${Number(produto.preco||0).toFixed(2)}" oninput="calcularAcertoConsignacao()" aria-label="Valor unitário de ${escapeAdmin(saldo.produto_nome)}"></label></div>`}).join('');
             calcularAcertoConsignacao();
             fecharTodosModais();document.getElementById('modal-acerto-consignacao').style.display='block';document.getElementById('overlay').style.display='block';
         }
@@ -5251,6 +5285,12 @@
             document.querySelectorAll('.cons-acerto-vendida').forEach(campo=>{const id=campo.dataset.produtoId,v=Math.max(0,Number(campo.value||0)),d=Math.max(0,Number(document.querySelector(`.cons-acerto-devolvida[data-produto-id="${id}"]`)?.value||0)),saldo=Number(campo.dataset.saldo||0),preco=Math.max(0,Number(document.querySelector(`.cons-acerto-preco[data-produto-id="${id}"]`)?.value||0));campo.setCustomValidity(v+d>saldo?`Venda e devolução não podem ultrapassar ${saldo}.`:'');vendidas+=v;devolvidas+=d;total+=v*preco;});
             document.getElementById('cons-acerto-quantidades').textContent=`${vendidas} vendida${vendidas===1?'':'s'} · ${devolvidas} devolvida${devolvidas===1?'':'s'}`;
             document.getElementById('cons-acerto-total').textContent=`R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+            document.getElementById('cons-acerto-deposito-wrap').style.display=devolvidas>0?'block':'none';
+            const orientacao=document.getElementById('cons-acerto-orientacao'),botao=document.getElementById('cons-acerto-salvar');
+            if(vendidas&&devolvidas){orientacao.innerHTML='<b>Este acerto registra venda e devolução</b><small>As vendidas gerarão o valor a receber. As devolvidas retornarão ao estoque selecionado.</small>';botao.textContent='CONFIRMAR VENDA E DEVOLUÇÃO'}
+            else if(vendidas){orientacao.innerHTML='<b>Este acerto registra uma venda</b><small>O saldo da empresa será reduzido e o sistema calculará o valor a receber. Nenhuma garrafa voltará ao estoque.</small>';botao.textContent='CONFIRMAR VENDA'}
+            else if(devolvidas){orientacao.innerHTML='<b>Este acerto registra somente devolução</b><small>Nenhuma cobrança será criada. As garrafas retornarão ao estoque selecionado.</small>';botao.textContent='CONFIRMAR DEVOLUÇÃO'}
+            else{orientacao.innerHTML='<b>Informe o que aconteceu com as garrafas</b><small>Use “vendidas” para calcular o valor a receber e “devolvidas” para retorná-las ao seu estoque.</small>';botao.textContent='CONFIRMAR ACERTO'}
             return {vendidas,devolvidas,total};
         }
 
@@ -5278,18 +5318,19 @@
 
         async function registrarMovimentoConsignacao() {
             const empresa=document.getElementById('cons-mov-empresa').value,tipo=document.getElementById('cons-mov-tipo').value,data=document.getElementById('cons-mov-data').value,deposito=document.getElementById('cons-mov-deposito').value;
-            const itens=[...document.querySelectorAll('.cons-produto-qtd')].map(i=>({produto_id:i.dataset.produtoId,produto_bling_id:i.dataset.blingId,quantidade:Number(i.value)})).filter(i=>Number.isInteger(i.quantidade)&&i.quantidade>0);
-            if(!data||!itens.length)return showToast('Informe a data e ao menos um produto.');if(tipo!=='venda'&&!deposito)return showToast('Selecione o depósito do Bling.');
-            const {data:id,error}=await db.rpc('registrar_movimento_consignacao',{p_empresa:empresa,p_tipo:tipo,p_data:data,p_itens:itens,p_deposito_bling_id:deposito||null,p_observacoes:document.getElementById('cons-mov-observacoes').value.trim()||null,p_movimento_origem:null});
+            const itens=[...document.querySelectorAll('.cons-produto-qtd')].map(i=>({produto_id:i.dataset.produtoId,produto_bling_id:i.dataset.blingId,quantidade:Number(i.value),limite:Number(i.dataset.limite||0)})).filter(i=>Number.isInteger(i.quantidade)&&i.quantidade>0);
+            if(!data||!itens.length)return showToast(`Informe a data e ao menos um produto para ${tipo==='remessa'?'enviar':'devolver'}.`);if(!deposito)return showToast(`Selecione o depósito de ${tipo==='remessa'?'origem':'retorno'} no Bling.`);if(itens.some(i=>i.quantidade>i.limite))return showToast(tipo==='remessa'?'A quantidade enviada não pode superar seu estoque disponível.':'A quantidade devolvida não pode superar o saldo que está na empresa.');
+            const itensRpc=itens.map(({limite,...item})=>item);
+            const {data:id,error}=await db.rpc('registrar_movimento_consignacao',{p_empresa:empresa,p_tipo:tipo,p_data:data,p_itens:itensRpc,p_deposito_bling_id:deposito||null,p_observacoes:document.getElementById('cons-mov-observacoes').value.trim()||null,p_movimento_origem:null});
             if(error)return showToast(`Erro: ${error.message}`);
             if(tipo!=='venda'){for(const item of itens){try{await chamarAdmin(tipo==='remessa'?'saida_estoque_bling':'entrada_estoque_bling',{produto_bling_id:item.produto_bling_id,deposito_bling_id:deposito,quantidade:item.quantidade,consignacao_id:id,observacoes:`${tipo} de consignação`});}catch(e){showToast(`Movimento salvo, mas houve falha no estoque Bling: ${e.message}`);}}}
-            fecharTodosModais();showToast('Movimentação registrada.');await carregar(true);await carregarConsignacao();abrirDetalheConsignacao(empresa);
+            fecharTodosModais();showToast(tipo==='remessa'?'Produtos enviados para consignação.':'Devolução registrada e produtos retornados ao estoque.');await carregar(true);await carregarConsignacao();abrirDetalheConsignacao(empresa);
         }
 
         function estornarConsignacao(id) {
             const mov=consignacaoMovimentos.find(m=>m.id===id);if(!mov)return showToast('Movimentação não encontrada.');
             const situacao=String(mov.bling_nfe_status||'');
-            if(mov.bling_nfe_id&&!['2','4'].includes(situacao))return showToast('Cancele a NF-e no Bling e confirme o cancelamento antes de estornar.');
+            if(mov.bling_nfe_id&&!['2','4'].includes(situacao)){showToast('Cancele a NF-e antes do estorno. Abrimos agora a etapa fiscal desta movimentação.');return abrirFiscalConsignacao(id)}
             const tipoNome={remessa:'Remessa',venda:'Venda consignada',devolucao:'Devolução'};
             document.getElementById('cons-estorno-id').value=id;document.getElementById('cons-estorno-motivo').value='';
             document.getElementById('cons-estorno-resumo').innerHTML=`<b>${tipoNome[mov.tipo]||'Movimentação'} de ${new Date(mov.data_movimento+'T12:00:00').toLocaleDateString('pt-BR')}</b><div style="margin-top:6px;color:#607086">${(mov.consignacao_itens||[]).map(item=>`${Number(item.quantidade)}× ${escapeAdmin(item.produto_nome)}`).join(' · ')}</div>`;
