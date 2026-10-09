@@ -1,9 +1,13 @@
 {
   "name": "Tio Nan - Gestão Pro",
   "short_name": "Gestão Pro",
+  "id": "/admin.html",
   "description": "Painel de Controle e Gestão da Cachaça Tio Nan.",
   "start_url": "/admin.html",
+  "scope": "/",
   "display": "standalone",
+  "lang": "pt-BR",
+  "orientation": "any",
   "background_color": "#050608",
   "theme_color": "#c5a059",
   "icons": [
