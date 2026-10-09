@@ -54,3 +54,9 @@ verify_jwt = false
 
 [functions.documentos-atalho-iphone]
 verify_jwt = false
+
+[functions.central-bling]
+verify_jwt = false
+
+[functions.bling-nfe-entrada]
+verify_jwt = false

@@ -1939,6 +1939,8 @@
         @media (max-width:430px) {
             .selos-filtros { grid-template-columns:minmax(0,1fr); }
         }
+        .bling-central-shell{max-width:1180px}.bling-central-header{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}.bling-central-header h2{margin:6px 0}.bling-central-header p{margin:0;color:#718096}.bling-central-notice,.nfe-entrada-alerta{display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;border:1px solid #efd69c;border-radius:14px;background:#fff9eb;color:#6f5926;margin:18px 0}.bling-central-lista{display:grid;gap:10px}.bling-failure{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(250px,1.5fr) auto;gap:16px;align-items:center;padding:16px;border:1px solid #eadfd0;border-radius:16px;background:#fff}.bling-failure__meta small,.bling-failure__error small{display:block;color:#718096;margin-top:4px}.bling-failure__error{color:#8b2424;overflow-wrap:anywhere}.bling-failure__actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bling-failure__actions button{width:auto;margin:0}.bling-central-history{margin-top:24px;border-top:1px solid #e9e0d3;padding-top:16px}.bling-central-history summary{cursor:pointer;font-weight:900;color:#19385f}.nfe-entrada-resumo{margin:18px 0;padding:18px;border:1px solid #ded7cc;border-radius:16px;background:#faf8f4}.nfe-entrada-resumo h3{margin:0 0 5px}.nfe-entrada-resumo p{margin:0 0 13px;color:#718096;font-size:.76rem}.nfe-entrada-card{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:11px 0;border-top:1px solid #e8e0d5}.nfe-entrada-form{padding:22px;overflow-y:auto}.nfe-entrada-itens{display:grid;gap:9px;margin-bottom:10px}.nfe-entrada-item{display:grid;grid-template-columns:1.4fr .65fr .65fr auto;gap:8px;align-items:end;padding:12px;border:1px solid #e4ddd2;border-radius:13px;background:#faf8f4}.nfe-entrada-item label{font-size:.66rem}.nfe-entrada-item input{margin:5px 0 0}.nfe-entrada-acoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.nfe-entrada-acoes button{margin:0}
+        @media(max-width:700px){.bling-central-header{display:grid}.bling-failure{grid-template-columns:1fr}.bling-failure__actions{justify-content:stretch}.bling-failure__actions button{flex:1}.nfe-entrada-item{grid-template-columns:1fr 1fr}.nfe-entrada-item>div:first-child{grid-column:1/-1}.nfe-entrada-acoes{grid-template-columns:1fr}.nfe-entrada-resumo{padding:14px}}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="documentos-contabilidade.js?v=20260929-1305"></script>
@@ -2007,6 +2009,7 @@
         <div class="sidebar-groups">
             <section class="sidebar-group"><span class="sidebar-group-title">Relacionamento</span>
                 <button class="nav-item" onclick="switchTab('tab-automacoes')"><span class="nav-icon">⚡</span>Central de automações</button>
+                <button class="nav-item" onclick="switchTab('tab-central-bling')"><span class="nav-icon">🩺</span>Falhas do Bling</button>
                 <button class="nav-item" onclick="switchTab('tab-clientes')"><span class="nav-icon">👥</span>Clientes</button>
                 <button class="nav-item" onclick="switchTab('tab-email-marketing')"><span class="nav-icon">✉️</span>E-mail marketing</button>
                 <button class="nav-item" onclick="switchTab('tab-whatsapp')"><span class="nav-icon">💬</span>Fila de WhatsApp</button>
@@ -2113,6 +2116,16 @@
                 <section class="automation-errors"><h3>Itens que precisam de atenção</h3><div id="auto-lista-erros"><p class="automation-empty">Carregando o diagnóstico das automações…</p></div></section>
             </div>
             <div class="automation-footer"><div class="automation-shortcuts"><button type="button" onclick="switchTab('tab-email-marketing')">CRIAR CAMPANHA</button><button type="button" onclick="switchTab('tab-clientes')">VER CLIENTES</button><button type="button" onclick="switchTab('tab-whatsapp')">ABRIR FILA DO WHATSAPP</button></div><span id="auto-atualizado">Ainda não atualizado</span></div>
+        </div>
+    </div>
+
+    <div id="tab-central-bling" class="tab-content">
+        <div class="card bling-central-shell">
+            <div class="bling-central-header"><div><span class="sidebar-kicker">Integrações operacionais</span><h2>Central de falhas do Bling</h2><p>Veja o que não sincronizou, reprocese operações seguras e identifique casos que precisam de conferência.</p></div><button type="button" class="btn-status" style="width:auto;margin:0" onclick="carregarCentralBling(true)">↻ ATUALIZAR</button></div>
+            <div class="automation-summary"><article class="automation-stat"><span>Pendências</span><strong id="bling-central-total">—</strong><small>itens que precisam de atenção</small></article><article class="automation-stat"><span>Estoque / envase</span><strong id="bling-central-estoque">—</strong><small>movimentações não confirmadas</small></article><article class="automation-stat"><span>Pedidos / NF-e</span><strong id="bling-central-fiscal">—</strong><small>pedidos com erro</small></article><article class="automation-stat"><span>Última atualização</span><strong id="bling-central-hora" style="font-size:1rem">—</strong><small>diagnóstico do servidor</small></article></div>
+            <div class="bling-central-notice"><b>Reprocessamento protegido</b><span>Consignações não são reenviadas automaticamente, pois uma tentativa parcial poderia duplicar estoque. Elas aparecem como “Conferir”.</span></div>
+            <div id="bling-central-lista" class="bling-central-lista"><p class="automation-empty">Carregando o diagnóstico…</p></div>
+            <details class="bling-central-history"><summary>Histórico de reprocessamentos</summary><div id="bling-central-historico"></div></details>
         </div>
     </div>
 
@@ -2341,11 +2354,12 @@
         <div class="card documentos-card">
             <div class="documentos-cabecalho">
                 <div><span class="admin-home-group">Arquivo fiscal e financeiro</span><h2>Notas / Contabilidade</h2><p>Notas fiscais, XML, comprovantes, boletos, recibos e demais documentos enviados à contabilidade. Os XML das NF-e emitidas nos pedidos são incluídos automaticamente no ZIP, em uma pasta própria, e permanecem visíveis somente nos pedidos.</p></div>
-                <div class="documentos-cabecalho__acoes"><button type="button" class="documentos-configuracoes-btn" onclick="abrirConfiguracoesDocumentos()" aria-label="Configurações de contabilidade">⚙ CONFIGURAÇÕES</button><button class="btn-status documentos-adicionar" onclick="abrirAdicionarDocumento()">+ ADICIONAR DOCUMENTO</button></div>
+                <div class="documentos-cabecalho__acoes"><button type="button" class="documentos-configuracoes-btn" onclick="abrirConfiguracoesDocumentos()" aria-label="Configurações de contabilidade">⚙ CONFIGURAÇÕES</button><button type="button" class="documentos-configuracoes-btn" onclick="abrirNfeEntrada()">↙ NF-e DE ENTRADA</button><button class="btn-status documentos-adicionar" onclick="abrirAdicionarDocumento()">+ ADICIONAR DOCUMENTO</button></div>
             </div>
             <div class="documentos-privacidade"><b>🔒 Arquivos privados</b><span>O acesso acontece por links temporários e exige autenticação administrativa.</span></div>
             <div id="documentos-resumo" class="documentos-resumo"><div><span>Documentos</span><b>—</b></div><div><span>Ainda não enviados</span><b>—</b></div><div><span>Último envio</span><b>—</b></div></div>
             <div id="documentos-ultimo-envio" class="documentos-envio-status">Carregando histórico…</div>
+            <section class="nfe-entrada-resumo"><div><h3>NF-e de entrada própria</h3><p>Rascunhos editáveis para compras feitas com recursos da empresa. A natureza fiscal e o cálculo do ICMS são validados pelo Bling antes da emissão.</p></div><div id="nfe-entrada-lista"><small>Carregando…</small></div></section>
             <div class="documentos-lista-cabecalho"><h3>Documentos por mês</h3><input id="busca-notas-compra" type="search" placeholder="Buscar em todos os meses…" oninput="renderizarDocumentosContabeis()"></div>
             <input id="documentos-competencia" type="hidden">
             <div id="documentos-meses" class="documentos-meses"><p class="documentos-vazio">Carregando documentos…</p></div>
@@ -2708,6 +2722,19 @@
                 <div class="documentos-iphone-launcher__info"><span class="documentos-iphone-launcher__icone" aria-hidden="true">📱</span><div><b>Atalho do iPhone</b><small>Gerencie tokens e aparelhos autorizados.</small></div></div>
                 <button type="button" class="btn-status secundario" onclick="abrirConfiguracaoIphone()">GERENCIAR</button>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-box" id="modal-nfe-entrada" style="width:min(820px,calc(100vw - 24px));max-width:820px;padding:0;max-height:92vh;overflow:hidden;flex-direction:column" onclick="event.stopPropagation()">
+        <div class="modal-header"><div><span class="sidebar-kicker">Compra da empresa</span><h2 style="margin:0;text-align:left">NF-e de entrada própria</h2></div><button type="button" onclick="fecharTodosModais()" class="modal-fechar-btn">×</button></div>
+        <div class="nfe-entrada-form">
+            <input id="nfe-entrada-id" type="hidden">
+            <div class="nfe-entrada-alerta"><b>Rascunho editável</b><span>Revise com o contador e confira o destaque do ICMS no Bling. Depois de autorizada, a nota não poderá ser alterada.</span></div>
+            <div class="produto-precos-grid"><div class="produto-campo"><label>Data da operação</label><input id="nfe-entrada-data" type="date"></div><div class="produto-campo"><label>Fornecedor / vendedor</label><input id="nfe-entrada-fornecedor" placeholder="Nome ou razão social"></div><div class="produto-campo"><label>CPF/CNPJ</label><input id="nfe-entrada-documento" inputmode="numeric"></div><div class="produto-campo"><label>Inscrição estadual</label><input id="nfe-entrada-ie"></div><div class="produto-campo"><label>ID do fornecedor no Bling (opcional)</label><input id="nfe-entrada-contato-bling" inputmode="numeric" placeholder="Prefira usar se já estiver cadastrado"></div></div>
+            <h3>Produtos</h3><div id="nfe-entrada-itens" class="nfe-entrada-itens"></div><button type="button" class="documentos-configuracoes-btn" onclick="adicionarItemNfeEntrada()">+ ADICIONAR PRODUTO</button>
+            <h3>ICMS solicitado pelo contador</h3><div class="produto-precos-grid"><div class="produto-campo"><label>Base de cálculo (R$)</label><input id="nfe-entrada-base-icms" type="number" min="0" step="0.01" oninput="calcularIcmsEntrada()"></div><div class="produto-campo"><label>Alíquota (%)</label><input id="nfe-entrada-aliquota" type="number" min="0" step="0.01" oninput="calcularIcmsEntrada()"></div><div class="produto-campo"><label>Valor do ICMS (R$)</label><input id="nfe-entrada-valor-icms" type="number" min="0" step="0.01"></div><div class="produto-campo"><label>Valor total (R$)</label><input id="nfe-entrada-total" type="number" min="0" step="0.01"></div></div>
+            <div class="produto-campo"><label>Observações</label><textarea id="nfe-entrada-observacoes" style="width:100%;min-height:80px" placeholder="Contexto solicitado pelo contador"></textarea></div>
+            <div class="nfe-entrada-acoes" id="nfe-entrada-acoes"><button type="button" class="btn-status secundario" onclick="salvarNfeEntradaManual(this)">SALVAR RASCUNHO</button><button type="button" class="btn-status" onclick="criarNfeEntradaNoBling(this)">CRIAR E CONFERIR NO BLING</button></div>
         </div>
     </div>
 
@@ -3308,6 +3335,7 @@
             localStorage.setItem('abaAtivaTioNan', id);
             if (id === 'tab-clientes') carregarClientes();
             if (id === 'tab-automacoes') carregarCentralAutomacoes();
+            if (id === 'tab-central-bling') carregarCentralBling();
             if (id === 'tab-email-marketing') carregarEmailMarketing();
             if (id === 'tab-whatsapp') carregarFilaWhatsApp();
             if (id === 'tab-avaliacoes') carregarAvaliacoes();
@@ -4574,7 +4602,7 @@
         };
         const tamanhoArquivo = bytes => Number(bytes || 0) >= 1024*1024 ? `${(Number(bytes)/(1024*1024)).toLocaleString('pt-BR',{maximumFractionDigits:1})} MB` : `${Math.max(1,Math.round(Number(bytes || 0)/1024))} KB`;
 
-        async function carregarNotasCompra() { return carregarDocumentosContabeis(); }
+        async function carregarNotasCompra() { await Promise.all([carregarDocumentosContabeis(),carregarNfesEntrada()]); }
 
         async function carregarDocumentosContabeis() {
             const meses = document.getElementById('documentos-meses');
@@ -8008,6 +8036,66 @@
             }
         }
 
+        let centralBlingCarregada = false;
+        async function chamarFuncaoPainel(nome, corpo) {
+            const {data:{session}} = await db.auth.getSession();
+            if (!session) throw new Error('Sessão expirada. Entre novamente.');
+            const resposta = await fetch(`${supabaseUrl}/functions/v1/${nome}`,{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`,apikey:supabaseKey,'content-type':'application/json'},body:JSON.stringify(corpo)});
+            const dados = await resposta.json().catch(()=>({}));
+            if (!resposta.ok) throw new Error(dados.error || `Falha (${resposta.status})`);
+            return dados;
+        }
+        async function carregarCentralBling(forcar=false) {
+            if (centralBlingCarregada && !forcar) return;
+            const lista=document.getElementById('bling-central-lista'); if(!lista)return;
+            lista.innerHTML='<p class="automation-empty">Carregando o diagnóstico…</p>';
+            try {
+                const dados=await chamarFuncaoPainel('central-bling',{action:'listar'});
+                const itens=[];
+                (dados.envases||[]).forEach(x=>itens.push({tipo:'envase',id:x.id,titulo:`Envase · ${x.produto_nome}`,meta:`Lote ${x.lote} · ${x.garrafas} garrafas`,erro:x.bling_erro||'Aguardando entrada no Bling',seguro:true,data:x.criado_em}));
+                (dados.consignacoes||[]).forEach(x=>itens.push({tipo:'consignacao',id:x.id,titulo:`Consignação · ${x.consignacao_empresas?.nome_fantasia||x.consignacao_empresas?.nome||x.tipo}`,meta:`Movimentação ${x.tipo}`,erro:x.bling_estoque_erro||x.bling_nfe_erro||'Sincronização incompleta',seguro:false,data:x.criado_em}));
+                (dados.pedidos||[]).forEach(x=>itens.push({tipo:x.bling_nfe_erro?'nfe_pedido':'pedido',id:x.id,titulo:`Pedido ${x.referencia}`,meta:x.cliente_nome||'Cliente não identificado',erro:x.bling_nfe_erro||x.bling_erro||'Falha não detalhada',seguro:true,data:x.atualizado_em}));
+                (dados.backups||[]).forEach(x=>itens.push({tipo:'backup_selos',id:x.id,titulo:'Backup do Livro de Selos',meta:'Cópia automática no Google Drive',erro:x.mensagem_erro||'Falha no backup',seguro:true,data:x.iniciado_em}));
+                (dados.envios||[]).forEach(x=>itens.push({tipo:'contabilidade',id:x.id,titulo:'Envio para contabilidade',meta:String(x.competencia||'').slice(0,7),erro:x.erro||'Falha no envio',seguro:false,data:x.criado_em}));
+                itens.sort((a,b)=>new Date(b.data||0)-new Date(a.data||0));
+                document.getElementById('bling-central-total').textContent=itens.length;
+                document.getElementById('bling-central-estoque').textContent=itens.filter(x=>['envase','consignacao'].includes(x.tipo)).length;
+                document.getElementById('bling-central-fiscal').textContent=itens.filter(x=>['pedido','nfe_pedido'].includes(x.tipo)).length;
+                document.getElementById('bling-central-hora').textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+                lista.innerHTML=itens.length?itens.map(x=>`<article class="bling-failure"><div class="bling-failure__meta"><b>${escapeAdmin(x.titulo)}</b><small>${escapeAdmin(x.meta)}</small></div><div class="bling-failure__error"><b>${x.seguro?'Falha registrada':'Conferência necessária'}</b><small>${escapeAdmin(String(x.erro).slice(0,400))}</small></div><div class="bling-failure__actions">${x.seguro?`<button class="btn-status" onclick="reprocessarFalhaBling(this,'${x.tipo}','${x.id}')">REPROCESSAR</button>`:`<button class="btn-status secundario" onclick="abrirOrigemFalhaBling('${x.tipo}')">CONFERIR</button>`}</div></article>`).join(''):'<p class="automation-empty">✓ Nenhuma falha pendente nas integrações monitoradas.</p>';
+                const historico=document.getElementById('bling-central-historico');historico.innerHTML=(dados.historico||[]).map(x=>`<div class="estoque-row"><div><b>${escapeAdmin(x.origem_tipo)} · ${escapeAdmin(x.acao)}</b><small style="display:block;color:#718096">${new Date(x.criado_em).toLocaleString('pt-BR')}</small></div><span class="admin-chip ${x.status==='concluido'?'ok':'error'}">${escapeAdmin(x.status)}</span></div>`).join('')||'<p>Nenhuma tentativa registrada.</p>';
+                centralBlingCarregada=true;
+            } catch(error) { lista.innerHTML=`<p class="documentos-vazio" style="color:#9b2c2c">${escapeAdmin(error.message||error)}</p>`; }
+        }
+        function abrirOrigemFalhaBling(tipo){switchTab(tipo==='consignacao'?'tab-consignacao':'tab-notas-compra')}
+        async function reprocessarFalhaBling(botao,tipo,id){
+            const aviso=tipo==='envase'?'A entrada de estoque será tentada novamente. Faça isso somente se confirmou que o Bling não recebeu a tentativa anterior.':'Reprocessar esta integração agora?';
+            if(!confirm(aviso))return;const texto=botao.textContent;
+            try{botao.disabled=true;botao.textContent='PROCESSANDO…';await chamarFuncaoPainel('central-bling',{action:'reprocessar',tipo,id});showToast('Integração reprocessada com sucesso.');centralBlingCarregada=false;await carregarCentralBling(true)}catch(error){alert(`Não foi possível reprocessar.\n\n${error.message||error}`)}finally{botao.disabled=false;botao.textContent=texto}
+        }
+
+        let nfesEntrada=[];
+        async function carregarNfesEntrada(){
+            const alvo=document.getElementById('nfe-entrada-lista');if(!alvo)return;
+            const {data,error}=await db.from('nfe_entradas_proprias').select('*').order('data_operacao',{ascending:false}).limit(30);
+            if(error){alvo.innerHTML='<small>As NF-e de entrada estarão disponíveis após aplicar a atualização do banco.</small>';return}
+            nfesEntrada=data||[];alvo.innerHTML=nfesEntrada.length?nfesEntrada.map(x=>`<div class="nfe-entrada-card"><div><b>${escapeAdmin(x.fornecedor_nome)}</b><small style="display:block;color:#718096">${new Date(x.data_operacao+'T12:00:00').toLocaleDateString('pt-BR')} · R$ ${Number(x.valor_total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${escapeAdmin(x.status)}</small>${x.bling_erro?`<small style="display:block;color:#9b2c2c">${escapeAdmin(x.bling_erro)}</small>`:''}</div><div class="bling-failure__actions"><button class="documentos-configuracoes-btn" onclick="editarNfeEntrada('${x.id}')">${x.status==='rascunho'||x.status==='erro'?'EDITAR':'VER'}</button>${x.bling_nfe_id?`<button class="documentos-configuracoes-btn" onclick="consultarNfeEntrada(this,'${x.id}')">ATUALIZAR</button>`:''}${x.status==='no_bling'?`<button class="btn-status" onclick="emitirNfeEntrada(this,'${x.id}')">EMITIR</button>`:''}</div></div>`).join(''):'<small>Nenhuma NF-e de entrada criada.</small>';
+        }
+        function definirEdicaoNfeEntrada(permitida=true){document.querySelectorAll('#modal-nfe-entrada input:not([type="hidden"]),#modal-nfe-entrada textarea').forEach(c=>c.disabled=!permitida);document.querySelectorAll('#nfe-entrada-itens button,.nfe-entrada-form>.documentos-configuracoes-btn').forEach(c=>c.disabled=!permitida);document.getElementById('nfe-entrada-acoes').style.display=permitida?'grid':'none'}
+        function abrirNfeEntrada(){
+            ['nfe-entrada-id','nfe-entrada-fornecedor','nfe-entrada-documento','nfe-entrada-ie','nfe-entrada-contato-bling','nfe-entrada-base-icms','nfe-entrada-aliquota','nfe-entrada-valor-icms','nfe-entrada-total','nfe-entrada-observacoes'].forEach(id=>document.getElementById(id).value='');
+            document.getElementById('nfe-entrada-data').value=new Date().toISOString().slice(0,10);document.getElementById('nfe-entrada-itens').innerHTML='';adicionarItemNfeEntrada();definirEdicaoNfeEntrada(true);document.getElementById('modal-nfe-entrada').style.display='flex';document.getElementById('overlay').style.display='block';
+        }
+        function adicionarItemNfeEntrada(item={}){const produtos=(allProducts||[]).filter(p=>p.bling_id&&!p.excluido);const opcoes=['<option value="">Selecione o produto</option>',...produtos.map(p=>`<option value="${escapeAdmin(p.bling_id)}" data-nome="${escapeAdmin(p.nome)}" ${String(p.bling_id)===String(item.bling_id||'')?'selected':''}>${escapeAdmin(p.nome)}</option>`)].join('');const linha=document.createElement('div');linha.className='nfe-entrada-item';linha.innerHTML=`<div><label>Produto cadastrado no Bling</label><select data-campo="produto" onchange="this.closest('.nfe-entrada-item').querySelector('[data-campo=descricao]').value=this.selectedOptions[0]?.dataset.nome||''">${opcoes}</select><input data-campo="descricao" type="hidden" value="${escapeAdmin(item.descricao||'')}"></div><div><label>Quantidade</label><input data-campo="quantidade" type="number" min="0.001" step="0.001" value="${Number(item.quantidade||1)}"></div><div><label>Valor unitário</label><input data-campo="valor" type="number" min="0" step="0.01" value="${Number(item.valor||0)}"></div><button type="button" class="modal-fechar-btn" onclick="this.closest('.nfe-entrada-item').remove()" aria-label="Remover">×</button>`;document.getElementById('nfe-entrada-itens').appendChild(linha)}
+        function calcularIcmsEntrada(){const base=Number(document.getElementById('nfe-entrada-base-icms').value||0);const aliquota=Number(document.getElementById('nfe-entrada-aliquota').value||0);document.getElementById('nfe-entrada-valor-icms').value=(base*aliquota/100).toFixed(2)}
+        function dadosNfeEntrada(){const itens=[...document.querySelectorAll('.nfe-entrada-item')].map(l=>({bling_id:l.querySelector('[data-campo="produto"]').value,descricao:l.querySelector('[data-campo="descricao"]').value.trim(),quantidade:Number(l.querySelector('[data-campo="quantidade"]').value||0),valor:Number(l.querySelector('[data-campo="valor"]').value||0),unidade:'UN'})).filter(x=>x.bling_id&&x.descricao&&x.quantidade>0);return {id:document.getElementById('nfe-entrada-id').value||crypto.randomUUID(),data_operacao:document.getElementById('nfe-entrada-data').value,fornecedor_nome:document.getElementById('nfe-entrada-fornecedor').value.trim(),fornecedor_documento:document.getElementById('nfe-entrada-documento').value.trim()||null,fornecedor_ie:document.getElementById('nfe-entrada-ie').value.trim()||null,fornecedor_bling_id:document.getElementById('nfe-entrada-contato-bling').value.trim()||null,itens,base_icms:Number(document.getElementById('nfe-entrada-base-icms').value||0),aliquota_icms:Number(document.getElementById('nfe-entrada-aliquota').value||0),valor_icms:Number(document.getElementById('nfe-entrada-valor-icms').value||0),valor_total:Number(document.getElementById('nfe-entrada-total').value||0),observacoes:document.getElementById('nfe-entrada-observacoes').value.trim()||null}}
+        async function salvarNfeEntrada(botao,manterAberto=false){const d=dadosNfeEntrada();if(!d.data_operacao||d.fornecedor_nome.length<2||!d.itens.length)throw new Error('Informe data, fornecedor e ao menos um produto.');const {data:{user}}=await db.auth.getUser();const existente=Boolean(document.getElementById('nfe-entrada-id').value);const payload={...d,atualizado_por:user?.id,atualizado_em:new Date().toISOString(),...(existente?{}:{criado_por:user?.id})};const {error}=await db.from('nfe_entradas_proprias').upsert(payload);if(error)throw error;document.getElementById('nfe-entrada-id').value=d.id;if(!manterAberto){fecharTodosModais();showToast('Rascunho salvo.');await carregarNfesEntrada()}return d}
+        async function salvarNfeEntradaManual(botao){const texto=botao.textContent;try{botao.disabled=true;botao.textContent='SALVANDO…';await salvarNfeEntrada(botao)}catch(error){alert(`Não foi possível salvar o rascunho.\n\n${error.message||error}`)}finally{botao.disabled=false;botao.textContent=texto}}
+        async function criarNfeEntradaNoBling(botao){const texto=botao.textContent;try{botao.disabled=true;botao.textContent='CRIANDO RASCUNHO…';const d=await salvarNfeEntrada(botao,true);const retorno=await chamarFuncaoPainel('bling-nfe-entrada',{action:'criar_no_bling',id:d.id});showToast(retorno.aviso||'Rascunho criado no Bling.');fecharTodosModais();await carregarNfesEntrada()}catch(error){alert(`Não foi possível criar a NF-e de entrada.\n\n${error.message||error}`)}finally{botao.disabled=false;botao.textContent=texto}}
+        function editarNfeEntrada(id){const x=nfesEntrada.find(n=>String(n.id)===String(id));if(!x)return;abrirNfeEntrada();document.getElementById('nfe-entrada-id').value=x.id;document.getElementById('nfe-entrada-data').value=x.data_operacao;document.getElementById('nfe-entrada-fornecedor').value=x.fornecedor_nome||'';document.getElementById('nfe-entrada-documento').value=x.fornecedor_documento||'';document.getElementById('nfe-entrada-ie').value=x.fornecedor_ie||'';document.getElementById('nfe-entrada-contato-bling').value=x.fornecedor_bling_id||'';document.getElementById('nfe-entrada-base-icms').value=x.base_icms||0;document.getElementById('nfe-entrada-aliquota').value=x.aliquota_icms||0;document.getElementById('nfe-entrada-valor-icms').value=x.valor_icms||0;document.getElementById('nfe-entrada-total').value=x.valor_total||0;document.getElementById('nfe-entrada-observacoes').value=x.observacoes||'';document.getElementById('nfe-entrada-itens').innerHTML='';(x.itens||[]).forEach(adicionarItemNfeEntrada);definirEdicaoNfeEntrada(['rascunho','erro'].includes(x.status))}
+        async function consultarNfeEntrada(botao,id){try{botao.disabled=true;await chamarFuncaoPainel('bling-nfe-entrada',{action:'consultar',id});showToast('Situação atualizada.');await carregarNfesEntrada()}catch(error){alert(error.message||error)}finally{botao.disabled=false}}
+        async function emitirNfeEntrada(botao,id){const ambiente=prompt('Digite exatamente HOMOLOGACAO ou PRODUCAO para confirmar o ambiente fiscal:','HOMOLOGACAO');if(!ambiente)return;try{botao.disabled=true;botao.textContent='EMITINDO…';await chamarFuncaoPainel('bling-nfe-entrada',{action:'emitir',id,confirmar_ambiente:ambiente.trim().toLowerCase()});showToast('Emissão solicitada. Confira a autorização.');await carregarNfesEntrada()}catch(error){alert(`Emissão bloqueada.\n\n${error.message||error}`)}finally{botao.disabled=false;botao.textContent='EMITIR'}}
+
         let touchstartX = 0; let touchendX = 0;
         document.body.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, { passive: true });
         document.body.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, { passive: true });
@@ -8038,7 +8126,7 @@
         function navigateTabs(direction) {
             const abas = isMobileOperationMode()
                 ? Array.from(ABAS_OPERACAO_MOBILE)
-                : ['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-livro-selos', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-automacoes', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-avaliacoes', 'tab-cupons', 'tab-stats', 'tab-rastreio'];
+                : ['tab-inicio', 'tab-pedidos', 'tab-pdv', 'tab-historico', 'tab-estoque', 'tab-cadastro', 'tab-envase', 'tab-livro-selos', 'tab-embalagens', 'tab-notas-compra', 'tab-consignacao', 'tab-automacoes', 'tab-central-bling', 'tab-clientes', 'tab-email-marketing', 'tab-whatsapp', 'tab-avaliacoes', 'tab-cupons', 'tab-stats', 'tab-rastreio'];
             const currentId = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : 'tab-pedidos';
             const index = abas.indexOf(currentId) + direction;
             if (index >= 0 && index < abas.length) switchTab(abas[index]);
