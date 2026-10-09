@@ -45,3 +45,12 @@ verify_jwt = false
 
 [functions.ciclo-cliente]
 verify_jwt = false
+
+[functions.backup-livro-selos-drive]
+verify_jwt = false
+
+[functions.documentos-contabilidade]
+verify_jwt = false
+
+[functions.documentos-atalho-iphone]
+verify_jwt = false
