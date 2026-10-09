@@ -132,7 +132,7 @@ Deno.serve(async (request) => {
     const { data: due, error } = await db.from("carrinhos_abandonados").select("id,token,email,nome,itens,total,status").in("status", ["ativo", "erro"]).eq("consentimento", true).is("enviado_em", null).lte("enviar_apos", new Date().toISOString()).order("enviar_apos", { ascending: true }).limit(20);
     if (error) return json(request, { error: error.message }, 500);
     const apiKey = Deno.env.get("RESEND_API_KEY") || "";
-    const from = Deno.env.get("RESEND_FROM") || "Tio Nan <pedidos@mail.tionan.com.br>";
+    const from = Deno.env.get("RESEND_FROM_MARKETING") || "Ofertas Tio Nan <ofertas@mail.tionan.com.br>";
     let sentCount = 0;
     for (const cart of due || []) {
       const { data: claimed } = await db.from("carrinhos_abandonados").update({ status: "enviando", erro: null, atualizado_em: new Date().toISOString() }).eq("id", cart.id).in("status", ["ativo", "erro"]).is("enviado_em", null).select("id").maybeSingle();

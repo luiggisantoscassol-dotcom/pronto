@@ -43,7 +43,7 @@ Deno.serve(async (request) => {
     .select("id").maybeSingle();
   if (!claimed) return response(request, { ok: true, boas_vindas: "ja_enviado" });
   const apiKey = Deno.env.get("RESEND_API_KEY") || "";
-  const from = Deno.env.get("RESEND_FROM") || "Tio Nan <pedidos@mail.tionan.com.br>";
+  const from = Deno.env.get("RESEND_FROM_MARKETING") || "Ofertas Tio Nan <ofertas@mail.tionan.com.br>";
   try {
     if (!apiKey) throw new Error("RESEND_API_KEY não configurada.");
     const token = await signEmail(email, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
