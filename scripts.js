@@ -542,12 +542,19 @@ function avaliacaoDeSaborAtivo(nome) {
     return SABORES_ATIVOS_AVALIACOES.includes(chaveSaborAvaliacao(nome));
 }
 
-new Swiper('.swiper-hero', {
-    loop: true,
-    pagination: { el: '.hero-pagination', clickable: true },
-    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-    autoplay: { delay: 5000, disableOnInteraction: false }
-});
+const heroSlider = document.querySelector('.swiper-hero');
+if (heroSlider?.querySelectorAll('.swiper-slide').length > 1) {
+    new Swiper('.swiper-hero', {
+        loop: true,
+        pagination: { el: '.hero-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        autoplay: { delay: 5000, disableOnInteraction: false }
+    });
+} else {
+    heroSlider?.querySelectorAll('.swiper-button-next, .swiper-button-prev').forEach(button => {
+        button.hidden = true;
+    });
+}
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');
 
