@@ -2204,7 +2204,7 @@
                 </div>
             </div>
             <div class="analytics-toolbar">
-                <label>Período<select id="analytics-periodo" onchange="carregar(true)"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="0">Todo o histórico</option></select></label>
+                <label>Período<select id="analytics-periodo" onchange="carregar(true)"><option value="hoje">Hoje</option><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="0">Todo o histórico</option></select></label>
                 <label>Origem<select id="analytics-origem" onchange="carregar(true)"><option value="">Todas as origens</option></select></label>
                 <label>Campanha<select id="analytics-campanha" onchange="carregar(true)"><option value="">Todas as campanhas</option></select></label>
             </div>
@@ -6125,8 +6125,11 @@
         }
 
         function renderizarPainelAquisicao(registros = []) {
-            const periodo = Number(document.getElementById('analytics-periodo')?.value || 30);
-            const limite = periodo ? Date.now() - periodo * 86400000 : 0;
+            const periodoSelecionado = document.getElementById('analytics-periodo')?.value || '30';
+            const inicioHoje = new Date();
+            inicioHoje.setHours(0, 0, 0, 0);
+            const periodo = Number(periodoSelecionado);
+            const limite = periodoSelecionado === 'hoje' ? inicioHoje.getTime() : periodo ? Date.now() - periodo * 86400000 : 0;
             const noPeriodo = registros.filter(item => !limite || new Date(item.created_at).getTime() >= limite);
             const origemSelect = document.getElementById('analytics-origem');
             const campanhaSelect = document.getElementById('analytics-campanha');
