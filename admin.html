@@ -458,6 +458,28 @@
             min-width: fit-content;
         }
 
+        .analytics-toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:0 0 18px;padding:14px;border:1px solid #e5ddd1;border-radius:16px;background:#faf8f4}
+        .analytics-toolbar label{display:grid;gap:5px;min-width:150px;color:#64748b;font-size:.6rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
+        .analytics-toolbar select{height:42px;margin:0;padding:0 34px 0 11px;border:1px solid #d9dfe8;border-radius:10px;background:#fff;color:#19385f;font-size:.76rem;font-weight:800}
+        .analytics-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:16px}
+        .analytics-kpi{min-width:0;padding:15px;border:1px solid #e3dccf;border-radius:15px;background:linear-gradient(145deg,#fff,#f8f5ef)}
+        .analytics-kpi span{display:block;color:#718096;font-size:.56rem;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
+        .analytics-kpi b{display:block;margin-top:7px;color:#19385f;font-size:1.45rem;line-height:1}
+        .analytics-kpi small{display:block;margin-top:6px;color:#8090a4;font-size:.6rem;line-height:1.3}
+        .analytics-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:18px}
+        .analytics-panel{min-width:0;padding:17px;border:1px solid #e4ddd2;border-radius:17px;background:#fff}
+        .analytics-panel h3{margin:0 0 4px;color:#19385f;font-size:.93rem}
+        .analytics-panel>p{margin:0 0 14px;color:#718096;font-size:.68rem;line-height:1.4}
+        .analytics-funnel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;align-items:end}
+        .analytics-funnel__step{position:relative;min-height:105px;padding:13px 9px;border-radius:13px;background:#eef4fb;color:#19385f;text-align:center;overflow:hidden}
+        .analytics-funnel__step:nth-child(2){background:#e7f0fa}.analytics-funnel__step:nth-child(3){background:#dceaf7}.analytics-funnel__step:nth-child(4){background:#fff3d8}.analytics-funnel__step:nth-child(5){background:#e4f6ea}
+        .analytics-funnel__step b{display:block;font-size:1.55rem}.analytics-funnel__step span{display:block;margin-top:6px;font-size:.58rem;font-weight:900;text-transform:uppercase}.analytics-funnel__step small{display:block;margin-top:5px;color:#718096;font-size:.56rem}
+        .analytics-ranking{display:grid;gap:8px}.analytics-rank{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}.analytics-rank__label{min-width:0;color:#19385f;font-size:.7rem;font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.analytics-rank__value{color:#19385f;font-size:.68rem;font-weight:900}.analytics-rank__bar{grid-column:1/-1;height:7px;border-radius:999px;background:#edf0f3;overflow:hidden}.analytics-rank__bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#19385f,#c59a4a)}
+        .analytics-empty{padding:18px;border:1px dashed #d8dce2;border-radius:13px;color:#718096;text-align:center;font-size:.72rem}
+        .analytics-section-title{margin:25px 0 12px;color:#19385f;font-size:1rem}
+        @media(max-width:1050px){.analytics-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+        @media(max-width:700px){.analytics-toolbar{display:grid;grid-template-columns:1fr 1fr}.analytics-toolbar label{min-width:0}.analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-grid{grid-template-columns:1fr}.analytics-funnel{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-funnel__step:first-child{grid-column:1/-1}.analytics-kpi{padding:12px}.analytics-kpi b{font-size:1.25rem}}
+
         .visitor-device {
             font-size: 0.6rem;
             opacity: 0.4;
@@ -2181,6 +2203,13 @@
                         LIMPAR</button>
                 </div>
             </div>
+            <div class="analytics-toolbar">
+                <label>Período<select id="analytics-periodo" onchange="carregar(true)"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="0">Todo o histórico</option></select></label>
+                <label>Origem<select id="analytics-origem" onchange="carregar(true)"><option value="">Todas as origens</option></select></label>
+                <label>Campanha<select id="analytics-campanha" onchange="carregar(true)"><option value="">Todas as campanhas</option></select></label>
+            </div>
+            <div id="analytics-resumo"></div>
+            <h3 class="analytics-section-title">Jornada de cada visitante</h3>
             <div id="corpo-rastreio"></div>
         </div>
     </div>
@@ -6065,6 +6094,102 @@
             return catalogo;
         }
 
+        function eventoRastreio(item) {
+            if (item.evento) return String(item.evento);
+            const texto = String(item.produto_nome || '');
+            if (/adicionou/i.test(texto)) return 'add_to_cart';
+            if (/viu/i.test(texto)) return 'product_view';
+            if (/abriu checkout/i.test(texto)) return 'checkout_start';
+            if (/abandonou|saiu sem/i.test(texto)) return 'cart_abandon';
+            if (/buscou/i.test(texto)) return 'search';
+            if (/idade verificada/i.test(texto)) return 'age_confirmed';
+            return 'interaction';
+        }
+
+        function origemRastreio(item) {
+            const nome = String(item.cliente_nome || '');
+            const embutida = nome.match(/^\[([^\]]+)\]/)?.[1];
+            return String(item.utm_source || item.origem || embutida || 'direto').trim().toLowerCase() || 'direto';
+        }
+
+        function rotuloOrigem(valor) {
+            const nomes = { facebook:'Facebook', instagram:'Instagram', google:'Google', whatsapp:'WhatsApp', direto:'Direto', referencia:'Referência' };
+            return nomes[valor] || String(valor || 'Direto').replace(/[-_]/g, ' ').replace(/\b\w/g, letra => letra.toUpperCase());
+        }
+
+        function rankingAnalytics(mapa, vazio = 'Ainda não há dados neste período.') {
+            const itens = [...mapa.entries()].map(([nome,valor]) => [nome, valor instanceof Set ? valor.size : Number(valor || 0)]).sort((a,b)=>b[1]-a[1]).slice(0,7);
+            if (!itens.length) return `<div class="analytics-empty">${vazio}</div>`;
+            const maximo = Math.max(...itens.map(item=>item[1]),1);
+            return `<div class="analytics-ranking">${itens.map(([nome,valor])=>`<div class="analytics-rank"><span class="analytics-rank__label" title="${escapeAdmin(nome)}">${escapeAdmin(nome)}</span><b class="analytics-rank__value">${valor.toLocaleString('pt-BR')}</b><span class="analytics-rank__bar"><i style="width:${Math.max(5,(valor/maximo)*100)}%"></i></span></div>`).join('')}</div>`;
+        }
+
+        function renderizarPainelAquisicao(registros = []) {
+            const periodo = Number(document.getElementById('analytics-periodo')?.value || 30);
+            const limite = periodo ? Date.now() - periodo * 86400000 : 0;
+            const noPeriodo = registros.filter(item => !limite || new Date(item.created_at).getTime() >= limite);
+            const origemSelect = document.getElementById('analytics-origem');
+            const campanhaSelect = document.getElementById('analytics-campanha');
+            const origemAtual = origemSelect?.value || '';
+            const campanhaAtual = campanhaSelect?.value || '';
+            const origens = [...new Set(noPeriodo.map(origemRastreio))].sort();
+            if (origemSelect) origemSelect.innerHTML = '<option value="">Todas as origens</option>' + origens.map(item=>`<option value="${escapeAdmin(item)}" ${item===origemAtual?'selected':''}>${escapeAdmin(rotuloOrigem(item))}</option>`).join('');
+            const aposOrigem = noPeriodo.filter(item => !origemAtual || origemRastreio(item) === origemAtual);
+            const campanhas = [...new Set(aposOrigem.map(item=>String(item.utm_campaign || '').trim()).filter(Boolean))].sort();
+            if (campanhaSelect) campanhaSelect.innerHTML = '<option value="">Todas as campanhas</option>' + campanhas.map(item=>`<option value="${escapeAdmin(item)}" ${item===campanhaAtual?'selected':''}>${escapeAdmin(item)}</option>`).join('');
+            const filtrados = aposOrigem.filter(item => !campanhaAtual || String(item.utm_campaign || '') === campanhaAtual);
+            const chaveVisitante = item => item.device_id || item.ip || `anon-${item.id}`;
+            const visitantes = new Set(filtrados.map(chaveVisitante));
+            const sessoes = new Set(filtrados.map(item => item.session_id || `${chaveVisitante(item)}-${String(item.created_at || '').slice(0,10)}`));
+            const porEvento = tipo => new Set(filtrados.filter(item => eventoRastreio(item) === tipo).map(chaveVisitante));
+            const viramProduto = porEvento('product_view');
+            const adicionaram = porEvento('add_to_cart');
+            const checkout = porEvento('checkout_start');
+            const pedidos = porEvento('order_created');
+            const vindosAnuncio = new Set(filtrados.filter(item => ['facebook','instagram','google'].includes(origemRastreio(item)) || Boolean(item.click_id)).map(chaveVisitante));
+            const conversao = visitantes.size ? (pedidos.size / visitantes.size) * 100 : 0;
+            const origemMapa = new Map(), campanhaMapa = new Map(), produtoMapa = new Map(), paginaMapa = new Map(), localMapa = new Map();
+            filtrados.forEach(item => {
+                const visitante = chaveVisitante(item);
+                const origem = rotuloOrigem(origemRastreio(item));
+                if (!origemMapa.has(origem)) origemMapa.set(origem,new Set()); origemMapa.get(origem).add(visitante);
+                const campanha = String(item.utm_campaign || '').trim();
+                if (campanha) { if (!campanhaMapa.has(campanha)) campanhaMapa.set(campanha,new Set()); campanhaMapa.get(campanha).add(visitante); }
+                if (eventoRastreio(item) === 'product_view') {
+                    const produto = String(item.produto_nome || 'Produto').replace(/^.*?Viu:?\s*/i,'').trim();
+                    produtoMapa.set(produto,(produtoMapa.get(produto)||0)+1);
+                }
+                if (eventoRastreio(item) === 'page_view') {
+                    const pagina = String(item.url_path || item.pagina || 'Página inicial');
+                    if (!paginaMapa.has(pagina)) paginaMapa.set(pagina,new Set()); paginaMapa.get(pagina).add(visitante);
+                }
+                const local = String(item.local || '').replace(/DISP_[A-Z0-9_]+/gi,'').replace(/\([^)]*\)/g,'').trim();
+                if (local && !/oculta|localiza/i.test(local)) { if (!localMapa.has(local)) localMapa.set(local,new Set()); localMapa.get(local).add(visitante); }
+            });
+            const etapas = [
+                ['Visitantes',visitantes.size,'100%'],['Viram produto',viramProduto.size,visitantes.size?`${Math.round(viramProduto.size/visitantes.size*100)}% dos visitantes`:'—'],
+                ['Adicionaram',adicionaram.size,viramProduto.size?`${Math.round(adicionaram.size/viramProduto.size*100)}% do interesse`:'—'],['Checkout',checkout.size,adicionaram.size?`${Math.round(checkout.size/adicionaram.size*100)}% das sacolas`:'—'],['Pedidos',pedidos.size,checkout.size?`${Math.round(pedidos.size/checkout.size*100)}% dos checkouts`:'—']
+            ];
+            document.getElementById('analytics-resumo').innerHTML = `
+                <div class="analytics-kpis">
+                    <div class="analytics-kpi"><span>Visitantes</span><b>${visitantes.size.toLocaleString('pt-BR')}</b><small>pessoas/aparelhos únicos</small></div>
+                    <div class="analytics-kpi"><span>Sessões</span><b>${sessoes.size.toLocaleString('pt-BR')}</b><small>visitas realizadas</small></div>
+                    <div class="analytics-kpi"><span>Vindos de anúncios</span><b>${vindosAnuncio.size.toLocaleString('pt-BR')}</b><small>Facebook, Instagram e Google</small></div>
+                    <div class="analytics-kpi"><span>Interesse em produto</span><b>${viramProduto.size.toLocaleString('pt-BR')}</b><small>visitantes que abriram produto</small></div>
+                    <div class="analytics-kpi"><span>Sacolas</span><b>${adicionaram.size.toLocaleString('pt-BR')}</b><small>visitantes que adicionaram item</small></div>
+                    <div class="analytics-kpi"><span>Conversão</span><b>${conversao.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</b><small>${pedidos.size} pedido${pedidos.size===1?'':'s'} criado${pedidos.size===1?'':'s'}</small></div>
+                </div>
+                <div class="analytics-grid">
+                    <section class="analytics-panel"><h3>Funil de comportamento</h3><p>Mostra em qual etapa as pessoas deixam de avançar.</p><div class="analytics-funnel">${etapas.map(([nome,valor,nota])=>`<div class="analytics-funnel__step"><b>${valor}</b><span>${nome}</span><small>${nota}</small></div>`).join('')}</div></section>
+                    <section class="analytics-panel"><h3>Origem dos visitantes</h3><p>Compare anúncios, redes sociais e acessos diretos.</p>${rankingAnalytics(origemMapa)}</section>
+                    <section class="analytics-panel"><h3>Campanhas que trouxeram pessoas</h3><p>Use <b>utm_campaign</b> nos links dos anúncios para identificar cada campanha.</p>${rankingAnalytics(campanhaMapa,'Nenhuma campanha identificada. Use parâmetros UTM nos anúncios.')}</section>
+                    <section class="analytics-panel"><h3>Produtos mais vistos</h3><p>Interesse real antes da compra.</p>${rankingAnalytics(produtoMapa)}</section>
+                    <section class="analytics-panel"><h3>Páginas de entrada e navegação</h3><p>Onde os visitantes chegaram ou navegaram.</p>${rankingAnalytics(paginaMapa)}</section>
+                    <section class="analytics-panel"><h3>Localização aproximada</h3><p>Cidades que mais demonstraram interesse.</p>${rankingAnalytics(localMapa)}</section>
+                </div>`;
+            return filtrados;
+        }
+
         async function carregar(silencioso = false) {
             const btn = document.getElementById('btn-refresh-rastreio');
             if (btn && !silencioso) btn.classList.add('loading');
@@ -6103,11 +6228,13 @@
                 insumosEnvaseAtuais = insumosResumo || [];
                 receitasEnvaseAtuais = receitasResumo || [];
 
+                const rastreioFiltrado = renderizarPainelAquisicao(rastreio || []);
+
                 // Processar Rastreio (Visitantes por Dispositivo)
                 let trackerMap = {};
                 const agora = new Date();
-                if (rastreio) {
-                    rastreio.forEach(r => {
+                if (rastreioFiltrado) {
+                    rastreioFiltrado.forEach(r => {
                         const chave = r.device_id || r.ip;
                         const nomeCliente = r.cliente_nome && r.cliente_nome !== 'Anônimo' ? r.cliente_nome : null;
 

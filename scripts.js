@@ -445,15 +445,24 @@ async function rastrearAcao(label, acao = "") {
         const origem = getReferrer();
         const prefixoOrigem = (origem && origem !== "DIRETO") ? `[${origem}] ` : "";
 
-        if (db) {
-            const { error } = await db.from('rastreio_carrinho').insert([{
-                device_id: deviceId,
-                produto_nome: acao ? `${acao}: ${label}` : label,
+        const evento = acao.includes('Buscou') ? 'search'
+            : acao.includes('Adicionou') ? 'add_to_cart'
+            : acao.includes('Viu') ? 'product_view'
+            : acao.includes('Abriu Checkout') ? 'checkout_start'
+            : acao.includes('Abandonou') || acao.includes('Saiu sem') ? 'cart_abandon'
+            : acao.includes('Voltou') ? 'cart_return'
+            : acao.includes('Pulso') ? 'heartbeat'
+            : acao.includes('🔞') ? 'age_confirmed'
+            : 'interaction';
+
+        if (window.TioNanAnalytics) {
+            await window.TioNanAnalytics.track(evento, {
+                label,
+                acao,
                 cliente_nome: prefixoOrigem + (visitorName === 'Anônimo' ? `${infoAparelho} Anônimo` : visitorName),
                 ip: `${infoAparelho} ${userIP}`,
                 local: localStr
-            }]);
-            if (error) console.warn("Erro rastreio:", error.message);
+            });
         }
 
         if (canalPresenca) atualizarPresenca();
@@ -2669,6 +2678,7 @@ async function checkout() {
                 if (!data?.checkout_url) throw new Error(data?.error || "O checkout não retornou um endereço de pagamento.");
                 salvarClienteRecenteCheckout(cpf, email, nome, telefone, enderecoPayload);
                 sessionStorage.setItem('tioNanPedidoPendente', data.pedido || '');
+                await window.TioNanAnalytics?.track('order_created', { label:data.pedido || 'Pedido Mercado Pago', valor:valorTotalComFrete, metadata:{ pagamento:'Mercado Pago' } });
                 window.location.assign(data.checkout_url);
                 return;
             } catch (paymentError) {
@@ -2712,6 +2722,7 @@ async function checkout() {
         }
         if (!data?.tracking_token) throw new Error(data?.error || 'O pedido foi criado sem código de acompanhamento.');
         salvarClienteRecenteCheckout(cpf, email, nome, telefone, enderecoPayload);
+        await window.TioNanAnalytics?.track('order_created', { label:data.pedido || 'Pedido criado', valor:valorTotalComFrete, metadata:{ pagamento:pag } });
         cancelarRecuperacaoCarrinho();
         localStorage.setItem('tioNanUltimoPedido', data.tracking_token);
         cart = [];
