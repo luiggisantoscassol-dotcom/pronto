@@ -206,8 +206,8 @@ function formatarNomeAvaliacao(nome, fallback = 'Cliente Tio Nan') {
 
 const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
-const MERCADO_PAGO_BRICK_TEST = false;
-const MERCADO_PAGO_TEST_PUBLIC_KEY = 'TEST-481bc042-5346-46e0-8567-c2fc4346ce41';
+const MERCADO_PAGO_BRICK_ENABLED = true;
+const MERCADO_PAGO_PUBLIC_KEY = 'APP_USR-5994a629-0c21-4af7-8cac-b23a67bcdc37';
 let paymentBrickController = null;
 let statusScreenBrickController = null;
 let mercadoPagoBricksBuilder = null;
@@ -2441,10 +2441,8 @@ async function renderizarStatusMercadoPago(paymentId) {
 async function renderizarPaymentBrick(orderPayload, amount) {
     if (!window.MercadoPago) throw new Error('O componente seguro do Mercado Pago não carregou.');
     const button = document.getElementById('btn-finalizar');
-    const notice = document.getElementById('mp-sandbox-aviso');
     const container = document.getElementById('paymentBrick_container');
     if (button) button.style.display = 'none';
-    notice.style.display = 'block';
     container.style.display = 'block';
 
     if (paymentBrickController) await paymentBrickController.unmount();
@@ -2452,7 +2450,7 @@ async function renderizarPaymentBrick(orderPayload, amount) {
         await statusScreenBrickController.unmount();
         statusScreenBrickController = null;
     }
-    const mercadoPago = new window.MercadoPago(MERCADO_PAGO_TEST_PUBLIC_KEY, { locale: 'pt-BR' });
+    const mercadoPago = new window.MercadoPago(MERCADO_PAGO_PUBLIC_KEY, { locale: 'pt-BR' });
     mercadoPagoBricksBuilder = mercadoPago.bricks();
     paymentBrickController = await mercadoPagoBricksBuilder.create('payment', 'paymentBrick_container', {
         initialization: {
@@ -2477,10 +2475,10 @@ async function renderizarPaymentBrick(orderPayload, amount) {
             onSubmit: async ({ formData }) => {
                 try {
                     const { data, error } = await db.functions.invoke('mercado-pago-checkout', {
-                        body: { ...orderPayload, sandbox: true, payment: formData }
+                        body: { ...orderPayload, payment: formData }
                     });
                     if (error) {
-                        let message = error.message || 'Falha ao processar o pagamento de teste.';
+                        let message = error.message || 'Falha ao processar o pagamento.';
                         try {
                             const body = await error.context?.json?.();
                             message = [body?.error, body?.detail].filter(Boolean).join(' — ') || message;
@@ -2493,7 +2491,7 @@ async function renderizarPaymentBrick(orderPayload, amount) {
                     await renderizarStatusMercadoPago(data.payment_id);
                 } catch (error) {
                     console.error('Erro no pagamento incorporado:', error);
-                    alert(`Não foi possível processar o teste.\n\n${error?.message || 'Tente novamente.'}`);
+                    alert(`Não foi possível processar o pagamento.\n\n${error?.message || 'Tente novamente.'}`);
                     throw error;
                 }
             }
@@ -2604,7 +2602,7 @@ async function checkout() {
             cupomMsg = `\n🏷️ Cupom: *${cupomDescontoAtivo}* (Desconto: -R$ ${valorDesconto.toFixed(2).replace('.', ',')})`;
         }
 
-        if (pag === "Mercado Pago" && MERCADO_PAGO_BRICK_TEST) {
+        if (pag === "Mercado Pago" && MERCADO_PAGO_BRICK_ENABLED) {
             const enderecoPayload = (entrega === 'tele' || entregaPorTransportadora(entrega)) ? {
                 cep: document.getElementById('cep').value,
                 rua: document.getElementById('rua').value,

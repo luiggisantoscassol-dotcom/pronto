@@ -353,7 +353,7 @@ Deno.serve(async (request) => {
   // O checkout pode ser iniciado no localhost, mas o retorno sempre vai ao site oficial.
   const site = DEFAULT_SITE;
   const functionUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/mercado-pago-webhook`;
-  if (sandbox) {
+  if (payload?.payment && typeof payload.payment === "object") {
     const rawPayment = payload?.payment || {};
     const paymentMethodId = String(rawPayment.payment_method_id || "");
     if (!paymentMethodId) {
@@ -365,9 +365,9 @@ Deno.serve(async (request) => {
       description: `Pedido Tio Nan — ${lines.map((item) => item.nome).join(", ").slice(0, 180)}`,
       payment_method_id: paymentMethodId,
       external_reference: reference,
-      notification_url: `${functionUrl}?sandbox=1`,
+      notification_url: `${functionUrl}${sandbox ? "?sandbox=1" : ""}`,
       payer: { email, first_name: name, identification: { type: "CPF", number: cpf } },
-      metadata: { pedido_referencia: reference, cliente_telefone: phone, sandbox: true },
+      metadata: { pedido_referencia: reference, cliente_telefone: phone, sandbox },
     };
     if (rawPayment.token) paymentBody.token = String(rawPayment.token);
     if (rawPayment.issuer_id) paymentBody.issuer_id = String(rawPayment.issuer_id);
@@ -380,10 +380,12 @@ Deno.serve(async (request) => {
     const payment = await paymentResponse.json().catch(() => ({}));
     if (!paymentResponse.ok || !payment?.id) {
       await db.from("pedidos").update({ status_pagamento: "erro", mercado_pago_status: "payment_error", atualizado_em: new Date().toISOString() }).eq("referencia", reference);
-      return respond(origin, { error: "O Mercado Pago recusou o pagamento de teste.", detail: payment?.message || payment?.cause?.[0]?.description || payment?.error }, 502);
+      return respond(origin, { error: "O Mercado Pago recusou o pagamento.", detail: payment?.message || payment?.cause?.[0]?.description || payment?.error }, 502);
     }
     const paymentStatus = String(payment.status || "pending");
-    const localStatus = paymentStatus === "approved" ? "pago_teste" : paymentStatus === "rejected" ? "cancelado_teste" : "pendente_teste";
+    const localStatus = sandbox
+      ? paymentStatus === "approved" ? "pago_teste" : paymentStatus === "rejected" ? "cancelado_teste" : "pendente_teste"
+      : paymentStatus === "approved" ? "pago" : paymentStatus === "rejected" ? "cancelado" : "pendente";
     await db.from("pedidos").update({
       mercado_pago_payment_id: String(payment.id),
       mercado_pago_status: paymentStatus,
@@ -405,7 +407,7 @@ Deno.serve(async (request) => {
       if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
       else console.error("Falha ao enviar confirmação do pedido", emailResult.error);
     }
-    return respond(origin, { ok: true, sandbox: true, pedido: reference, tracking_token: trackingToken, payment_id: String(payment.id), status: paymentStatus, status_detail: payment.status_detail });
+    return respond(origin, { ok: true, sandbox, pedido: reference, tracking_token: trackingToken, payment_id: String(payment.id), status: paymentStatus, status_detail: payment.status_detail });
   }
 
   const preferenceResponse = await fetch(`${MP_API}/checkout/preferences`, {
