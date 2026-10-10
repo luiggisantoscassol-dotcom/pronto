@@ -79,6 +79,14 @@ Deno.serve(async (request) => {
       return respond(origin, { error: "A entrega local de R$ 15 está disponível somente para Porto Alegre, Viamão e Canoas." }, 400);
     }
   }
+  if (isCash) {
+    const deliveryCity = normalize(String(payload?.endereco?.cidade || ""));
+    const deliveryState = String(payload?.endereco?.estado || "").trim().toUpperCase();
+    const cashAllowed = delivery === "retirada" || (deliveryState === "RS" && deliveryCity === "porto alegre");
+    if (!cashAllowed) {
+      return respond(origin, { error: "O pagamento em dinheiro está disponível somente para entregas em Porto Alegre ou retirada na loja." }, 400);
+    }
+  }
 
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   if (isTest) {

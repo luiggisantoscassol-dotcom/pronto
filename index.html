@@ -328,8 +328,7 @@
 
             <select id="metodo-pagamento" class="cart-input" onchange="handlePagamentoChange()">
                 <option value="Mercado Pago" selected>Pix ou cartão — Mercado Pago</option>
-                <option value="Dinheiro">Dinheiro</option>
-                <option id="opcao-pagamento-teste" value="Teste" hidden disabled>Pagamento de teste — sem cobrança</option>
+                <option value="Dinheiro">Dinheiro — somente Porto Alegre</option>
             </select>
 
             <div id="bloco-troco" class="bloco-troco" style="display:none;">
@@ -354,9 +353,6 @@
                 <svg viewBox="0 0 24 24" style="width:20px; fill:currentColor;" aria-hidden="true"><path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4V6Zm3 9.73V18h-2v-2.27a2 2 0 1 1 2 0Z" /></svg>
                 <span id="btn-finalizar-texto">Ir para pagamento seguro</span>
             </button>
-            <div id="mp-sandbox-aviso" style="display:none; margin:16px 0 10px; padding:11px 14px; border:1px solid rgba(166,124,55,.35); border-radius:10px; background:rgba(166,124,55,.08); color:var(--blue-navy); font-size:.72rem; font-weight:800; letter-spacing:.7px; text-align:center; text-transform:uppercase;">
-                Ambiente de teste — nenhuma cobrança real
-            </div>
             <div id="paymentBrick_container" style="display:none;"></div>
             <div id="statusScreenBrick_container" style="display:none;"></div>
             <button type="button" class="btn-voltar-etapa" onclick="mostrarEtapaCheckout('entrega')">Voltar para entrega</button>
@@ -466,7 +462,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="site-analytics.js?v=2"></script>
-    <script src="scripts.js?v=6.36"></script>
+    <script src="scripts.js?v=6.37"></script>
 </body>
 
 </html>

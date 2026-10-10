@@ -206,7 +206,7 @@ function formatarNomeAvaliacao(nome, fallback = 'Cliente Tio Nan') {
 
 const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
-const MERCADO_PAGO_BRICK_TEST = true;
+const MERCADO_PAGO_BRICK_TEST = false;
 const MERCADO_PAGO_TEST_PUBLIC_KEY = 'TEST-481bc042-5346-46e0-8567-c2fc4346ce41';
 let paymentBrickController = null;
 let statusScreenBrickController = null;
@@ -498,17 +498,15 @@ function atualizarPagamentoPorEntrega() {
     const pagamento = document.getElementById('metodo-pagamento');
     if (!pagamento) return;
     const opcaoDinheiro = [...pagamento.options].find(option => option.value === 'Dinheiro');
-    const opcaoTeste = [...pagamento.options].find(option => option.value === 'Teste');
-    const ambienteLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const cidade = document.getElementById('cidade')?.value || '';
+    const entrega = document.getElementById('metodo-entrega')?.value || '';
+    const cidadeNormalizada = cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLowerCase();
+    const dinheiroPermitido = entrega === 'retirada' || cidadeNormalizada === 'porto alegre';
     if (opcaoDinheiro) {
-        opcaoDinheiro.hidden = false;
-        opcaoDinheiro.disabled = false;
+        opcaoDinheiro.hidden = !dinheiroPermitido;
+        opcaoDinheiro.disabled = !dinheiroPermitido;
     }
-    if (opcaoTeste) {
-        opcaoTeste.hidden = !ambienteLocal;
-        opcaoTeste.disabled = !ambienteLocal;
-    }
-    if (!ambienteLocal && pagamento.value === 'Teste') pagamento.value = 'Mercado Pago';
+    if (!dinheiroPermitido && pagamento.value === 'Dinheiro') pagamento.value = 'Mercado Pago';
 }
 
 function valorFreteAtual() {
@@ -2308,14 +2306,12 @@ async function handlePagamentoChange() {
     const btnTexto = document.getElementById('btn-finalizar-texto');
     if (blocoTroco) blocoTroco.style.display = (pag === 'Dinheiro') ? 'block' : 'none';
     if (btnFinalizar) btnFinalizar.style.display = 'flex';
-    if (btnTexto) btnTexto.textContent = pag === 'Dinheiro' ? 'Finalizar pedido' : pag === 'Teste' ? 'Criar pedido de teste' : 'Ir para pagamento seguro';
-    if (pag === 'Dinheiro' || pag === 'Teste') {
+    if (btnTexto) btnTexto.textContent = pag === 'Dinheiro' ? 'Finalizar pedido' : 'Ir para pagamento seguro';
+    if (pag === 'Dinheiro') {
         const paymentBrick = document.getElementById('paymentBrick_container');
         const statusBrick = document.getElementById('statusScreenBrick_container');
-        const avisoSandbox = document.getElementById('mp-sandbox-aviso');
         if (paymentBrick) paymentBrick.style.display = 'none';
         if (statusBrick) statusBrick.style.display = 'none';
-        if (avisoSandbox) avisoSandbox.style.display = 'none';
         return;
     }
 
@@ -2549,6 +2545,12 @@ async function checkout() {
             if (entrega === 'tele' && !CIDADES_PERMITIDAS.some(c => c.localeCompare(valor('cidade'), 'pt-BR', { sensitivity: 'base' }) === 0)) return showError('cidade');
         }
         if (!pag || pag === "none") return showError('metodo-pagamento');
+        const cidadePagamento = (document.getElementById('cidade')?.value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLowerCase();
+        if (pag === 'Dinheiro' && entrega !== 'retirada' && cidadePagamento !== 'porto alegre') {
+            atualizarPagamentoPorEntrega();
+            alert('O pagamento em dinheiro está disponível somente para entregas em Porto Alegre. Escolha Pix ou cartão pelo Mercado Pago.');
+            return;
+        }
         if (pag === 'Dinheiro' && document.getElementById('precisa-troco').checked && !document.getElementById('troco').value.trim()) {
             return showError('troco');
         }
