@@ -206,7 +206,7 @@ function formatarNomeAvaliacao(nome, fallback = 'Cliente Tio Nan') {
 
 const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
-const MERCADO_PAGO_BRICK_ENABLED = false;
+const MERCADO_PAGO_BRICK_ENABLED = true;
 const MERCADO_PAGO_PUBLIC_KEY = 'APP_USR-5994a629-0c21-4af7-8cac-b23a67bcdc37';
 let paymentBrickController = null;
 let statusScreenBrickController = null;
