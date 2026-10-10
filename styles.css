@@ -865,6 +865,7 @@
         }
 
         .swiper-hero .hero-link { display:block; }
+        .swiper-hero .hero-link-mobile { display:none; }
 
         @media (min-width: 769px) {
             .swiper-hero {
@@ -908,13 +909,15 @@
         }
 
         @media (max-width: 768px) {
+            .swiper-hero .hero-link-desktop { display:none; }
+            .swiper-hero .hero-link-mobile { display:block; }
             .swiper-hero,
-            .swiper-hero picture,
-            .swiper-hero picture img {
+            .swiper-hero .hero-link-mobile,
+            .swiper-hero .hero-link-mobile img {
                 width: 100%;
             }
 
-            .swiper-hero picture img {
+            .swiper-hero .hero-link-mobile img {
                 border-radius: 0;
                 height: auto;
                 max-height: none;
