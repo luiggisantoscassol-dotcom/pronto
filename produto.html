@@ -481,7 +481,7 @@
       window.TioNanAnalytics?.track('product_view', { label:selectedProduct.nome, produto_id:selectedProduct.id, valor:Number(selectedProduct.preco || 0) });
       const review = await reviewsFor(selectedProduct.nome);
       render(selectedProduct, review);
-      if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+      if (/(^|\.)tionan\.com\.br$/i.test(window.location.hostname)) {
         const friendlyPath = `/produtos/${productSlug(selectedProduct.nome)}`;
         if (window.location.pathname !== friendlyPath) history.replaceState(null, '', friendlyPath);
       }

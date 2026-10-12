@@ -531,10 +531,10 @@ function slugProduto(nome = '') {
 }
 
 function urlProduto(produto = {}) {
-    const ambienteLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-    return ambienteLocal
-        ? `produto.html?id=${encodeURIComponent(produto.id)}`
-        : `/produtos/${slugProduto(produto.nome)}`;
+    const dominioOficial = /(^|\.)tionan\.com\.br$/i.test(window.location.hostname);
+    return dominioOficial
+        ? `/produtos/${slugProduto(produto.nome)}`
+        : `produto.html?id=${encodeURIComponent(produto.id)}`;
 }
 
 function chaveSaborAvaliacao(nome = '') {
