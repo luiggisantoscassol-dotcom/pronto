@@ -477,8 +477,13 @@
         .analytics-ranking{display:grid;gap:8px}.analytics-rank{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}.analytics-rank__label{min-width:0;color:#19385f;font-size:.7rem;font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.analytics-rank__value{color:#19385f;font-size:.68rem;font-weight:900}.analytics-rank__bar{grid-column:1/-1;height:7px;border-radius:999px;background:#edf0f3;overflow:hidden}.analytics-rank__bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#19385f,#c59a4a)}
         .analytics-empty{padding:18px;border:1px dashed #d8dce2;border-radius:13px;color:#718096;text-align:center;font-size:.72rem}
         .analytics-section-title{margin:25px 0 12px;color:#19385f;font-size:1rem}
+        .visitor-journey{margin-top:12px;padding:14px 16px;border:1px solid #d7e0ea;border-radius:13px;background:#f5f8fc;color:#19385f;font-size:.76rem;line-height:1.45;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+        .visitor-journey ul{display:grid;gap:0;margin:0;padding:0;list-style:none}
+        .visitor-journey li{padding:9px 2px;border-bottom:1px solid #dce4ed;color:#304a69;font-weight:700;overflow-wrap:anywhere}
+        .visitor-journey li:last-child{border-bottom:0}
+        .visitor-journey>a{margin-bottom:12px!important}
         @media(max-width:1050px){.analytics-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
-        @media(max-width:700px){.analytics-toolbar{display:grid;grid-template-columns:1fr 1fr}.analytics-toolbar label{min-width:0}.analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-grid{grid-template-columns:1fr}.analytics-funnel{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-funnel__step:first-child{grid-column:1/-1}.analytics-kpi{padding:12px}.analytics-kpi b{font-size:1.25rem}}
+        @media(max-width:700px){.analytics-toolbar{display:grid;grid-template-columns:1fr 1fr}.analytics-toolbar label{min-width:0}.analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-grid{grid-template-columns:1fr}.analytics-funnel{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-funnel__step:first-child{grid-column:1/-1}.analytics-kpi{padding:12px}.analytics-kpi b{font-size:1.25rem}.visitor-journey{padding:10px 12px;font-size:.72rem}.visitor-journey li{padding:9px 0}}
 
         .visitor-device {
             font-size: 0.6rem;
@@ -6398,9 +6403,9 @@
                                     <span class="order-details" style="font-size:0.6rem;">Último: ${formatarDataHora(d.ultimo)}</span>
                                 </div>
                             </div>
-                            <div id="detalhe-${index}" style="display:${trackingAberto === id ? 'block' : 'none'}; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 10px; font-size: 0.8rem; color: #aaa;">
+                            <div id="detalhe-${index}" class="visitor-journey" style="display:${trackingAberto === id ? 'block' : 'none'};">
                                 ${botaoWhatsVisitante}
-                                <ul style="list-style: none; padding:0;">${listaItens}</ul>
+                                <ul>${listaItens}</ul>
                             </div>
                         </div>`;
                 });
