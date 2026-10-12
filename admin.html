@@ -6579,7 +6579,7 @@
 
                         const acoesProduto = p.somente_catalogo ? `<span class="admin-chip warn">AGUARDANDO SINCRONIZAÇÃO</span>` : `
                             <button onclick="copiarLinkVIP('${id}', '${nS}')" style="background:#f3f0ea; border:none; border-radius:50%; width:40px; height:40px; color:#53657c; cursor:pointer; font-size:1.1rem;" title="Copiar Link VIP">🔗</button>
-                            <button onclick="toggleVisibilidade('${id}', ${visivel})" style="background:#f3f0ea; border:none; border-radius:50%; width:40px; height:40px; color:${visivel ? 'var(--text-gold)' : '#777'}; cursor:pointer; font-size:1.2rem;" title="${visivel ? 'Visível no Catálogo' : 'Oculto no Catálogo'}">${visivel ? '👁️' : '👁️‍🗨️'}</button>
+                            <button type="button" onclick="toggleVisibilidade('${id}', ${visivel})" style="background:#f3f0ea; border:none; border-radius:50%; width:40px; height:40px; color:${visivel ? 'var(--text-gold)' : '#777'}; cursor:pointer; font-size:1.2rem;" title="${visivel ? 'Ocultar produto do site' : 'Mostrar produto no site'}" aria-label="${visivel ? 'Ocultar produto do site' : 'Mostrar produto no site'}" aria-pressed="${visivel}">${visivel ? '👁️' : '👁️‍🗨️'}</button>
                             <button onclick="abrirEdicao('${id}','${nS}',${pr},${cus},'${desc}','${teor}','${harm}')" style="background:#f3f0ea; border:none; border-radius:50%; width:40px; height:40px; color:var(--text-gold); cursor:pointer;">✏️</button>`;
                         const classeSaldoBling = e <= 0 ? 'estoque-saldo-bling--zerado' : e <= 3 ? 'estoque-saldo-bling--baixo' : '';
                         const controleEstoque = p.somente_catalogo ? `<div class="admin-chip" style="padding:10px 14px">CLIQUE EM SINCRONIZAR COM BLING</div>` : p.bling_id ? `<div><div class="estoque-saldo-bling ${classeSaldoBling}"><strong class="estoque-saldo-bling__numero">${e}</strong><span class="estoque-saldo-bling__texto"><b>${p.tipo_produto === 'kit' ? 'Kits disponíveis' : 'Garrafas disponíveis'}</b><small>${p.tipo_produto === 'kit' ? `Calculado por ${Number(p.unidades_por_kit || 1)} garrafas/kit` : 'Saldo físico do Bling'}</small></span></div><small style="display:block;margin-top:9px;color:#718096">Última sincronização: ${p.bling_sincronizado_em ? new Date(p.bling_sincronizado_em).toLocaleString('pt-BR') : 'não informada'}</small></div>` : `
@@ -6751,13 +6751,15 @@
         }
 
         async function toggleVisibilidade(id, estadoAtual) {
-            showToast("Alterando visibilidade...");
-            const { error } = await db.from('produtos').update({ visivel: !estadoAtual }).eq('id', id);
+            const novoEstado = !estadoAtual;
+            showToast(novoEstado ? "Mostrando produto no site..." : "Ocultando produto do site...");
+            const { error } = await db.from('produtos').update({ visivel: novoEstado }).eq('id', id);
             if (error) {
                 console.error(error);
                 alert("Erro ao alterar visibilidade. Verifique se a coluna 'visivel' (boolean) existe na tabela 'produtos' no Supabase.");
             } else {
-                carregar();
+                showToast(novoEstado ? "Produto visível no site." : "Produto oculto do site.");
+                await carregar();
             }
         }
 
