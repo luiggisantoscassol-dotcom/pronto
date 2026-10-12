@@ -25,39 +25,6 @@ export async function sendOrderConfirmation(input: { email: string; name: string
   return response.ok ? { ok: true, data } : { ok: false, error: data?.message || "Falha no envio" };
 }
 
-export async function sendPixGeneratedEmail(input: { email: string; name: string; reference: string; trackingToken: string; paymentId: string; amount: number; pixCode: string; paymentUrl?: string; expiresAt?: string }) {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
-  if (!apiKey) return { ok: false, error: "RESEND_API_KEY ausente" };
-  const trackingUrl = `https://www.tionan.com.br/pedido.html?token=${encodeURIComponent(input.trackingToken)}`;
-  const shortReference = input.reference.slice(0, 8).toUpperCase();
-  const name = escapeHtml(input.name);
-  const pixCode = escapeHtml(input.pixCode);
-  const amount = Number(input.amount || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  const expiration = input.expiresAt
-    ? new Date(input.expiresAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short" })
-    : "consulte o prazo na tela de pagamento";
-  const paymentButton = input.paymentUrl
-    ? `<a href="${escapeHtml(input.paymentUrl)}" style="display:block;margin:24px 0 14px;padding:17px;text-align:center;background:#1b365d;color:#fff;text-decoration:none;border:1px solid #c5a059;border-radius:12px;font-weight:800">ABRIR PAGAMENTO PIX</a>`
-    : "";
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      "content-type": "application/json",
-      "idempotency-key": `pix-gerado-${input.reference}-${input.paymentId}`,
-    },
-    body: JSON.stringify({
-      from: "Tio Nan <pedidos@mail.tionan.com.br>",
-      to: [input.email],
-      subject: `Seu Pix de ${amount} está pronto — ${shortReference} | Tio Nan`,
-      html: `<!doctype html><html><body style="margin:0;background:#f7f4ee;font-family:Arial,sans-serif;color:#1b365d"><div style="max-width:580px;margin:0 auto;padding:36px 18px"><div style="background:#fff;border-radius:18px;padding:34px;border:1px solid #e5e0d7"><div style="text-align:center;margin-bottom:26px"><img src="https://www.tionan.com.br/logo-tio-nan-email.png" width="190" alt="Tio Nan" style="display:block;width:190px;max-width:70%;height:auto;margin:0 auto"></div><h1 style="font-size:25px;text-align:center;margin:0 0 14px">Seu Pix está pronto</h1><p style="line-height:1.6;color:#667085">Olá, ${name}! Geramos o Pix de <strong>${escapeHtml(amount)}</strong> para o pedido <strong>${shortReference}</strong>.</p>${paymentButton}<p style="font-size:13px;color:#667085;margin:18px 0 8px"><strong>Pix Copia e Cola:</strong></p><div style="padding:15px;background:#f7f4ee;border:1px solid #e5e0d7;border-radius:10px;font-family:monospace;font-size:12px;line-height:1.5;overflow-wrap:anywhere;color:#1b365d">${pixCode}</div><p style="font-size:13px;line-height:1.6;color:#8a8f98">Validade: ${escapeHtml(expiration)}. O pedido será confirmado somente depois que o Mercado Pago identificar o pagamento.</p><a href="${trackingUrl}" style="display:block;margin:18px 0;padding:14px;text-align:center;color:#1b365d;text-decoration:none;border:1px solid #1b365d;border-radius:12px;font-weight:800">ACOMPANHAR PEDIDO</a><p style="font-size:12px;line-height:1.6;color:#8a8f98">Por segurança, confira se o recebedor exibido pelo seu banco corresponde à Tio Nan antes de pagar.<br><strong>Equipe Tio Nan</strong></p></div></div></body></html>`,
-      text: `Olá, ${input.name}! Seu Pix de ${amount} para o pedido ${shortReference} está pronto. Pix Copia e Cola: ${input.pixCode}. Validade: ${expiration}. O pedido será confirmado após o pagamento. Acompanhe em: ${trackingUrl}`,
-    }),
-  });
-  const data = await response.json().catch(() => ({}));
-  return response.ok ? { ok: true, data } : { ok: false, error: data?.message || "Falha no envio do Pix" };
-}
-
 const STATUS_CONTENT: Record<string, { subject: string; title: string; message: string }> = {
   "Confirmado": { subject: "Tudo certo com seu pedido 🥃", title: "Pedido confirmado!", message: "Está tudo certo: confirmamos seu pedido e ele já entrou na nossa fila de cuidados." },
   "Em Preparo": { subject: "Sua Tio Nan está sendo preparada", title: "Mãos à obra por aqui!", message: "Sua Tio Nan já está sendo preparada com todo o cuidado para seguir viagem." },

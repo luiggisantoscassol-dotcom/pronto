@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { sendOrderConfirmation, sendPixGeneratedEmail } from "../_shared/order-email.ts";
+import { sendOrderConfirmation } from "../_shared/order-email.ts";
 
 const MP_API = "https://api.mercadopago.com";
 const DEFAULT_SITE = "https://www.tionan.com.br";
@@ -395,24 +395,6 @@ Deno.serve(async (request) => {
       atualizado_em: new Date().toISOString(),
     }).eq("referencia", reference);
     await saveClient();
-    if (String(payment.payment_method_id || paymentMethodId) === "pix") {
-      const transactionData = payment?.point_of_interaction?.transaction_data || {};
-      const pixCode = String(transactionData.qr_code || "");
-      if (pixCode) {
-        const pixEmail = await sendPixGeneratedEmail({
-          email,
-          name,
-          reference,
-          trackingToken,
-          paymentId: String(payment.id),
-          amount: total,
-          pixCode,
-          paymentUrl: String(transactionData.ticket_url || "") || undefined,
-          expiresAt: String(payment.date_of_expiration || "") || undefined,
-        });
-        if (!pixEmail.ok) console.error("Falha ao enviar o Pix por e-mail", pixEmail.error);
-      }
-    }
     if (paymentStatus === "approved") {
       if (recoveryToken) await db.from("carrinhos_abandonados").update({ status: "convertido", convertido_em: new Date().toISOString(), atualizado_em: new Date().toISOString() }).eq("token", recoveryToken);
       try {
