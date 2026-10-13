@@ -22,7 +22,7 @@ Deno.serve(async (request) => {
   if (!validToken && !validCode) return json(origin, { error: "Código inválido." }, 400);
 
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  let query = db.from("pedidos").select("referencia,status,status_pagamento,created_at,atualizado_em");
+  let query = db.from("pedidos").select("referencia,status,status_pagamento,total,itens_json,created_at,atualizado_em");
   query = validToken ? query.eq("tracking_token", token) : query.ilike("referencia", `${code}%`);
   const { data, error } = await query.limit(2);
   if (error) return json(origin, { error: "Não foi possível consultar o pedido." }, 500);

@@ -57,6 +57,9 @@ async function loadOrder(show = false) {
     return;
   }
   const order = data.pedido;
+  if (order.status_pagamento === 'pago') {
+    window.TioNanPixel?.purchase({ reference:order.referencia, value:Number(order.total || 0), items:order.itens_json || [] });
+  }
   const orderCode = String(order.referencia).slice(0, 8).toUpperCase();
   document.getElementById('order-code').textContent = `Pedido ${orderCode}`;
   document.getElementById('tracking-code').textContent = orderCode;

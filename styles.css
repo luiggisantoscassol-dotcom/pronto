@@ -865,6 +865,7 @@
         }
 
         .swiper-hero .hero-link { display:block; }
+        .swiper-hero .hero-link picture { display:block; width:100%; }
         .swiper-hero .hero-link-mobile { display:none; }
 
         @media (min-width: 769px) {
@@ -922,6 +923,17 @@
                 height: auto;
                 max-height: none;
                 object-fit: contain;
+            }
+            .swiper-hero .hero-link picture,
+            .swiper-hero .hero-link picture img {
+                display:block;
+                width:100%;
+            }
+            .swiper-hero .hero-link picture img {
+                height:auto;
+                max-height:none;
+                border-radius:0;
+                object-fit:contain;
             }
 
             .swiper-hero .swiper-button-next,

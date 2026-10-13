@@ -549,19 +549,11 @@ function avaliacaoDeSaborAtivo(nome) {
     return SABORES_ATIVOS_AVALIACOES.includes(chaveSaborAvaliacao(nome));
 }
 
-const heroSlider = document.querySelector('.swiper-hero');
-if (heroSlider?.querySelectorAll('.swiper-slide').length > 1) {
-    new Swiper('.swiper-hero', {
-        loop: true,
-        pagination: { el: '.hero-pagination', clickable: true },
-        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-        autoplay: { delay: 5000, disableOnInteraction: false }
-    });
-} else {
-    heroSlider?.querySelectorAll('.swiper-button-next, .swiper-button-prev').forEach(button => {
-        button.hidden = true;
-    });
-}
+function escaparBanner(texto=''){return String(texto).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function linkSeguroBanner(link=''){const valor=String(link).trim();return /^https?:\/\//i.test(valor)||(/^[a-z0-9][a-z0-9._~!$&'()*+,;=@%/?#-]*$/i.test(valor)&&!valor.includes(':'))?valor:'todos-produtos.html'}
+function iniciarCarrosselBanners(){const heroSlider=document.querySelector('.swiper-hero');if(!heroSlider)return;const varios=heroSlider.querySelectorAll('.swiper-slide').length>1;heroSlider.querySelectorAll('.swiper-button-next,.swiper-button-prev').forEach(button=>button.hidden=!varios);if(varios)new Swiper('.swiper-hero',{loop:true,pagination:{el:'.hero-pagination',clickable:true},navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev'},autoplay:{delay:5000,disableOnInteraction:false}})}
+async function carregarBannersSite(){const lista=document.getElementById('hero-banners');if(!lista)return iniciarCarrosselBanners();try{const {data,error}=await db.from('banners_site').select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem').eq('ativo',true).order('ordem',{ascending:true}).order('criado_em',{ascending:true});if(error)throw error;if(data?.length)lista.innerHTML=data.map(b=>`<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(b.link_url))}" aria-label="${escaparBanner(b.titulo)}"><picture><source media="(max-width: 639px)" srcset="${escaparBanner(b.imagem_mobile_url)}"><img src="${escaparBanner(b.imagem_desktop_url)}" alt="${escaparBanner(b.texto_alternativo||b.titulo)}"></picture></a></div>`).join('')}catch(error){console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.',error?.message||error)}iniciarCarrosselBanners()}
+carregarBannersSite();
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');
 
@@ -816,9 +808,21 @@ function irParaPagamento() {
         if (entrega === 'tele' && !cidadePermitida) return marcarErroCheckout('cidade', `Ainda não realizamos entrega em ${valor('cidade')}. Escolha retirada na loja ou outro endereço.`);
     }
 
+    const metaCheckout = dadosCarrinhoMeta();
+    window.TioNanPixel?.initiateCheckout(metaCheckout);
     mostrarEtapaCheckout('pagamento');
     atualizarPagamentoPorEntrega();
     handlePagamentoChange();
+}
+
+function dadosCarrinhoMeta() {
+    const subtotal = cart.reduce((acc, item) => acc + (Number(item.price || 0) * Number(item.qtd || 0)), 0);
+    const entrega = document.getElementById('metodo-entrega')?.value;
+    const frete = entrega === 'tele' || entregaPorTransportadora(entrega) ? valorFreteAtual() : 0;
+    return {
+        items: cart.map(item => ({ id:item.id, quantity:item.qtd, item_price:item.price })),
+        value: Math.max(0, subtotal - (subtotal * descontoPercentual) + frete)
+    };
 }
 
 let identificacaoConsultada = '';
@@ -1667,6 +1671,7 @@ function add(id, name, price, cost, event, unidadesPorKit = 1) {
         };
     } else setTimeout(abrirCarrinhoAposAdicionar, 120);
     rastrearAcao(name, "🛒 Adicionou");
+    window.TioNanPixel?.addToCart({ id, name, value:price }, 1);
 }
 
 function mostrarPreviewCarrinho(nome, foto) {
@@ -1693,6 +1698,7 @@ function abrirModalProduto(dadosEncoded) {
     const p = JSON.parse(decodeURIComponent(dadosEncoded));
 
     rastrearAcao(p.nome, "👀 Viu");
+    window.TioNanPixel?.viewContent({ id:p.id, name:p.nome, value:Number(p.precoNum || p.preco || 0), category:p.categoria });
 
     document.getElementById('modal-foto').src = p.foto1;
     document.getElementById('modal-nome').innerText = p.nome;
@@ -2307,6 +2313,10 @@ async function handlePagamentoChange() {
     if (blocoTroco) blocoTroco.style.display = (pag === 'Dinheiro') ? 'block' : 'none';
     if (btnFinalizar) btnFinalizar.style.display = 'flex';
     if (btnTexto) btnTexto.textContent = pag === 'Dinheiro' ? 'Finalizar pedido' : 'Ir para pagamento seguro';
+    if (pag && pag !== 'none') {
+        const metaCheckout = dadosCarrinhoMeta();
+        window.TioNanPixel?.addPaymentInfo({ ...metaCheckout, method:pag });
+    }
     if (pag === 'Dinheiro') {
         const paymentBrick = document.getElementById('paymentBrick_container');
         const statusBrick = document.getElementById('statusScreenBrick_container');
@@ -2488,6 +2498,10 @@ async function renderizarPaymentBrick(orderPayload, amount) {
                     if (!data?.payment_id) throw new Error(data?.error || 'O Mercado Pago não retornou o pagamento.');
                     salvarClienteRecenteCheckout(orderPayload.cpf, orderPayload.email, orderPayload.nome, orderPayload.telefone, orderPayload.endereco || {});
                     sessionStorage.setItem('tioNanPedidoPendente', data.pedido || '');
+                    sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, value:amount, items:dadosCarrinhoMeta().items }));
+                    if (data.status === 'approved' && !data.sandbox) {
+                        window.TioNanPixel?.purchase({ reference:data.pedido, value:amount, items:dadosCarrinhoMeta().items });
+                    }
                     await renderizarStatusMercadoPago(data.payment_id);
                 } catch (error) {
                     console.error('Erro no pagamento incorporado:', error);
@@ -2678,6 +2692,7 @@ async function checkout() {
                 if (!data?.checkout_url) throw new Error(data?.error || "O checkout não retornou um endereço de pagamento.");
                 salvarClienteRecenteCheckout(cpf, email, nome, telefone, enderecoPayload);
                 sessionStorage.setItem('tioNanPedidoPendente', data.pedido || '');
+                sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, trackingToken:data.tracking_token, value:valorTotalComFrete, items:dadosCarrinhoMeta().items }));
                 await window.TioNanAnalytics?.track('order_created', { label:data.pedido || 'Pedido Mercado Pago', valor:valorTotalComFrete, metadata:{ pagamento:'Mercado Pago' } });
                 window.location.assign(data.checkout_url);
                 return;
@@ -2738,7 +2753,20 @@ async function checkout() {
 }
 
 const paymentReturn = new URLSearchParams(window.location.search).get('pagamento');
+async function registrarCompraAprovadaRetorno() {
+    try {
+        const metaPedido = JSON.parse(sessionStorage.getItem('tioNanMetaPedidoPendente') || 'null');
+        const reference = new URLSearchParams(window.location.search).get('pedido') || metaPedido?.reference;
+        if (!metaPedido?.trackingToken || reference !== metaPedido.reference) return;
+        const { data, error } = await db.functions.invoke('acompanhar-pedido', { body:{ token:metaPedido.trackingToken } });
+        if (!error && data?.pedido?.status_pagamento === 'pago') {
+            window.TioNanPixel?.purchase({ ...metaPedido, reference });
+            sessionStorage.removeItem('tioNanMetaPedidoPendente');
+        }
+    } catch (_) {}
+}
 if (paymentReturn === 'sucesso') {
+    registrarCompraAprovadaRetorno();
     cancelarRecuperacaoCarrinho();
     cart = [];
     sessionStorage.removeItem('tioNanCart');

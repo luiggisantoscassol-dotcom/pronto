@@ -165,6 +165,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="meta-pixel.js?v=1"></script>
   <script src="site-analytics.js?v=2"></script>
   <script>
     const supabaseUrl = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
@@ -287,6 +288,7 @@
       }
       updateCartCount();
       window.TioNanAnalytics?.track('add_to_cart', { label:product.nome, produto_id:product.id, valor:Number(product.preco || 0), metadata:{ quantidade:quantity } });
+      window.TioNanPixel?.addToCart({ id:product.id, name:product.nome, value:Number(product.preco || 0) }, quantity);
       document.querySelectorAll('.notice').forEach(el => el.textContent = 'Produto adicionado ao carrinho.');
       document.querySelectorAll('.buy-button').forEach(button => { button.textContent = 'Adicionado ✓'; setTimeout(() => button.textContent = 'Comprar', 1600); });
       setTimeout(() => window.location.href = 'index.html?carrinho=1', 350);
@@ -479,6 +481,7 @@
       if (!selectedProduct) { app.innerHTML = '<div class="not-found"><div><p>Não foi possível encontrar este produto.</p><a href="index.html#vitrine">Voltar para os produtos</a></div></div>'; return; }
       product = selectedProduct;
       window.TioNanAnalytics?.track('product_view', { label:selectedProduct.nome, produto_id:selectedProduct.id, valor:Number(selectedProduct.preco || 0) });
+      window.TioNanPixel?.viewContent({ id:selectedProduct.id, name:selectedProduct.nome, value:Number(selectedProduct.preco || 0), category:selectedProduct.categoria });
       const review = await reviewsFor(selectedProduct.nome);
       render(selectedProduct, review);
       if (/(^|\.)tionan\.com\.br$/i.test(window.location.hostname)) {
