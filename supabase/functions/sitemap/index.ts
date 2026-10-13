@@ -1,7 +1,13 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SITE_URL = "https://www.tionan.com.br";
-const ACTIVE_BLING_IDS = new Set(["16699719562", "16699660347", "16687078597"]);
+const ACTIVE_BLING_IDS = new Set([
+  "16699719562",
+  "16699660347",
+  "16687078597",
+  "16712113631",
+  "16712114193"
+]);
 
 function slugify(value: unknown) {
   return String(value || "")
@@ -47,6 +53,7 @@ Deno.serve(async (request) => {
   const staticEntries = [
     urlEntry(`${SITE_URL}/`, today, "weekly", "1.0"),
     urlEntry(`${SITE_URL}/todos-produtos.html`, today, "daily", "0.9"),
+    urlEntry(`${SITE_URL}/cachaca-porto-alegre`, today, "weekly", "0.9"),
     urlEntry(`${SITE_URL}/sobre.html`, today, "monthly", "0.7"),
     urlEntry(`${SITE_URL}/entregas.html`, today, "monthly", "0.7"),
     urlEntry(`${SITE_URL}/trocas-devolucoes.html`, today, "monthly", "0.5"),

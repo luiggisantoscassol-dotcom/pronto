@@ -102,6 +102,7 @@ body {
 }
 html:has(link[rel="canonical"][href$="sobre.html"]) .hero-inner::after { background-image: url("fotos/gengibre-guaco-mel.webp"); }
 html:has(link[rel="canonical"][href$="entregas.html"]) .hero-inner::after { background-image: url("fotos/cachaca-ouro.webp"); }
+html:has(link[rel="canonical"][href$="cachaca-porto-alegre"]) .hero-inner::after { background-image: url("fotos/cachaca-ouro.webp"); }
 html:has(link[rel="canonical"][href$="trocas-devolucoes.html"]) .hero-inner::after { background-image: url("fotos/gengibre-guaco-mel.webp"); }
 html:has(link[rel="canonical"][href$="privacidade.html"]) .hero-inner::after { background-image: url("fotos/cachaca-ouro.webp"); }
 html:has(link[rel="canonical"][href$="termos.html"]) .hero-inner::after { background-image: url("fotos/gengibre-guaco-mel.webp"); }

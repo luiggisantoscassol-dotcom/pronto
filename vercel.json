@@ -8,6 +8,10 @@
     {
       "source": "/produtos/:slug",
       "destination": "/produto.html?slug=:slug"
+    },
+    {
+      "source": "/cachaca-porto-alegre",
+      "destination": "/cachaca-porto-alegre.html"
     }
   ]
 }
