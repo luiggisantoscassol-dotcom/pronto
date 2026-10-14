@@ -1332,6 +1332,7 @@ async function loadProducts() {
 
             const temFoto2 = (p.foto_2 && p.foto_2.trim().length > 5);
             let foto2 = temFoto2 ? fixDrive(p.foto_2.trim()) : foto1;
+            const usaPlaceholder = foto1.includes('produto-em-breve.svg');
 
             const precoNum = parseFloat(p.preco);
             const precoOriginalNum = parseFloat(p.preco_original || 0);
@@ -1367,7 +1368,7 @@ async function loadProducts() {
                 : `R$ ${precoNum.toFixed(2).replace('.', ',')}`;
 
             const card = `
-                <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${emBreve ? 'em-breve-card' : ''} ${temDesconto && !emBreve ? 'oferta-card' : ''}" id="card-${id}">
+                <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${emBreve ? 'em-breve-card' : ''} ${usaPlaceholder ? 'produto-placeholder' : ''} ${temDesconto && !emBreve ? 'oferta-card' : ''}" id="card-${id}">
                     ${emBreve ? '<div class="faixa-esgotado-clean">Em breve</div>' : (temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>')}
                     ${temDesconto && !emBreve ? `<div class="faixa-oferta-clean">Oferta · ${percentualDesconto}% OFF</div>` : ''}
                     <div class="img-wrapper" ${acaoDetalhes}>

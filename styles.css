@@ -1481,9 +1481,9 @@
             background: #faf9f5;
         }
 
-        .card-produto.em-breve-card .foto-1,
-        .card-produto.em-breve-card .foto-2,
-        .card-produto.em-breve-card .swiper-produto img {
+        .card-produto.produto-placeholder .foto-1,
+        .card-produto.produto-placeholder .foto-2,
+        .card-produto.produto-placeholder .swiper-produto img {
             width: 78%;
             height: 78%;
             object-fit: contain;
