@@ -1033,29 +1033,6 @@
             line-height: 1.45;
         }
 
-        .local-seo-actions {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .local-seo-actions a {
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            padding:9px 16px;
-            border:1px solid rgba(212,173,99,.72);
-            border-radius:999px;
-            color:#f0cf91;
-            font-size:.82rem;
-            font-weight: 800;
-            text-decoration:none;
-            transition:background .2s ease,color .2s ease;
-        }
-        .local-seo-actions a:hover{background:#d4ad63;color:#132b4a}
-
         .products-carousel-section {
             width: min(1200px, calc(100% - 40px));
             margin: 10px auto 0;
@@ -1120,12 +1097,6 @@
                 width: 100%;
                 margin: 0 0 14px;
                 padding: 24px 18px;
-            }
-
-            .local-seo-actions {
-                align-items: center;
-                flex-direction: column;
-                gap: 14px;
             }
 
             .products-carousel-section {
