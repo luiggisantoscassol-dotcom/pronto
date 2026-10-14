@@ -2498,9 +2498,11 @@ async function renderizarPaymentBrick(orderPayload, amount) {
                     if (!data?.payment_id) throw new Error(data?.error || 'O Mercado Pago não retornou o pagamento.');
                     salvarClienteRecenteCheckout(orderPayload.cpf, orderPayload.email, orderPayload.nome, orderPayload.telefone, orderPayload.endereco || {});
                     sessionStorage.setItem('tioNanPedidoPendente', data.pedido || '');
-                    sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, value:amount, items:dadosCarrinhoMeta().items }));
+                    sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, trackingToken:data.tracking_token, value:amount, items:dadosCarrinhoMeta().items }));
                     if (data.status === 'approved' && !data.sandbox) {
                         window.TioNanPixel?.purchase({ reference:data.pedido, value:amount, items:dadosCarrinhoMeta().items });
+                        window.location.assign(`pedido.html?novo=1&token=${encodeURIComponent(data.tracking_token)}`);
+                        return;
                     }
                     await renderizarStatusMercadoPago(data.payment_id);
                 } catch (error) {

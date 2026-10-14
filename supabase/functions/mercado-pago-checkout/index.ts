@@ -419,7 +419,7 @@ Deno.serve(async (request) => {
       statement_descriptor: "TIO NAN",
       payer: { name, email, identification: { type: "CPF", number: cpf }, phone: { area_code: phone.slice(0, 2), number: phone.slice(2) } },
       back_urls: {
-        success: `${site}/?pagamento=sucesso&pedido=${reference}`,
+        success: `${site}/pedido.html?novo=1&pagamento=sucesso&pedido=${reference}&token=${trackingToken}`,
         pending: `${site}/?pagamento=pendente&pedido=${reference}`,
         failure: `${site}/?pagamento=falha&pedido=${reference}`,
       },

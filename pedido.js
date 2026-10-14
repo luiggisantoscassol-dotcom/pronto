@@ -8,6 +8,8 @@ const providedShortCode = params.get('codigo') || '';
 const token = providedToken || (!providedShortCode ? localStorage.getItem('tioNanUltimoPedido') || '' : '');
 const shortCode = providedShortCode || (!token ? localStorage.getItem('tioNanUltimoPedidoCodigo') || '' : '');
 const accessCode = token || shortCode;
+const GOOGLE_CUSTOMER_REVIEWS_MERCHANT_ID = 5873995150;
+let googleCustomerReviewRendered = false;
 const stages = [
   ['Novo Pedido','Pedido recebido','Seu pedido entrou em nossa fila.'],
   ['Confirmado','Pedido confirmado','Confirmamos os dados do pedido.'],
@@ -41,6 +43,31 @@ function renderTimeline(status) {
     </div>`).join('');
 }
 
+function renderGoogleCustomerReview(review) {
+  if (googleCustomerReviewRendered || params.get('novo') !== '1' || !token || !review) return;
+  googleCustomerReviewRendered = true;
+  window.renderGoogleCustomerReviewOptIn = () => {
+    if (!window.gapi?.load) return;
+    window.gapi.load('surveyoptin', () => {
+      window.gapi.surveyoptin.render({
+        merchant_id: GOOGLE_CUSTOMER_REVIEWS_MERCHANT_ID,
+        order_id: review.order_id,
+        email: review.email,
+        delivery_country: review.delivery_country || 'BR',
+        estimated_delivery_date: review.estimated_delivery_date,
+        opt_in_style: 'CENTER_DIALOG'
+      });
+    });
+  };
+  const script = document.createElement('script');
+  script.id = 'google-customer-reviews-opt-in';
+  script.src = 'https://apis.google.com/js/platform.js?onload=renderGoogleCustomerReviewOptIn';
+  script.async = true;
+  script.defer = true;
+  script.onerror = () => { googleCustomerReviewRendered = false; };
+  document.head.appendChild(script);
+}
+
 async function loadOrder(show = false) {
   const tracking = document.getElementById('tracking');
   if (show) tracking.style.display = 'block';
@@ -57,6 +84,7 @@ async function loadOrder(show = false) {
     return;
   }
   const order = data.pedido;
+  renderGoogleCustomerReview(data.google_customer_reviews);
   if (order.status_pagamento === 'pago') {
     window.TioNanPixel?.purchase({ reference:order.referencia, value:Number(order.total || 0), items:order.itens_json || [] });
   }
