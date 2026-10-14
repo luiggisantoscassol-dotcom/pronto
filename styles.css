@@ -996,7 +996,7 @@
 
         .local-seo-intro {
             width: 100%;
-            margin: 0 auto 18px;
+            margin: 36px auto 0;
             padding: 0 24px;
             border-top: 1px solid rgba(197, 160, 89, .48);
             border-bottom: 1px solid rgba(197, 160, 89, .48);
@@ -1120,7 +1120,7 @@
         @media (max-width: 639px) {
             .local-seo-intro {
                 width: 100%;
-                margin: 0 0 14px;
+                margin: 24px 0 0;
                 padding: 0 20px;
             }
 
