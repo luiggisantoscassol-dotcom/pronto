@@ -964,6 +964,10 @@
             }
             .swiper-hero .swiper-button-next { right: 8px !important; }
             .swiper-hero .swiper-button-prev { left: 8px !important; }
+            .swiper-hero .swiper-button-next[hidden],
+            .swiper-hero .swiper-button-prev[hidden] {
+                display:none !important;
+            }
         }
         .hero-section {
             width: 100%;
