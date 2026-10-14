@@ -1327,7 +1327,7 @@ async function loadProducts() {
 
             const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5)
                 ? p.foto_1.trim()
-                : (p.emBreve ? 'fotos/produto-em-breve.svg' : '');
+                : (p.lancado === false ? 'fotos/produto-em-breve.svg' : '');
             let foto1 = fotoProdutoOficial({ ...p, foto_1: foto1Raw }, false);
 
             const temFoto2 = (p.foto_2 && p.foto_2.trim().length > 5);
@@ -1338,6 +1338,7 @@ async function loadProducts() {
             const temDesconto = precoOriginalNum > precoNum;
             const estoque = parseInt(p.estoque) || 0;
             const temEstoque = estoque > 0;
+            const emBreve = p.lancado === false;
             const custoNum = parseFloat(p.custo || 0);
 
             let descricao = p.descricao || '';
@@ -1359,16 +1360,16 @@ async function loadProducts() {
                 if (!matches && p.visivel !== false) return;
             }
 
-            const acaoDetalhes = (p.emBreve || (p.localOnly && normalizarNomeProduto(nome) !== 'ouro')) ? '' : `onclick="window.location.href='${produtoUrl}'" style="cursor:pointer;"`;
+            const acaoDetalhes = (p.localOnly && normalizarNomeProduto(nome) !== 'ouro') ? '' : `onclick="window.location.href='${produtoUrl}'" style="cursor:pointer;"`;
             const percentualDesconto = temDesconto ? Math.round((1 - precoNum / precoOriginalNum) * 100) : 0;
-            const precoExibido = p.emBreve ? 'Em breve' : temDesconto
+            const precoExibido = emBreve ? 'Em breve' : temDesconto
                 ? `<small class="preco-original">De R$ ${precoOriginalNum.toFixed(2).replace('.', ',')}</small><span>Por R$ ${precoNum.toFixed(2).replace('.', ',')}</span><em class="desconto-produto">${percentualDesconto}% OFF</em>`
                 : `R$ ${precoNum.toFixed(2).replace('.', ',')}`;
 
             const card = `
-                <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${p.emBreve ? 'em-breve-card' : ''}" id="card-${id}">
+                <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${emBreve ? 'em-breve-card' : ''}" id="card-${id}">
                     <div class="img-wrapper" ${acaoDetalhes}>
-                        ${p.emBreve ? '<div class="faixa-esgotado-clean">Em breve</div>' : (temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>')}
+                        ${emBreve ? '<div class="faixa-esgotado-clean">Em breve</div>' : (temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>')}
                         <div class="desktop-only-images">
                             <img src="${foto1}" class="foto-1 prod-img">
                             <img src="${foto2}" class="foto-2" loading="lazy">
@@ -1387,7 +1388,7 @@ async function loadProducts() {
                         ${estrelasVitrineHtml}
                         <span class="preco">${precoExibido}</span>
                     </div>
-                    ${p.emBreve ? '<button class="btn-adicionar" disabled>Em breve</button>' : (temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum}, event, ${Number(p.unidades_por_kit || 1)})">Comprar</button>` : `<button class="btn-adicionar" disabled>Esgotado</button>`)}
+                    ${emBreve ? '<button class="btn-adicionar" disabled>Em breve</button>' : (temEstoque ? `<button class="btn-adicionar" onclick="add('${id}','${nome}',${precoNum}, ${custoNum}, event, ${Number(p.unidades_por_kit || 1)})">Comprar</button>` : `<button class="btn-adicionar" disabled>Volta logo!</button>`)}
                 </div>`;
 
             const slide = `<div class="swiper-slide">${card}</div>`;
