@@ -1136,17 +1136,18 @@
                 border: 0;
                 border-radius: 0;
                 box-shadow: none;
-                transform: scale(.96);
+                transform: none;
+                transition: none;
                 justify-content: flex-start;
             }
 
             .swiper-products .swiper-slide-active .card-produto {
-                transform: scale(1);
+                transform: none;
             }
 
             .swiper-products .card-produto:hover,
             .swiper-products .card-produto.active-scroll {
-                transform: scale(1);
+                transform: none;
                 border-color: transparent;
                 box-shadow: none;
             }
@@ -1364,6 +1365,10 @@
             pointer-events: none;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         @media (min-width: 1024px) {
@@ -2261,7 +2266,7 @@
         .preco .preco-promocional{color:#a86512;font-size:1.28em;font-weight:950;line-height:1}
         .preco .desconto-produto{display:inline-block;margin:7px 0 0;padding:6px 9px;border-radius:999px;background:#e5f5e9;color:#176738;font:900 .7rem/1 Arial,sans-serif;letter-spacing:.03em;vertical-align:middle}
         .oferta-card{border-color:rgba(185,140,58,.55);box-shadow:0 16px 34px rgba(128,87,20,.13)}
-        .faixa-oferta-clean{position:absolute;z-index:100;top:14px;right:14px;padding:8px 11px;border-radius:999px;background:#b7791f;color:#fff;font:900 .72rem/1 Arial,sans-serif;letter-spacing:.045em;text-transform:uppercase;box-shadow:0 8px 20px rgba(93,57,8,.24);pointer-events:none}
+        .faixa-oferta-clean{position:absolute;z-index:100;top:14px;right:14px;padding:8px 11px;border-radius:999px;background:#b7791f;color:#fff;font:900 .72rem/1 Arial,sans-serif;letter-spacing:.045em;text-transform:uppercase;box-shadow:0 8px 20px rgba(93,57,8,.24);pointer-events:none;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 
         .prod-nome {
             font-size: 1.2rem;

@@ -1368,9 +1368,9 @@ async function loadProducts() {
 
             const card = `
                 <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${emBreve ? 'em-breve-card' : ''} ${temDesconto && !emBreve ? 'oferta-card' : ''}" id="card-${id}">
+                    ${emBreve ? '<div class="faixa-esgotado-clean">Em breve</div>' : (temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>')}
+                    ${temDesconto && !emBreve ? `<div class="faixa-oferta-clean">Oferta · ${percentualDesconto}% OFF</div>` : ''}
                     <div class="img-wrapper" ${acaoDetalhes}>
-                        ${emBreve ? '<div class="faixa-esgotado-clean">Em breve</div>' : (temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>')}
-                        ${temDesconto && !emBreve ? `<div class="faixa-oferta-clean">Oferta · ${percentualDesconto}% OFF</div>` : ''}
                         <div class="desktop-only-images">
                             <img src="${foto1}" class="foto-1 prod-img">
                             <img src="${foto2}" class="foto-2" loading="lazy">
@@ -1430,27 +1430,25 @@ async function loadProducts() {
         document.querySelectorAll('.swiper-produto.swiper').forEach(el => swiperObserver.observe(el));
 
 
-        const highlightObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                // Se o elemento entra na área central, damos a ele o foco
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-                    // Remove de todos antes para garantir que só um brilhe por vez
-                    document.querySelectorAll('.card-produto.active-scroll').forEach(el => {
-                        if (el !== entry.target) el.classList.remove('active-scroll');
-                    });
-                    entry.target.classList.add('active-scroll');
-                } else if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
-                    // Só remove se ele realmente sair bastante da área para evitar o tremor
-                    entry.target.classList.remove('active-scroll');
-                }
+        if (window.matchMedia('(min-width: 640px)').matches) {
+            const highlightObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                        document.querySelectorAll('.card-produto.active-scroll').forEach(el => {
+                            if (el !== entry.target) el.classList.remove('active-scroll');
+                        });
+                        entry.target.classList.add('active-scroll');
+                    } else if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
+                        entry.target.classList.remove('active-scroll');
+                    }
+                });
+            }, {
+                threshold: [0.2, 0.5, 0.8],
+                rootMargin: '-25% 0px -25% 0px'
             });
-        }, {
-            threshold: [0.2, 0.5, 0.8],
-            rootMargin: '-25% 0px -25% 0px'
-        });
 
-
-        document.querySelectorAll('.card-produto').forEach(card => highlightObserver.observe(card));
+            document.querySelectorAll('.card-produto').forEach(card => highlightObserver.observe(card));
+        }
 
     } catch (error) {
         console.error("Erro ao carregar produtos:", error);
