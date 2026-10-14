@@ -1276,6 +1276,7 @@
             aspect-ratio: 1 / 1;
             margin-bottom: 20px;
             position: relative;
+            isolation: isolate;
             overflow: visible;
             display: flex;
             align-items: center;
@@ -1359,7 +1360,8 @@
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            z-index: 50;
+            z-index: 100;
+            pointer-events: none;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
@@ -1425,6 +1427,8 @@
 
             .swiper-produto {
                 display: block;
+                position: relative;
+                z-index: 1;
                 width: 100%;
                 height: 100%;
                 /* Aumentado para dar espaço às bolinhas abaixo e mais respiro */
@@ -1435,6 +1439,7 @@
             .swiper-produto .swiper-wrapper,
             .swiper-produto .swiper-slide {
                 overflow: visible !important;
+                z-index: 1;
             }
 
             .swiper-produto img {
@@ -2256,7 +2261,7 @@
         .preco .preco-promocional{color:#a86512;font-size:1.28em;font-weight:950;line-height:1}
         .preco .desconto-produto{display:inline-block;margin:7px 0 0;padding:6px 9px;border-radius:999px;background:#e5f5e9;color:#176738;font:900 .7rem/1 Arial,sans-serif;letter-spacing:.03em;vertical-align:middle}
         .oferta-card{border-color:rgba(185,140,58,.55);box-shadow:0 16px 34px rgba(128,87,20,.13)}
-        .faixa-oferta-clean{position:absolute;z-index:8;top:14px;right:14px;padding:8px 11px;border-radius:999px;background:#b7791f;color:#fff;font:900 .72rem/1 Arial,sans-serif;letter-spacing:.045em;text-transform:uppercase;box-shadow:0 8px 20px rgba(93,57,8,.24)}
+        .faixa-oferta-clean{position:absolute;z-index:100;top:14px;right:14px;padding:8px 11px;border-radius:999px;background:#b7791f;color:#fff;font:900 .72rem/1 Arial,sans-serif;letter-spacing:.045em;text-transform:uppercase;box-shadow:0 8px 20px rgba(93,57,8,.24);pointer-events:none}
 
         .prod-nome {
             font-size: 1.2rem;
