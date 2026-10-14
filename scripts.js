@@ -1363,13 +1363,14 @@ async function loadProducts() {
             const acaoDetalhes = (p.localOnly && normalizarNomeProduto(nome) !== 'ouro') ? '' : `onclick="window.location.href='${produtoUrl}'" style="cursor:pointer;"`;
             const percentualDesconto = temDesconto ? Math.round((1 - precoNum / precoOriginalNum) * 100) : 0;
             const precoExibido = emBreve ? 'Em breve' : temDesconto
-                ? `<small class="preco-original">De R$ ${precoOriginalNum.toFixed(2).replace('.', ',')}</small><span>Por R$ ${precoNum.toFixed(2).replace('.', ',')}</span><em class="desconto-produto">${percentualDesconto}% OFF</em>`
+                ? `<small class="preco-original">Preço normal: R$ ${precoOriginalNum.toFixed(2).replace('.', ',')}</small><span class="preco-promocional">R$ ${precoNum.toFixed(2).replace('.', ',')}</span><em class="desconto-produto">Economize ${percentualDesconto}%</em>`
                 : `R$ ${precoNum.toFixed(2).replace('.', ',')}`;
 
             const card = `
-                <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${emBreve ? 'em-breve-card' : ''}" id="card-${id}">
+                <div class="card-produto ${temEstoque ? '' : 'esgotado-card'} ${emBreve ? 'em-breve-card' : ''} ${temDesconto && !emBreve ? 'oferta-card' : ''}" id="card-${id}">
                     <div class="img-wrapper" ${acaoDetalhes}>
                         ${emBreve ? '<div class="faixa-esgotado-clean">Em breve</div>' : (temEstoque ? '' : '<div class="faixa-esgotado-clean">Volta Logo!</div>')}
+                        ${temDesconto && !emBreve ? `<div class="faixa-oferta-clean">Oferta · ${percentualDesconto}% OFF</div>` : ''}
                         <div class="desktop-only-images">
                             <img src="${foto1}" class="foto-1 prod-img">
                             <img src="${foto2}" class="foto-2" loading="lazy">

@@ -2251,9 +2251,12 @@
             font-weight: 900;
         }
 
-        .preco .preco-original{display:block;color:#7b8492;font:700 .82rem/1.2 Arial,sans-serif;text-decoration:line-through;margin-bottom:4px;letter-spacing:0;text-transform:none}
+        .preco .preco-original{display:block;color:#697386;font:700 .78rem/1.25 Arial,sans-serif;text-decoration:line-through;margin-bottom:5px;letter-spacing:0;text-transform:none}
         .preco>span{display:inline-block}
-        .preco .desconto-produto{display:inline-block;margin-left:9px;padding:5px 8px;border-radius:999px;background:#e9f8ef;color:#197347;font:900 .68rem/1 Arial,sans-serif;letter-spacing:.04em;vertical-align:middle}
+        .preco .preco-promocional{color:#a86512;font-size:1.28em;font-weight:950;line-height:1}
+        .preco .desconto-produto{display:inline-block;margin:7px 0 0;padding:6px 9px;border-radius:999px;background:#e5f5e9;color:#176738;font:900 .7rem/1 Arial,sans-serif;letter-spacing:.03em;vertical-align:middle}
+        .oferta-card{border-color:rgba(185,140,58,.55);box-shadow:0 16px 34px rgba(128,87,20,.13)}
+        .faixa-oferta-clean{position:absolute;z-index:8;top:14px;right:14px;padding:8px 11px;border-radius:999px;background:#b7791f;color:#fff;font:900 .72rem/1 Arial,sans-serif;letter-spacing:.045em;text-transform:uppercase;box-shadow:0 8px 20px rgba(93,57,8,.24)}
 
         .prod-nome {
             font-size: 1.2rem;
