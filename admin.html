@@ -6248,7 +6248,7 @@
             const pagamentosAprovados = porEvento('purchase_approved');
             const vindosAnuncio = new Set(filtrados.filter(item => ['facebook','instagram','google'].includes(origemRastreio(item)) || Boolean(item.click_id)).map(chaveVisitante));
             const conversao = visitantes.size ? (pagamentosAprovados.size / visitantes.size) * 100 : 0;
-            const origemMapa = new Map(), campanhaMapa = new Map(), produtoMapa = new Map(), paginaMapa = new Map(), localMapa = new Map();
+            const origemMapa = new Map(), campanhaMapa = new Map(), produtoMapa = new Map(), paginaMapa = new Map(), localMapa = new Map(), bannersMapa = new Map();
             filtrados.forEach(item => {
                 const visitante = chaveVisitante(item);
                 const origem = rotuloOrigem(origemRastreio(item));
@@ -6263,6 +6263,15 @@
                     const pagina = String(item.url_path || item.pagina || 'Página inicial');
                     if (!paginaMapa.has(pagina)) paginaMapa.set(pagina,new Set()); paginaMapa.get(pagina).add(visitante);
                 }
+                if (eventoRastreio(item) === 'banner_view' || eventoRastreio(item) === 'banner_click') {
+                    const metadata = item.metadata && typeof item.metadata === 'object' ? item.metadata : {};
+                    const bannerId = String(metadata.banner_id || item.produto_nome || 'banner-sem-id');
+                    const bannerTitulo = String(metadata.banner_titulo || item.produto_nome || 'Banner do site').replace(/^(Viu|Clicou no) banner:\s*/i, '').trim();
+                    if (!bannersMapa.has(bannerId)) bannersMapa.set(bannerId, { titulo: bannerTitulo, visualizacoes: new Set(), cliques: 0, visitantes: new Set() });
+                    const dados = bannersMapa.get(bannerId);
+                    if (eventoRastreio(item) === 'banner_view') dados.visualizacoes.add(item.session_id || visitante);
+                    if (eventoRastreio(item) === 'banner_click') { dados.cliques += 1; dados.visitantes.add(visitante); }
+                }
                 const local = String(item.local || '').replace(/DISP_[A-Z0-9_]+/gi,'').replace(/\([^)]*\)/g,'').trim();
                 if (local && !/oculta|localiza/i.test(local)) { if (!localMapa.has(local)) localMapa.set(local,new Set()); localMapa.get(local).add(visitante); }
             });
@@ -6270,6 +6279,12 @@
                 ['Visitantes',visitantes.size,'100%'],['Viram produto',viramProduto.size,visitantes.size?`${Math.round(viramProduto.size/visitantes.size*100)}% dos visitantes`:'—'],
                 ['Adicionaram',adicionaram.size,viramProduto.size?`${Math.round(adicionaram.size/viramProduto.size*100)}% do interesse`:'—'],['Checkout',checkout.size,adicionaram.size?`${Math.round(checkout.size/adicionaram.size*100)}% das sacolas`:'—'],['Pedidos',pedidos.size,checkout.size?`${Math.round(pedidos.size/checkout.size*100)}% dos checkouts`:'—'],['Pagos',pagamentosAprovados.size,pedidos.size?`${Math.round(pagamentosAprovados.size/pedidos.size*100)}% dos pedidos`:'—']
             ];
+            const totalCliquesBanner = [...bannersMapa.values()].reduce((total, banner) => total + banner.cliques, 0);
+            const desempenhoBanners = [...bannersMapa.values()].sort((a,b)=>b.cliques-a.cliques).map(banner => {
+                const visualizacoes = banner.visualizacoes.size;
+                const taxa = visualizacoes ? (banner.cliques / visualizacoes) * 100 : 0;
+                return `<div class="analytics-rank"><span class="analytics-rank__label" title="${escapeAdmin(banner.titulo)}">${escapeAdmin(banner.titulo)}</span><b class="analytics-rank__value">${banner.cliques} clique${banner.cliques===1?'':'s'}</b><small style="grid-column:1/-1;color:#718096">${visualizacoes} ${visualizacoes===1?'sessão exposta':'sessões expostas'} · ${banner.visitantes.size} visitante${banner.visitantes.size===1?'':'s'} · taxa ${taxa.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</small></div>`;
+            }).join('') || '<div class="analytics-empty">Os resultados aparecerão após as primeiras visualizações e cliques.</div>';
             document.getElementById('analytics-resumo').innerHTML = `
                 <div class="analytics-kpis">
                     <div class="analytics-kpi"><span>Visitantes</span><b>${visitantes.size.toLocaleString('pt-BR')}</b><small>pessoas/aparelhos únicos</small></div>
@@ -6277,12 +6292,14 @@
                     <div class="analytics-kpi"><span>Vindos de anúncios</span><b>${vindosAnuncio.size.toLocaleString('pt-BR')}</b><small>Facebook, Instagram e Google</small></div>
                     <div class="analytics-kpi"><span>Interesse em produto</span><b>${viramProduto.size.toLocaleString('pt-BR')}</b><small>visitantes que abriram produto</small></div>
                     <div class="analytics-kpi"><span>Sacolas</span><b>${adicionaram.size.toLocaleString('pt-BR')}</b><small>visitantes que adicionaram item</small></div>
+                    <div class="analytics-kpi"><span>Cliques em banners</span><b>${totalCliquesBanner.toLocaleString('pt-BR')}</b><small>interações com o carrossel principal</small></div>
                     <div class="analytics-kpi"><span>Conversão paga</span><b>${conversao.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</b><small>${pagamentosAprovados.size} pagamento${pagamentosAprovados.size===1?'':'s'} aprovado${pagamentosAprovados.size===1?'':'s'}</small></div>
                 </div>
                 <div class="analytics-grid">
                     <section class="analytics-panel"><h3>Funil de comportamento</h3><p>Mostra em qual etapa as pessoas deixam de avançar.</p><div class="analytics-funnel">${etapas.map(([nome,valor,nota])=>`<div class="analytics-funnel__step"><b>${valor}</b><span>${nome}</span><small>${nota}</small></div>`).join('')}</div></section>
                     <section class="analytics-panel"><h3>Origem dos visitantes</h3><p>Compare anúncios, redes sociais e acessos diretos.</p>${rankingAnalytics(origemMapa)}</section>
                     <section class="analytics-panel"><h3>Campanhas que trouxeram pessoas</h3><p>Use <b>utm_campaign</b> nos links dos anúncios para identificar cada campanha.</p>${rankingAnalytics(campanhaMapa,'Nenhuma campanha identificada. Use parâmetros UTM nos anúncios.')}</section>
+                    <section class="analytics-panel"><h3>Desempenho dos banners</h3><p>Compare sessões expostas, cliques e a taxa de interesse de cada arte.</p><div class="analytics-ranking">${desempenhoBanners}</div></section>
                     <section class="analytics-panel"><h3>Produtos mais vistos</h3><p>Interesse real antes da compra.</p>${rankingAnalytics(produtoMapa)}</section>
                     <section class="analytics-panel"><h3>Páginas de entrada e navegação</h3><p>Onde os visitantes chegaram ou navegaram.</p>${rankingAnalytics(paginaMapa)}</section>
                     <section class="analytics-panel"><h3>Localização aproximada</h3><p>Cidades que mais demonstraram interesse.</p>${rankingAnalytics(localMapa)}</section>

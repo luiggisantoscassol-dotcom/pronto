@@ -553,8 +553,71 @@ function avaliacaoDeSaborAtivo(nome) {
 
 function escaparBanner(texto=''){return String(texto).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function linkSeguroBanner(link=''){const valor=String(link).trim();return /^https?:\/\//i.test(valor)||(/^[a-z0-9][a-z0-9._~!$&'()*+,;=@%/?#-]*$/i.test(valor)&&!valor.includes(':'))?valor:'todos-produtos.html'}
-function iniciarCarrosselBanners(){const heroSlider=document.querySelector('.swiper-hero');if(!heroSlider)return;const varios=heroSlider.querySelectorAll('.swiper-slide').length>1;heroSlider.querySelectorAll('.swiper-button-next,.swiper-button-prev').forEach(button=>button.hidden=!varios);if(varios)new Swiper('.swiper-hero',{loop:true,pagination:{el:'.hero-pagination',clickable:true},navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev'},autoplay:{delay:5000,disableOnInteraction:false}})}
-async function carregarBannersSite(){const lista=document.getElementById('hero-banners');if(!lista)return iniciarCarrosselBanners();try{const {data,error}=await db.from('banners_site').select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem').eq('ativo',true).order('ordem',{ascending:true}).order('criado_em',{ascending:true});if(error)throw error;const celular=window.matchMedia('(max-width: 639px)').matches,banners=(data||[]).filter(b=>celular?b.imagem_mobile_url:b.imagem_desktop_url);if(banners.length)lista.innerHTML=banners.map((b,index)=>{const imagem=celular?b.imagem_mobile_url:b.imagem_desktop_url;return `<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(b.link_url))}" aria-label="${escaparBanner(b.titulo)}"><img src="${escaparBanner(imagem)}" alt="${escaparBanner(b.texto_alternativo||b.titulo)}" loading="${index===0?'eager':'lazy'}" decoding="async" fetchpriority="${index===0?'high':'low'}"></a></div>`}).join('')}catch(error){console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.',error?.message||error)}iniciarCarrosselBanners()}
+function linkVisivelDoBanner(slide) {
+    return [...(slide?.querySelectorAll('.hero-link') || [])].find(link => getComputedStyle(link).display !== 'none') || null;
+}
+function dadosRastreioBanner(link) {
+    return {
+        id: link?.dataset.bannerId || 'banner-sem-id',
+        titulo: link?.dataset.bannerTitle || link?.getAttribute('aria-label') || 'Banner do site',
+        destino: link?.getAttribute('href') || '',
+        formato: window.matchMedia('(max-width: 639px)').matches ? 'mobile' : 'desktop'
+    };
+}
+function registrarVisualizacaoBanner(slide) {
+    const link = linkVisivelDoBanner(slide);
+    if (!link || !window.TioNanAnalytics) return;
+    const banner = dadosRastreioBanner(link);
+    const chave = `tioNanBannerView:${window.TioNanAnalytics.sessionId?.() || 'sessao'}:${banner.id}:${banner.formato}`;
+    try { if (sessionStorage.getItem(chave)) return; sessionStorage.setItem(chave, '1'); } catch (_) {}
+    window.TioNanAnalytics.track('banner_view', {
+        label: `Viu banner: ${banner.titulo}`,
+        metadata: { banner_id: banner.id, banner_titulo: banner.titulo, destino: banner.destino, formato: banner.formato }
+    });
+}
+function prepararCliquesBanners(heroSlider) {
+    if (heroSlider.dataset.trackingBanner === '1') return;
+    heroSlider.dataset.trackingBanner = '1';
+    heroSlider.addEventListener('click', async event => {
+        const link = event.target.closest('a.hero-link');
+        if (!link || event.defaultPrevented || (event.button != null && event.button !== 0) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        const destino = link.href;
+        if (!destino || !window.TioNanAnalytics) return;
+        event.preventDefault();
+        const banner = dadosRastreioBanner(link);
+        await Promise.race([
+            window.TioNanAnalytics.track('banner_click', {
+                label: `Clicou no banner: ${banner.titulo}`,
+                metadata: { banner_id: banner.id, banner_titulo: banner.titulo, destino: banner.destino, formato: banner.formato }
+            }),
+            new Promise(resolve => setTimeout(resolve, 700))
+        ]);
+        window.location.assign(destino);
+    });
+}
+function iniciarCarrosselBanners() {
+    const heroSlider = document.querySelector('.swiper-hero');
+    if (!heroSlider) return;
+    prepararCliquesBanners(heroSlider);
+    const varios = heroSlider.querySelectorAll('.swiper-slide').length > 1;
+    heroSlider.querySelectorAll('.swiper-button-next,.swiper-button-prev').forEach(button => button.hidden = !varios);
+    if (varios) {
+        const swiper = new Swiper('.swiper-hero', {
+            loop: true,
+            pagination: { el: '.hero-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+            autoplay: { delay: 5000, disableOnInteraction: false },
+            on: {
+                init(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); },
+                slideChangeTransitionEnd(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); }
+            }
+        });
+        window.heroBannerSwiper = swiper;
+    } else {
+        registrarVisualizacaoBanner(heroSlider.querySelector('.swiper-slide'));
+    }
+}
+async function carregarBannersSite(){const lista=document.getElementById('hero-banners');if(!lista)return iniciarCarrosselBanners();try{const {data,error}=await db.from('banners_site').select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem').eq('ativo',true).order('ordem',{ascending:true}).order('criado_em',{ascending:true});if(error)throw error;const celular=window.matchMedia('(max-width: 639px)').matches,banners=(data||[]).filter(b=>celular?b.imagem_mobile_url:b.imagem_desktop_url);if(banners.length)lista.innerHTML=banners.map((b,index)=>{const imagem=celular?b.imagem_mobile_url:b.imagem_desktop_url;return `<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(b.link_url))}" aria-label="${escaparBanner(b.titulo)}" data-banner-id="${escaparBanner(b.id)}" data-banner-title="${escaparBanner(b.titulo)}"><img src="${escaparBanner(imagem)}" alt="${escaparBanner(b.texto_alternativo||b.titulo)}" loading="${index===0?'eager':'lazy'}" decoding="async" fetchpriority="${index===0?'high':'low'}"></a></div>`}).join('')}catch(error){console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.',error?.message||error)}iniciarCarrosselBanners()}
 carregarBannersSite();
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');
