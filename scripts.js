@@ -49,13 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         agendarNewsletterModal();
     } else {
-        const exibirConfirmacaoIdade = () => window.setTimeout(() => {
-            if (!overlay || localStorage.getItem('ageVerified') === 'true') return;
-            overlay.classList.add('is-visible');
-            overlay.setAttribute('aria-hidden', 'false');
-            document.body.classList.add('age-modal-open');
-            window.setTimeout(() => overlay.querySelector('.btn-yes')?.focus(), 120);
-        }, 1000);
+        const exibirConfirmacaoIdade = async () => {
+            await Promise.race([
+                window.tioNanBannersReady || Promise.resolve(),
+                new Promise(resolve => window.setTimeout(resolve, 5000))
+            ]);
+            window.setTimeout(() => {
+                if (!overlay || localStorage.getItem('ageVerified') === 'true') return;
+                overlay.classList.add('is-visible');
+                overlay.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('age-modal-open');
+                window.setTimeout(() => overlay.querySelector('.btn-yes')?.focus(), 120);
+            }, 1000);
+        };
         if (document.readyState === 'complete') exibirConfirmacaoIdade();
         else window.addEventListener('load', exibirConfirmacaoIdade, { once: true });
     }
@@ -655,8 +661,46 @@ function iniciarCarrosselBeneficios() {
         if (typeof rastrearAcao === 'function') rastrearAcao('Clique grupo de ofertas', '💬');
     });
 }
-async function carregarBannersSite(){const lista=document.getElementById('hero-banners');if(!lista)return iniciarCarrosselBanners();try{const {data,error}=await db.from('banners_site').select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem').eq('ativo',true).order('ordem',{ascending:true}).order('criado_em',{ascending:true});if(error)throw error;const celular=window.matchMedia('(max-width: 639px)').matches,banners=(data||[]).filter(b=>celular?b.imagem_mobile_url:b.imagem_desktop_url);if(banners.length)lista.innerHTML=banners.map((b,index)=>{const imagem=celular?b.imagem_mobile_url:b.imagem_desktop_url;return `<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(b.link_url))}" aria-label="${escaparBanner(b.titulo)}" data-banner-id="${escaparBanner(b.id)}" data-banner-title="${escaparBanner(b.titulo)}"><img src="${escaparBanner(imagem)}" alt="${escaparBanner(b.texto_alternativo||b.titulo)}" loading="${index===0?'eager':'lazy'}" decoding="async" fetchpriority="${index===0?'high':'low'}"></a></div>`}).join('')}catch(error){console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.',error?.message||error)}iniciarCarrosselBanners()}
-carregarBannersSite();
+async function carregarBannersSite() {
+    const lista = document.getElementById('hero-banners');
+    const hero = document.querySelector('.swiper-hero');
+    if (!lista) {
+        iniciarCarrosselBanners();
+        hero?.classList.remove('is-loading');
+        return;
+    }
+    try {
+        const { data, error } = await db.from('banners_site')
+            .select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem')
+            .eq('ativo', true)
+            .order('ordem', { ascending: true })
+            .order('criado_em', { ascending: true });
+        if (error) throw error;
+        const celular = window.matchMedia('(max-width: 639px)').matches;
+        const banners = (data || []).filter(banner => celular ? banner.imagem_mobile_url : banner.imagem_desktop_url);
+        if (banners.length) {
+            lista.innerHTML = banners.map((banner, index) => {
+                const imagem = celular ? banner.imagem_mobile_url : banner.imagem_desktop_url;
+                return `<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(banner.link_url))}" aria-label="${escaparBanner(banner.titulo)}" data-banner-id="${escaparBanner(banner.id)}" data-banner-title="${escaparBanner(banner.titulo)}"><img src="${escaparBanner(imagem)}" alt="${escaparBanner(banner.texto_alternativo || banner.titulo)}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${index === 0 ? 'high' : 'low'}"></a></div>`;
+            }).join('');
+        }
+        const primeiraImagem = lista.querySelector('img');
+        if (primeiraImagem && !primeiraImagem.complete) {
+            await Promise.race([
+                new Promise(resolve => {
+                    primeiraImagem.addEventListener('load', resolve, { once: true });
+                    primeiraImagem.addEventListener('error', resolve, { once: true });
+                }),
+                new Promise(resolve => window.setTimeout(resolve, 4000))
+            ]);
+        }
+    } catch (error) {
+        console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.', error?.message || error);
+    }
+    iniciarCarrosselBanners();
+    hero?.classList.remove('is-loading');
+}
+window.tioNanBannersReady = carregarBannersSite();
 iniciarCarrosselBeneficios();
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');

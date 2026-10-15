@@ -273,7 +273,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(8, 25, 47, 0.7);
             z-index: 1000000;
             display: none;
             justify-content: center;
@@ -869,6 +869,13 @@
             /* Container agora começa no topo absoluto por baixo do menu */
             background: transparent;
         }
+
+        .swiper-hero .swiper-wrapper {
+            opacity: 1;
+            transition: opacity .22s ease;
+        }
+
+        .swiper-hero.is-loading .swiper-wrapper { opacity: 0; }
 
         .swiper-hero img {
             width: 95%;
