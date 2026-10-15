@@ -630,8 +630,33 @@ function iniciarCarrosselBanners() {
         registrarVisualizacaoBanner(heroSlider.querySelector('.swiper-slide'));
     }
 }
+
+function iniciarCarrosselBeneficios() {
+    const element = document.querySelector('.swiper-benefits');
+    if (!element || typeof Swiper === 'undefined') return;
+    const modoCarrossel = window.innerWidth < 1000;
+    const carrossel = new Swiper(element, {
+        slidesPerView: 1,
+        loop: modoCarrossel,
+        speed: 520,
+        grabCursor: modoCarrossel,
+        allowTouchMove: modoCarrossel,
+        autoplay: modoCarrossel ? { delay: 3800, disableOnInteraction: false, pauseOnMouseEnter: true } : false,
+        pagination: { el: '.benefits-pagination', clickable: true },
+        breakpoints: {
+            640: { slidesPerView: 2 },
+            1000: { slidesPerView: 4 }
+        }
+    });
+    window.benefitsSwiper = carrossel;
+
+    element.querySelector('[data-benefit-action="grupo-ofertas"]')?.addEventListener('click', () => {
+        if (typeof rastrearAcao === 'function') rastrearAcao('Clique grupo de ofertas', '💬');
+    });
+}
 async function carregarBannersSite(){const lista=document.getElementById('hero-banners');if(!lista)return iniciarCarrosselBanners();try{const {data,error}=await db.from('banners_site').select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem').eq('ativo',true).order('ordem',{ascending:true}).order('criado_em',{ascending:true});if(error)throw error;const celular=window.matchMedia('(max-width: 639px)').matches,banners=(data||[]).filter(b=>celular?b.imagem_mobile_url:b.imagem_desktop_url);if(banners.length)lista.innerHTML=banners.map((b,index)=>{const imagem=celular?b.imagem_mobile_url:b.imagem_desktop_url;return `<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(b.link_url))}" aria-label="${escaparBanner(b.titulo)}" data-banner-id="${escaparBanner(b.id)}" data-banner-title="${escaparBanner(b.titulo)}"><img src="${escaparBanner(imagem)}" alt="${escaparBanner(b.texto_alternativo||b.titulo)}" loading="${index===0?'eager':'lazy'}" decoding="async" fetchpriority="${index===0?'high':'low'}"></a></div>`}).join('')}catch(error){console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.',error?.message||error)}iniciarCarrosselBanners()}
 carregarBannersSite();
+iniciarCarrosselBeneficios();
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');
 

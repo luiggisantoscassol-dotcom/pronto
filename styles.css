@@ -985,6 +985,113 @@
                 display:none !important;
             }
         }
+
+        .benefits-strip {
+            width: 100%;
+            margin: 0;
+            padding: 0 32px;
+            color: #fff;
+            background: linear-gradient(105deg, #132f54 0%, #1b3d69 100%);
+            border-top: 1px solid rgba(197, 160, 89, .5);
+            border-bottom: 1px solid rgba(197, 160, 89, .35);
+            box-shadow: 0 8px 24px rgba(19, 47, 84, .13);
+        }
+
+        .swiper-benefits {
+            width: 100%;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .benefit-item {
+            box-sizing: border-box;
+            min-height: 116px;
+            padding: 24px 28px;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-right: 1px solid rgba(255, 255, 255, .14);
+        }
+
+        .benefit-item:last-child { border-right: 0; }
+
+        .benefit-icon {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            display: grid;
+            place-items: center;
+            color: var(--gold-antique);
+            border: 1px solid rgba(197, 160, 89, .65);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .06);
+        }
+
+        .benefit-icon svg {
+            width: 23px;
+            height: 23px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .benefit-copy { display: grid; gap: 4px; }
+        .benefit-copy strong {
+            color: #fff;
+            font-size: .98rem;
+            line-height: 1.15;
+            letter-spacing: .01em;
+        }
+        .benefit-copy small {
+            color: rgba(255, 255, 255, .76);
+            font-size: .78rem;
+            line-height: 1.35;
+        }
+        .benefit-copy a {
+            width: fit-content;
+            margin-top: 2px;
+            padding: 5px 10px;
+            color: var(--blue-navy);
+            background: var(--gold-antique);
+            font-size: .78rem;
+            font-weight: 800;
+            line-height: 1.35;
+            text-decoration: none;
+            border: 1px solid var(--gold-antique);
+            border-radius: 999px;
+            transition: color .2s ease, background .2s ease, border-color .2s ease;
+        }
+        .benefit-copy a:hover,
+        .benefit-copy a:focus-visible { color: var(--blue-navy); background: #fff; border-color: #fff; }
+        .benefits-pagination { display: none; }
+
+        @media (max-width: 999px) {
+            .benefits-strip { padding: 0 18px 20px; }
+            .benefit-item {
+                min-height: 108px;
+                padding: 20px 12px 14px;
+                border-right: 0;
+            }
+            .benefits-pagination {
+                display: flex;
+                position: static !important;
+                justify-content: center;
+                gap: 4px;
+                height: 8px;
+            }
+            .benefits-pagination .swiper-pagination-bullet { background: rgba(255,255,255,.55) !important; }
+            .benefits-pagination .swiper-pagination-bullet-active { background: var(--gold-antique) !important; }
+        }
+
+        @media (max-width: 560px) {
+            .benefits-strip { padding-inline: 10px; }
+            .benefit-item { justify-content: flex-start; padding-inline: 26px; }
+            .benefit-copy strong { font-size: .94rem; }
+        }
+
         .hero-section {
             width: 100%;
             text-align: center;
