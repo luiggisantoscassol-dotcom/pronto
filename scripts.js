@@ -552,7 +552,7 @@ function avaliacaoDeSaborAtivo(nome) {
 function escaparBanner(texto=''){return String(texto).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function linkSeguroBanner(link=''){const valor=String(link).trim();return /^https?:\/\//i.test(valor)||(/^[a-z0-9][a-z0-9._~!$&'()*+,;=@%/?#-]*$/i.test(valor)&&!valor.includes(':'))?valor:'todos-produtos.html'}
 function iniciarCarrosselBanners(){const heroSlider=document.querySelector('.swiper-hero');if(!heroSlider)return;const varios=heroSlider.querySelectorAll('.swiper-slide').length>1;heroSlider.querySelectorAll('.swiper-button-next,.swiper-button-prev').forEach(button=>button.hidden=!varios);if(varios)new Swiper('.swiper-hero',{loop:true,pagination:{el:'.hero-pagination',clickable:true},navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev'},autoplay:{delay:5000,disableOnInteraction:false}})}
-async function carregarBannersSite(){const lista=document.getElementById('hero-banners');if(!lista)return iniciarCarrosselBanners();try{const {data,error}=await db.from('banners_site').select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem').eq('ativo',true).order('ordem',{ascending:true}).order('criado_em',{ascending:true});if(error)throw error;const celular=window.matchMedia('(max-width: 639px)').matches,banners=(data||[]).filter(b=>celular?b.imagem_mobile_url:b.imagem_desktop_url);if(banners.length)lista.innerHTML=banners.map(b=>{const imagem=celular?b.imagem_mobile_url:b.imagem_desktop_url;return `<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(b.link_url))}" aria-label="${escaparBanner(b.titulo)}"><img src="${escaparBanner(imagem)}" alt="${escaparBanner(b.texto_alternativo||b.titulo)}"></a></div>`}).join('')}catch(error){console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.',error?.message||error)}iniciarCarrosselBanners()}
+async function carregarBannersSite(){const lista=document.getElementById('hero-banners');if(!lista)return iniciarCarrosselBanners();try{const {data,error}=await db.from('banners_site').select('id,titulo,imagem_desktop_url,imagem_mobile_url,link_url,texto_alternativo,ordem').eq('ativo',true).order('ordem',{ascending:true}).order('criado_em',{ascending:true});if(error)throw error;const celular=window.matchMedia('(max-width: 639px)').matches,banners=(data||[]).filter(b=>celular?b.imagem_mobile_url:b.imagem_desktop_url);if(banners.length)lista.innerHTML=banners.map((b,index)=>{const imagem=celular?b.imagem_mobile_url:b.imagem_desktop_url;return `<div class="swiper-slide"><a class="hero-link" href="${escaparBanner(linkSeguroBanner(b.link_url))}" aria-label="${escaparBanner(b.titulo)}"><img src="${escaparBanner(imagem)}" alt="${escaparBanner(b.texto_alternativo||b.titulo)}" loading="${index===0?'eager':'lazy'}" decoding="async" fetchpriority="${index===0?'high':'low'}"></a></div>`}).join('')}catch(error){console.warn('Banners dinâmicos indisponíveis; mantendo banner padrão.',error?.message||error)}iniciarCarrosselBanners()}
 carregarBannersSite();
 
 let cart = JSON.parse(sessionStorage.getItem('tioNanCart') || '[]');
@@ -1183,7 +1183,7 @@ function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
     const LOCAL_PHOTOS = {
         "gengibre, guaco e mel": { f1: "fotos/gengibre.webp", f2: "fotos/gengibre-2.webp" },
         "café": { f1: "fotos/cafe.webp", f2: "fotos/cafe-2.webp" },
-        "butiá": { f1: "fotos/butia.webp", f2: "fotos/butia-2.png" },
+        "butiá": { f1: "fotos/butia.webp", f2: "fotos/butia-2.webp" },
         "jabuticaba": { f1: "fotos/jabuticaba.webp", f2: "fotos/jabuticaba-2.webp" },
         "morango": { f1: "fotos/morango.webp", f2: "fotos/morango-2.webp" },
         "morango com pimenta": { f1: "fotos/morango-pimenta.webp", f2: "fotos/morango-pimenta-2.webp" },
@@ -1296,7 +1296,7 @@ async function loadProducts() {
 
         let htmlDisp = ''; let htmlEsg = '';
 
-        produtosExibidos.forEach(p => {
+        produtosExibidos.forEach((p, productIndex) => {
             const id = p.id;
             const nome = nomeProdutoOficial(p);
             const apresentacao = apresentacaoCardProduto(p);
@@ -1333,6 +1333,8 @@ async function loadProducts() {
             const temFoto2 = (p.foto_2 && p.foto_2.trim().length > 5);
             let foto2 = temFoto2 ? fixDrive(p.foto_2.trim()) : foto1;
             const usaPlaceholder = foto1.includes('produto-em-breve.svg');
+            const carregamentoPrincipal = productIndex < 2 ? 'eager' : 'lazy';
+            const prioridadePrincipal = productIndex < 2 ? 'high' : 'low';
 
             const precoNum = parseFloat(p.preco);
             const precoOriginalNum = parseFloat(p.preco_original || 0);
@@ -1373,16 +1375,16 @@ async function loadProducts() {
                     ${temDesconto && !emBreve ? `<div class="faixa-oferta-clean">Oferta · ${percentualDesconto}% OFF</div>` : ''}
                     <div class="img-wrapper" ${acaoDetalhes}>
                         <div class="desktop-only-images">
-                            <img src="${foto1}" class="foto-1 prod-img">
-                            <img src="${foto2}" class="foto-2" loading="lazy">
+                            <img src="${foto1}" class="foto-1 prod-img" loading="${carregamentoPrincipal}" decoding="async" fetchpriority="${prioridadePrincipal}">
+                            <img src="${foto2}" class="foto-2" loading="lazy" decoding="async" fetchpriority="low">
                         </div>
                         ${temFoto2 ? `<div class="swiper swiper-produto">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide"><img src="${foto1}" class="prod-img" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'"></div>
-                                <div class="swiper-slide"><img src="${foto2}" class="prod-img" loading="eager" decoding="async" onerror="this.onerror=null;this.src='${foto1}'"></div>
+                                <div class="swiper-slide"><img src="${foto1}" class="prod-img" loading="${carregamentoPrincipal}" decoding="async" fetchpriority="${prioridadePrincipal}" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'"></div>
+                                <div class="swiper-slide"><img src="${foto2}" class="prod-img" loading="lazy" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${foto1}'"></div>
                             </div>
                             <div class="swiper-pagination"></div>
-                        </div>` : `<div class="swiper-produto swiper-produto-estatico"><img src="${foto1}" class="prod-img" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'"></div>`}
+                        </div>` : `<div class="swiper-produto swiper-produto-estatico"><img src="${foto1}" class="prod-img" loading="${carregamentoPrincipal}" decoding="async" fetchpriority="${prioridadePrincipal}" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg'"></div>`}
                     </div>
                     <div ${acaoDetalhes}>
                         <h3 class="prod-nome">${apresentacao.titulo}</h3>

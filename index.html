@@ -25,6 +25,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://eegqobqhrfdkmjyjnqvp.supabase.co" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=Outfit:wght@300;400;600&family=Barlow+Condensed:wght@500;600;700&display=swap"
         rel="stylesheet">
@@ -130,7 +132,7 @@
         <section class="newsletter-modal__card" role="dialog" aria-modal="true" aria-labelledby="newsletter-title">
             <button class="newsletter-modal__close" type="button" aria-label="Fechar" data-newsletter-close>&times;</button>
             <div class="newsletter-modal__visual" aria-hidden="true">
-                <img src="fotos/banner-amizade.webp?v=1" alt="">
+                <img src="fotos/banner-amizade.webp?v=1" alt="" decoding="async">
                 <span>Clube Tio Nan</span>
             </div>
             <div class="newsletter-modal__content">
@@ -373,10 +375,10 @@
             <div class="swiper-wrapper" id="hero-banners">
                 <div class="swiper-slide">
                     <a class="hero-link hero-link-desktop" href="produto.html?bling=16712114193" aria-label="Ver Cachaça Prata Tio Nan">
-                        <img src="fotos/banner-cachaca-prata-desktop.png?v=1" alt="Cachaça Prata Tio Nan — pura ou no seu drink favorito">
+                        <img src="fotos/banner-cachaca-prata-desktop.webp?v=1" alt="Cachaça Prata Tio Nan — pura ou no seu drink favorito" loading="eager" decoding="async" fetchpriority="high">
                     </a>
                     <a class="hero-link hero-link-mobile" href="produto.html?bling=16699719562" aria-label="Ver Gengibre, Guaco e Mel">
-                        <img src="fotos/passo1-mobile.webp?v=pre-venda-mobile-1" alt="Pré-venda Tio Nan com 20% de desconto">
+                        <img src="fotos/passo1-mobile.webp?v=pre-venda-mobile-1" alt="Pré-venda Tio Nan com 20% de desconto" loading="eager" decoding="async" fetchpriority="high">
                     </a>
                 </div>
             </div>
@@ -395,7 +397,7 @@
         </section>
 
         <section class="banner-amizade" aria-label="Toda amizade merece um brinde">
-            <a href="todos-produtos.html" aria-label="Ver todos os produtos"><img src="fotos/banner-amizade.webp?v=1" alt="Toda amizade merece um brinde"></a>
+            <a href="todos-produtos.html" aria-label="Ver todos os produtos"><img src="fotos/banner-amizade.webp?v=1" alt="Toda amizade merece um brinde" loading="lazy" decoding="async"></a>
         </section>
 
         <!-- SEÇÃO DE DEPOIMENTOS (AVALIAÇÕES REAIS DOS CLIENTES) -->
@@ -472,7 +474,7 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="meta-pixel.js?v=1"></script>
     <script src="site-analytics.js?v=2"></script>
-    <script src="scripts.js?v=6.48"></script>
+    <script src="scripts.js?v=6.49"></script>
 </body>
 
 </html>

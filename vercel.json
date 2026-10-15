@@ -13,5 +13,25 @@
       "source": "/cachaca-porto-alegre",
       "destination": "/cachaca-porto-alegre.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/fotos/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(otf|woff2)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(css|js)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400" }
+      ]
+    }
   ]
 }
