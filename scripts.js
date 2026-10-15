@@ -31,13 +31,6 @@ function verifyAge(isMajor) {
         rastrearAcao("Idade Verificada", "🔞");
         agendarNewsletterModal();
 
-        // Esconde o loader após verificar a idade
-        const loader = document.getElementById('loader-wrapper');
-        if (loader) {
-            setTimeout(() => {
-                loader.classList.add('hidden');
-            }, 500);
-        }
     } else {
         alert("A apreciação de uma boa cachaça é um prazer reservado a adultos. 🔞");
         window.location.href = "https://www.google.com";
@@ -55,15 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.setAttribute('aria-hidden', 'true');
         }
         agendarNewsletterModal();
-        // Se já verificou, o loader pode sumir direto pelo loadProducts()
     } else {
-        window.setTimeout(() => {
+        const exibirConfirmacaoIdade = () => window.setTimeout(() => {
             if (!overlay || localStorage.getItem('ageVerified') === 'true') return;
             overlay.classList.add('is-visible');
             overlay.setAttribute('aria-hidden', 'false');
             document.body.classList.add('age-modal-open');
             window.setTimeout(() => overlay.querySelector('.btn-yes')?.focus(), 120);
         }, 1000);
+        if (document.readyState === 'complete') exibirConfirmacaoIdade();
+        else window.addEventListener('load', exibirConfirmacaoIdade, { once: true });
     }
 
     // Eventos de swipe no lightbox
@@ -1565,12 +1559,6 @@ async function loadProducts() {
 
     } catch (error) {
         console.error("Erro ao carregar produtos:", error);
-    } finally {
-        const loader = document.getElementById("loader-wrapper");
-        const isVerified = localStorage.getItem('ageVerified') === 'true';
-        if (loader && isVerified) {
-            loader.classList.add("hidden");
-        }
     }
 }
 

@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <script src="/zoom-lock.js?v=1" defer></script>
   <title>Todos os produtos | Tio Nan</title>
   <meta name="description" content="Conheça todas as cachaças e kits Tio Nan. Escolha seu produto, compre online e receba em casa." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
@@ -64,7 +65,7 @@
     const photo=p=>p.foto_1||(p.tipo_produto==='kit'?'fotos/produto-em-breve.svg':['16712113631','16712114193'].includes(String(p.bling_id))?'fotos/produto-em-breve.svg':String(p.bling_id)==='16699719562'?'fotos/gengibre-guaco-mel.webp?v=5':String(p.bling_id)==='16699660347'?'fotos/cachaca-ouro.webp?v=2':String(p.bling_id)==='16687078597'?'fotos/produto-em-breve.svg':normalize(p.nome).includes('gengibre')?'fotos/gengibre-guaco-mel.webp?v=5':normalize(p.nome).includes('ouro')?'fotos/cachaca-ouro.webp?v=2':'fotos/produto-em-breve.svg');
     const format=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
     const displayName=p=>{const id=String(p.bling_id||''),nome=String(p.nome||'');if(id==='16699719562')return'Gengibre, Guaco e Mel';if(id==='16699660347')return'Cachaça Ouro';if(id==='16687078597')return'Cachaça Prata';if(id==='16712113631')return'Cachaça Ouro 750 ml';if(id==='16712114193')return'Cachaça Prata 750 ml';if(p.tipo_produto==='kit')return nome.replace(/\s+TIO\s+NAN\s*$/i,'').replace(/\s+700\s*ML\s*/ig,' ').replace(/\s{2,}/g,' ').trim();return nome;};
-    const slug=v=>normalize(v).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    const slug=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
     const productUrl=p=>/(^|\.)tionan\.com\.br$/i.test(location.hostname)?`/produtos/${slug(p.nome)}`:`produto.html?id=${encodeURIComponent(p.id)}`;
     const offersMode=new URLSearchParams(location.search).get('filtro')==='ofertas';
     if(offersMode){document.getElementById('pageEyebrow').textContent='Seleção especial';document.getElementById('pageTitle').textContent='Ofertas e kits';document.getElementById('pageIntro').textContent='Promoções e kits aparecem primeiro; depois, você encontra todas as bebidas Tio Nan.';document.title='Ofertas e kits | Tio Nan'}

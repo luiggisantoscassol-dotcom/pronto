@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <script src="/zoom-lock.js?v=1" defer></script>
   <meta name="theme-color" content="#ffffff" />
   <base href="/" />
   <title>Produto | Tio Nan</title>
@@ -498,7 +499,10 @@
         const response = await db.from('produtos').select('*').eq('excluido', false);
         error = response.error;
         const products = response.data || [];
-        data = products.find(item => productSlug(item.nome) === slug) || null;
+        data = products.find(item => {
+          const itemSlug = productSlug(item.nome);
+          return itemSlug === slug || itemSlug.replace(/^cachaca-/, '') === slug;
+        }) || null;
       }
       const localOuro = id === 'cachaca-ouro-local' ? {
         id: 'cachaca-ouro-local', nome: 'Cachaça Ouro', preco: 50, estoque: 1,
