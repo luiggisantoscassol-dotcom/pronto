@@ -913,7 +913,7 @@
             .swiper-hero {
                 width: 100%;
                 max-width: none;
-                margin: -100px 0 0;
+                margin: -70px 0 0;
             }
             .swiper-hero .hero-link-desktop { display:none; }
             .swiper-hero .hero-link-mobile { display:block; }
