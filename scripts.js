@@ -634,18 +634,25 @@ function iniciarCarrosselBanners() {
 function iniciarCarrosselBeneficios() {
     const element = document.querySelector('.swiper-benefits');
     if (!element || typeof Swiper === 'undefined') return;
-    const modoCarrossel = window.innerWidth < 1000;
+    const atualizarDegrades = instance => {
+        element.classList.toggle('is-at-start', instance.isBeginning);
+        element.classList.toggle('is-at-end', instance.isEnd);
+    };
     const carrossel = new Swiper(element, {
-        slidesPerView: 1,
-        loop: modoCarrossel,
+        slidesPerView: 1.16,
+        spaceBetween: 0,
+        loop: false,
         speed: 520,
-        grabCursor: modoCarrossel,
-        allowTouchMove: modoCarrossel,
-        autoplay: modoCarrossel ? { delay: 3800, disableOnInteraction: false, pauseOnMouseEnter: true } : false,
-        pagination: { el: '.benefits-pagination', clickable: true },
+        grabCursor: true,
+        watchOverflow: true,
         breakpoints: {
-            640: { slidesPerView: 2 },
-            1000: { slidesPerView: 4 }
+            640: { slidesPerView: 2.16 },
+            1000: { slidesPerView: 4, allowTouchMove: false }
+        },
+        on: {
+            init: atualizarDegrades,
+            slideChange: atualizarDegrades,
+            resize: atualizarDegrades
         }
     });
     window.benefitsSwiper = carrossel;
