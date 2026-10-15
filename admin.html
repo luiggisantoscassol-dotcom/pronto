@@ -2199,9 +2199,12 @@
     </div>
     <div id="tab-rastreio" class="tab-content">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
                 <h2 style="margin:0;">Atividade dos Visitantes</h2>
-                <div style="display:flex; align-items:center; gap:10px;">
+                <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
+                    <button onclick="abrirConfiguracaoPixel()" class="btn-refresh-mini"
+                        style="background:rgba(24,119,242,.08); color:#1877f2; border-color:rgba(24,119,242,.25); font-size:0.6rem; padding:4px 8px;">⚙
+                        PIXEL META</button>
                     <button onclick="copiarLinkWhatsapp()" class="btn-refresh-mini"
                         style="background:rgba(37, 211, 102, 0.1); color:#25D366; border-color:rgba(37, 211, 102, 0.3); font-size:0.6rem; padding:4px 8px;">🔗
                         LINK WHATS</button>
@@ -2219,6 +2222,21 @@
             <h3 class="analytics-section-title">Jornada de cada visitante</h3>
             <div id="corpo-rastreio"></div>
         </div>
+    </div>
+
+    <div id="modal-configuracao-pixel" class="modal-box" style="max-width:520px;flex-direction:column" onclick="event.stopPropagation()">
+            <button type="button" class="modal-close" onclick="fecharConfiguracaoPixel()" aria-label="Fechar">×</button>
+            <span class="sidebar-kicker">Mensuração de anúncios</span>
+            <h2 style="margin:8px 0 6px">Pixel da Meta</h2>
+            <p style="margin:0 0 18px;color:#718096;font-size:.72rem;line-height:1.55">Informe somente o número do Pixel. A alteração passa a valer no Facebook e Instagram em todas as páginas do site.</p>
+            <label style="display:grid;gap:7px;color:#19385f;font-size:.68rem;font-weight:900">ID DO PIXEL
+                <input id="meta-pixel-id-admin" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 1103618278174331" maxlength="25">
+            </label>
+            <small id="meta-pixel-status-admin" style="display:block;margin-top:10px;color:#718096;line-height:1.5">Carregando configuração…</small>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+                <button type="button" class="documentos-configuracoes-btn" onclick="fecharConfiguracaoPixel()">CANCELAR</button>
+                <button type="button" id="meta-pixel-salvar-admin" class="btn-status" onclick="salvarConfiguracaoPixel(this)">SALVAR PIXEL</button>
+            </div>
     </div>
     <div id="tab-banners" class="tab-content">
         <div class="card banners-admin">
@@ -6293,6 +6311,66 @@
                 inicio += pagina;
             }
             return registros;
+        }
+
+        async function abrirConfiguracaoPixel() {
+            abrirModalAdmin('modal-configuracao-pixel');
+            const input = document.getElementById('meta-pixel-id-admin');
+            const status = document.getElementById('meta-pixel-status-admin');
+            input.value = '';
+            input.disabled = true;
+            status.textContent = 'Carregando configuração atual…';
+            try {
+                const { data, error } = await db.from('site_configuracoes').select('valor,atualizado_em').eq('chave', 'meta_pixel_id').maybeSingle();
+                if (error) throw error;
+                input.value = data?.valor || '1103618278174331';
+                status.textContent = data?.atualizado_em
+                    ? `Pixel ativo. Última alteração em ${new Date(data.atualizado_em).toLocaleString('pt-BR')}.`
+                    : 'Pixel ativo. Salve para registrar esta configuração no painel.';
+            } catch (error) {
+                input.value = '1103618278174331';
+                status.textContent = `Não foi possível consultar agora: ${error.message || error}`;
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        function fecharConfiguracaoPixel() {
+            fecharTodosModais();
+        }
+
+        async function salvarConfiguracaoPixel(botao) {
+            const input = document.getElementById('meta-pixel-id-admin');
+            const status = document.getElementById('meta-pixel-status-admin');
+            const pixelId = String(input.value || '').trim();
+            if (!/^\d{5,25}$/.test(pixelId)) {
+                status.textContent = 'Digite somente o ID numérico do Pixel da Meta.';
+                input.focus();
+                return;
+            }
+            const textoOriginal = botao.textContent;
+            botao.disabled = true;
+            botao.textContent = 'SALVANDO…';
+            try {
+                const { data: sessao } = await db.auth.getSession();
+                const { error } = await db.from('site_configuracoes').upsert({
+                    chave: 'meta_pixel_id',
+                    valor: pixelId,
+                    descricao: 'ID do Pixel da Meta usado no site',
+                    atualizado_em: new Date().toISOString(),
+                    atualizado_por: sessao?.session?.user?.id || null
+                }, { onConflict: 'chave' });
+                if (error) throw error;
+                status.textContent = 'Pixel salvo. Ele será usado nas próximas páginas abertas pelos visitantes.';
+                showToast('Pixel da Meta atualizado com sucesso.');
+                setTimeout(fecharConfiguracaoPixel, 900);
+            } catch (error) {
+                status.textContent = `Não foi possível salvar: ${error.message || error}`;
+            } finally {
+                botao.disabled = false;
+                botao.textContent = textoOriginal;
+            }
         }
 
         async function carregar(silencioso = false) {
