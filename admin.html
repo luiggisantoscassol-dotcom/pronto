@@ -6227,8 +6227,9 @@
             const adicionaram = porEvento('add_to_cart');
             const checkout = porEvento('checkout_start');
             const pedidos = porEvento('order_created');
+            const pagamentosAprovados = porEvento('purchase_approved');
             const vindosAnuncio = new Set(filtrados.filter(item => ['facebook','instagram','google'].includes(origemRastreio(item)) || Boolean(item.click_id)).map(chaveVisitante));
-            const conversao = visitantes.size ? (pedidos.size / visitantes.size) * 100 : 0;
+            const conversao = visitantes.size ? (pagamentosAprovados.size / visitantes.size) * 100 : 0;
             const origemMapa = new Map(), campanhaMapa = new Map(), produtoMapa = new Map(), paginaMapa = new Map(), localMapa = new Map();
             filtrados.forEach(item => {
                 const visitante = chaveVisitante(item);
@@ -6249,7 +6250,7 @@
             });
             const etapas = [
                 ['Visitantes',visitantes.size,'100%'],['Viram produto',viramProduto.size,visitantes.size?`${Math.round(viramProduto.size/visitantes.size*100)}% dos visitantes`:'—'],
-                ['Adicionaram',adicionaram.size,viramProduto.size?`${Math.round(adicionaram.size/viramProduto.size*100)}% do interesse`:'—'],['Checkout',checkout.size,adicionaram.size?`${Math.round(checkout.size/adicionaram.size*100)}% das sacolas`:'—'],['Pedidos',pedidos.size,checkout.size?`${Math.round(pedidos.size/checkout.size*100)}% dos checkouts`:'—']
+                ['Adicionaram',adicionaram.size,viramProduto.size?`${Math.round(adicionaram.size/viramProduto.size*100)}% do interesse`:'—'],['Checkout',checkout.size,adicionaram.size?`${Math.round(checkout.size/adicionaram.size*100)}% das sacolas`:'—'],['Pedidos',pedidos.size,checkout.size?`${Math.round(pedidos.size/checkout.size*100)}% dos checkouts`:'—'],['Pagos',pagamentosAprovados.size,pedidos.size?`${Math.round(pagamentosAprovados.size/pedidos.size*100)}% dos pedidos`:'—']
             ];
             document.getElementById('analytics-resumo').innerHTML = `
                 <div class="analytics-kpis">
@@ -6258,7 +6259,7 @@
                     <div class="analytics-kpi"><span>Vindos de anúncios</span><b>${vindosAnuncio.size.toLocaleString('pt-BR')}</b><small>Facebook, Instagram e Google</small></div>
                     <div class="analytics-kpi"><span>Interesse em produto</span><b>${viramProduto.size.toLocaleString('pt-BR')}</b><small>visitantes que abriram produto</small></div>
                     <div class="analytics-kpi"><span>Sacolas</span><b>${adicionaram.size.toLocaleString('pt-BR')}</b><small>visitantes que adicionaram item</small></div>
-                    <div class="analytics-kpi"><span>Conversão</span><b>${conversao.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</b><small>${pedidos.size} pedido${pedidos.size===1?'':'s'} criado${pedidos.size===1?'':'s'}</small></div>
+                    <div class="analytics-kpi"><span>Conversão paga</span><b>${conversao.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</b><small>${pagamentosAprovados.size} pagamento${pagamentosAprovados.size===1?'':'s'} aprovado${pagamentosAprovados.size===1?'':'s'}</small></div>
                 </div>
                 <div class="analytics-grid">
                     <section class="analytics-panel"><h3>Funil de comportamento</h3><p>Mostra em qual etapa as pessoas deixam de avançar.</p><div class="analytics-funnel">${etapas.map(([nome,valor,nota])=>`<div class="analytics-funnel__step"><b>${valor}</b><span>${nome}</span><small>${nota}</small></div>`).join('')}</div></section>
@@ -6269,6 +6270,29 @@
                     <section class="analytics-panel"><h3>Localização aproximada</h3><p>Cidades que mais demonstraram interesse.</p>${rankingAnalytics(localMapa)}</section>
                 </div>`;
             return filtrados;
+        }
+
+        async function buscarRastreioPeriodo() {
+            const periodoSelecionado = document.getElementById('analytics-periodo')?.value || '30';
+            const inicioHoje = new Date();
+            inicioHoje.setHours(0, 0, 0, 0);
+            const periodo = Number(periodoSelecionado);
+            const limite = periodoSelecionado === 'hoje' ? inicioHoje : periodo ? new Date(Date.now() - periodo * 86400000) : null;
+            const pagina = 1000;
+            let inicio = 0;
+            const registros = [];
+
+            while (true) {
+                let consulta = db.from('rastreio_carrinho').select('*').order('created_at', { ascending: false }).range(inicio, inicio + pagina - 1);
+                if (limite) consulta = consulta.gte('created_at', limite.toISOString());
+                const { data, error } = await consulta;
+                if (error) throw error;
+                const lote = data || [];
+                registros.push(...lote);
+                if (lote.length < pagina) break;
+                inicio += pagina;
+            }
+            return registros;
         }
 
         async function carregar(silencioso = false) {
@@ -6295,7 +6319,7 @@
                     .eq('tipo','venda').eq('status','ativo').order('data_movimento',{ascending:false});
 
                 // Carregar Rastreio
-                const { data: rastreio } = await db.from('rastreio_carrinho').select('*').order('created_at', { ascending: false });
+                const rastreio = await buscarRastreioPeriodo();
 
                 // Resumos da página inicial. As consultas independentes rodam juntas para
                 // manter os cartões úteis sem atrasar as demais áreas do painel.

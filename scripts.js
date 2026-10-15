@@ -240,11 +240,12 @@ async function fetchIP() {
         }
     }
 }
-fetchIP();
+const acessoInternoTioNan = window.TioNanInternalAccess === true || localStorage.getItem('tioNanInternalAccess') === '1';
+if (!acessoInternoTioNan) fetchIP();
 
 // --- SISTEMA DE PRESENÇA EM TEMPO REAL ---
 let canalPresenca;
-if (db) {
+if (db && !acessoInternoTioNan) {
     canalPresenca = db.channel('online_users', { config: { presence: { key: getDeviceId() } } });
     canalPresenca.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -436,6 +437,7 @@ function getReferrer() {
 }
 
 async function rastrearAcao(label, acao = "") {
+    if (acessoInternoTioNan) return;
     try {
         const visitorName = localStorage.getItem('visitorName') || 'Anônimo';
         const geo = await getGeoLocation();
@@ -1759,7 +1761,6 @@ function abrirModalProduto(dadosEncoded) {
 // Compatibilidade com links antigos: detalhes agora abrem em página própria.
 function abrirModalProduto(dadosEncoded) {
     const p = JSON.parse(decodeURIComponent(dadosEncoded));
-    rastrearAcao(p.nome, "👀 Viu");
     window.location.href = urlProduto(p);
 }
 
@@ -2814,7 +2815,7 @@ function openCart() {
     document.body.classList.add('stop-scroll');
     if (backdrop) backdrop.style.display = 'block';
     history.pushState({ sacolaAberta: true }, "", "#sacola");
-    rastrearAcao("Carrinho", "💳 Abriu Checkout");
+    if (cart.length > 0) rastrearAcao("Carrinho", "💳 Abriu Checkout");
 }
 function closeCart(veioDoBotaoVoltar = false) {
     try {

@@ -1,6 +1,37 @@
 (function () {
   const SUPABASE_URL = 'https://eegqobqhrfdkmjyjnqvp.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
+  const internalAccessKey = 'tioNanInternalAccess';
+  const sessionKey = 'tioNanAnalyticsSessionV2';
+  const sessionTimeout = 30 * 60 * 1000;
+  const initialParams = new URLSearchParams(location.search);
+  const internalAccessParam = initialParams.get('interno');
+
+  if (internalAccessParam === '1') {
+    localStorage.setItem(internalAccessKey, '1');
+  } else if (internalAccessParam === '0') {
+    localStorage.removeItem(internalAccessKey);
+  }
+
+  const isInternalAccess = localStorage.getItem(internalAccessKey) === '1';
+  window.TioNanInternalAccess = isInternalAccess;
+  if (internalAccessParam !== null) {
+    initialParams.delete('interno');
+    const cleanQuery = initialParams.toString();
+    history.replaceState(null, '', `${location.pathname}${cleanQuery ? `?${cleanQuery}` : ''}${location.hash}`);
+  }
+
+  if (isInternalAccess) {
+    window.TioNanAnalytics = {
+      track: async () => {},
+      attribution: () => ({}),
+      sessionId: null,
+      deviceId: localStorage.getItem('tioNanDeviceId'),
+      isInternal: true
+    };
+    return;
+  }
+
   if (!window.supabase) return;
 
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -12,15 +43,22 @@
   });
   const params = new URLSearchParams(location.search);
   const attributionKey = 'tioNanAttribution';
-  const sessionKey = 'tioNanAnalyticsSession';
 
-  function id(storage, key, prefix) {
-    let value = storage.getItem(key);
-    if (!value) {
-      value = `${prefix}-${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
-      storage.setItem(key, value);
+  function newId(prefix) {
+    return `${prefix}-${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
+  }
+
+  function currentSessionId() {
+    const now = Date.now();
+    let session = {};
+    try { session = JSON.parse(localStorage.getItem(sessionKey) || '{}'); } catch (_) {}
+    if (!session.id || !session.last_activity || now - Number(session.last_activity) > sessionTimeout) {
+      session = { id: newId('ses'), last_activity: now };
+    } else {
+      session.last_activity = now;
     }
-    return value;
+    localStorage.setItem(sessionKey, JSON.stringify(session));
+    return session.id;
   }
 
   function sourceFromUrl() {
@@ -33,14 +71,15 @@
     return ref && !ref.includes(location.hostname) ? 'referencia' : 'direto';
   }
 
-  function captureAttribution() {
+  function captureAttribution(activeSessionId) {
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(attributionKey) || '{}'); } catch (_) {}
     const hasCampaign = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','gclid','gbraid','wbraid'].some(key => params.has(key));
-    if (hasCampaign || !saved.source) {
+    if (hasCampaign || saved.session_id !== activeSessionId) {
       saved = {
+        session_id: activeSessionId,
         source: sourceFromUrl(),
-        medium: params.get('utm_medium') || (params.get('fbclid') || params.get('gclid') ? 'paid' : ''),
+        medium: params.get('utm_medium') || (params.get('fbclid') || params.get('gclid') || params.get('gbraid') || params.get('wbraid') ? 'paid' : ''),
         campaign: params.get('utm_campaign') || '',
         content: params.get('utm_content') || '',
         term: params.get('utm_term') || '',
@@ -53,9 +92,13 @@
     return saved;
   }
 
-  const attribution = captureAttribution();
-  const deviceId = id(localStorage, 'tioNanDeviceId', 'dev');
-  const sessionId = id(sessionStorage, sessionKey, 'ses');
+  let deviceId = localStorage.getItem('tioNanDeviceId');
+  if (!deviceId) {
+    deviceId = newId('dev');
+    localStorage.setItem('tioNanDeviceId', deviceId);
+  }
+  let sessionId = currentSessionId();
+  let attribution = captureAttribution(sessionId);
 
   function deviceType() {
     const ua = navigator.userAgent;
@@ -67,6 +110,11 @@
   }
 
   async function track(evento, details = {}) {
+    const activeSessionId = currentSessionId();
+    if (activeSessionId !== sessionId) {
+      sessionId = activeSessionId;
+      attribution = captureAttribution(sessionId);
+    }
     const action = details.acao ? `${details.acao}: ` : '';
     const label = details.label || details.produto_nome || evento;
     const legacy = {
@@ -103,6 +151,6 @@
     }
   }
 
-  window.TioNanAnalytics = { track, attribution: () => ({ ...attribution }), sessionId, deviceId };
+  window.TioNanAnalytics = { track, attribution: () => ({ ...attribution }), sessionId: () => sessionId, deviceId, isInternal: false };
   track('page_view', { label: location.pathname === '/' || location.pathname.endsWith('/index.html') ? 'Página inicial' : document.title });
 })();

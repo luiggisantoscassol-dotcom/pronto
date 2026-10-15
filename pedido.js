@@ -87,6 +87,15 @@ async function loadOrder(show = false) {
   renderGoogleCustomerReview(data.google_customer_reviews);
   if (order.status_pagamento === 'pago') {
     window.TioNanPixel?.purchase({ reference:order.referencia, value:Number(order.total || 0), items:order.itens_json || [] });
+    const analyticsPurchaseKey = `tioNanPurchaseTracked:${order.referencia}`;
+    if (!localStorage.getItem(analyticsPurchaseKey)) {
+      await window.TioNanAnalytics?.track('purchase_approved', {
+        label: order.referencia,
+        valor: Number(order.total || 0),
+        metadata: { itens: order.itens_json || [] }
+      });
+      localStorage.setItem(analyticsPurchaseKey, '1');
+    }
   }
   const orderCode = String(order.referencia).slice(0, 8).toUpperCase();
   document.getElementById('order-code').textContent = `Pedido ${orderCode}`;
