@@ -43,7 +43,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Tio Nan">
 
-    <link rel="stylesheet" href="styles.css?v=6.28">
+    <link rel="stylesheet" href="styles.css?v=6.29">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -112,10 +112,10 @@
         <a href="rastrear.html">Rastrear pedido</a>
     </nav>
 
-    <div id="age-verification-overlay">
+    <div id="age-verification-overlay" role="dialog" aria-modal="true" aria-labelledby="age-question" aria-hidden="true">
         <div class="age-box">
             <span class="age-logo">Tio Nan</span>
-            <p class="age-text">
+            <p class="age-text" id="age-question">
                 Você tem mais de 18 anos?
                 <small>A apreciação de uma <b>boa cachaça</b> é um prazer reservado a adultos.</small>
             </p>
@@ -474,7 +474,7 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="meta-pixel.js?v=2"></script>
     <script src="site-analytics.js?v=4"></script>
-    <script src="scripts.js?v=6.51"></script>
+    <script src="scripts.js?v=6.52"></script>
 </body>
 
 </html>

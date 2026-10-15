@@ -21,7 +21,11 @@ function verifyAge(isMajor) {
         localStorage.setItem('ageVerified', 'true');
 
         const overlay = document.getElementById('age-verification-overlay');
-        if (overlay) overlay.style.display = 'none';
+        if (overlay) {
+            overlay.classList.remove('is-visible');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+        document.body.classList.remove('age-modal-open');
 
         updateWelcome();
         rastrearAcao("Idade Verificada", "🔞");
@@ -46,11 +50,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const isVerified = localStorage.getItem('ageVerified');
     const overlay = document.getElementById('age-verification-overlay');
     if (isVerified === 'true') {
-        if (overlay) overlay.style.display = 'none';
+        if (overlay) {
+            overlay.classList.remove('is-visible');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
         agendarNewsletterModal();
         // Se já verificou, o loader pode sumir direto pelo loadProducts()
     } else {
-        if (overlay) overlay.style.display = 'flex';
+        window.setTimeout(() => {
+            if (!overlay || localStorage.getItem('ageVerified') === 'true') return;
+            overlay.classList.add('is-visible');
+            overlay.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('age-modal-open');
+            window.setTimeout(() => overlay.querySelector('.btn-yes')?.focus(), 120);
+        }, 1000);
     }
 
     // Eventos de swipe no lightbox
