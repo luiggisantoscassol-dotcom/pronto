@@ -4891,7 +4891,7 @@
                         : `<button type="button" class="excluir" onclick="excluirDocumentoContabil('${escapeAdmin(documento.id)}')">EXCLUIR</button>`;
                     return `<article class="documento-row"><div class="documento-row__data">${new Date(documento.data_documento+'T12:00:00').toLocaleDateString('pt-BR')}</div><div class="documento-row__arquivo"><b>📎 ${escapeAdmin(documento.arquivo_nome)}</b><small>${tamanhoArquivo(documento.arquivo_bytes)}</small></div><div class="documento-row__descricao"><b>${escapeAdmin(descricao)}</b>${documento.compra_insumo_id ? '<small>Vinculado a uma compra de insumo</small>' : ''}</div><div class="documento-row__tipo">${escapeAdmin(documento.tipo?.nome || documento.tipo_codigo)}</div><div class="documento-row__status"><span class="admin-chip ${enviado ? 'ok' : ''}">${enviado ? 'ENVIADO' : 'NOVO'}</span></div><div class="documento-row__acoes"><button type="button" onclick="visualizarDocumentoContabil('${escapeAdmin(documento.id)}')">VISUALIZAR</button>${acaoExcluir}</div></article>`;
                 }).join('') || '<p class="documentos-vazio">Nenhum documento neste mês.</p>';
-                return `<section class="documentos-mes ${aberto ? 'is-open' : ''}"><button type="button" class="documentos-mes__cabecalho" onclick="alternarMesDocumentos('${competencia}')" aria-expanded="${aberto}"><span class="documentos-mes__titulo"><b>${escapeAdmin(nomeCompetencia(competencia))}</b><small>${documentosMes.length} documento(s) · mais recentes primeiro</small></span><span class="documentos-mes__status ${novos ? 'has-pending' : ''}">${novos ? `${novos} NOVO(S)` : documentosMes.length ? 'TUDO ENVIADO' : 'SEM DOCUMENTOS'}</span><span class="documentos-mes__seta" aria-hidden="true">⌄</span></button><div class="documentos-mes__corpo"><div class="documentos-mes__acoes"><button type="button" class="btn-status secundario" onclick="baixarDocumentosCompetencia(this,'${competencia}')" ${documentosMes.length ? '' : 'disabled'}>BAIXAR MÊS</button><button type="button" class="btn-status" onclick="enviarDocumentosContabilidade(this,'${competencia}','new')" ${novos ? '' : 'disabled'}>ENVIAR NOVOS (${novos})</button><button type="button" class="btn-status reenviar" onclick="enviarDocumentosContabilidade(this,'${competencia}','all')" ${documentosMes.length ? '' : 'disabled'}>REENVIAR TODOS</button></div><div class="documentos-tabela-wrap"><div class="documentos-tabela-head"><span>Data</span><span>Documento</span><span>Fornecedor / descrição</span><span>Tipo</span><span>Status</span><span>Ações</span></div><div class="documentos-lista">${linhas}</div></div></div></section>`;
+                return `<section class="documentos-mes ${aberto ? 'is-open' : ''}"><button type="button" class="documentos-mes__cabecalho" onclick="alternarMesDocumentos('${competencia}')" aria-expanded="${aberto}"><span class="documentos-mes__titulo"><b>${escapeAdmin(nomeCompetencia(competencia))}</b><small>${documentosMes.length} documento(s) · mais recentes primeiro</small></span><span class="documentos-mes__status ${novos ? 'has-pending' : ''}">${novos ? `${novos} NOVO(S)` : documentosMes.length ? 'TUDO ENVIADO' : 'SEM DOCUMENTOS'}</span><span class="documentos-mes__seta" aria-hidden="true">⌄</span></button><div class="documentos-mes__corpo"><div class="documentos-mes__acoes"><button type="button" class="btn-status secundario" onclick="baixarNotasPedidosCompetencia(this,'${competencia}')">NF-e DOS PEDIDOS</button><button type="button" class="btn-status secundario" onclick="baixarDocumentosCompetencia(this,'${competencia}')" ${documentosMes.length ? '' : 'disabled'}>BAIXAR MÊS</button><button type="button" class="btn-status" onclick="enviarDocumentosContabilidade(this,'${competencia}','new')" ${novos ? '' : 'disabled'}>ENVIAR NOVOS (${novos})</button><button type="button" class="btn-status reenviar" onclick="enviarDocumentosContabilidade(this,'${competencia}','all')" ${documentosMes.length ? '' : 'disabled'}>REENVIAR TODOS</button></div><div class="documentos-tabela-wrap"><div class="documentos-tabela-head"><span>Data</span><span>Documento</span><span>Fornecedor / descrição</span><span>Tipo</span><span>Status</span><span>Ações</span></div><div class="documentos-lista">${linhas}</div></div></div></section>`;
             }).join('') || '<p class="documentos-vazio">Nenhum documento encontrado.</p>';
         }
 
@@ -4994,10 +4994,10 @@
             finally { botao.disabled=false;botao.textContent=texto; }
         }
 
-        async function requisitarPacoteContabil(acao, competencia, modo = 'new') {
+        async function requisitarPacoteContabil(acao, competencia, modo = 'new', escopo = 'all') {
             const {data:{session}} = await db.auth.getSession();
             if (!session) throw new Error('Faça login novamente.');
-            const resposta = await fetch(`${supabaseUrl}/functions/v1/documentos-contabilidade`,{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`,apikey:supabaseKey,'content-type':'application/json'},body:JSON.stringify({action:acao,competencia,mode:modo})});
+            const resposta = await fetch(`${supabaseUrl}/functions/v1/documentos-contabilidade`,{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`,apikey:supabaseKey,'content-type':'application/json'},body:JSON.stringify({action:acao,competencia,mode:modo,scope:escopo})});
             if (!resposta.ok) { const erro=await resposta.json().catch(()=>({})); throw new Error(erro.error || `Falha (${resposta.status})`); }
             return resposta;
         }
@@ -5011,6 +5011,18 @@
                 link.href=url;link.download=`Tio-Nan_Documentos_${competencia}.zip`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
                 showToast('Download preparado com sucesso.');
             } catch(error) { alert(`Não foi possível baixar os documentos.\n\n${error.message || error}`); }
+            finally { botao.disabled=false;botao.textContent=texto; }
+        }
+
+        async function baixarNotasPedidosCompetencia(botao, competencia) {
+            const texto=botao.textContent;
+            try {
+                botao.disabled=true;botao.textContent='BUSCANDO NF-e…';
+                const resposta=await requisitarPacoteContabil('download',competencia,'all','pedidos');
+                const blob=await resposta.blob(); const url=URL.createObjectURL(blob); const link=document.createElement('a');
+                link.href=url;link.download=`Tio-Nan_NFe_Pedidos_${competencia}.zip`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+                showToast('NF-e dos pedidos baixadas com sucesso.');
+            } catch(error) { alert(`Não foi possível baixar as NF-e dos pedidos.\n\n${error.message || error}`); }
             finally { botao.disabled=false;botao.textContent=texto; }
         }
 

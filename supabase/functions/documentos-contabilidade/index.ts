@@ -101,8 +101,9 @@ Deno.serve(async (request) => {
   const entrada = await request.json().catch(() => ({}));
   const acao = String(entrada.action || "");
   const modo = String(entrada.mode || "new");
+  const escopo = String(entrada.scope || "all");
   const competencia = String(entrada.competencia || "");
-  if (!["download", "send"].includes(acao) || !/^\d{4}-\d{2}$/.test(competencia)) return json(request, { error: "Ação ou competência inválida." }, 400);
+  if (!["download", "send"].includes(acao) || !["all", "pedidos"].includes(escopo) || (acao === "send" && escopo !== "all") || !/^\d{4}-\d{2}$/.test(competencia)) return json(request, { error: "Ação, escopo ou competência inválida." }, 400);
   const competenciaData = `${competencia}-01`;
   let consultaDocumentos = db.from("documentos_contabeis")
     .select("id,tipo_codigo,data_documento,descricao,arquivo_path,arquivo_nome,arquivo_bytes")
@@ -123,8 +124,11 @@ Deno.serve(async (request) => {
     .order("bling_nfe_data_emissao",{ascending:true,nullsFirst:false});
   if (erroConsignacao) return json(request, { error:erroConsignacao.message }, 500);
   const notasConsignacao = (movimentosConsignacao || []).filter((movimento: any) => String(movimento.bling_nfe_data_emissao || movimento.data_movimento || "").slice(0, 7) === competencia);
-  if (!documentos?.length && !notasPedidos.length && !notasConsignacao.length) return json(request, { error: acao === "send" && modo !== "all" ? "Não há documentos novos nem XML fiscais para enviar neste mês." : "Esta competência ainda não possui documentos." }, 409);
-  const totalOriginal = documentos.reduce((soma, item) => soma + Number(item.arquivo_bytes || 0), 0);
+  const apenasNotasPedidos = acao === "download" && escopo === "pedidos";
+  const documentosPacote = apenasNotasPedidos ? [] : (documentos || []);
+  const notasConsignacaoPacote = apenasNotasPedidos ? [] : notasConsignacao;
+  if (!documentosPacote.length && !notasPedidos.length && !notasConsignacaoPacote.length) return json(request, { error: apenasNotasPedidos ? "Nenhuma NF-e de pedido foi emitida neste mês." : acao === "send" && modo !== "all" ? "Não há documentos novos nem XML fiscais para enviar neste mês." : "Esta competência ainda não possui documentos." }, 409);
+  const totalOriginal = documentosPacote.reduce((soma, item) => soma + Number(item.arquivo_bytes || 0), 0);
   if (totalOriginal > LIMITE_ZIP) return json(request, { error: "Os documentos ultrapassam 45 MB. Faça o download em grupos menores." }, 413);
 
   let destinatario = "";
@@ -134,8 +138,8 @@ Deno.serve(async (request) => {
     destinatario = String(config?.email_contador || "").trim().toLowerCase();
     if (!emailValido(destinatario)) return json(request, { error: "Configure um e-mail válido da contabilidade." }, 409);
     const { data: envio, error: erroEnvio } = await db.from("documentos_contabeis_envios").insert({
-      competencia: competenciaData, destinatario, quantidade_documentos: documentos.length + notasPedidos.length + notasConsignacao.length,
-      documento_ids: documentos.map((item) => item.id), status: "processando", criado_por: auth.user.id,
+      competencia: competenciaData, destinatario, quantidade_documentos: documentosPacote.length + notasPedidos.length + notasConsignacaoPacote.length,
+      documento_ids: documentosPacote.map((item) => item.id), status: "processando", criado_por: auth.user.id,
     }).select("id").single();
     if (erroEnvio) return json(request, { error: erroEnvio.message }, 500);
     envioId = envio.id;
@@ -143,7 +147,7 @@ Deno.serve(async (request) => {
 
   try {
     const arquivos: Record<string, Uint8Array> = {};
-    for (const [indice, documento] of documentos.entries()) {
+    for (const [indice, documento] of documentosPacote.entries()) {
       const { data, error } = await db.storage.from(BUCKET).download(documento.arquivo_path);
       if (error || !data) throw new Error(`Não foi possível acessar ${documento.arquivo_nome}: ${error?.message || "arquivo ausente"}`);
       const prefixo = `${String(indice + 1).padStart(3, "0")}_${documento.data_documento}_${documento.tipo_codigo}`;
@@ -165,10 +169,10 @@ Deno.serve(async (request) => {
         }
       }
     }
-    if (notasConsignacao.length) {
+    if (notasConsignacaoPacote.length) {
       const accessToken = await acessoBling(db);
       const pastas: Record<string,string> = { remessa:"01_Remessas", venda:"02_Vendas", devolucao:"03_Devolucoes" };
-      for (const [indice, movimento] of notasConsignacao.entries()) {
+      for (const [indice, movimento] of notasConsignacaoPacote.entries()) {
         try {
           const xml = await baixarXmlNfe(accessToken, String(movimento.bling_nfe_chave_acesso));
           const numero = nomeSeguro(movimento.bling_nfe_numero || movimento.bling_nfe_id || String(indice + 1));
@@ -182,7 +186,7 @@ Deno.serve(async (request) => {
     }
     const zip = zipSync(arquivos, { level: 6 });
     if (zip.byteLength > LIMITE_ZIP) throw new Error("O ZIP completo, incluindo os XML dos pedidos, ultrapassa 45 MB.");
-    const nomeZip = `Tio-Nan_Documentos_${competencia}.zip`;
+    const nomeZip = apenasNotasPedidos ? `Tio-Nan_NFe_Pedidos_${competencia}.zip` : `Tio-Nan_Documentos_${competencia}.zip`;
     if (acao === "download") return new Response(zip.buffer.slice(zip.byteOffset, zip.byteOffset + zip.byteLength) as ArrayBuffer, {
       status: 200,
       headers: { ...cors(request), "content-type": "application/zip", "content-disposition": `attachment; filename="${nomeZip}"`, "content-length": String(zip.byteLength) },
@@ -196,8 +200,8 @@ Deno.serve(async (request) => {
       headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json", "idempotency-key": `contabilidade-${envioId}` },
       body: JSON.stringify({
         from, to: [destinatario], subject: `Documentos contábeis Tio Nan — ${competencia}`,
-        html: `<div style="font-family:Arial,sans-serif;color:#17304f;max-width:620px;margin:auto"><h1 style="font-family:Georgia,serif">Documentos contábeis — ${competencia}</h1><p>Seguem anexos ${documentos.length} documentos arquivados, ${notasPedidos.length} XML de pedidos e ${notasConsignacao.length} XML de consignação para esta competência.</p><p style="color:#6b7280;font-size:13px">Os XML estão separados nas pastas 10_XML_NFe_Pedidos_Emitidos e 11_XML_NFe_Consignacao.</p><p style="color:#6b7280;font-size:13px">Envio automático do painel administrativo Tio Nan.</p></div>`,
-        text: `Seguem anexos ${documentos.length} documentos contábeis, ${notasPedidos.length} XML de pedidos e ${notasConsignacao.length} XML de consignação da Tio Nan para a competência ${competencia}.`,
+        html: `<div style="font-family:Arial,sans-serif;color:#17304f;max-width:620px;margin:auto"><h1 style="font-family:Georgia,serif">Documentos contábeis — ${competencia}</h1><p>Seguem anexos ${documentosPacote.length} documentos arquivados, ${notasPedidos.length} XML de pedidos e ${notasConsignacaoPacote.length} XML de consignação para esta competência.</p><p style="color:#6b7280;font-size:13px">Os XML estão separados nas pastas 10_XML_NFe_Pedidos_Emitidos e 11_XML_NFe_Consignacao.</p><p style="color:#6b7280;font-size:13px">Envio automático do painel administrativo Tio Nan.</p></div>`,
+        text: `Seguem anexos ${documentosPacote.length} documentos contábeis, ${notasPedidos.length} XML de pedidos e ${notasConsignacaoPacote.length} XML de consignação da Tio Nan para a competência ${competencia}.`,
         attachments: [{ filename: nomeZip, content: base64(zip) }],
       }),
     });
@@ -206,9 +210,9 @@ Deno.serve(async (request) => {
     const agora = new Date().toISOString();
     await Promise.all([
       db.from("documentos_contabeis_envios").update({ status:"enviado", resend_id:retorno.id || null, enviado_em:agora }).eq("id", envioId),
-      documentos.length ? db.from("documentos_contabeis").update({ status:"enviado_contabilidade", enviado_contabilidade_em:agora, atualizado_em:agora }).in("id", documentos.map((item) => item.id)) : Promise.resolve(),
+      documentosPacote.length ? db.from("documentos_contabeis").update({ status:"enviado_contabilidade", enviado_contabilidade_em:agora, atualizado_em:agora }).in("id", documentosPacote.map((item) => item.id)) : Promise.resolve(),
     ]);
-    return json(request, { ok:true, quantidade:documentos.length + notasPedidos.length + notasConsignacao.length, quantidade_documentos:documentos.length, quantidade_xml_pedidos:notasPedidos.length, quantidade_xml_consignacao:notasConsignacao.length, enviado_em:agora, resend_id:retorno.id || null });
+    return json(request, { ok:true, quantidade:documentosPacote.length + notasPedidos.length + notasConsignacaoPacote.length, quantidade_documentos:documentosPacote.length, quantidade_xml_pedidos:notasPedidos.length, quantidade_xml_consignacao:notasConsignacaoPacote.length, enviado_em:agora, resend_id:retorno.id || null });
   } catch (error) {
     const mensagem = error instanceof Error ? error.message : String(error);
     if (envioId) await db.from("documentos_contabeis_envios").update({ status:"erro", erro:mensagem }).eq("id", envioId);
