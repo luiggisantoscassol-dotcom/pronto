@@ -208,6 +208,17 @@
       if (p.tipo_produto === 'kit') return name.replace(/\s+TIO\s+NAN\s*$/i, '').replace(/\s+700\s*ML\s*/ig, ' ').replace(/\s{2,}/g, ' ').trim();
       return name;
     }
+    function displaySubtitleFor(p) {
+      const id = String(p.bling_id || '');
+      const units = Math.max(1, Number(p.unidades_por_kit || 1));
+      if (p.tipo_produto === 'kit') return `${units} ${units === 1 ? 'garrafa' : 'garrafas'} de 700 ml`;
+      if (id === '16699719562') return 'Bebida alcoólica mista · 700 ml';
+      if (id === '16712113631') return 'Premium · 750 ml';
+      if (id === '16712114193') return 'Tradicional · 750 ml';
+      if (id === '16699660347') return 'Premium · 700 ml';
+      if (id === '16687078597') return 'Tradicional · 700 ml';
+      return /750\s*ml/i.test(String(p.nome || '')) ? '750 ml' : '700 ml';
+    }
     function reviewKey(value) {
       const name = normalize(value).replace(/[^a-z0-9]+/g, ' ').trim();
       if (name.includes('gengibre') && name.includes('guaco') && name.includes('mel')) return 'gengibre guaco e mel';
@@ -307,8 +318,8 @@
       }
       const currentCart = cart();
       const item = currentCart.find(item => String(item.id) === String(product.id));
-      if (item) { item.qtd = (Number(item.qtd) || Number(item.quantidade) || 0) + quantity; item.displayName = displayNameFor(product); item.unidadesPorKit = Math.max(1,Number(product.unidades_por_kit || item.unidadesPorKit || 1)); }
-      else currentCart.push({ id:product.id, name:product.nome, displayName:displayNameFor(product), price:Number(product.preco || 0), cost:0, foto:photoFor(product), qtd:quantity, unidadesPorKit:Math.max(1,Number(product.unidades_por_kit || 1)) });
+      if (item) { item.qtd = (Number(item.qtd) || Number(item.quantidade) || 0) + quantity; item.displayName = displayNameFor(product); item.displaySubtitle = displaySubtitleFor(product); item.unidadesPorKit = Math.max(1,Number(product.unidades_por_kit || item.unidadesPorKit || 1)); }
+      else currentCart.push({ id:product.id, name:product.nome, displayName:displayNameFor(product), displaySubtitle:displaySubtitleFor(product), price:Number(product.preco || 0), cost:0, foto:photoFor(product), qtd:quantity, unidadesPorKit:Math.max(1,Number(product.unidades_por_kit || 1)) });
       sessionStorage.setItem('tioNanCart', JSON.stringify(currentCart));
       if (shippingPostalCode.length === 8) {
         sessionStorage.setItem('tioNanCheckoutCep', shippingPostalCode);
