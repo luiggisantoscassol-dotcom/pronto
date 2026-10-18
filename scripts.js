@@ -536,10 +536,10 @@ function atualizarOpcaoSacolas() {
     const aviso = document.getElementById('opcao-sacolas-aviso');
     if (!bloco || !check || !resumo || !aviso) return;
     const elegivel = entregaPermiteSacolas() && quantidadeGarrafasCarrinho() > 0;
-    bloco.hidden = !elegivel;
-    if (!elegivel) { check.checked = false; planoSacolasAtual = []; return; }
+    if (!elegivel) { bloco.hidden = true; check.checked = false; planoSacolasAtual = []; return; }
     planoSacolasAtual = calcularPlanoSacolas();
     const disponivel = planoSacolasAtual.length > 0;
+    bloco.hidden = !disponivel;
     check.disabled = !disponivel;
     if (!disponivel) check.checked = false;
     resumo.textContent = disponivel ? `Para este pedido: ${descreverPlanoSacolas()}.` : 'As sacolas adequadas para este pedido estão sem estoque no momento.';
