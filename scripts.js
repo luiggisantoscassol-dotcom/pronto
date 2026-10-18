@@ -529,11 +529,13 @@ function descreverPlanoSacolas(plano = planoSacolasAtual) {
     return plano.map(item => `${item.quantidade} ${Number(item.capacidade_garrafas) === 2 ? (item.quantidade === 1 ? 'sacola dupla' : 'sacolas duplas') : (item.quantidade === 1 ? 'sacola simples' : 'sacolas simples')}`).join(' + ');
 }
 
-function produtoUnicoComSacolaSimples() {
-    if (quantidadeGarrafasCarrinho() !== 1 || planoSacolasAtual.length !== 1) return false;
+function produtoExclusivoComSacola(totalGarrafas, capacidadeSacola) {
+    if (quantidadeGarrafasCarrinho() !== totalGarrafas || planoSacolasAtual.length !== 1) return false;
     const sacola = planoSacolasAtual[0];
-    if (Number(sacola.capacidade_garrafas) !== 1 || Number(sacola.quantidade) !== 1) return false;
-    const item = cart.find(produto => Number(produto.qtd || 0) === 1);
+    if (Number(sacola.capacidade_garrafas) !== capacidadeSacola || Number(sacola.quantidade) !== 1) return false;
+    const itens = cart.filter(produto => Number(produto.qtd || 0) > 0);
+    if (itens.length !== 1 || Number(itens[0].qtd || 0) * unidadesFisicasItem(itens[0]) !== totalGarrafas) return false;
+    const item = itens[0];
     return item ? normalizarNomeSabor(item.displayName || item.name || '') : false;
 }
 
@@ -541,10 +543,15 @@ function atualizarFotoOpcaoSacolas() {
     const foto = document.getElementById('opcao-sacolas-foto');
     const visual = foto?.closest('.opcao-sacolas__visual');
     const selecionada = document.getElementById('quero-sacolas')?.checked === true;
-    const produto = selecionada ? produtoUnicoComSacolaSimples() : false;
-    const imagem = produto && produto.includes('gengibre') && produto.includes('guaco') && produto.includes('mel')
-        ? 'fotos/sacola-simples-ggm.jpg?v=1'
-        : produto && produto.includes('prata')
+    const produtoSimples = selecionada ? produtoExclusivoComSacola(1, 1) : false;
+    const produtoDuplo = selecionada ? produtoExclusivoComSacola(2, 2) : false;
+    const ggmDuplo = produtoDuplo && produtoDuplo.includes('gengibre') && produtoDuplo.includes('guaco') && produtoDuplo.includes('mel');
+    const ggmSimples = produtoSimples && produtoSimples.includes('gengibre') && produtoSimples.includes('guaco') && produtoSimples.includes('mel');
+    const imagem = ggmDuplo
+        ? 'fotos/sacola-dupla-2-ggm.jpg?v=1'
+        : ggmSimples
+            ? 'fotos/sacola-simples-ggm.jpg?v=1'
+            : produtoSimples && produtoSimples.includes('prata')
             ? 'fotos/sacola-simples-cachaca-prata.jpg?v=1'
             : 'fotos/icon-sacola.webp';
     const mostrarPresente = imagem !== 'fotos/icon-sacola.webp';
