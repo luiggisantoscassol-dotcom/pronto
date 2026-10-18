@@ -60,6 +60,11 @@
     .promotion-badge { display:inline-flex; align-items:center; margin-bottom:7px; padding:7px 10px; border-radius:999px; background:#b7791f; color:#fff; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     .promotion-saving { margin:7px 0 0; color:#196b3a; font-size:14px; font-weight:800; }
     .payment-note { margin:7px 0 0; color:#5d6677; font-size:14px; }
+    .bag-benefit { display:grid; grid-template-columns:42px minmax(0,1fr); gap:12px; align-items:center; margin:16px 0 0; padding:13px 15px; border:1px solid #e4cfaa; border-radius:14px; background:linear-gradient(135deg,#fffaf0,#fff); color:var(--navy-dark); }
+    .bag-benefit img { width:42px; height:42px; object-fit:contain; }
+    .bag-benefit strong, .bag-benefit small { display:block; }
+    .bag-benefit strong { font-size:14px; }
+    .bag-benefit small { margin-top:3px; color:#6b7483; font-size:12px; line-height:1.4; }
     .product-copy { margin:23px 0 10px; color:#4c5667; font-size:16px; line-height:1.65; }
     .real-ingredients { position:relative; overflow:hidden; margin:24px 0 18px; padding:23px 24px; border:1px solid #e8dcc7; border-radius:18px; background:linear-gradient(135deg,#fffaf1 0%,#f5ead6 100%); box-shadow:0 12px 30px rgba(110,76,26,.08); }
     .real-ingredients::after { content:""; position:absolute; right:-32px; bottom:-48px; width:135px; height:135px; border:1px solid rgba(182,134,54,.18); border-radius:50%; box-shadow:0 0 0 18px rgba(182,134,54,.05); }
@@ -407,7 +412,16 @@
         return `<article class="review-card" data-has-description="${hasComment ? 'true' : 'false'}"><div class="review-meta"><span>${name}</span><time class="review-date">${date}</time></div><div class="review-stars" aria-label="${rating} de 5 estrelas">${stars}</div><p class="review-comment">“${comment}”</p></article>`;
       }).join('');
     }
-    function render(p, review) {
+    async function bagAvailableFor(p) {
+      const bottles = Math.max(1, Number(p?.unidades_por_kit || 1));
+      const { data, error } = await db.from('embalagens').select('estoque,capacidade_garrafas,especie').eq('ativo', true).gt('estoque', 0);
+      if (error) return false;
+      const bags = (data || []).filter(item => String(item.especie || '').toUpperCase() === 'SACOLA');
+      const simple = bags.find(item => Number(item.capacidade_garrafas) === 1);
+      const double = bags.find(item => Number(item.capacidade_garrafas) === 2);
+      return (!Math.floor(bottles / 2) || Number(double?.estoque || 0) >= Math.floor(bottles / 2)) && (!(bottles % 2) || Number(simple?.estoque || 0) >= bottles % 2);
+    }
+    function render(p, review, hasBag = false) {
       const score = review.count ? review.average.toFixed(1).replace('.', ',') : '';
       const stars = review.count ? '★★★★★' : '☆☆☆☆☆';
       const reviews = review.reviews || [];
@@ -448,6 +462,7 @@
             <div class="rating" aria-label="Avaliação do produto"><span class="stars">${stars}</span>${review.count ? `<strong>${score} de 5</strong><button type="button" class="reviews-link" data-scroll-reviews>(${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'})</button>` : '<span class="rating-note">Ainda sem avaliações</span>'}</div>
             ${stockNotice}
             <div class="price-box${hasDiscount ? ' promotion' : ''}">${hasDiscount?`<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>`:`<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong>`}<p class="payment-note">Compra segura e finalização no checkout.</p></div>
+            ${hasBag && !unavailable ? '<aside class="bag-benefit"><img src="fotos/icon-sacola.webp" alt=""><span><strong>Sacola especial disponível</strong><small>Em retiradas e entregas próprias em Porto Alegre, você poderá incluí-la gratuitamente no checkout.</small></span></aside>' : ''}
             <p class="product-copy">${description}</p>
             ${ingredientCallout}
             <details open><summary>Detalhes do produto</summary><div class="detail-content"><dl class="detail-list"><div><dt>Volume</dt><dd>${volume}</dd></div><div><dt>Teor alcoólico</dt><dd>${alcohol}</dd></div><div><dt>Categoria</dt><dd>${category}</dd></div><div><dt>Origem</dt><dd>Rio Grande do Sul</dd></div></dl></div></details>
@@ -519,8 +534,8 @@
       product = selectedProduct;
       window.TioNanAnalytics?.track('product_view', { label:selectedProduct.nome, produto_id:selectedProduct.id, valor:Number(selectedProduct.preco || 0) });
       window.TioNanPixel?.viewContent({ id:selectedProduct.id, name:selectedProduct.nome, value:Number(selectedProduct.preco || 0), category:selectedProduct.categoria });
-      const review = await reviewsFor(selectedProduct.nome);
-      render(selectedProduct, review);
+      const [review, hasBag] = await Promise.all([reviewsFor(selectedProduct.nome), bagAvailableFor(selectedProduct)]);
+      render(selectedProduct, review, hasBag);
       if (/(^|\.)tionan\.com\.br$/i.test(window.location.hostname)) {
         const friendlyPath = `/produtos/${productSlug(selectedProduct.nome)}`;
         if (window.location.pathname !== friendlyPath) history.replaceState(null, '', friendlyPath);
