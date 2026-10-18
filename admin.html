@@ -1296,6 +1296,15 @@
         @media(max-width:420px){.admin-home-breakdown{grid-template-columns:1fr 1fr}.admin-home-card{padding:23px}.admin-home-breakdown>span{padding:11px}.admin-home-breakdown b{font-size:1.35rem}}
         @media(max-width:700px){.admin-order-summary{grid-template-columns:1fr 1fr}.admin-detail-grid{grid-template-columns:1fr}.order-row{align-items:flex-start}}
 
+        .embalagem-lista-cabecalho{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:28px 0 12px;flex-wrap:wrap}
+        .embalagem-lista-cabecalho h3{margin:0}
+        .embalagem-filtros{display:inline-flex;gap:4px;padding:4px;border:1px solid #e4dccd;border-radius:13px;background:#f7f4ee}
+        .embalagem-filtros button{min-height:38px;padding:0 16px;border:0;border-radius:9px;background:transparent;color:#65758b;font-size:.7rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:.18s ease}
+        .embalagem-filtros button:hover{color:#19385f;background:#fff}
+        .embalagem-filtros button.active{background:#19385f;color:#fff;box-shadow:0 4px 11px rgba(25,56,95,.18)}
+        #corpo-embalagens [data-embalagem-tipo][hidden]{display:none!important}
+        @media(max-width:620px){.embalagem-lista-cabecalho{align-items:stretch}.embalagem-filtros{display:grid;grid-template-columns:repeat(3,1fr);width:100%}.embalagem-filtros button{padding:0 8px;font-size:.64rem}}
+
         /* Contraste AA dos controles de ação */
         .nav-item.active,
         .pdv-btn-add,
@@ -2397,7 +2406,14 @@
                 <div class="admin-summary-card"><span>Modelos ativos</span><b id="emb-resumo-modelos">0</b></div>
                 <div class="admin-summary-card"><span>Estoque baixo</span><b id="emb-resumo-baixo">0</b></div>
             </div>
-            <h3 style="margin:28px 0 12px">Modelos e saldo</h3>
+            <div class="embalagem-lista-cabecalho">
+                <h3>Modelos e saldo</h3>
+                <div class="embalagem-filtros" role="group" aria-label="Filtrar modelos de embalagem">
+                    <button type="button" class="active" data-embalagem-filtro="todos" onclick="filtrarEmbalagens('todos',this)" aria-pressed="true">Todos</button>
+                    <button type="button" data-embalagem-filtro="caixa" onclick="filtrarEmbalagens('caixa',this)" aria-pressed="false">Caixas</button>
+                    <button type="button" data-embalagem-filtro="sacola" onclick="filtrarEmbalagens('sacola',this)" aria-pressed="false">Sacolas</button>
+                </div>
+            </div>
             <div id="corpo-embalagens"></div>
             <h3 style="margin:28px 0 12px">Últimas movimentações</h3>
             <div id="historico-embalagens"></div>
@@ -4243,6 +4259,26 @@
             await carregarEmbalagens();
         }
 
+        let filtroEmbalagensAtual = 'todos';
+
+        function filtrarEmbalagens(tipo = 'todos', botao = null) {
+            filtroEmbalagensAtual = ['todos', 'caixa', 'sacola'].includes(tipo) ? tipo : 'todos';
+            document.querySelectorAll('[data-embalagem-filtro]').forEach(item => {
+                const ativo = item.dataset.embalagemFiltro === filtroEmbalagensAtual;
+                item.classList.toggle('active', ativo);
+                item.setAttribute('aria-pressed', String(ativo));
+            });
+            const modelos = Array.from(document.querySelectorAll('#corpo-embalagens [data-embalagem-tipo]'));
+            let visiveis = 0;
+            modelos.forEach(item => {
+                const visivel = filtroEmbalagensAtual === 'todos' || item.dataset.embalagemTipo === filtroEmbalagensAtual;
+                item.hidden = !visivel;
+                if (visivel) visiveis++;
+            });
+            const vazio = document.getElementById('embalagens-filtro-vazio');
+            if (vazio) vazio.hidden = visiveis > 0;
+        }
+
         async function carregarEmbalagens() {
             const corpo = document.getElementById('corpo-embalagens');
             const historico = document.getElementById('historico-embalagens');
@@ -4270,12 +4306,16 @@
             document.getElementById('emb-resumo-baixo').textContent = baixo;
             const home = document.getElementById('home-embalagens');
             if (home) home.innerHTML = `${caixas}<small>caixas disponíveis · capacidade para ${capacidade} garrafas</small>`;
-            corpo.innerHTML = embalagens.length ? embalagens.map(item => `
-                <div class="estoque-row" style="align-items:center">
+            corpo.innerHTML = embalagens.length ? embalagens.map(item => {
+                const tipoEmbalagem = String(item.especie || '').toUpperCase() === 'SACOLA' ? 'sacola' : 'caixa';
+                return `
+                <div class="estoque-row" data-embalagem-tipo="${tipoEmbalagem}" style="align-items:center">
                     <div style="flex:1;min-width:210px"><b>${escapeAdmin(item.nome)}</b><small style="display:block;color:#718096;margin-top:5px">${String(item.especie || '').toUpperCase()==='SACOLA' ? `Sacola para ${item.capacidade_garrafas} garrafa(s) · uso local gratuito` : `Até ${item.capacidade_garrafas} garrafa(s) · ${Number(item.largura_cm)} × ${Number(item.altura_cm)} × ${Number(item.comprimento_cm)} cm · caixa ${Number(item.peso_vazio_kg || 0).toFixed(2).replace('.', ',')} kg`}</small><small style="display:block;color:${item.ativo ? '#26935c' : '#9b2c2c'};font-weight:900;margin-top:5px">${item.ativo ? 'ATIVA' : 'INATIVA'}</small></div>
                     <div style="text-align:center;min-width:105px"><small>Saldo</small><b style="display:block;font-size:1.8rem;color:#19385f">${item.estoque}</b><small>${String(item.especie || '').toUpperCase()==='SACOLA' ? 'sacolas' : 'caixas'}</small></div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0" onclick="abrirAjusteEmbalagem('${item.id}')">AJUSTAR SALDO</button><button class="btn-status" style="width:auto;margin:0;background:#eef3f8;color:#19385f" onclick="abrirEmbalagem('${item.id}')">EDITAR</button></div>
-                </div>`).join('') : '<p>Nenhum modelo de caixa cadastrado.</p>';
+                </div>`;
+            }).join('') + '<p id="embalagens-filtro-vazio" hidden>Nenhum modelo encontrado neste filtro.</p>' : '<p>Nenhum modelo de caixa ou sacola cadastrado.</p>';
+            filtrarEmbalagens(filtroEmbalagensAtual);
             const movimentos = resMovimentos.data || [];
             historico.innerHTML = movimentos.length ? movimentos.map(mov => {
                 const qtd = Number(mov.quantidade || 0);
