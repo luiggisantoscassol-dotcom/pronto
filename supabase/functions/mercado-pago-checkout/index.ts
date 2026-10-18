@@ -345,6 +345,23 @@ Deno.serve(async (request) => {
   });
   if (orderError) return respond(origin, { error: "Não foi possível criar o pedido.", detail: orderError.message }, 500);
 
+  if (!isTest) {
+    const pushRequest = fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/admin-push-notify`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ cliente:name, referencia:reference, total }),
+    }).then(async response => {
+      if (!response.ok && response.status !== 409) console.error("admin-push-notify", response.status, await response.text());
+    }).catch(error => console.error("admin-push-notify", error));
+    const runtime = (globalThis as typeof globalThis & { EdgeRuntime?: { waitUntil:(promise:Promise<unknown>)=>void } }).EdgeRuntime;
+    if (runtime?.waitUntil) runtime.waitUntil(pushRequest);
+    else void pushRequest;
+  }
+
   const reserveStock = async () => {
     const { error } = await db.rpc("reservar_estoque_pedido", { p_referencia: reference });
     if (error) throw new Error(error.message || "Não foi possível reservar o estoque.");
