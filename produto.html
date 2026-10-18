@@ -307,8 +307,8 @@
       }
       const currentCart = cart();
       const item = currentCart.find(item => String(item.id) === String(product.id));
-      if (item) { item.qtd = (Number(item.qtd) || Number(item.quantidade) || 0) + quantity; item.unidadesPorKit = Math.max(1,Number(product.unidades_por_kit || item.unidadesPorKit || 1)); }
-      else currentCart.push({ id:product.id, name:product.nome, price:Number(product.preco || 0), cost:0, foto:photoFor(product), qtd:quantity, unidadesPorKit:Math.max(1,Number(product.unidades_por_kit || 1)) });
+      if (item) { item.qtd = (Number(item.qtd) || Number(item.quantidade) || 0) + quantity; item.displayName = displayNameFor(product); item.unidadesPorKit = Math.max(1,Number(product.unidades_por_kit || item.unidadesPorKit || 1)); }
+      else currentCart.push({ id:product.id, name:product.nome, displayName:displayNameFor(product), price:Number(product.preco || 0), cost:0, foto:photoFor(product), qtd:quantity, unidadesPorKit:Math.max(1,Number(product.unidades_por_kit || 1)) });
       sessionStorage.setItem('tioNanCart', JSON.stringify(currentCart));
       if (shippingPostalCode.length === 8) {
         sessionStorage.setItem('tioNanCheckoutCep', shippingPostalCode);

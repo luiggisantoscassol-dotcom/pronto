@@ -1443,6 +1443,16 @@ function apresentacaoCardProduto(produto) {
     return { titulo: nome, subtitulo: '' };
 }
 
+function nomeProdutoExibicaoCarrinho(nome = '') {
+    const original = String(nome || '').trim();
+    const normalizado = normalizarNomeSabor(original);
+    if (normalizado.includes('gengibre') && normalizado.includes('guaco') && normalizado.includes('mel')) return 'Gengibre, Guaco e Mel';
+    if (normalizado.includes('kit') && normalizado.includes('prata') && normalizado.includes('6')) return 'Kit Cachaça Prata - 6 garrafas';
+    if (normalizado.includes('ouro')) return 'Cachaça Ouro';
+    if (normalizado.includes('prata')) return 'Cachaça Prata';
+    return original;
+}
+
 
 async function loadProducts() {
     try {
@@ -1742,10 +1752,11 @@ function createParticles(x, y) {
     }
 }
 
-function add(id, name, price, cost, event, unidadesPorKit = 1) {
+function add(id, name, price, cost, event, unidadesPorKit = 1, displayName = '') {
     try { fecharToastProvaSocial(); } catch (e) {}
     if (event) { createParticles(event.clientX, event.clientY); event.stopPropagation(); }
     const card = document.getElementById(`card-${id}`);
+    const nomeVisual = displayName || card?.querySelector('.prod-nome')?.textContent?.trim() || nomeProdutoExibicaoCarrinho(name);
     const modalOverlay = document.getElementById('modal-produto-overlay');
     const isModalOpen = modalOverlay && modalOverlay.classList.contains('active');
 
@@ -1773,16 +1784,17 @@ function add(id, name, price, cost, event, unidadesPorKit = 1) {
     const item = cart.find(i => i.id === id);
     if (item) {
         item.qtd++;
+        item.displayName = nomeVisual;
         item.unidadesPorKit = Math.max(1, Number(unidadesPorKit || item.unidadesPorKit || 1));
         if (fotoUrl) item.foto = fotoUrl;
     } else {
-        cart.push({ id, name, price, cost: cost, qtd: 1, foto: fotoUrl, unidadesPorKit: Math.max(1, Number(unidadesPorKit || 1)) });
+        cart.push({ id, name, displayName:nomeVisual, price, cost: cost, qtd: 1, foto: fotoUrl, unidadesPorKit: Math.max(1, Number(unidadesPorKit || 1)) });
     }
     updateCart();
     if (typeof isCartOpen !== 'undefined' && isCartOpen) agendarAtualizacaoAutomaticaFrete();
     const abrirCarrinhoAposAdicionar = () => {
         if (window.matchMedia('(min-width: 900px)').matches) {
-            mostrarPreviewCarrinho(name, fotoUrl);
+            mostrarPreviewCarrinho(nomeVisual, fotoUrl);
             return;
         }
         const overlay = document.getElementById('cart-overlay');
@@ -2468,7 +2480,7 @@ function updateCart() {
                 <div style="display:flex; align-items:center;">
                     ${imgHtml}
                     <div>
-                        <div style="font-weight:800; font-size:1rem; color:var(--blue-navy); margin-bottom:4px;">${i.name}</div>
+                        <div style="font-weight:800; font-size:1rem; color:var(--blue-navy); margin-bottom:4px;">${i.displayName || nomeProdutoExibicaoCarrinho(i.name)}</div>
                         <div style="color:var(--gold-soft); font-size:0.9rem; font-weight:600;">R$ ${(i.price * i.qtd).toFixed(2).replace('.', ',')}</div>
                     </div>
                 </div>
