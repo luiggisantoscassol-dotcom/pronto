@@ -537,8 +537,8 @@ function atualizarFotoOpcaoSacolas() {
         return Array.from({ length:Number(sacola.quantidade || 0) }, () => capacidade);
     });
     visual.innerHTML = itens.map(capacidade => `
-        <span class="opcao-sacolas__item">
-            <img src="fotos/icon-sacola.webp" alt="">
+        <span class="opcao-sacolas__item${capacidade === 1 ? ' is-photo' : ''}">
+            <img src="${capacidade === 1 ? 'fotos/sacola-simples.jpg?v=1' : 'fotos/icon-sacola.webp'}" alt="">
             <b>${capacidade} ${capacidade === 1 ? 'garrafa' : 'garrafas'}</b>
         </span>
     `).join('');
