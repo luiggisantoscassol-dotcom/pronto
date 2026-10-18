@@ -363,7 +363,8 @@
           const bottleCount = quantity * Math.max(1, Number(product?.unidades_por_kit || 1));
           const { data: quote, error: quoteError } = await db.functions.invoke('frenet-cotacao', { body:{ cep, quantidade:bottleCount, valor_pedido:Number(product?.preco || 0) * quantity } });
           if (quoteError) throw quoteError;
-          quotes = Array.isArray(quote?.cotacoes) ? quote.cotacoes : [];
+          quotes = (Array.isArray(quote?.cotacoes) ? quote.cotacoes : [])
+            .filter(freight => normalize(freight?.transportadora).includes('jadlog'));
           quotes.forEach(freight => addOption(`frenet:${freight.id}`, freight.nome, `${freight.transportadora} · ${freight.prazo} ${Number(freight.prazo) === 1 ? 'dia útil' : 'dias úteis'}`, money(freight.preco), freight));
         }
         addOption('retirada', 'Retirar na loja', 'Av. Bento Gonçalves, 4321 — Porto Alegre', 'Grátis');

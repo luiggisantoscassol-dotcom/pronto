@@ -194,6 +194,7 @@ Deno.serve(async (request) => {
       const quoteData = await quoteResponse.json().catch(() => ({}));
       const selected = (Array.isArray(quoteData?.ShippingSevicesArray) ? quoteData.ShippingSevicesArray : []).find((item: Record<string, unknown>) => String(item.ServiceCode) === serviceId && item.Error !== true);
       if (!quoteResponse.ok || !selected) return respond(origin, { error: "A cotação Frenet selecionada expirou. Consulte o CEP novamente." }, 409);
+      if (!normalize(String(selected.Carrier || "")).includes("jadlog")) return respond(origin, { error: "Este serviço de entrega não está habilitado. Consulte o CEP e selecione uma opção da Jadlog." }, 400);
       carrierQuote = { id: selected.ServiceCode, name: selected.ServiceDescription, company: { name: selected.Carrier }, price: Number(selected.ShippingPrice || 0), custom_price: Number(selected.ShippingPrice || 0), delivery_time: Number(selected.DeliveryTime || 0), custom_delivery_time: Number(selected.DeliveryTime || 0), carrier_code: selected.CarrierCode };
     } else {
     const { data: integration } = await db.from("melhor_envio_integracao").select("access_token").eq("id", "principal").maybeSingle();

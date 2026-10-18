@@ -1232,7 +1232,8 @@ async function buscaCEP(forcarCotacao = false) {
                 const valorPedido = cart.reduce((total, item) => total + Number(item.price || 0) * Number(item.qtd || 0), 0);
                 const { data: cotacao, error: erroCotacao } = await db.functions.invoke('frenet-cotacao', { body: { cep, quantidade, valor_pedido: valorPedido } });
                 if (erroCotacao) throw erroCotacao;
-                const cotacoes = Array.isArray(cotacao?.cotacoes) ? cotacao.cotacoes : [];
+                const cotacoes = (Array.isArray(cotacao?.cotacoes) ? cotacao.cotacoes : [])
+                    .filter(frete => normalizarNomeSabor(frete?.transportadora).includes('jadlog'));
                 carregando.remove();
                 cotacoes.forEach(frete => opcoes.appendChild(criarOpcaoEntregaCEP(
                     `frenet:${frete.id}`,
