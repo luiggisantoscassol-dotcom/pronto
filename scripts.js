@@ -504,6 +504,64 @@ function searchProducts() {
 const CIDADES_PERMITIDAS = ["Porto Alegre", "Viamão", "Canoas"];
 const SABORES_ATIVOS_AVALIACOES = ['gengibre guaco e mel', 'ouro', 'prata'];
 let freteMelhorEnvioSelecionado = null;
+let sacolasLoja = [];
+let planoSacolasAtual = [];
+
+function entregaPermiteSacolas() {
+    const entrega = document.getElementById('metodo-entrega')?.value || '';
+    const cidade = String(document.getElementById('cidade')?.value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+    return entrega === 'retirada' || (entrega === 'tele' && cidade === 'porto alegre');
+}
+
+function calcularPlanoSacolas(totalGarrafas = quantidadeGarrafasCarrinho()) {
+    const simples = sacolasLoja.find(item => Number(item.capacidade_garrafas) === 1);
+    const dupla = sacolasLoja.find(item => Number(item.capacidade_garrafas) === 2);
+    const qtdDuplas = Math.floor(totalGarrafas / 2);
+    const qtdSimples = totalGarrafas % 2;
+    if (!totalGarrafas || (qtdDuplas && (!dupla || Number(dupla.estoque || 0) < qtdDuplas)) || (qtdSimples && (!simples || Number(simples.estoque || 0) < qtdSimples))) return [];
+    return [
+        ...(qtdDuplas ? [{ ...dupla, quantidade:qtdDuplas }] : []),
+        ...(qtdSimples ? [{ ...simples, quantidade:qtdSimples }] : [])
+    ];
+}
+
+function descreverPlanoSacolas(plano = planoSacolasAtual) {
+    return plano.map(item => `${item.quantidade} ${Number(item.capacidade_garrafas) === 2 ? (item.quantidade === 1 ? 'sacola dupla' : 'sacolas duplas') : (item.quantidade === 1 ? 'sacola simples' : 'sacolas simples')}`).join(' + ');
+}
+
+function atualizarOpcaoSacolas() {
+    const bloco = document.getElementById('opcao-sacolas');
+    const check = document.getElementById('quero-sacolas');
+    const resumo = document.getElementById('opcao-sacolas-resumo');
+    const aviso = document.getElementById('opcao-sacolas-aviso');
+    if (!bloco || !check || !resumo || !aviso) return;
+    const elegivel = entregaPermiteSacolas() && quantidadeGarrafasCarrinho() > 0;
+    bloco.hidden = !elegivel;
+    if (!elegivel) { check.checked = false; planoSacolasAtual = []; return; }
+    planoSacolasAtual = calcularPlanoSacolas();
+    const disponivel = planoSacolasAtual.length > 0;
+    check.disabled = !disponivel;
+    if (!disponivel) check.checked = false;
+    resumo.textContent = disponivel ? `Para este pedido: ${descreverPlanoSacolas()}.` : 'As sacolas adequadas para este pedido estão sem estoque no momento.';
+    aviso.textContent = disponivel ? 'Disponível somente para retirada ou entrega própria em Porto Alegre.' : 'Você ainda pode concluir o pedido normalmente, sem sacola.';
+}
+
+function alternarSacolasCliente(ativo) {
+    if (ativo && !planoSacolasAtual.length) document.getElementById('quero-sacolas').checked = false;
+}
+
+function sacolasSelecionadasPayload() {
+    if (!document.getElementById('quero-sacolas')?.checked || !entregaPermiteSacolas()) return [];
+    return planoSacolasAtual.map(item => ({ id:item.id, nome:item.nome, capacidade_garrafas:Number(item.capacidade_garrafas), quantidade:Number(item.quantidade) }));
+}
+
+async function carregarSacolasLoja() {
+    if (!db) return;
+    const { data, error } = await db.from('embalagens').select('id,nome,estoque,capacidade_garrafas,especie').eq('ativo', true).gt('estoque', 0).order('capacidade_garrafas');
+    if (!error) sacolasLoja = (data || []).filter(item => String(item.especie || '').toUpperCase() === 'SACOLA');
+    atualizarOpcaoSacolas();
+}
+document.addEventListener('DOMContentLoaded', carregarSacolasLoja);
 
 function entregaPorTransportadora(valor = document.getElementById('metodo-entrega')?.value || '') {
     return String(valor).startsWith('melhor-envio:') || String(valor).startsWith('frenet:');
@@ -2319,6 +2377,7 @@ function updateCart() {
     const barra = document.getElementById('barra-frete');
     const textoFrete = document.getElementById('texto-frete');
     const entrega = document.getElementById('metodo-entrega').value;
+    atualizarOpcaoSacolas();
 
     const progresso = Math.min((totalGarrafas / 3) * 100, 100);
     if (barra) barra.style.width = progresso + "%";
@@ -2784,6 +2843,7 @@ async function checkout() {
                     frete: freteMelhorEnvioSelecionado,
                     endereco: enderecoPayload,
                     cupom: cupomDescontoAtivo,
+                    sacolas: sacolasSelecionadasPayload(),
                     itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
                 }, valorTotalComFrete);
             } catch (error) {
@@ -2819,6 +2879,7 @@ async function checkout() {
                     frete: freteMelhorEnvioSelecionado,
                     endereco: enderecoPayload,
                     cupom: cupomDescontoAtivo,
+                    sacolas: sacolasSelecionadasPayload(),
                     itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
                 }});
                 if (error) {
@@ -2867,6 +2928,7 @@ async function checkout() {
             troco: pag === 'Dinheiro' && document.getElementById('precisa-troco').checked ? document.getElementById('troco').value : '',
             cpf, email, nome, telefone, marketing_consentimento: marketingConsentimento, carrinho_recuperacao_token: tokenRecuperacaoCarrinho(false) || null, entrega, endereco: enderecoPayload, frete: freteMelhorEnvioSelecionado,
             cupom: cupomDescontoAtivo,
+            sacolas: sacolasSelecionadasPayload(),
             itens: cart.map(item => ({ id: item.id, nome: item.name, quantidade: item.qtd }))
         }});
         if (error) {

@@ -295,6 +295,19 @@
                 </div>
             </div>
 
+            <section id="opcao-sacolas" class="opcao-sacolas" hidden aria-live="polite">
+                <div class="opcao-sacolas__visual" aria-hidden="true">
+                    <img id="opcao-sacolas-foto" src="fotos/icon-sacola.webp" alt="">
+                </div>
+                <div class="opcao-sacolas__conteudo">
+                    <span class="opcao-sacolas__etiqueta">Cortesia Tio Nan</span>
+                    <strong>Deseja receber suas garrafas em sacola?</strong>
+                    <p id="opcao-sacolas-resumo">Calculando a combinação ideal…</p>
+                    <label class="opcao-sacolas__check"><input type="checkbox" id="quero-sacolas" onchange="alternarSacolasCliente(this.checked)"><span>Sim, quero as sacolas gratuitas</span></label>
+                    <small id="opcao-sacolas-aviso"></small>
+                </div>
+            </section>
+
             <!-- Campo de Cupom de Desconto -->
             <div style="display: flex; gap: 8px; margin-top: 15px; margin-bottom: 12px; align-items: stretch;">
                 <input type="text" id="cupom-input" class="cart-input" placeholder="Cupom de Desconto" style="margin-bottom: 0; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">

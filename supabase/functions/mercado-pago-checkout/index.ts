@@ -150,6 +150,30 @@ Deno.serve(async (request) => {
   }
 
   const totalBottles = lines.reduce((sum, item) => sum + Number(item.quantidade) * Number(item.unidades_por_kit || 1), 0);
+  const requestedBags = Array.isArray(payload?.sacolas) ? payload.sacolas.slice(0, 20) : [];
+  const deliveryCityNormalized = normalize(String(payload?.endereco?.cidade || ""));
+  const bagsAllowed = delivery === "retirada" || (delivery === "tele" && deliveryCityNormalized === "porto alegre");
+  if (requestedBags.length && !bagsAllowed) return respond(origin, { error: "As sacolas gratuitas estão disponíveis somente para retirada ou entrega local em Porto Alegre." }, 400);
+  let selectedBags: Array<Record<string, unknown>> = [];
+  if (requestedBags.length) {
+    const requestedIds = requestedBags.map((item: Record<string, unknown>) => String(item?.id || "")).filter(Boolean);
+    const { data: bagRows, error: bagError } = await db.from("embalagens").select("id,nome,estoque,capacidade_garrafas,especie,ativo").in("id", requestedIds);
+    if (bagError) return respond(origin, { error: "Não foi possível validar as sacolas." }, 500);
+    try {
+      selectedBags = requestedBags.map((requested: Record<string, unknown>) => {
+        const bag = (bagRows || []).find((row) => String(row.id) === String(requested.id));
+        const quantity = Math.max(1, Math.trunc(Number(requested.quantidade || 1)));
+        if (!bag || !bag.ativo || String(bag.especie || "").toUpperCase() !== "SACOLA" || ![1, 2].includes(Number(bag.capacidade_garrafas))) throw new Error("Modelo de sacola inválido.");
+        if (Number(bag.estoque || 0) < quantity) throw new Error(`Estoque insuficiente de ${bag.nome}.`);
+        return { id:bag.id, nome:bag.nome, capacidade_garrafas:Number(bag.capacidade_garrafas), quantidade:quantity };
+      });
+    } catch (bagValidationError) {
+      return respond(origin, { error: bagValidationError instanceof Error ? bagValidationError.message : "Não foi possível validar as sacolas." }, 409);
+    }
+    const doubles = selectedBags.filter((bag) => Number(bag.capacidade_garrafas) === 2).reduce((sum, bag) => sum + Number(bag.quantidade), 0);
+    const singles = selectedBags.filter((bag) => Number(bag.capacidade_garrafas) === 1).reduce((sum, bag) => sum + Number(bag.quantidade), 0);
+    if (doubles !== Math.floor(totalBottles / 2) || singles !== totalBottles % 2) return respond(origin, { error: "A combinação de sacolas não corresponde à quantidade de garrafas." }, 400);
+  }
   const subtotal = money(lines.reduce((sum, item) => sum + Number(item.preco) * Number(item.quantidade), 0));
   const carrierDelivery = delivery.startsWith("melhor-envio:") || delivery.startsWith("frenet:");
   let carrierQuote: Record<string, unknown> | null = null;
@@ -189,7 +213,7 @@ Deno.serve(async (request) => {
     }
   }
   const shipping = delivery === "tele" ? 15 : carrierDelivery ? money(Number(carrierQuote?.custom_price || carrierQuote?.price || 0)) : 0;
-  const shippingDetails = carrierDelivery && carrierQuote ? {
+  const shippingDetails: Record<string, unknown> = carrierDelivery && carrierQuote ? {
     origem: delivery.startsWith("frenet:") ? "frenet" : "melhor_envio",
     servico_id: String(carrierQuote.id || ""),
     servico: String(carrierQuote.name || "Servico de entrega"),
@@ -234,6 +258,7 @@ Deno.serve(async (request) => {
     preco: 0,
     prazo_dias_uteis: 0,
   };
+  if (selectedBags.length) shippingDetails.sacolas = selectedBags;
   let coupon = String(payload?.cupom || "").trim().toUpperCase();
   let discountPercent = 0;
   if (coupon) {
