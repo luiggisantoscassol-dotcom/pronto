@@ -529,6 +529,23 @@ function descreverPlanoSacolas(plano = planoSacolasAtual) {
     return plano.map(item => `${item.quantidade} ${Number(item.capacidade_garrafas) === 2 ? (item.quantidade === 1 ? 'sacola dupla' : 'sacolas duplas') : (item.quantidade === 1 ? 'sacola simples' : 'sacolas simples')}`).join(' + ');
 }
 
+function pedidoUmaPrataComSacolaSimples() {
+    if (quantidadeGarrafasCarrinho() !== 1 || planoSacolasAtual.length !== 1) return false;
+    const sacola = planoSacolasAtual[0];
+    if (Number(sacola.capacidade_garrafas) !== 1 || Number(sacola.quantidade) !== 1) return false;
+    return cart.some(item => Number(item.qtd || 0) === 1 && normalizarNomeSabor(item.displayName || item.name || '').includes('prata'));
+}
+
+function atualizarFotoOpcaoSacolas() {
+    const foto = document.getElementById('opcao-sacolas-foto');
+    const visual = foto?.closest('.opcao-sacolas__visual');
+    const selecionada = document.getElementById('quero-sacolas')?.checked === true;
+    const mostrarPresente = selecionada && pedidoUmaPrataComSacolaSimples();
+    if (!foto || !visual) return;
+    foto.src = mostrarPresente ? 'fotos/sacola-simples-cachaca-prata.jpg?v=1' : 'fotos/icon-sacola.webp';
+    visual.classList.toggle('is-product-photo', mostrarPresente);
+}
+
 function atualizarOpcaoSacolas() {
     const bloco = document.getElementById('opcao-sacolas');
     const check = document.getElementById('quero-sacolas');
@@ -544,10 +561,12 @@ function atualizarOpcaoSacolas() {
     if (!disponivel) check.checked = false;
     resumo.textContent = disponivel ? `Para este pedido: ${descreverPlanoSacolas()}.` : 'As sacolas adequadas para este pedido estão sem estoque no momento.';
     aviso.textContent = disponivel ? 'Disponível somente para retirada ou entrega própria em Porto Alegre.' : 'Você ainda pode concluir o pedido normalmente, sem sacola.';
+    atualizarFotoOpcaoSacolas();
 }
 
 function alternarSacolasCliente(ativo) {
     if (ativo && !planoSacolasAtual.length) document.getElementById('quero-sacolas').checked = false;
+    atualizarFotoOpcaoSacolas();
 }
 
 function sacolasSelecionadasPayload() {
