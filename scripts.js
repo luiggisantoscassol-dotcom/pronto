@@ -794,6 +794,7 @@ function tokenRecuperacaoCarrinho(criar = true) {
 }
 
 async function salvarCarrinhoParaRecuperacao() {
+    if (acessoInternoTioNan) return;
     const email = document.getElementById('cliente-email')?.value?.trim().toLowerCase() || '';
     const nome = document.getElementById('cliente-nome')?.value?.trim() || '';
     const consentimento = Boolean(document.getElementById('marketing-consentimento')?.checked);
@@ -811,6 +812,7 @@ async function salvarCarrinhoParaRecuperacao() {
 
 function agendarSalvamentoCarrinho() {
     clearTimeout(carrinhoRecuperacaoTimer);
+    if (acessoInternoTioNan) return;
     if (!cart.length) {
         cancelarRecuperacaoCarrinho();
         return;
@@ -822,6 +824,7 @@ async function cancelarRecuperacaoCarrinho(removerToken = true) {
     clearTimeout(carrinhoRecuperacaoTimer);
     const token = tokenRecuperacaoCarrinho(false);
     if (removerToken) localStorage.removeItem(CARRINHO_RECUPERACAO_STORAGE);
+    if (acessoInternoTioNan) return;
     if (!db || !token) return;
     try { await db.functions.invoke('carrinho-abandonado', { body: { action: 'cancelar', token } }); } catch (_) {}
 }
@@ -2765,6 +2768,10 @@ async function renderizarPaymentBrick(orderPayload, amount) {
 
 async function checkout() {
     try {
+        if (acessoInternoTioNan) {
+            alert('Modo de teste ativo: o checkout pode ser conferido, mas nenhum pedido ou pagamento será criado e nenhuma ação será enviada ao painel.');
+            return;
+        }
         const cpf = document.getElementById('cliente-cpf').value.replace(/\D/g, '');
         const email = document.getElementById('cliente-email').value.trim().toLowerCase();
         const nome = document.getElementById('cliente-nome').value;
