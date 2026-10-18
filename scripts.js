@@ -529,20 +529,27 @@ function descreverPlanoSacolas(plano = planoSacolasAtual) {
     return plano.map(item => `${item.quantidade} ${Number(item.capacidade_garrafas) === 2 ? (item.quantidade === 1 ? 'sacola dupla' : 'sacolas duplas') : (item.quantidade === 1 ? 'sacola simples' : 'sacolas simples')}`).join(' + ');
 }
 
-function pedidoUmaPrataComSacolaSimples() {
+function produtoUnicoComSacolaSimples() {
     if (quantidadeGarrafasCarrinho() !== 1 || planoSacolasAtual.length !== 1) return false;
     const sacola = planoSacolasAtual[0];
     if (Number(sacola.capacidade_garrafas) !== 1 || Number(sacola.quantidade) !== 1) return false;
-    return cart.some(item => Number(item.qtd || 0) === 1 && normalizarNomeSabor(item.displayName || item.name || '').includes('prata'));
+    const item = cart.find(produto => Number(produto.qtd || 0) === 1);
+    return item ? normalizarNomeSabor(item.displayName || item.name || '') : false;
 }
 
 function atualizarFotoOpcaoSacolas() {
     const foto = document.getElementById('opcao-sacolas-foto');
     const visual = foto?.closest('.opcao-sacolas__visual');
     const selecionada = document.getElementById('quero-sacolas')?.checked === true;
-    const mostrarPresente = selecionada && pedidoUmaPrataComSacolaSimples();
+    const produto = selecionada ? produtoUnicoComSacolaSimples() : false;
+    const imagem = produto && produto.includes('gengibre') && produto.includes('guaco') && produto.includes('mel')
+        ? 'fotos/sacola-simples-ggm.jpg?v=1'
+        : produto && produto.includes('prata')
+            ? 'fotos/sacola-simples-cachaca-prata.jpg?v=1'
+            : 'fotos/icon-sacola.webp';
+    const mostrarPresente = imagem !== 'fotos/icon-sacola.webp';
     if (!foto || !visual) return;
-    foto.src = mostrarPresente ? 'fotos/sacola-simples-cachaca-prata.jpg?v=1' : 'fotos/icon-sacola.webp';
+    foto.src = imagem;
     visual.classList.toggle('is-product-photo', mostrarPresente);
 }
 
