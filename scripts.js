@@ -743,16 +743,34 @@ function iniciarCarrosselBeneficios() {
         if (typeof rastrearAcao === 'function') rastrearAcao('Clique grupo de ofertas', '💬');
     });
     const regras = document.getElementById('regras-primeira-compra');
+    let scrollAntesDasRegras = 0;
+    const abrirRegrasPrimeiraCompra = () => {
+        if (!regras || regras.open) return;
+        scrollAntesDasRegras = window.scrollY;
+        document.body.style.top = `-${scrollAntesDasRegras}px`;
+        document.body.classList.add('first-order-open');
+        regras.showModal();
+    };
+    const fecharRegrasPrimeiraCompra = () => {
+        if (!regras?.open) return;
+        regras.close();
+    };
+    const restaurarRolagemAposRegras = () => {
+        document.body.classList.remove('first-order-open');
+        document.body.style.top = '';
+        window.scrollTo(0, scrollAntesDasRegras);
+    };
     element.querySelector('[data-benefit-action="primeira-compra"]')?.addEventListener('click', event => {
         event.preventDefault();
-        regras?.showModal();
+        abrirRegrasPrimeiraCompra();
         if (typeof rastrearAcao === 'function') rastrearAcao('Abriu regras da primeira compra', '🏷️');
     });
-    regras?.querySelector('[data-first-order-close]')?.addEventListener('click', () => regras.close());
-    regras?.addEventListener('click', event => { if (event.target === regras) regras.close(); });
+    regras?.querySelector('[data-first-order-close]')?.addEventListener('click', fecharRegrasPrimeiraCompra);
+    regras?.addEventListener('click', event => { if (event.target === regras) fecharRegrasPrimeiraCompra(); });
+    regras?.addEventListener('close', restaurarRolagemAposRegras);
     regras?.querySelector('[data-first-order-shop]')?.addEventListener('click', () => {
-        regras.close();
-        document.getElementById('vitrine')?.scrollIntoView({ behavior:'smooth', block:'start' });
+        fecharRegrasPrimeiraCompra();
+        requestAnimationFrame(() => document.getElementById('vitrine')?.scrollIntoView({ behavior:'smooth', block:'start' }));
     });
 }
 async function carregarBannersSite() {

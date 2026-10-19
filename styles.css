@@ -1094,13 +1094,24 @@
         .benefit-copy a:focus-visible span { transform: translateX(2px); }
         .benefit-copy a:active { transform: translateY(0); box-shadow: 0 3px 9px rgba(151,101,30,.18); }
         .first-order-dialog {
+            position: fixed;
+            inset: 0;
             width: min(560px, calc(100% - 28px));
+            max-height: calc(100dvh - 28px);
+            margin: auto;
             padding: 38px;
+            overflow-x: hidden;
+            overflow-y: auto;
             border: 1px solid rgba(197,160,89,.42);
             border-radius: 24px;
             color: #17304f;
             background: #fff;
             box-shadow: 0 28px 90px rgba(5,24,47,.34);
+        }
+        body.first-order-open {
+            position: fixed;
+            width: 100%;
+            overflow: hidden;
         }
         .first-order-dialog::backdrop { background: rgba(7,24,45,.76); backdrop-filter: blur(6px); }
         .first-order-dialog__close { position:absolute;top:12px;right:12px;width:42px;height:42px;border:1px solid #e5ded3;border-radius:50%;background:#fff;color:#17304f;font-size:28px;line-height:1;cursor:pointer; }
