@@ -29,7 +29,7 @@ function verifyAge(isMajor) {
 
         updateWelcome();
         rastrearAcao("Idade Verificada", "🔞");
-        agendarNewsletterModal();
+        // Newsletter permanece disponível por ação do visitante, sem interromper a chegada.
 
     } else {
         alert("A apreciação de uma boa cachaça é um prazer reservado a adultos. 🔞");
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.classList.remove('is-visible');
             overlay.setAttribute('aria-hidden', 'true');
         }
-        agendarNewsletterModal();
+        // Não abre newsletter automaticamente para quem acabou de chegar.
     } else {
         const exibirConfirmacaoIdade = async () => {
             await Promise.race([
@@ -1040,6 +1040,21 @@ async function irParaEntrega() {
             resultado.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         return;
+    }
+    if (!sessionStorage.getItem('tioNanCheckoutStartTracked')) {
+        sessionStorage.setItem('tioNanCheckoutStartTracked', '1');
+        const items = cart.map(item => ({
+            id: String(item.id),
+            item_id: String(item.id),
+            name: item.displayName || item.name,
+            item_name: item.displayName || item.name,
+            price: Number(item.price || 0),
+            quantity: Number(item.qtd || 1)
+        }));
+        const value = cart.reduce((total, item) => total + Number(item.price || 0) * Number(item.qtd || 1), 0);
+        rastrearAcao('Checkout', '💳 Abriu Checkout');
+        window.TioNanPixel?.initiateCheckout({ items, value });
+        window.gtag?.('event', 'begin_checkout', { currency:'BRL', value, items });
     }
     mostrarEtapaCheckout('entrega');
 }
@@ -3227,7 +3242,6 @@ function openCart() {
     document.body.classList.add('stop-scroll');
     if (backdrop) backdrop.style.display = 'block';
     history.pushState({ sacolaAberta: true }, "", "#sacola");
-    if (cart.length > 0) rastrearAcao("Carrinho", "💳 Abriu Checkout");
 }
 function closeCart(veioDoBotaoVoltar = false) {
     try {

@@ -64,6 +64,15 @@
     .promotion-badge { display:inline-flex; align-items:center; margin-bottom:7px; padding:7px 10px; border-radius:999px; background:#b7791f; color:#fff; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     .promotion-saving { margin:7px 0 0; color:#196b3a; font-size:14px; font-weight:800; }
     .payment-note { margin:7px 0 0; color:#5d6677; font-size:14px; }
+    .first-purchase-benefit { margin:14px 0 0; padding:14px 16px; border:1px solid #d9bd82; border-radius:14px; background:linear-gradient(135deg,#fff8e8,#fff); color:var(--navy-dark); }
+    .first-purchase-benefit strong { display:block; color:#8a5b12; font-size:15px; }
+    .first-purchase-benefit p { margin:5px 0 0; color:#5f6877; font-size:12px; line-height:1.45; }
+    .first-purchase-benefit details { margin-top:8px; border:0; }
+    .first-purchase-benefit summary { justify-content:flex-start; gap:6px; padding:0; color:#765018; font-size:12px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+    .first-purchase-benefit summary::after { content:""; }
+    .first-purchase-rules { margin:8px 0 0; padding-left:17px; color:#656d79; font-size:12px; line-height:1.5; }
+    .offers-secondary { display:inline-flex; align-items:center; gap:7px; margin-top:11px; color:var(--navy); font-size:12px; font-weight:700; text-decoration:none; }
+    .offers-secondary:hover { text-decoration:underline; text-underline-offset:3px; }
     .bag-benefit { display:grid; grid-template-columns:42px minmax(0,1fr); gap:12px; align-items:center; margin:16px 0 0; padding:13px 15px; border:1px solid #e4cfaa; border-radius:14px; background:linear-gradient(135deg,#fffaf0,#fff); color:var(--navy-dark); }
     .bag-benefit img { width:42px; height:42px; object-fit:contain; }
     .bag-benefit strong, .bag-benefit small { display:block; }
@@ -134,16 +143,18 @@
       .brand { font-size:24px; }
       .product-page { padding:0 0 24px; }
       .layout { display:flex; flex-direction:column; gap:0; }
-      .gallery { order:0; width:100%; height:auto; aspect-ratio:1/1; border:0; border-radius:0; position:relative; top:auto; }
-      .gallery img { height:100%; padding:0; }
-      .product-info { width:100%; padding:0 24px; }
-      .crumbs { margin:24px 0 20px; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .gallery { order:0; width:100%; height:clamp(210px,58vw,270px); aspect-ratio:auto; border:0; border-radius:0; position:relative; top:auto; background:#fff; }
+      .gallery img { height:100%; padding:0; object-fit:contain; }
+      .product-info { width:100%; padding:17px 24px 0; }
+      .crumbs { display:none; }
       .tag { margin-bottom:9px; }
-      h1 { font-size:31px; }
-      .rating { margin:15px 0 19px; }
+      h1 { font-size:29px; }
+      .rating { margin:10px 0 13px; }
       .stars { font-size:21px; }
-      .price-box { padding:18px 0; }
+      .price-box { padding:14px 0; }
       .price { font-size:31px; }
+      .payment-note { margin-top:4px; font-size:12px; }
+      .first-purchase-benefit { margin-top:11px; padding:12px 14px; }
       .product-copy { font-size:15px; margin-top:20px; }
       .buy-row { display:none; }
       .shipping { margin-top:18px; padding:15px; }
@@ -333,6 +344,11 @@
       updateCartCount();
       window.TioNanAnalytics?.track('add_to_cart', { label:product.nome, produto_id:product.id, valor:Number(product.preco || 0), metadata:{ quantidade:quantity } });
       window.TioNanPixel?.addToCart({ id:product.id, name:product.nome, value:Number(product.preco || 0) }, quantity);
+      window.gtag?.('event', 'add_to_cart', {
+        currency:'BRL',
+        value:Number(product.preco || 0) * quantity,
+        items:[{ item_id:String(product.id), item_name:displayNameFor(product), price:Number(product.preco || 0), quantity }]
+      });
       document.querySelectorAll('.notice').forEach(el => el.textContent = 'Produto adicionado ao carrinho.');
       document.querySelectorAll('.buy-button').forEach(button => { button.textContent = 'Adicionado ✓'; setTimeout(() => button.textContent = 'Comprar', 1600); });
       setTimeout(() => window.location.href = 'index.html?carrinho=1', 350);
@@ -477,6 +493,8 @@
             <div class="rating" aria-label="Avaliação do produto"><span class="stars">${stars}</span>${review.count ? `<strong>${score} de 5</strong><button type="button" class="reviews-link" data-scroll-reviews>(${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'})</button>` : '<span class="rating-note">Ainda sem avaliações</span>'}</div>
             ${stockNotice}
             <div class="price-box${hasDiscount ? ' promotion' : ''}">${hasDiscount?`<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>`:`<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong>`}<p class="payment-note">Compra segura e finalização no checkout.</p></div>
+            ${hasDiscount ? '' : `<aside class="first-purchase-benefit"><strong>20% OFF na primeira compra pelo site</strong><p>O benefício é verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>`}
+            <a class="offers-secondary" href="https://chat.whatsapp.com/IhBigxDFWAm7f8ZFo7n4Az?s=cl&p=i&mlu=0&ilr=4" target="_blank" rel="noopener" data-offers-group>💬 Prefere acompanhar ofertas? Entre no grupo</a>
             ${hasBag && !unavailable ? '<aside class="bag-benefit"><img src="fotos/icon-sacola.webp" alt=""><span><strong>Sacola especial disponível</strong><small>Em retiradas e entregas próprias em Porto Alegre, você poderá incluí-la gratuitamente no checkout.</small></span></aside>' : ''}
             <p class="product-copy">${description}</p>
             ${ingredientCallout}
@@ -497,6 +515,10 @@
       mobileBuyButton.textContent = comingSoon ? 'Em breve' : soldOut ? 'Volta Logo!' : 'Comprar';
       document.querySelectorAll('[data-quantity]').forEach(button => button.addEventListener('click', () => updateQuantity(Number(button.dataset.quantity))));
       document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', addToCart));
+      document.querySelector('[data-offers-group]')?.addEventListener('click', () => {
+        window.TioNanAnalytics?.track('offer_group_click', { label:'Grupo de ofertas', produto_id:p.id });
+        window.gtag?.('event', 'select_promotion', { promotion_name:'Grupo de ofertas', items:[{ item_id:String(p.id), item_name:displayName }] });
+      });
       if (!unavailable) mobileBuyButton.addEventListener('click', addToCart);
       document.querySelectorAll('[data-scroll-reviews]').forEach(button => button.addEventListener('click', () => document.getElementById('avaliacoes').scrollIntoView({ behavior:'smooth', block:'start' })));
       document.querySelectorAll('[data-review-filter]').forEach(button => button.addEventListener('click', () => {
@@ -549,8 +571,27 @@
       product = selectedProduct;
       window.TioNanAnalytics?.track('product_view', { label:selectedProduct.nome, produto_id:selectedProduct.id, valor:Number(selectedProduct.preco || 0) });
       window.TioNanPixel?.viewContent({ id:selectedProduct.id, name:selectedProduct.nome, value:Number(selectedProduct.preco || 0), category:selectedProduct.categoria });
+      window.gtag?.('event', 'view_item', {
+        currency:'BRL',
+        value:Number(selectedProduct.preco || 0),
+        items:[{ item_id:String(selectedProduct.id), item_name:displayNameFor(selectedProduct), price:Number(selectedProduct.preco || 0), quantity:1 }]
+      });
       const [review, hasBag] = await Promise.all([reviewsFor(selectedProduct.nome), bagAvailableFor(selectedProduct)]);
       render(selectedProduct, review, hasBag);
+      const trackedDepths = new Set();
+      const trackScrollDepth = () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollable <= 0) return;
+        const depth = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+        [25, 50, 75, 90].forEach(mark => {
+          if (depth < mark || trackedDepths.has(mark)) return;
+          trackedDepths.add(mark);
+          if (mark === 50) window.TioNanAnalytics?.track('scroll_depth', { label:'Rolou a página', produto_id:selectedProduct.id, metadata:{ percentual:mark } });
+          window.gtag?.('event', 'scroll_depth', { percent_scrolled:mark, item_id:String(selectedProduct.id) });
+        });
+        if (trackedDepths.has(90)) window.removeEventListener('scroll', trackScrollDepth);
+      };
+      window.addEventListener('scroll', trackScrollDepth, { passive:true });
       if (/(^|\.)tionan\.com\.br$/i.test(window.location.hostname)) {
         const friendlyPath = `/produtos/${productSlug(selectedProduct.nome)}`;
         if (window.location.pathname !== friendlyPath) history.replaceState(null, '', friendlyPath);
