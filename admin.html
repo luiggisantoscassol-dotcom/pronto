@@ -1636,6 +1636,8 @@
         .automation-stat span { display:block; color:#718096; font-size:.62rem; font-weight:900; letter-spacing:.8px; text-transform:uppercase; }
         .automation-stat strong { display:block; margin:9px 0 3px; color:#19385f; font-size:2rem; line-height:1; }
         .automation-stat small { color:#8490a0; font-size:.66rem; }
+        .automation-stat-action { width:auto; min-height:34px; margin:12px 0 0; padding:8px 11px; border:1px solid #d8c59b; border-radius:9px; background:#fffaf0; color:#75571f; font-size:.55rem; font-weight:900; letter-spacing:.55px; cursor:pointer; }
+        .automation-stat-action:hover,.automation-stat-action:focus-visible { background:#f5e8c8; outline:2px solid rgba(197,154,74,.25); outline-offset:2px; }
         .automation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
         .automation-card { padding:20px; border:1px solid #e7e0d5; border-radius:19px; background:#fff; box-shadow:0 8px 24px rgba(25,56,95,.05); }
         .automation-card--clickable { cursor:pointer; transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
@@ -2152,7 +2154,7 @@
             </div>
             <div class="automation-summary">
                 <article class="automation-stat"><span>Automações ativas</span><strong id="auto-ativas">4</strong><small>boas-vindas, carrinho, avaliação e recompra</small></article>
-                <article class="automation-stat"><span>Inscritos autorizados</span><strong id="auto-inscritos">—</strong><small>aptos a receber novidades</small></article>
+                <article class="automation-stat"><span>Inscritos autorizados</span><strong id="auto-inscritos">—</strong><small>aptos a receber novidades</small><button type="button" class="automation-stat-action" onclick="abrirDetalhesAutomacao('inscritos')">VER E-MAILS</button></article>
                 <article class="automation-stat"><span>Carrinhos recuperados</span><strong id="auto-recuperados">—</strong><small>compras retomadas depois do lembrete</small></article>
                 <article class="automation-stat"><span>Falhas pendentes</span><strong id="auto-falhas">—</strong><small>itens que precisam de atenção</small></article>
             </div>
@@ -3702,7 +3704,7 @@
 
         let centralAutomacoesCarregada = false;
         let tipoAutomacaoAberta = '';
-        let dadosDetalhesAutomacoes = { boas:[], carrinhos:[], avaliacoes:[], recompras:[] };
+        let dadosDetalhesAutomacoes = { inscritos:[], boas:[], carrinhos:[], avaliacoes:[], recompras:[] };
         const preencherMetricaAutomacao = (id, valor) => {
             const elemento = document.getElementById(id);
             if (elemento) elemento.textContent = Number(valor || 0).toLocaleString('pt-BR');
@@ -3755,6 +3757,7 @@
                     ...dadosCliente(item.email), situacao:item.boas_vindas_erro || item.boas_vindas_status === 'erro' ? 'erro' : item.boas_vindas_enviado_em ? 'enviado' : 'pendente',
                     detalhe:item.consentimento ? 'Recebimento autorizado' : 'Consentimento cancelado', data:item.boas_vindas_enviado_em || item.atualizado_em, erro:item.boas_vindas_erro || ''
                 }));
+                dadosDetalhesAutomacoes.inscritos = dadosDetalhesAutomacoes.boas.filter((_, indice) => newsletters[indice]?.consentimento === true);
                 dadosDetalhesAutomacoes.carrinhos = carrinhos.map(item => {
                     const itens = (Array.isArray(item.itens) ? item.itens : []).map(produto => produto.nome || produto.name).filter(Boolean).join(', ');
                     return { ...dadosCliente(item.email, item.nome), situacao:item.erro || item.status === 'erro' ? 'erro' : item.status === 'convertido' ? 'convertido' : item.enviado_em ? 'enviado' : 'pendente', detalhe:itens || 'Sacola sem itens', valor:Number(item.total || 0), data:item.convertido_em || item.enviado_em || item.enviar_apos || item.ultima_atividade_em, erro:item.erro || '' };
@@ -3801,6 +3804,7 @@
         }
 
         const configuracaoDetalhesAutomacao = {
+            inscritos: { titulo:'E-mails inscritos na newsletter', descricao:'Pessoas que autorizaram o recebimento de novidades e campanhas da Tio Nan.' },
             boas: { titulo:'Boas-vindas', descricao:'Pessoas inscritas e a situação do primeiro e-mail enviado pela Tio Nan.' },
             carrinhos: { titulo:'Carrinhos abandonados', descricao:'Clientes que deixaram uma sacola, quando o lembrete foi enviado e quais compras foram recuperadas.' },
             avaliacoes: { titulo:'Pedidos de avaliação', descricao:'Clientes elegíveis para avaliar a compra e o andamento de cada envio.' },
