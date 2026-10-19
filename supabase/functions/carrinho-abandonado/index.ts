@@ -30,12 +30,19 @@ const formatMoney = (value: unknown) => money(value).toLocaleString("pt-BR", { s
 
 type CartItem = { id: string; nome: string; quantidade: number; preco: number; foto?: string | null; unidades_por_kit?: number };
 
-const emailHtml = (cart: Record<string, unknown>, recoveryUrl: string, unsubscribeUrl: string) => {
+const emailHtmlBase = (cart: Record<string, unknown>, recoveryUrl: string, unsubscribeUrl: string) => {
   const name = escapeHtml(String(cart.nome || "").trim().split(/\s+/)[0] || "por aí");
   const items = (Array.isArray(cart.itens) ? cart.itens : []) as CartItem[];
   const rows = items.map((item) => `<tr><td style="padding:11px 0;border-bottom:1px solid #ece7de;color:#17304f;font-size:14px"><strong>${escapeHtml(item.nome)}</strong><br><span style="color:#7b8798">Quantidade: ${item.quantidade}</span></td><td style="padding:11px 0;border-bottom:1px solid #ece7de;text-align:right;color:#17304f;font-weight:700;white-space:nowrap">${formatMoney(item.preco * item.quantidade)}</td></tr>`).join("");
   return `<!doctype html><html lang="pt-BR"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f4f0e8;font-family:Arial,sans-serif;color:#17304f"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:24px 10px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:auto;background:#fff;border-radius:20px;overflow:hidden"><tr><td style="padding:26px 24px;text-align:center;border-bottom:1px solid #eee7dc"><img src="${SITE}/logo-tio-nan-email.png" width="170" alt="Tio Nan" style="display:inline-block;max-width:70%;height:auto"></td></tr><tr><td style="padding:34px 28px 10px"><p style="margin:0 0 9px;color:#b68737;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase">Seu brinde ficou esperando</p><h1 style="margin:0;font-family:Georgia,serif;font-size:31px;line-height:1.12;color:#17304f">${name}, sua sacola ainda está por aqui.</h1><p style="margin:16px 0 0;color:#617086;font-size:16px;line-height:1.6">Guardamos sua seleção para você continuar de onde parou — sem pressa, mas antes que alguém brinde primeiro. 🥃</p></td></tr><tr><td style="padding:12px 28px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${rows}<tr><td style="padding:16px 0 0;font-weight:800">Total dos produtos</td><td style="padding:16px 0 0;text-align:right;font-size:18px;font-weight:900">${formatMoney(cart.total)}</td></tr></table></td></tr><tr><td style="padding:24px 28px 34px"><a href="${recoveryUrl}" style="display:block;padding:16px 22px;border-radius:12px;background:#c79a49;color:#102d50;text-align:center;text-decoration:none;font-weight:900">RETOMAR MINHA COMPRA &nbsp;→</a><p style="margin:14px 0 0;text-align:center;color:#8a94a3;font-size:12px">Estoque e preços são confirmados ao finalizar o pedido.</p></td></tr><tr><td style="padding:22px 28px;background:#0b284b;color:#cbd6e4;text-align:center;font-size:11px;line-height:1.5">Beba com moderação. Venda proibida para menores de 18 anos.<br><a href="${unsubscribeUrl}" style="display:inline-block;margin-top:10px;color:#efd7a5">Não quero mais receber estes e-mails</a></td></tr></table></td></tr></table></body></html>`;
 };
+
+const emailHtml = (cart: Record<string, unknown>, recoveryUrl: string, unsubscribeUrl: string) => emailHtmlBase(cart, recoveryUrl, unsubscribeUrl)
+  .replace(
+    '<tr><td style="padding:34px 28px 10px">',
+    `<tr><td style="padding:0;background:#102d50"><img src="${SITE}/fotos/email-carrinho-abandonado.jpg" width="620" alt="O brinde ficou para depois? Você deixou uma Tio Nan no carrinho." style="display:block;width:100%;max-width:620px;height:auto;border:0"></td></tr><tr><td style="padding:34px 28px 10px">`,
+  )
+  .replace('RETOMAR MINHA COMPRA &nbsp;→', 'CONTINUAR O PEDIDO &nbsp;→');
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: cors(request) });
