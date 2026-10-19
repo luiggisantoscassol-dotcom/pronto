@@ -3,6 +3,7 @@
 
   var INTERNAL_ACCESS_KEY = 'tioNanInternalAccess';
   var GOOGLE_ADS_ID = 'AW-18524058545';
+  var GOOGLE_ANALYTICS_ID = 'G-FT6M0L0E6S';
 
   try {
     if (window.localStorage.getItem(INTERNAL_ACCESS_KEY) === '1') return;
@@ -16,10 +17,11 @@
   };
 
   window.gtag('js', new Date());
+  window.gtag('config', GOOGLE_ANALYTICS_ID);
   window.gtag('config', GOOGLE_ADS_ID);
 
   var script = document.createElement('script');
   script.async = true;
-  script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GOOGLE_ADS_ID);
+  script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GOOGLE_ANALYTICS_ID);
   document.head.appendChild(script);
 })();
