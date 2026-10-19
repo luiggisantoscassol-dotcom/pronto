@@ -24,10 +24,10 @@ Deno.serve(async (request) => {
   if (!allowed(origin)) return reply(origin, { error: "Origem não autorizada." }, 403);
 
   const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
-  const placeId = Deno.env.get("GOOGLE_PLACE_ID");
+  let placeId = Deno.env.get("GOOGLE_PLACE_ID") || "";
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!apiKey || !placeId || !supabaseUrl || !serviceKey) {
+  if (!apiKey || !supabaseUrl || !serviceKey) {
     return reply(origin, { configured: false }, 503);
   }
 
@@ -38,6 +38,29 @@ Deno.serve(async (request) => {
     .maybeSingle();
   const age = cached?.updated_at ? Date.now() - new Date(cached.updated_at).getTime() : Infinity;
   if (cached?.payload && age < CACHE_MS) return reply(origin, cached.payload);
+
+  placeId = placeId || String(cached?.payload?.placeId || "");
+  if (!placeId) {
+    const textQuery = Deno.env.get("GOOGLE_PLACE_QUERY")
+      || "Tio Nan, Avenida Bento Gonçalves 4321, Porto Alegre, RS, Brasil";
+    const searchResponse = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.googleMapsUri",
+      },
+      body: JSON.stringify({ textQuery, languageCode: "pt-BR", regionCode: "BR", pageSize: 1 }),
+    });
+    if (!searchResponse.ok) {
+      const detail = (await searchResponse.text()).slice(0, 800);
+      console.error("Google Places search error", searchResponse.status, detail);
+      return reply(origin, { error: "Não foi possível localizar o perfil da empresa." }, 502);
+    }
+    const search = await searchResponse.json();
+    placeId = String(search?.places?.[0]?.id || "");
+    if (!placeId) return reply(origin, { error: "Perfil da empresa não localizado." }, 404);
+  }
 
   const fields = ["displayName", "rating", "userRatingCount", "reviews", "googleMapsUri"].join(",");
   const response = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?languageCode=pt-BR`, {
@@ -61,6 +84,7 @@ Deno.serve(async (request) => {
   })) : [];
   const payload = {
     configured: true,
+    placeId,
     name: String(place?.displayName?.text || "Tio Nan"),
     rating: Number(place?.rating || 0),
     total: Number(place?.userRatingCount || 0),
