@@ -143,8 +143,8 @@
       .brand { font-size:24px; }
       .product-page { padding:0 0 24px; }
       .layout { display:flex; flex-direction:column; gap:0; }
-      .gallery { order:0; width:100%; height:clamp(210px,58vw,270px); aspect-ratio:auto; border:0; border-radius:0; position:relative; top:auto; background:#fff; }
-      .gallery img { height:100%; padding:0; object-fit:contain; }
+      .gallery { order:0; width:100%; height:auto; min-height:0; aspect-ratio:auto; border:0; border-radius:0; position:relative; top:auto; overflow:visible; background:#fff; }
+      .gallery img { display:block; width:100%; height:auto; max-height:none; padding:0; object-fit:contain; object-position:center; }
       .product-info { width:100%; padding:17px 24px 0; }
       .crumbs { display:none; }
       .tag { margin-bottom:9px; }
