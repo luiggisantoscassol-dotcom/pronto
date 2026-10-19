@@ -718,7 +718,13 @@ function iniciarCarrosselBeneficios() {
         slidesPerView: 1.16,
         spaceBetween: 0,
         loop: false,
+        rewind: true,
         speed: 520,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true
+        },
         grabCursor: true,
         watchOverflow: true,
         breakpoints: {
