@@ -1076,6 +1076,30 @@
         }
         .benefit-copy a:hover,
         .benefit-copy a:focus-visible { color: #fff; background: var(--blue-navy); border-color: var(--blue-navy); }
+        .first-order-dialog {
+            width: min(560px, calc(100% - 28px));
+            padding: 38px;
+            border: 1px solid rgba(197,160,89,.42);
+            border-radius: 24px;
+            color: #17304f;
+            background: #fff;
+            box-shadow: 0 28px 90px rgba(5,24,47,.34);
+        }
+        .first-order-dialog::backdrop { background: rgba(7,24,45,.76); backdrop-filter: blur(6px); }
+        .first-order-dialog__close { position:absolute;top:12px;right:12px;width:42px;height:42px;border:1px solid #e5ded3;border-radius:50%;background:#fff;color:#17304f;font-size:28px;line-height:1;cursor:pointer; }
+        .first-order-dialog__eyebrow { color:#b68737;font-size:.7rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase; }
+        .first-order-dialog h2 { margin:10px 38px 14px 0;font-family:var(--font-premium);font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.08; }
+        .first-order-dialog p,.first-order-dialog li { color:#5d6c81;line-height:1.55; }
+        .first-order-dialog ul { margin:18px 0 26px;padding-left:20px; }
+        .first-order-dialog li+li { margin-top:7px; }
+        .first-order-dialog__action { width:100%;min-height:52px;border:1px solid #b98c3a;border-radius:13px;background:#17375f;color:#fff;font-weight:900;letter-spacing:.05em;cursor:pointer; }
+        .first-order-checkout-hint { margin:-9px 0 10px;color:#718096;font-size:.72rem;line-height:1.4; }
+        .first-order-status { display:none;margin:0 0 14px;padding:12px 14px;border-radius:11px;font-size:.78rem;font-weight:800;line-height:1.4; }
+        .first-order-status.is-loading { display:block;background:#f4f0e8;color:#725626; }
+        .first-order-status.is-eligible { display:block;border:1px solid #a9d9bc;background:#edf9f1;color:#16733c; }
+        .first-order-status.is-returning { display:block;background:#f3f5f8;color:#5c6879; }
+        .first-order-status.is-empty { display:block;border:1px solid #ead9b8;background:#fff9ed;color:#7b5a20; }
+        @media(max-width:560px){.first-order-dialog{padding:32px 22px 24px}.first-order-dialog h2{font-size:1.85rem}}
         @media (max-width: 999px) {
             .benefits-strip { padding: 0; }
             .swiper-benefits { padding: 0 14px; }

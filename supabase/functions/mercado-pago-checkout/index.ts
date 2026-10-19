@@ -99,7 +99,7 @@ Deno.serve(async (request) => {
   }
   const { data: products, error: productsError } = await db
     .from("produtos")
-    .select("id,nome,preco,estoque,bling_id,excluido,tipo_produto,unidades_por_kit")
+    .select("id,nome,preco,preco_original,estoque,bling_id,excluido,tipo_produto,unidades_por_kit")
     .eq("excluido", false);
   if (productsError) return respond(origin, { error: "Não foi possível validar os produtos." }, 500);
   const { data: componentRows, error: componentsError } = await db
@@ -142,6 +142,7 @@ Deno.serve(async (request) => {
       nome: product?.nome ?? fallback.name,
       quantidade: quantity,
       preco: unitPrice,
+      preco_original: money(Number(product?.preco_original || 0)),
       bling_id: product?.bling_id ? String(product.bling_id) : fallback?.blingId || null,
       tipo_produto: product?.tipo_produto || "unitario",
       unidades_por_kit: Number(product?.unidades_por_kit || 1),
@@ -274,7 +275,27 @@ Deno.serve(async (request) => {
     if (previous?.length) return respond(origin, { error: "Este cupom já foi utilizado por este telefone." }, 409);
   }
 
-  const discount = money(subtotal * discountPercent / 100);
+  let firstPurchase = false;
+  let firstPurchaseEligibleSubtotal = 0;
+  if (!coupon && !isTest) {
+    const { data: previousOrders, error: previousOrdersError } = await db.from("pedidos")
+      .select("id")
+      .eq("cliente_cpf", cpf)
+      .or("status_pagamento.in.(pago,aprovado,approved),status.in.(Concluído,Entregue,Enviado)")
+      .limit(1);
+    if (previousOrdersError) return respond(origin, { error:"Não foi possível verificar o benefício de primeira compra." }, 500);
+    firstPurchase = !previousOrders?.length;
+    if (firstPurchase) {
+      firstPurchaseEligibleSubtotal = money(lines.reduce((sum, item) => {
+        const regularPrice = Number(item.preco_original || 0) <= Number(item.preco || 0);
+        const participates = String(item.tipo_produto || "") !== "kit" && regularPrice;
+        return participates ? sum + Number(item.preco) * Number(item.quantidade) : sum;
+      }, 0));
+    }
+  }
+  const discount = coupon
+    ? money(subtotal * discountPercent / 100)
+    : money(firstPurchaseEligibleSubtotal * .2);
   const total = money(subtotal - discount + shipping);
   const reference = crypto.randomUUID();
   const trackingToken = crypto.randomUUID();
@@ -315,7 +336,8 @@ Deno.serve(async (request) => {
     if (existingClientId) return db.from("clientes").update(clientPayload).eq("id", existingClientId);
     return db.from("clientes").insert(clientPayload);
   };
-  const itemsText = lines.map((item) => `${item.nome} (x${item.quantidade})`).join(", ") + (coupon ? ` [CUPOM: ${coupon}]` : "");
+  const firstPurchaseMarker = firstPurchase && discount > 0 ? ` [PRIMEIRA COMPRA 20%: -R$ ${discount.toFixed(2)}]` : "";
+  const itemsText = lines.map((item) => `${item.nome} (x${item.quantidade})`).join(", ") + (coupon ? ` [CUPOM: ${coupon}]` : "") + firstPurchaseMarker;
 
   const { error: orderError } = await db.from("pedidos").insert({
     referencia: reference,
@@ -389,7 +411,7 @@ Deno.serve(async (request) => {
         body: JSON.stringify({ action: "pedido", referencia: reference }),
       }).catch((error) => console.error("Falha ao sincronizar pedido sem cobrança", error));
     }
-    return respond(origin, { ok: true, pedido: reference, tracking_token: trackingToken });
+    return respond(origin, { ok: true, pedido: reference, tracking_token: trackingToken, total, desconto:discount, primeira_compra:firstPurchase && discount > 0 });
   }
 
   // O Mercado Pago exige URLs públicas HTTPS quando `auto_return` está ativo.
@@ -450,7 +472,7 @@ Deno.serve(async (request) => {
       if (emailResult.ok) await db.from("pedidos").update({ email_confirmacao_enviado_em: new Date().toISOString() }).eq("referencia", reference);
       else console.error("Falha ao enviar confirmação do pedido", emailResult.error);
     }
-    return respond(origin, { ok: true, sandbox, pedido: reference, tracking_token: trackingToken, payment_id: String(payment.id), status: paymentStatus, status_detail: payment.status_detail });
+    return respond(origin, { ok: true, sandbox, pedido: reference, tracking_token: trackingToken, payment_id: String(payment.id), status: paymentStatus, status_detail: payment.status_detail, total, desconto:discount, primeira_compra:firstPurchase && discount > 0 });
   }
 
   const preferenceResponse = await fetch(`${MP_API}/checkout/preferences`, {
@@ -478,5 +500,5 @@ Deno.serve(async (request) => {
   }
   await db.from("pedidos").update({ mercado_pago_preference_id: String(preference.id), atualizado_em: new Date().toISOString() }).eq("referencia", reference);
   await saveClient();
-  return respond(origin, { ok: true, pedido: reference, tracking_token: trackingToken, checkout_url: preference.init_point });
+  return respond(origin, { ok: true, pedido: reference, tracking_token: trackingToken, checkout_url: preference.init_point, total, desconto:discount, primeira_compra:firstPurchase && discount > 0 });
 });

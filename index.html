@@ -48,7 +48,7 @@
     <meta name="apple-mobile-web-app-title" content="Tio Nan">
     <meta name="application-name" content="Tio Nan">
 
-    <link rel="stylesheet" href="styles.css?v=6.33">
+    <link rel="stylesheet" href="styles.css?v=6.34">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -261,6 +261,8 @@
 
             <input type="text" id="cliente-cpf" class="cart-input" placeholder="CPF" autocomplete="off"
                 inputmode="numeric" maxlength="14" required oninput="mascaraCPF(this)">
+            <p class="first-order-checkout-hint">Informe seu CPF para verificarmos o benefício de primeira compra.</p>
+            <div id="primeira-compra-status" class="first-order-status" role="status" aria-live="polite"></div>
 
             <button type="button" id="btn-identificacao" class="btn-etapa-checkout" onclick="avancarIdentificacao()">
                 <span>Continuar com meus dados</span>
@@ -403,17 +405,23 @@
         <section class="benefits-strip" aria-label="Vantagens de comprar na Tio Nan">
             <div class="swiper swiper-benefits">
                 <div class="swiper-wrapper">
-                    <article class="swiper-slide benefit-item">
+                    <article class="swiper-slide benefit-item benefit-item-cta">
                         <span class="benefit-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24"><path d="M3 5h11v11H3zM14 9h4l3 3v4h-7zM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5.5C16 4.5 14.4 4 12.5 4 9.9 4 8 5.3 8 7.3c0 4.2 9 2.2 9 6.8 0 2.2-2 3.9-5 3.9-2.1 0-4-.7-5.2-2"/></svg>
                         </span>
-                        <span class="benefit-copy"><strong>Entrega para todo o Brasil</strong><small>Consulte as opções e o prazo pelo CEP</small></span>
+                        <span class="benefit-copy"><strong>20% OFF na primeira compra</strong><a href="#regras-primeira-compra" data-benefit-action="primeira-compra">Ver regras <span aria-hidden="true">→</span></a></span>
                     </article>
                     <article class="swiper-slide benefit-item benefit-item-cta">
                         <span class="benefit-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><path d="M4 13V7l13-4v14L4 13Zm0 0-2 2v2h5l1-3M17 8c2 0 4 1 5 3M17 12c1 0 2 .5 3 1.5"/></svg>
                         </span>
                         <span class="benefit-copy"><strong>Grupo de ofertas</strong><a href="https://chat.whatsapp.com/IhBigxDFWAm7f8ZFo7n4Az?s=cl&amp;p=i&amp;mlu=0&amp;ilr=4" target="_blank" rel="noopener" data-benefit-action="grupo-ofertas">Quero participar <span aria-hidden="true">→</span></a></span>
+                    </article>
+                    <article class="swiper-slide benefit-item">
+                        <span class="benefit-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M3 5h11v11H3zM14 9h4l3 3v4h-7zM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>
+                        </span>
+                        <span class="benefit-copy"><strong>Entrega para todo o Brasil</strong><small>Consulte as opções e o prazo pelo CEP</small></span>
                     </article>
                     <article class="swiper-slide benefit-item">
                         <span class="benefit-icon" aria-hidden="true">
@@ -430,6 +438,21 @@
                 </div>
             </div>
         </section>
+
+        <dialog id="regras-primeira-compra" class="first-order-dialog" aria-labelledby="first-order-title">
+            <button type="button" class="first-order-dialog__close" data-first-order-close aria-label="Fechar regras">&times;</button>
+            <span class="first-order-dialog__eyebrow">Benefício de boas-vindas</span>
+            <h2 id="first-order-title">20% OFF na primeira compra pelo site</h2>
+            <p>O desconto é aplicado automaticamente depois que você informa seu CPF no checkout.</p>
+            <ul>
+                <li>Válido para a primeira compra aprovada realizada no site.</li>
+                <li>Aplicado somente a produtos de preço regular participantes.</li>
+                <li>Kits e produtos que já estejam em oferta não participam.</li>
+                <li>Não se aplica ao frete e não é cumulativo com cupons.</li>
+                <li>Pedidos não pagos ou cancelados não utilizam o benefício.</li>
+            </ul>
+            <button type="button" class="first-order-dialog__action" data-first-order-shop>Escolher minha Tio Nan</button>
+        </dialog>
 
         <h2 class="products-heading">Mais vendidos</h2>
         <section class="products-carousel-section" aria-label="Mais vendidos">
@@ -519,7 +542,7 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="meta-pixel.js?v=2"></script>
     <script src="site-analytics.js?v=5"></script>
-    <script src="scripts.js?v=6.62"></script>
+    <script src="scripts.js?v=6.63"></script>
 </body>
 
 </html>

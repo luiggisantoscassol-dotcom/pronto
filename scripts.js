@@ -742,6 +742,18 @@ function iniciarCarrosselBeneficios() {
     element.querySelector('[data-benefit-action="grupo-ofertas"]')?.addEventListener('click', () => {
         if (typeof rastrearAcao === 'function') rastrearAcao('Clique grupo de ofertas', '💬');
     });
+    const regras = document.getElementById('regras-primeira-compra');
+    element.querySelector('[data-benefit-action="primeira-compra"]')?.addEventListener('click', event => {
+        event.preventDefault();
+        regras?.showModal();
+        if (typeof rastrearAcao === 'function') rastrearAcao('Abriu regras da primeira compra', '🏷️');
+    });
+    regras?.querySelector('[data-first-order-close]')?.addEventListener('click', () => regras.close());
+    regras?.addEventListener('click', event => { if (event.target === regras) regras.close(); });
+    regras?.querySelector('[data-first-order-shop]')?.addEventListener('click', () => {
+        regras.close();
+        document.getElementById('vitrine')?.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
 }
 async function carregarBannersSite() {
     const lista = document.getElementById('hero-banners');
@@ -1054,7 +1066,7 @@ function dadosCarrinhoMeta() {
     const frete = entrega === 'tele' || entregaPorTransportadora(entrega) ? valorFreteAtual() : 0;
     return {
         items: cart.map(item => ({ id:item.id, quantity:item.qtd, item_price:item.price })),
-        value: Math.max(0, subtotal - (subtotal * descontoPercentual) + frete)
+        value: Math.max(0, subtotal - valorDescontoCarrinho(subtotal) + frete)
     };
 }
 
@@ -1079,6 +1091,7 @@ async function avancarIdentificacao() {
     else cpfInput.style.display = 'none';
     button.style.display = 'none';
     details.style.display = window.matchMedia('(min-width: 900px)').matches ? 'grid' : 'block';
+    await verificarBeneficioPrimeiraCompra(cpf);
     const chave = `${cpf}:${email}`;
     if (identificacaoConsultada === chave) return;
     identificacaoConsultada = chave;
@@ -1831,6 +1844,7 @@ function add(id, name, price, cost, event, unidadesPorKit = 1, displayName = '')
         cart.push({ id, name, displayName:nomeVisual, displaySubtitle:subtituloVisual, price, cost: cost, qtd: 1, foto: fotoUrl, unidadesPorKit: Math.max(1, Number(unidadesPorKit || 1)) });
     }
     updateCart();
+    agendarVerificacaoPrimeiraCompra();
     if (typeof isCartOpen !== 'undefined' && isCartOpen) agendarAtualizacaoAutomaticaFrete();
     const abrirCarrinhoAposAdicionar = () => {
         if (window.matchMedia('(min-width: 900px)').matches) {
@@ -2320,6 +2334,65 @@ function scrollToReviews() {
 // --- SISTEMA DE CUPOM DE DESCONTO NA SACOLA ---
 let cupomDescontoAtivo = "";
 let descontoPercentual = 0;
+let primeiraCompraElegivel = false;
+let descontoPrimeiraCompra = 0;
+let verificacaoPrimeiraCompraTimer = null;
+
+function valorDescontoCarrinho(subtotal) {
+    if (cupomDescontoAtivo && descontoPercentual > 0) return subtotal * descontoPercentual;
+    return Math.min(subtotal, Math.max(0, Number(descontoPrimeiraCompra || 0)));
+}
+
+function mostrarStatusPrimeiraCompra(tipo, mensagem) {
+    const status = document.getElementById('primeira-compra-status');
+    if (!status) return;
+    status.className = `first-order-status${tipo ? ` is-${tipo}` : ''}`;
+    status.textContent = mensagem || '';
+}
+
+async function verificarBeneficioPrimeiraCompra(cpfInformado, silencioso = false) {
+    const cpf = String(cpfInformado || document.getElementById('cliente-cpf')?.value || '').replace(/\D/g, '');
+    if (!cpfValido(cpf) || !cart.length) {
+        primeiraCompraElegivel = false;
+        descontoPrimeiraCompra = 0;
+        if (!silencioso && cpf.length === 11) mostrarStatusPrimeiraCompra('returning', 'Não foi possível validar o benefício com este CPF.');
+        return false;
+    }
+    if (!silencioso) mostrarStatusPrimeiraCompra('loading', 'Verificando seu benefício de primeira compra…');
+    try {
+        const { data, error } = await db.functions.invoke('verificar-primeira-compra', {
+            body: { cpf, email:document.getElementById('cliente-email')?.value?.trim().toLowerCase() || '', itens: cart.map(item => ({ id:item.id, nome:item.name, quantidade:item.qtd })) }
+        });
+        if (error) throw error;
+        primeiraCompraElegivel = data?.elegivel === true;
+        descontoPrimeiraCompra = primeiraCompraElegivel ? Number(data?.desconto || 0) : 0;
+        if (primeiraCompraElegivel && descontoPrimeiraCompra > 0) {
+            const texto = descontoPrimeiraCompra.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+            mostrarStatusPrimeiraCompra('eligible', cupomDescontoAtivo
+                ? `Você tem ${texto} de benefício, mas o cupom aplicado será usado no lugar dele.`
+                : `✓ Benefício de primeira compra aplicado: −${texto}`);
+        } else if (primeiraCompraElegivel) {
+            mostrarStatusPrimeiraCompra('empty', 'Seu benefício está disponível, mas este carrinho possui apenas kits ou produtos que já estão em oferta.');
+        } else {
+            mostrarStatusPrimeiraCompra('returning', 'Este CPF já possui uma compra aprovada.');
+        }
+        updateCart();
+        return primeiraCompraElegivel;
+    } catch (error) {
+        console.warn('Não foi possível verificar o benefício de primeira compra.', error);
+        primeiraCompraElegivel = false;
+        descontoPrimeiraCompra = 0;
+        if (!silencioso) mostrarStatusPrimeiraCompra('returning', 'Não foi possível verificar o benefício agora. Tente novamente.');
+        return false;
+    }
+}
+
+function agendarVerificacaoPrimeiraCompra() {
+    clearTimeout(verificacaoPrimeiraCompraTimer);
+    const cpf = document.getElementById('cliente-cpf')?.value?.replace(/\D/g, '') || '';
+    if (!cpfValido(cpf) || !document.getElementById('checkout-details')?.offsetParent) return;
+    verificacaoPrimeiraCompraTimer = window.setTimeout(() => verificarBeneficioPrimeiraCompra(cpf, true), 450);
+}
 
 async function verificarCupomUsoCliente(telefone, codigo) {
     // A validação definitiva ocorre na Edge Function do checkout, sem expor pedidos.
@@ -2418,6 +2491,12 @@ async function aplicarCupomSacola() {
             mensagem.style.color = "#ff4444";
             mensagem.innerText = "Erro ao validar cupom.";
         }
+    }
+    if (primeiraCompraElegivel && descontoPrimeiraCompra > 0) {
+        const texto = descontoPrimeiraCompra.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+        mostrarStatusPrimeiraCompra('eligible', cupomDescontoAtivo
+            ? `Você tem ${texto} de benefício, mas o cupom aplicado será usado no lugar dele.`
+            : `✓ Benefício de primeira compra aplicado: −${texto}`);
     }
     updateCart();
 }
@@ -2535,7 +2614,7 @@ function updateCart() {
     }
 
     let subtotal = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-    let valorDesconto = subtotal * descontoPercentual;
+    let valorDesconto = valorDescontoCarrinho(subtotal);
     let total = subtotal - valorDesconto;
     
     let freteInclusoText = "";
@@ -2547,10 +2626,13 @@ function updateCart() {
     
     const totalDisplay = document.getElementById('cart-total-display');
     if (totalDisplay) {
-        if (descontoPercentual > 0) {
+        if (valorDesconto > 0) {
+            const rotuloDesconto = cupomDescontoAtivo
+                ? `Cupom ${cupomDescontoAtivo}`
+                : 'Primeira compra';
             totalDisplay.innerHTML = `
                 <div style="font-size: 0.9rem; font-weight: normal; color: #888; text-decoration: line-through; margin-bottom: 2px;">Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
-                <div style="font-size: 0.95rem; font-weight: bold; color: #25d366; margin-bottom: 5px;">Desconto: -R$ ${valorDesconto.toFixed(2).replace('.', ',')} (${descontoPercentual * 100}%)</div>
+                <div style="font-size: 0.95rem; font-weight: bold; color: #25d366; margin-bottom: 5px;">${rotuloDesconto}: -R$ ${valorDesconto.toFixed(2).replace('.', ',')}</div>
                 <div>Total: R$ ${total.toFixed(2).replace('.', ',')}${freteInclusoText}</div>
             `;
         } else {
@@ -2609,6 +2691,7 @@ function changeQty(id, delta) {
         item.qtd += delta;
         if (item.qtd <= 0) cart = cart.filter(i => i.id !== id);
         updateCart();
+        agendarVerificacaoPrimeiraCompra();
         sincronizarBadge();
         agendarAtualizacaoAutomaticaFrete();
     }
@@ -2620,6 +2703,8 @@ function esvaziarSacola(event) {
     if (cart.length === 0) return;
     if (!confirm("Deseja realmente esvaziar todo o seu carrinho? 🛒")) return;
     cart = [];
+    primeiraCompraElegivel = false;
+    descontoPrimeiraCompra = 0;
     updateCart();
     sincronizarBadge();
 }
@@ -2755,9 +2840,10 @@ async function renderizarPaymentBrick(orderPayload, amount) {
                     if (!data?.payment_id) throw new Error(data?.error || 'O Mercado Pago não retornou o pagamento.');
                     salvarClienteRecenteCheckout(orderPayload.cpf, orderPayload.email, orderPayload.nome, orderPayload.telefone, orderPayload.endereco || {});
                     sessionStorage.setItem('tioNanPedidoPendente', data.pedido || '');
-                    sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, trackingToken:data.tracking_token, value:amount, items:dadosCarrinhoMeta().items }));
+                    const totalConfirmado = Number(data.total ?? amount);
+                    sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, trackingToken:data.tracking_token, value:totalConfirmado, items:dadosCarrinhoMeta().items }));
                     if (data.status === 'approved' && !data.sandbox) {
-                        window.TioNanPixel?.purchase({ reference:data.pedido, value:amount, items:dadosCarrinhoMeta().items });
+                        window.TioNanPixel?.purchase({ reference:data.pedido, value:totalConfirmado, items:dadosCarrinhoMeta().items });
                         window.location.assign(`pedido.html?novo=1&token=${encodeURIComponent(data.tracking_token)}`);
                         return;
                     }
@@ -2866,7 +2952,8 @@ async function checkout() {
         valorFrete = valorFreteAtual();
 
         let subtotal = cart.reduce((acc, i) => acc + (i.price * i.qtd), 0);
-        let valorDesconto = subtotal * descontoPercentual;
+        await verificarBeneficioPrimeiraCompra(cpf, true);
+        let valorDesconto = valorDescontoCarrinho(subtotal);
         let valorTotalComFrete = subtotal - valorDesconto + valorFrete;
 
         const itensMsg = cart.map(i => `${i.name} (x${i.qtd})`).join(', ');
@@ -2957,8 +3044,9 @@ async function checkout() {
                 if (!data?.checkout_url) throw new Error(data?.error || "O checkout não retornou um endereço de pagamento.");
                 salvarClienteRecenteCheckout(cpf, email, nome, telefone, enderecoPayload);
                 sessionStorage.setItem('tioNanPedidoPendente', data.pedido || '');
-                sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, trackingToken:data.tracking_token, value:valorTotalComFrete, items:dadosCarrinhoMeta().items }));
-                await window.TioNanAnalytics?.track('order_created', { label:data.pedido || 'Pedido Mercado Pago', valor:valorTotalComFrete, metadata:{ pagamento:'Mercado Pago' } });
+                const totalConfirmado = Number(data.total ?? valorTotalComFrete);
+                sessionStorage.setItem('tioNanMetaPedidoPendente', JSON.stringify({ reference:data.pedido, trackingToken:data.tracking_token, value:totalConfirmado, items:dadosCarrinhoMeta().items }));
+                await window.TioNanAnalytics?.track('order_created', { label:data.pedido || 'Pedido Mercado Pago', valor:totalConfirmado, metadata:{ pagamento:'Mercado Pago', primeira_compra:data.primeira_compra === true } });
                 window.location.assign(data.checkout_url);
                 return;
             } catch (paymentError) {
@@ -3003,7 +3091,7 @@ async function checkout() {
         }
         if (!data?.tracking_token) throw new Error(data?.error || 'O pedido foi criado sem código de acompanhamento.');
         salvarClienteRecenteCheckout(cpf, email, nome, telefone, enderecoPayload);
-        await window.TioNanAnalytics?.track('order_created', { label:data.pedido || 'Pedido criado', valor:valorTotalComFrete, metadata:{ pagamento:pag } });
+        await window.TioNanAnalytics?.track('order_created', { label:data.pedido || 'Pedido criado', valor:Number(data.total ?? valorTotalComFrete), metadata:{ pagamento:pag, primeira_compra:data.primeira_compra === true } });
         cancelarRecuperacaoCarrinho();
         localStorage.setItem('tioNanUltimoPedido', data.tracking_token);
         cart = [];
