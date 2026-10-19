@@ -1062,20 +1062,37 @@
         }
         .benefit-copy a {
             width: fit-content;
-            margin-top: 2px;
-            padding: 5px 10px;
-            color: var(--blue-navy);
-            background: var(--gold-antique);
-            font-size: .78rem;
-            font-weight: 800;
-            line-height: 1.35;
+            min-height: 36px;
+            margin-top: 4px;
+            padding: 8px 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            color: #102d50;
+            background: linear-gradient(135deg, #efd28f 0%, #d2a44e 52%, #bd8732 100%);
+            box-shadow: 0 6px 15px rgba(151, 101, 30, .2), inset 0 1px 0 rgba(255,255,255,.48);
+            font-size: .75rem;
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: .035em;
             text-decoration: none;
-            border: 1px solid var(--gold-antique);
+            border: 1px solid rgba(157, 108, 34, .55);
             border-radius: 999px;
-            transition: color .2s ease, background .2s ease, border-color .2s ease;
+            transition: transform .2s ease, box-shadow .2s ease, color .2s ease, background .2s ease;
         }
+        .benefit-copy a span { font-size: 1rem; line-height: .7; transition: transform .2s ease; }
         .benefit-copy a:hover,
-        .benefit-copy a:focus-visible { color: #fff; background: var(--blue-navy); border-color: var(--blue-navy); }
+        .benefit-copy a:focus-visible {
+            color: #fff;
+            background: linear-gradient(135deg, #244b78, #102d50);
+            border-color: #102d50;
+            box-shadow: 0 8px 20px rgba(16,45,80,.25);
+            transform: translateY(-1px);
+        }
+        .benefit-copy a:hover span,
+        .benefit-copy a:focus-visible span { transform: translateX(2px); }
+        .benefit-copy a:active { transform: translateY(0); box-shadow: 0 3px 9px rgba(151,101,30,.18); }
         .first-order-dialog {
             width: min(560px, calc(100% - 28px));
             padding: 38px;
