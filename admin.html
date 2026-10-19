@@ -2112,7 +2112,7 @@
                 <button type="button" class="admin-home-card admin-home-card--estoque" onclick="switchTab('tab-estoque')">
                     <span class="admin-home-group">Produtos disponíveis</span>
                     <span class="admin-home-icon" aria-hidden="true">📦</span>
-                    <h2>Estoque de garrafas</h2>
+                    <h2>Estoque e kits disponíveis</h2>
                     <div class="admin-home-breakdown" id="home-estoque"><span><em>Carregando garrafas…</em><b>—</b></span></div>
                     <span class="admin-home-link">Gerenciar estoque <span aria-hidden="true">→</span></span>
                 </button>
@@ -7104,8 +7104,12 @@
                 if (homeEstoque) {
                     homeEstoque.innerHTML = produtosAdmin.map(p => {
                         const saldo = Number(p.estoque || 0);
+                        const isKit = String(p.tipo_produto || '').toLowerCase() === 'kit';
+                        const unidade = isKit
+                            ? (saldo === 1 ? 'kit disponível' : 'kits disponíveis')
+                            : (saldo === 1 ? 'garrafa' : 'garrafas');
                         const classeSaldo = saldo <= 10 ? 'is-low-stock' : saldo <= 20 ? 'is-medium-stock' : 'is-healthy-stock';
-                        return `<span class="${classeSaldo}" title="${escapeAdmin(p.nome)}: ${saldo} garrafa${saldo===1?'':'s'}"><em>${escapeAdmin(p.nome)}</em><b>${saldo}<small>${saldo===1?'garrafa':'garrafas'}</small></b></span>`;
+                        return `<span class="${classeSaldo}${isKit ? ' is-kit-stock' : ''}" title="${escapeAdmin(p.nome)}: ${saldo} ${unidade}"><em>${escapeAdmin(p.nome)}</em><b>${saldo}<small>${unidade}</small></b></span>`;
                     }).join('') || '<span><em>Nenhum produto cadastrado</em><b>0</b></span>';
                     homeEstoque.classList.toggle('is-expanded', produtosAdmin.length > 5);
                 }
