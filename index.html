@@ -48,7 +48,7 @@
     <meta name="apple-mobile-web-app-title" content="Tio Nan">
     <meta name="application-name" content="Tio Nan">
 
-    <link rel="stylesheet" href="styles.css?v=6.36">
+    <link rel="stylesheet" href="styles.css?v=6.37">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -468,6 +468,28 @@
             <a href="todos-produtos.html" aria-label="Ver todos os produtos"><img src="fotos/banner-amizade.webp?v=1" alt="Toda amizade merece um brinde" loading="lazy" decoding="async"></a>
         </section>
 
+        <section id="google-reviews" class="google-reviews" aria-labelledby="google-reviews-title" hidden>
+            <div class="google-reviews__topline">
+                <div>
+                    <span class="google-reviews__eyebrow">Avaliações verificadas no Google</span>
+                    <h2 id="google-reviews-title">O que dizem sobre a Tio Nan</h2>
+                </div>
+                <a class="google-reviews__all" data-google-reviews-all target="_blank" rel="noopener">Ver todas no Google <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="google-reviews__summary">
+                <div class="google-reviews__brand" aria-label="Google"><span>G</span> Google</div>
+                <strong data-google-rating>–</strong>
+                <span class="google-reviews__stars" data-google-stars aria-hidden="true"></span>
+                <span class="google-reviews__count" data-google-count></span>
+                <a class="google-reviews__write" data-google-reviews-write target="_blank" rel="noopener">Avaliar a Tio Nan</a>
+            </div>
+            <div class="swiper swiper-google-reviews">
+                <div class="swiper-wrapper" id="google-reviews-list"></div>
+                <div class="swiper-pagination google-reviews-pagination"></div>
+            </div>
+            <p class="google-reviews__notice">Avaliações selecionadas pelo Google por relevância. As avaliações não são verificadas individualmente pelo Google, que remove conteúdo falso quando identificado.</p>
+        </section>
+
         <!-- SEÇÃO DE DEPOIMENTOS (AVALIAÇÕES REAIS DOS CLIENTES) -->
         <section id="homepage-testimonials" class="testimonials-section hidden">
             <div class="section-header-premium">
@@ -542,7 +564,7 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="meta-pixel.js?v=2"></script>
     <script src="site-analytics.js?v=5"></script>
-    <script src="scripts.js?v=6.64"></script>
+    <script src="scripts.js?v=6.65"></script>
 </body>
 
 </html>

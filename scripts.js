@@ -3153,7 +3153,50 @@ if (paymentReturn === 'sucesso') {
     setTimeout(() => alert('O pagamento não foi concluído. Seu carrinho continua salvo para tentar novamente.'), 250);
 }
 
-loadProducts(); updateCart(); sincronizarBadge(); updateWelcome(); carregarTestimonialsHome();
+loadProducts(); updateCart(); sincronizarBadge(); updateWelcome(); carregarGoogleReviews(); carregarTestimonialsHome();
+
+async function carregarGoogleReviews() {
+    const section = document.getElementById('google-reviews');
+    const list = document.getElementById('google-reviews-list');
+    if (!section || !list) return;
+    try {
+        const response = await fetch(`${supabaseUrl}/functions/v1/google-avaliacoes`, { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!data?.configured || !Number(data.rating) || !Array.isArray(data.reviews) || !data.reviews.length) return;
+        const rating = Math.max(0, Math.min(5, Number(data.rating)));
+        const total = Math.max(0, Number(data.total) || 0);
+        section.querySelector('[data-google-rating]').textContent = rating.toFixed(1).replace('.', ',');
+        section.querySelector('[data-google-stars]').textContent = '★★★★★';
+        section.querySelector('[data-google-count]').textContent = `${total} ${total === 1 ? 'avaliação' : 'avaliações'}`;
+        const all = section.querySelector('[data-google-reviews-all]');
+        const write = section.querySelector('[data-google-reviews-write]');
+        if (all) all.href = data.googleMapsUrl;
+        if (write) write.href = data.writeReviewUrl;
+        list.innerHTML = data.reviews.map(review => {
+            const score = Math.max(0, Math.min(5, Math.round(Number(review.rating) || 0)));
+            const author = escaparBanner(review.author || 'Cliente Google');
+            const text = escaparBanner(review.text || 'Avaliou a Tio Nan no Google.');
+            const published = escaparBanner(review.published || '');
+            const authorUrl = escaparBanner(review.authorUrl || data.googleMapsUrl);
+            const reviewUrl = escaparBanner(review.reviewUrl || data.googleMapsUrl);
+            const photo = review.photoUrl ? `<img src="${escaparBanner(review.photoUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span aria-hidden="true">${author.charAt(0)}</span>`;
+            return `<article class="swiper-slide google-review-card">
+                <header><a class="google-review-card__author" href="${authorUrl}" target="_blank" rel="noopener">${photo}<span><strong>${author}</strong><small>${published}</small></span></a><b aria-label="Avaliação: ${score} de 5 estrelas">${'★'.repeat(score)}${'☆'.repeat(5-score)}</b></header>
+                <p>${text}</p>
+                <a class="google-review-card__source" href="${reviewUrl}" target="_blank" rel="noopener">Ver avaliação no Google</a>
+            </article>`;
+        }).join('');
+        section.hidden = false;
+        new Swiper('.swiper-google-reviews', {
+            slidesPerView: 1.08, spaceBetween: 14,
+            pagination: { el: '.google-reviews-pagination', clickable: true },
+            breakpoints: { 640: { slidesPerView: 2.08, spaceBetween: 18 }, 1024: { slidesPerView: 3, spaceBetween: 20 } }
+        });
+    } catch (error) {
+        console.warn('Avaliações do Google indisponíveis.', error);
+    }
+}
 document.getElementById('cliente-email')?.addEventListener('input', agendarSalvamentoCarrinho);
 document.getElementById('cliente-nome')?.addEventListener('input', agendarSalvamentoCarrinho);
 document.getElementById('marketing-consentimento')?.addEventListener('change', () => {
