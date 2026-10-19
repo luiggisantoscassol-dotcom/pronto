@@ -87,6 +87,11 @@ async function loadOrder(show = false) {
   renderGoogleCustomerReview(data.google_customer_reviews);
   if (order.status_pagamento === 'pago') {
     window.TioNanPixel?.purchase({ reference:order.referencia, value:Number(order.total || 0), items:order.itens_json || [] });
+    if (params.get('novo') === '1') {
+      window.TioNanGoogleAds?.purchase({
+        reference: order.referencia
+      });
+    }
     const analyticsPurchaseKey = `tioNanPurchaseTracked:${order.referencia}`;
     if (!localStorage.getItem(analyticsPurchaseKey)) {
       await window.TioNanAnalytics?.track('purchase_approved', {

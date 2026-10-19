@@ -3021,6 +3021,9 @@ async function registrarCompraAprovadaRetorno() {
         const { data, error } = await db.functions.invoke('acompanhar-pedido', { body:{ token:metaPedido.trackingToken } });
         if (!error && data?.pedido?.status_pagamento === 'pago') {
             window.TioNanPixel?.purchase({ ...metaPedido, reference });
+            window.TioNanGoogleAds?.purchase({
+                reference
+            });
             sessionStorage.removeItem('tioNanMetaPedidoPendente');
         }
     } catch (_) {}
