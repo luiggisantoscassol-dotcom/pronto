@@ -907,6 +907,8 @@
         /* Setas do Carrossel Hero */
         .swiper-hero .swiper-button-next,
         .swiper-hero .swiper-button-prev {
+            appearance: none;
+            padding: 0;
             color: var(--gold-antique);
             width: 44px;
             height: 44px;
@@ -916,7 +918,12 @@
             border-radius: 50%;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
+            cursor: pointer;
+            pointer-events: auto;
+            touch-action: manipulation;
         }
+
+        .swiper-hero .swiper-wrapper { transition-timing-function: cubic-bezier(.22,.61,.36,1) !important; }
 
         .swiper-hero .swiper-button-next::after,
         .swiper-hero .swiper-button-prev::after {

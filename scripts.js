@@ -694,15 +694,26 @@ function iniciarCarrosselBanners() {
         const heroAnterior = heroSlider.querySelector('.swiper-button-prev');
         const heroProximo = heroSlider.querySelector('.swiper-button-next');
         const swiper = new Swiper(heroSlider, {
-            loop: true,
+            loop: false,
+            rewind: true,
+            speed: 850,
+            grabCursor: true,
             pagination: { el: heroSlider.querySelector('.hero-pagination'), clickable: true },
-            navigation: { prevEl: heroAnterior, nextEl: heroProximo },
             autoplay: { delay: 5000, disableOnInteraction: false },
             on: {
                 init(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); },
                 slideChangeTransitionEnd(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); }
             }
         });
+        const moverPelaSeta = (direcao, event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (swiper.animating) return;
+            if (direcao === 'proximo') swiper.slideNext(850);
+            else swiper.slidePrev(850);
+        };
+        heroProximo.addEventListener('click', event => moverPelaSeta('proximo', event), { capture:true });
+        heroAnterior.addEventListener('click', event => moverPelaSeta('anterior', event), { capture:true });
         window.heroBannerSwiper = swiper;
     } else {
         registrarVisualizacaoBanner(heroSlider.querySelector('.swiper-slide'));
