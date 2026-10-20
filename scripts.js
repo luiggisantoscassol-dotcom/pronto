@@ -691,58 +691,22 @@ function iniciarCarrosselBanners() {
     const varios = heroSlider.querySelectorAll('.swiper-slide').length > 1;
     heroSlider.querySelectorAll('.swiper-button-next,.swiper-button-prev').forEach(button => button.hidden = !varios);
     if (varios) {
-        const swiper = new Swiper('.swiper-hero', {
+        const heroAnterior = heroSlider.querySelector('.swiper-button-prev');
+        const heroProximo = heroSlider.querySelector('.swiper-button-next');
+        const swiper = new Swiper(heroSlider, {
             loop: true,
-            pagination: { el: '.hero-pagination', clickable: true },
+            pagination: { el: heroSlider.querySelector('.hero-pagination'), clickable: true },
+            navigation: { prevEl: heroAnterior, nextEl: heroProximo },
             autoplay: { delay: 5000, disableOnInteraction: false },
             on: {
                 init(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); },
                 slideChangeTransitionEnd(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); }
             }
         });
-        vincularSetasCarrossel(heroSlider, swiper, '.swiper-button-prev', '.swiper-button-next');
         window.heroBannerSwiper = swiper;
     } else {
         registrarVisualizacaoBanner(heroSlider.querySelector('.swiper-slide'));
     }
-}
-
-function vincularSetasCarrossel(container, swiper, seletorAnterior, seletorProximo) {
-    if (!container || !swiper) return;
-    const anterior = container.querySelector(seletorAnterior);
-    const proximo = container.querySelector(seletorProximo);
-    const preparar = (botao, rotulo, acao) => {
-        if (!botao) return;
-        botao.setAttribute('role', 'button');
-        botao.setAttribute('tabindex', '0');
-        botao.setAttribute('aria-label', rotulo);
-        const executar = event => {
-            event.preventDefault();
-            event.stopPropagation();
-            acao();
-        };
-        if (botao._tioNanCarouselClick) botao.removeEventListener('click', botao._tioNanCarouselClick);
-        if (botao._tioNanCarouselKeydown) botao.removeEventListener('keydown', botao._tioNanCarouselKeydown);
-        const executarTeclado = event => {
-            if (event.key === 'Enter' || event.key === ' ') executar(event);
-        };
-        botao._tioNanCarouselClick = executar;
-        botao._tioNanCarouselKeydown = executarTeclado;
-        botao.addEventListener('click', executar);
-        botao.addEventListener('keydown', executarTeclado);
-    };
-    preparar(anterior, 'Ver item anterior', () => swiper.slidePrev());
-    preparar(proximo, 'Ver próximo item', () => swiper.slideNext());
-    const atualizarEstado = () => {
-        if (swiper.params.loop) return;
-        anterior?.classList.toggle('swiper-button-disabled', swiper.isBeginning);
-        anterior?.setAttribute('aria-disabled', String(swiper.isBeginning));
-        proximo?.classList.toggle('swiper-button-disabled', swiper.isEnd);
-        proximo?.setAttribute('aria-disabled', String(swiper.isEnd));
-    };
-    swiper.on('slideChange', atualizarEstado);
-    swiper.on('resize', atualizarEstado);
-    atualizarEstado();
 }
 
 function iniciarCarrosselBeneficios() {
@@ -1741,17 +1705,19 @@ async function loadProducts() {
 
         if (window.productsSwiper) window.productsSwiper.destroy(true, true);
         const productsElement = document.querySelector('.swiper-products');
+        const productsAnterior = productsElement.querySelector('.products-prev');
+        const productsProximo = productsElement.querySelector('.products-next');
         window.productsSwiper = new Swiper(productsElement, {
             slidesPerView: 1.42,
             spaceBetween: 8,
             centeredSlides: false,
-            pagination: { el: '.products-pagination', clickable: true },
+            pagination: { el: productsElement.querySelector('.products-pagination'), clickable: true },
+            navigation: { prevEl: productsAnterior, nextEl: productsProximo },
             breakpoints: {
                 640: { slidesPerView: 2, spaceBetween: 24, centeredSlides: false },
                 1024: { slidesPerView: 3, spaceBetween: 30, centeredSlides: false }
             }
         });
-        vincularSetasCarrossel(productsElement, window.productsSwiper, '.products-prev', '.products-next');
 
         const swiperObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
