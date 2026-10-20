@@ -142,6 +142,8 @@
     .review-card { padding:20px 0; border-top:1px solid var(--line); }
     .review-meta { display:flex; align-items:baseline; justify-content:space-between; gap:14px; color:var(--navy-dark); font-size:14px; font-weight:800; }
     .review-date { color:#7c8593; font-size:12px; font-weight:500; white-space:nowrap; }
+    .review-source { display:inline-flex; align-items:center; margin-left:7px; padding:3px 7px; border:1px solid #dfe5ec; border-radius:999px; color:#49637f; font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+    .reviews-google-link { color:var(--navy); font-weight:700; text-underline-offset:3px; }
     .review-stars { margin:8px 0; color:#d19b23; letter-spacing:1px; }
     .review-comment { margin:0; color:#4e5868; font-size:15px; line-height:1.6; }
     .reviews-empty { padding:22px 0; color:var(--muted); border-top:1px solid var(--line); }
@@ -334,10 +336,10 @@
           seller: { '@type': 'Organization', name: 'Tio Nan' }
         }
       };
-      if (review.count > 0) schema.aggregateRating = {
+      if (review.productReviewCount > 0) schema.aggregateRating = {
         '@type': 'AggregateRating',
-        ratingValue: Number(review.average).toFixed(1),
-        reviewCount: review.count,
+        ratingValue: Number(review.productAverage).toFixed(1),
+        reviewCount: review.productReviewCount,
         bestRating: 5,
         worstRating: 1
       };
@@ -449,6 +451,18 @@
       const { data } = await db.from('avaliacoes').select('*').order('created_at', { ascending:false });
       const key = reviewKey(name);
       const reviews = (data || []).filter(review => reviewKey(review.produto_nome) === key);
+      const googleReviews = key === 'prata' ? [
+        { cliente_nome:'Gabriel Guerra', estrelas:5, comentario:'Atendimento excepcional, além de produtos de extrema qualidade!', origem:'google' },
+        { cliente_nome:'Leandro Moraes', estrelas:5, comentario:'Melhor Cachaça que já tomei na minha vida.', origem:'google' },
+        { cliente_nome:'Guilherme Borges', estrelas:5, comentario:'Simplesmente sensacional!', origem:'google' },
+        { cliente_nome:'Guilherme Couras', estrelas:5, comentario:'Cachaça de extrema qualidade e sabor indescritível, ansioso para provar todas', origem:'google' },
+        { cliente_nome:'Gerson Costa', estrelas:5, comentario:'A qualidade é a marca registrada! Eu e minha esposa viramos fã e clientes.', origem:'google' },
+        { cliente_nome:'Vitor Hugo Kuwer', estrelas:5, comentario:'Excelente', origem:'google' },
+        { cliente_nome:'Lucca Bordin', estrelas:5, comentario:'Uma das melhores cachaça que eu já tomei, nota 10 pelo produto, ansioso para comprar mais.', origem:'google' }
+      ] : [];
+      const productReviewCount = reviews.length;
+      const productAverage = productReviewCount ? reviews.reduce((sum, r) => sum + Number(r.estrelas || 0), 0) / productReviewCount : 0;
+      reviews.push(...googleReviews);
       if (!reviews.length) return { count:0, average:0 };
       reviews.sort((a, b) => {
         const aHasDescription = Boolean(a.comentario && a.comentario.trim());
@@ -456,7 +470,7 @@
         if (aHasDescription !== bHasDescription) return aHasDescription ? -1 : 1;
         return new Date(b.created_at || 0) - new Date(a.created_at || 0);
       });
-      return { count:reviews.length, average:reviews.reduce((sum, r) => sum + Number(r.estrelas || 0), 0) / reviews.length, reviews };
+      return { count:reviews.length, average:reviews.reduce((sum, r) => sum + Number(r.estrelas || 0), 0) / reviews.length, reviews, googleCount:googleReviews.length, productReviewCount, productAverage };
     }
     function escapeHtml(value) { const temp = document.createElement('div'); temp.textContent = value || ''; return temp.innerHTML; }
     function formatReviewName(value) {
@@ -468,13 +482,13 @@
     function reviewList(reviews) {
       if (!reviews.length) return '<p class="reviews-empty">Este produto ainda não tem avaliações. Seja a primeira pessoa a compartilhar sua experiência.</p>';
       return reviews.map(review => {
-        const name = escapeHtml(formatReviewName(review.cliente_nome));
+        const name = escapeHtml(review.origem === 'google' ? review.cliente_nome : formatReviewName(review.cliente_nome));
         const hasComment = Boolean(review.comentario && review.comentario.trim());
         const comment = escapeHtml(hasComment ? review.comentario.trim() : 'Avaliou este produto sem deixar descrição.');
         const date = review.created_at ? new Date(review.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
         const rating = Math.min(5, Math.max(0, Number(review.estrelas || 0)));
         const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-        return `<article class="review-card" data-has-description="${hasComment ? 'true' : 'false'}"><div class="review-meta"><span>${name}</span><time class="review-date">${date}</time></div><div class="review-stars" aria-label="${rating} de 5 estrelas">${stars}</div><p class="review-comment">“${comment}”</p></article>`;
+        return `<article class="review-card" data-has-description="${hasComment ? 'true' : 'false'}"><div class="review-meta"><span>${name}${review.origem === 'google' ? '<small class="review-source">Google</small>' : ''}</span><time class="review-date">${date}</time></div><div class="review-stars" aria-label="${rating} de 5 estrelas">${stars}</div><p class="review-comment">“${comment}”</p></article>`;
       }).join('');
     }
     async function bagAvailableFor(p) {
@@ -556,6 +570,9 @@
       const firstPurchaseEligible = !hasDiscount && p.tipo_produto !== 'kit' && currentPrice > 0;
       const firstPurchasePrice = currentPrice * 0.8;
       const buyLabel = unavailable ? (comingSoon ? 'Em breve' : 'Volta Logo!') : 'Comprar';
+      const reviewsSummary = review.googleCount
+        ? `${score} de 5 com base em ${review.count} avaliações da Tio Nan no <a class="reviews-google-link" href="https://www.google.com/maps/place/Tio+Nan/@-30.0619077,-51.1728428,17z/data=!4m8!3m7!1s0x95199d4c82df9a41:0x2a01eaf46f4606f0!8m2!3d-30.0619077!4d-51.1728428!9m1!1b1!16s%2Fg%2F11zyj25dfj" target="_blank" rel="noopener">Google</a>.`
+        : (review.count ? `${score} de 5 com base em ${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'}.` : 'Opiniões de clientes aparecerão aqui.');
       const discountPercent = hasDiscount ? Math.round((1 - currentPrice / originalPrice) * 100) : 0;
       const saving = hasDiscount ? originalPrice - currentPrice : 0;
       const stockNotice = comingSoon
@@ -587,7 +604,7 @@
             <p class="notice" aria-live="polite"></p>
           </section>
         </div>
-        <section class="reviews-section" id="avaliacoes" aria-labelledby="reviews-heading"><h2 class="reviews-heading" id="reviews-heading">Avaliações de quem já provou</h2><p class="reviews-summary">${review.count ? `${score} de 5 com base em ${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'}.` : 'Opiniões de clientes aparecerão aqui.'}</p>${review.count ? '<div class="review-filters" aria-label="Filtrar avaliações"><button class="review-filter is-active" type="button" data-review-filter="all">Todas</button><button class="review-filter" type="button" data-review-filter="with-description">Com descrição</button><button class="review-filter" type="button" data-review-filter="without-description">Sem descrição</button></div>' : ''}${reviewList(reviews)}</section>`;
+        <section class="reviews-section" id="avaliacoes" aria-labelledby="reviews-heading"><h2 class="reviews-heading" id="reviews-heading">Avaliações de quem já provou</h2><p class="reviews-summary">${reviewsSummary}</p>${review.count ? '<div class="review-filters" aria-label="Filtrar avaliações"><button class="review-filter is-active" type="button" data-review-filter="all">Todas</button><button class="review-filter" type="button" data-review-filter="with-description">Com descrição</button><button class="review-filter" type="button" data-review-filter="without-description">Sem descrição</button></div>' : ''}${reviewList(reviews)}</section>`;
       const mobileBuy = document.getElementById('mobile-buy');
       const mobileQuantity = mobileBuy.querySelector('.quantity');
       const mobileBuyButton = document.getElementById('mobile-buy-button');
