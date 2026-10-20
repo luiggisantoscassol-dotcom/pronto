@@ -44,8 +44,15 @@
     .crumbs { margin:16px 0 18px; color:#647086; font-size:14px; }
     .crumbs a { color:inherit; text-decoration:none; }
     .layout { display:grid; grid-template-columns:minmax(360px, .95fr) minmax(380px, 1.05fr); gap:clamp(32px, 6vw, 88px); align-items:start; }
-    .gallery { position:sticky; top:94px; width:100%; aspect-ratio:1/1; display:grid; place-items:center; border:1px solid #ece8df; border-radius:26px; overflow:hidden; background:#fff; }
-    .gallery img { display:block; width:100%; height:100%; object-fit:cover; padding:0; }
+    .gallery { position:sticky; top:94px; width:100%; aspect-ratio:1/1; border:1px solid #ece8df; border-radius:26px; overflow:hidden; background:#fff; }
+    .product-gallery-track { display:flex; width:100%; height:100%; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; scroll-behavior:smooth; scrollbar-width:none; overscroll-behavior-inline:contain; cursor:grab; }
+    .product-gallery-track::-webkit-scrollbar { display:none; }
+    .product-gallery-track.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; user-select:none; }
+    .product-gallery-slide { flex:0 0 100%; width:100%; height:100%; display:grid; place-items:center; scroll-snap-align:start; scroll-snap-stop:always; background:#fff; }
+    .product-gallery-slide img { display:block; width:100%; height:100%; object-fit:contain; object-position:center; padding:0; }
+    .product-gallery-dots { position:absolute; z-index:2; left:50%; bottom:14px; transform:translateX(-50%); display:flex; gap:7px; padding:7px 9px; border-radius:999px; background:rgba(255,255,255,.82); box-shadow:0 3px 12px rgba(0,0,0,.12); pointer-events:none; }
+    .product-gallery-dot { width:7px; height:7px; border-radius:50%; background:#b9bec7; transition:background .2s ease, transform .2s ease; }
+    .product-gallery-dot.is-active { background:var(--navy-dark); transform:scale(1.25); }
     .gallery.placeholder { background:#faf9f5; }
     .gallery.placeholder img { width:78%; height:78%; object-fit:contain; mix-blend-mode:multiply; }
     .tag { display:inline-block; margin:2px 0 11px; color:var(--gold); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
@@ -146,8 +153,9 @@
       .brand { font-size:24px; }
       .product-page { padding:0 0 24px; }
       .layout { display:flex; flex-direction:column; gap:0; }
-      .gallery { order:0; width:100%; height:auto; min-height:0; aspect-ratio:auto; border:0; border-radius:0; position:relative; top:auto; overflow:visible; background:#fff; }
-      .gallery img { display:block; width:100%; height:auto; max-height:none; padding:0; object-fit:contain; object-position:center; }
+      .gallery { order:0; width:100%; height:auto; min-height:0; aspect-ratio:1/1; border:0; border-radius:0; position:relative; top:auto; overflow:hidden; background:#fff; }
+      .product-gallery-track { touch-action:auto; }
+      .product-gallery-slide img { width:100%; height:100%; max-height:none; object-fit:contain; object-position:center; }
       .product-info { width:100%; padding:17px 24px 0; }
       .crumbs { display:none; }
       .tag { margin-bottom:9px; }
@@ -271,6 +279,17 @@
         return 'fotos/gengibre-guaco-mel.webp?v=5';
       }
       return savedPhoto || (name.includes('gengibre') && name.includes('guaco') ? 'fotos/gengibre-guaco-mel.webp?v=5' : name.includes('ouro') ? 'fotos/cachaca-ouro.webp?v=2' : 'fotos/produto-em-breve.svg');
+    }
+    function normalizePhotoUrl(value) {
+      const url = String(value || '').trim();
+      if (!url || !url.includes('drive.google')) return url;
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      return match?.[1] ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200` : url;
+    }
+    function productPhotosFor(p) {
+      const main = normalizePhotoUrl(photoFor(p));
+      const registered = [main, normalizePhotoUrl(p.foto_2)].filter(url => url.length > 5);
+      return [...new Set(registered)];
     }
     function absoluteUrl(value) {
       try { return new URL(String(value || ''), 'https://www.tionan.com.br/').href; }
@@ -467,6 +486,47 @@
       const double = bags.find(item => Number(item.capacidade_garrafas) === 2);
       return (!Math.floor(bottles / 2) || Number(double?.estoque || 0) >= Math.floor(bottles / 2)) && (!(bottles % 2) || Number(simple?.estoque || 0) >= bottles % 2);
     }
+    function setupProductGallery() {
+      const track = document.querySelector('[data-product-gallery-track]');
+      if (!track) return;
+      const slides = [...track.querySelectorAll('.product-gallery-slide')];
+      const dots = [...document.querySelectorAll('.product-gallery-dot')];
+      if (slides.length < 2) return;
+      let scrollFrame = 0;
+      const updateDots = () => {
+        const index = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
+        dots.forEach((dot, dotIndex) => dot.classList.toggle('is-active', dotIndex === index));
+      };
+      track.addEventListener('scroll', () => {
+        cancelAnimationFrame(scrollFrame);
+        scrollFrame = requestAnimationFrame(updateDots);
+      }, { passive:true });
+      let dragging = false;
+      let startX = 0;
+      let startScroll = 0;
+      track.addEventListener('pointerdown', event => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+        dragging = true;
+        startX = event.clientX;
+        startScroll = track.scrollLeft;
+        track.classList.add('is-dragging');
+        track.setPointerCapture(event.pointerId);
+      });
+      track.addEventListener('pointermove', event => {
+        if (!dragging) return;
+        track.scrollLeft = startScroll - (event.clientX - startX);
+      });
+      const finishDrag = event => {
+        if (!dragging) return;
+        dragging = false;
+        track.classList.remove('is-dragging');
+        if (track.hasPointerCapture(event.pointerId)) track.releasePointerCapture(event.pointerId);
+        const index = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
+        track.scrollTo({ left:index * track.clientWidth, behavior:'smooth' });
+      };
+      track.addEventListener('pointerup', finishDrag);
+      track.addEventListener('pointercancel', finishDrag);
+    }
     function render(p, review, hasBag = false) {
       const score = review.count ? review.average.toFixed(1).replace('.', ',') : '';
       const stars = review.count ? '★★★★★' : '☆☆☆☆☆';
@@ -483,6 +543,9 @@
       const category = gengibreGuacoMel ? 'Bebida mista' : (cachacaPrata ? 'Cachaça tradicional' : 'Cachaça premium');
       const productType = gengibreGuacoMel ? 'Bebida mista à base de Cachaça Prata Tio Nan' : 'Cachaça Tio Nan';
       const displayName = displayNameFor(p);
+      const productPhotos = productPhotosFor(p);
+      const gallerySlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`).join('');
+      const galleryDots = productPhotos.length > 1 ? `<div class="product-gallery-dots" aria-hidden="true">${productPhotos.map((_, index) => `<span class="product-gallery-dot${index === 0 ? ' is-active' : ''}"></span>`).join('')}</div>` : '';
       const stock = Math.max(0, Number(p.estoque || 0));
       const comingSoon = p.lancado === false;
       const soldOut = !comingSoon && stock <= 0;
@@ -503,7 +566,7 @@
       const ingredientCallout = gengibreGuacoMel ? `<aside class="real-ingredients" aria-label="Ingredientes de verdade"><span class="real-ingredients-kicker">Ingredientes de verdade</span><h2>Da raiz ao brinde.</h2><p>Feita com gengibre, guaco e mel de verdade — ingredientes que você reconhece em um sabor marcante e cheio de personalidade.</p><ul class="ingredient-list"><li>Gengibre</li><li>Guaco</li><li>Mel</li></ul></aside>` : '';
       app.innerHTML = `
         <div class="layout">
-          <section class="gallery ${photoFor(p).includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Imagem de ${displayName}"><img src="${photoFor(p)}" alt="${displayName}" loading="eager" decoding="async" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></section>
+          <section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${galleryDots}</section>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${displayName}</nav>
             <span class="tag">${productType}</span>
@@ -532,6 +595,7 @@
       mobileQuantity.hidden = unavailable;
       mobileBuyButton.disabled = unavailable;
       mobileBuyButton.textContent = buyLabel;
+      setupProductGallery();
       document.querySelectorAll('[data-quantity]').forEach(button => button.addEventListener('click', () => updateQuantity(Number(button.dataset.quantity))));
       document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', addToCart));
       document.querySelector('[data-offers-group]')?.addEventListener('click', () => {
