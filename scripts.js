@@ -698,6 +698,8 @@ function iniciarCarrosselBanners() {
             rewind: true,
             speed: 850,
             grabCursor: true,
+            noSwiping: true,
+            noSwipingSelector: '.swiper-no-swiping',
             pagination: { el: heroSlider.querySelector('.hero-pagination'), clickable: true },
             autoplay: { delay: 5000, disableOnInteraction: false },
             on: {
@@ -705,15 +707,20 @@ function iniciarCarrosselBanners() {
                 slideChangeTransitionEnd(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); }
             }
         });
+        let ultimoAcionamentoSeta = 0;
         const moverPelaSeta = (direcao, event) => {
             event.preventDefault();
             event.stopPropagation();
-            if (swiper.animating) return;
+            const agora = Date.now();
+            if (agora - ultimoAcionamentoSeta < 300) return;
+            ultimoAcionamentoSeta = agora;
             if (direcao === 'proximo') swiper.slideNext(850);
             else swiper.slidePrev(850);
         };
-        heroProximo.addEventListener('click', event => moverPelaSeta('proximo', event), { capture:true });
-        heroAnterior.addEventListener('click', event => moverPelaSeta('anterior', event), { capture:true });
+        heroProximo.addEventListener('pointerup', event => moverPelaSeta('proximo', event), { capture:true });
+        heroAnterior.addEventListener('pointerup', event => moverPelaSeta('anterior', event), { capture:true });
+        heroProximo.addEventListener('click', event => { if (event.detail === 0) moverPelaSeta('proximo', event); });
+        heroAnterior.addEventListener('click', event => { if (event.detail === 0) moverPelaSeta('anterior', event); });
         window.heroBannerSwiper = swiper;
     } else {
         registrarVisualizacaoBanner(heroSlider.querySelector('.swiper-slide'));
