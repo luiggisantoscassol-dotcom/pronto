@@ -3185,10 +3185,22 @@ async function carregarGoogleReviews() {
     const list = document.getElementById('google-reviews-list');
     if (!section || !list) return;
     try {
-        const response = await fetch(`${supabaseUrl}/functions/v1/google-avaliacoes`, { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } });
-        if (!response.ok) return;
-        const data = await response.json();
-        if (!data?.configured || !Number(data.rating) || !Array.isArray(data.reviews) || !data.reviews.length) return;
+        const googleMapsUrl = 'https://www.google.com/maps/place/Tio+Nan/@-30.0619077,-51.1728428,17z/data=!4m8!3m7!1s0x95199d4c82df9a41:0x2a01eaf46f4606f0!8m2!3d-30.0619077!4d-51.1728428!9m1!1b1!16s%2Fg%2F11zyj25dfj';
+        const data = {
+            rating: 5,
+            total: 43,
+            googleMapsUrl,
+            writeReviewUrl: googleMapsUrl,
+            reviews: [
+                { author:'Gabriel Guerra', rating:5, text:'Atendimento excepcional, além de produtos de extrema qualidade!' },
+                { author:'Leandro Moraes', rating:5, text:'Melhor Cachaça que já tomei na minha vida.' },
+                { author:'Guilherme Borges', rating:5, text:'Simplesmente sensacional!' },
+                { author:'Guilherme Couras', rating:5, text:'Cachaça de extrema qualidade e sabor indescritível, ansioso para provar todas' },
+                { author:'Gerson Costa', rating:5, text:'A qualidade é a marca registrada! Eu e minha esposa viramos fã e clientes.' },
+                { author:'Vitor Hugo Kuwer', rating:5, text:'Excelente' },
+                { author:'Lucca Bordin', rating:5, text:'Uma das melhores cachaça que eu já tomei, nota 10 pelo produto, ansioso para comprar mais.' }
+            ]
+        };
         const rating = Math.max(0, Math.min(5, Number(data.rating)));
         const total = Math.max(0, Number(data.total) || 0);
         section.querySelector('[data-google-rating]').textContent = rating.toFixed(1).replace('.', ',');
