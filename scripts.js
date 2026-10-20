@@ -537,10 +537,10 @@ function atualizarFotoOpcaoSacolas() {
         return Array.from({ length:Number(sacola.quantidade || 0) }, () => capacidade);
     });
     visual.innerHTML = itens.map(capacidade => `
-        <span class="opcao-sacolas__item is-photo">
-            <img src="${capacidade === 1 ? 'fotos/sacola-simples.jpg?v=1' : 'fotos/sacola-dupla.jpg?v=1'}" alt="">
+        <button type="button" class="opcao-sacolas__item is-photo" aria-label="Ampliar foto da sacola para ${capacidade} ${capacidade === 1 ? 'garrafa' : 'garrafas'}" onclick="abrirLightbox(this.querySelector('img').src, event)">
+            <img src="${capacidade === 1 ? 'fotos/sacola-simples.jpg?v=1' : 'fotos/sacola-dupla.jpg?v=1'}" alt="Sacola para ${capacidade} ${capacidade === 1 ? 'garrafa' : 'garrafas'}">
             <b>${capacidade} ${capacidade === 1 ? 'garrafa' : 'garrafas'}</b>
-        </span>
+        </button>
     `).join('');
     visual.classList.toggle('is-combination', itens.length > 1);
 }
@@ -2136,13 +2136,18 @@ function fecharLightbox() {
         lightbox.style.display = 'none';
         img.src = '';
         
-        // Só remove stop-scroll se o modal principal também não estiver ativo
+        // Mantém a página travada quando outro painel continua aberto.
         const modalProd = document.getElementById('modal-produto-overlay');
-        if (!modalProd || !modalProd.classList.contains('active')) {
+        const cartOpen = document.getElementById('cart-overlay')?.classList.contains('active');
+        if ((!modalProd || !modalProd.classList.contains('active')) && !cartOpen) {
             document.body.classList.remove('stop-scroll');
         }
     }, 300);
 }
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && document.getElementById('review-lightbox')?.style.display === 'flex') fecharLightbox();
+});
 
 function atualizarLightboxNav() {
     const prevBtn = document.getElementById('lightbox-prev');
