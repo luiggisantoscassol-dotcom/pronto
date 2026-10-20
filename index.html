@@ -48,7 +48,7 @@
     <meta name="apple-mobile-web-app-title" content="Tio Nan">
     <meta name="application-name" content="Tio Nan">
 
-    <link rel="stylesheet" href="styles.css?v=6.38">
+    <link rel="stylesheet" href="styles.css?v=6.39">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -387,19 +387,21 @@
     </aside>
 
     <main>
-        <div class="swiper swiper-hero is-loading">
-            <div class="swiper-wrapper" id="hero-banners">
-                <div class="swiper-slide">
-                    <a class="hero-link hero-link-desktop" href="produto.html?bling=16712114193" aria-label="Ver Cachaça Prata Tio Nan" data-banner-id="padrao-desktop" data-banner-title="Cachaça Prata Tio Nan">
-                        <img src="fotos/banner-cachaca-prata-desktop.webp?v=1" alt="Cachaça Prata Tio Nan — pura ou no seu drink favorito" loading="eager" decoding="async" fetchpriority="high">
-                    </a>
-                    <a class="hero-link hero-link-mobile" href="produto.html?bling=16699719562" aria-label="Ver Gengibre, Guaco e Mel" data-banner-id="padrao-mobile" data-banner-title="Pré-venda Gengibre, Guaco e Mel">
-                        <img src="fotos/passo1-mobile.webp?v=pre-venda-mobile-1" alt="Pré-venda Tio Nan com 20% de desconto" loading="eager" decoding="async" fetchpriority="high">
-                    </a>
+        <div class="hero-carousel-shell">
+            <div class="swiper swiper-hero is-loading">
+                <div class="swiper-wrapper" id="hero-banners">
+                    <div class="swiper-slide">
+                        <a class="hero-link hero-link-desktop" href="produto.html?bling=16712114193" aria-label="Ver Cachaça Prata Tio Nan" data-banner-id="padrao-desktop" data-banner-title="Cachaça Prata Tio Nan">
+                            <img src="fotos/banner-cachaca-prata-desktop.webp?v=1" alt="Cachaça Prata Tio Nan — pura ou no seu drink favorito" loading="eager" decoding="async" fetchpriority="high">
+                        </a>
+                        <a class="hero-link hero-link-mobile" href="produto.html?bling=16699719562" aria-label="Ver Gengibre, Guaco e Mel" data-banner-id="padrao-mobile" data-banner-title="Pré-venda Gengibre, Guaco e Mel">
+                            <img src="fotos/passo1-mobile.webp?v=pre-venda-mobile-1" alt="Pré-venda Tio Nan com 20% de desconto" loading="eager" decoding="async" fetchpriority="high">
+                        </a>
+                    </div>
                 </div>
             </div>
-            <button type="button" class="swiper-button-next swiper-no-swiping" aria-label="Próximo banner"></button>
-            <button type="button" class="swiper-button-prev swiper-no-swiping" aria-label="Banner anterior"></button>
+            <button type="button" class="swiper-button-next hero-button-next" aria-label="Próximo banner"></button>
+            <button type="button" class="swiper-button-prev hero-button-prev" aria-label="Banner anterior"></button>
         </div>
 
         <section class="benefits-strip" aria-label="Vantagens de comprar na Tio Nan">
@@ -564,7 +566,7 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="meta-pixel.js?v=2"></script>
     <script src="site-analytics.js?v=5"></script>
-    <script src="scripts.js?v=6.69"></script>
+    <script src="scripts.js?v=6.70"></script>
 </body>
 
 </html>

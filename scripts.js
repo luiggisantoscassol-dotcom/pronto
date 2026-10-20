@@ -687,40 +687,27 @@ function prepararCliquesBanners(heroSlider) {
 function iniciarCarrosselBanners() {
     const heroSlider = document.querySelector('.swiper-hero');
     if (!heroSlider) return;
+    const heroShell = heroSlider.closest('.hero-carousel-shell') || heroSlider;
     prepararCliquesBanners(heroSlider);
     const varios = heroSlider.querySelectorAll('.swiper-slide').length > 1;
-    heroSlider.querySelectorAll('.swiper-button-next,.swiper-button-prev').forEach(button => button.hidden = !varios);
+    heroShell.querySelectorAll('.hero-button-next,.hero-button-prev').forEach(button => button.hidden = !varios);
     if (varios) {
-        const heroAnterior = heroSlider.querySelector('.swiper-button-prev');
-        const heroProximo = heroSlider.querySelector('.swiper-button-next');
+        const heroAnterior = heroShell.querySelector('.hero-button-prev');
+        const heroProximo = heroShell.querySelector('.hero-button-next');
         const swiper = new Swiper(heroSlider, {
             loop: false,
             rewind: true,
-            speed: 850,
+            speed: 1000,
+            effect: 'slide',
             grabCursor: true,
-            noSwiping: true,
-            noSwipingSelector: '.swiper-no-swiping',
             pagination: { el: heroSlider.querySelector('.hero-pagination'), clickable: true },
+            navigation: { prevEl: heroAnterior, nextEl: heroProximo },
             autoplay: { delay: 5000, disableOnInteraction: false },
             on: {
                 init(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); },
                 slideChangeTransitionEnd(instance) { registrarVisualizacaoBanner(instance.slides[instance.activeIndex]); }
             }
         });
-        let ultimoAcionamentoSeta = 0;
-        const moverPelaSeta = (direcao, event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            const agora = Date.now();
-            if (agora - ultimoAcionamentoSeta < 300) return;
-            ultimoAcionamentoSeta = agora;
-            if (direcao === 'proximo') swiper.slideNext(850);
-            else swiper.slidePrev(850);
-        };
-        heroProximo.addEventListener('pointerup', event => moverPelaSeta('proximo', event), { capture:true });
-        heroAnterior.addEventListener('pointerup', event => moverPelaSeta('anterior', event), { capture:true });
-        heroProximo.addEventListener('click', event => { if (event.detail === 0) moverPelaSeta('proximo', event); });
-        heroAnterior.addEventListener('click', event => { if (event.detail === 0) moverPelaSeta('anterior', event); });
         window.heroBannerSwiper = swiper;
     } else {
         registrarVisualizacaoBanner(heroSlider.querySelector('.swiper-slide'));

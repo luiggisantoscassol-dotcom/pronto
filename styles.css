@@ -861,11 +861,18 @@
             z-index: 10;
         }
 
-        .swiper-hero {
+        .hero-carousel-shell {
+            position: relative;
             width: 100%;
             max-width: 700px;
-            padding: 0;
             margin: -100px auto 0;
+        }
+
+        .swiper-hero {
+            width: 100%;
+            max-width: none;
+            padding: 0;
+            margin: 0;
             /* Container agora começa no topo absoluto por baixo do menu */
             background: transparent;
         }
@@ -892,7 +899,7 @@
         .swiper-hero .hero-link-mobile { display:none; }
 
         @media (min-width: 769px) {
-            .swiper-hero {
+            .hero-carousel-shell {
                 width: calc(100% - 64px);
                 max-width: 1280px;
                 margin-top: 0;
@@ -905,8 +912,8 @@
         }
 
         /* Setas do Carrossel Hero */
-        .swiper-hero .swiper-button-next,
-        .swiper-hero .swiper-button-prev {
+        .hero-carousel-shell > .swiper-button-next,
+        .hero-carousel-shell > .swiper-button-prev {
             appearance: none;
             padding: 0;
             color: var(--gold-antique);
@@ -923,16 +930,16 @@
             touch-action: manipulation;
         }
 
-        .swiper-hero .swiper-wrapper { transition-timing-function: cubic-bezier(.22,.61,.36,1) !important; }
+        .swiper-hero .swiper-wrapper { transition-timing-function: cubic-bezier(.25,.1,.25,1) !important; }
 
-        .swiper-hero .swiper-button-next::after,
-        .swiper-hero .swiper-button-prev::after {
+        .hero-carousel-shell > .swiper-button-next::after,
+        .hero-carousel-shell > .swiper-button-prev::after {
             font-size: 1.1rem;
             font-weight: 900;
         }
 
-        .swiper-hero .swiper-button-next:hover,
-        .swiper-hero .swiper-button-prev:hover {
+        .hero-carousel-shell > .swiper-button-next:hover,
+        .hero-carousel-shell > .swiper-button-prev:hover {
             background: rgba(255, 255, 255, 0.25);
             color: var(--gold-soft);
             transform: scale(1.1);
@@ -940,7 +947,7 @@
         }
 
         @media (max-width: 768px) {
-            .swiper-hero {
+            .hero-carousel-shell {
                 width: 100%;
                 max-width: none;
                 margin: -70px 0 0;
@@ -981,8 +988,8 @@
                 object-fit:contain;
             }
 
-            .swiper-hero .swiper-button-next,
-            .swiper-hero .swiper-button-prev {
+            .hero-carousel-shell > .swiper-button-next,
+            .hero-carousel-shell > .swiper-button-prev {
                 display: flex !important;
                 width:38px;
                 height:38px;
@@ -992,10 +999,10 @@
                 opacity: 1 !important;
                 visibility: visible !important;
             }
-            .swiper-hero .swiper-button-next { right: 8px !important; }
-            .swiper-hero .swiper-button-prev { left: 8px !important; }
-            .swiper-hero .swiper-button-next[hidden],
-            .swiper-hero .swiper-button-prev[hidden] {
+            .hero-carousel-shell > .swiper-button-next { right: 8px !important; }
+            .hero-carousel-shell > .swiper-button-prev { left: 8px !important; }
+            .hero-carousel-shell > .swiper-button-next[hidden],
+            .hero-carousel-shell > .swiper-button-prev[hidden] {
                 display:none !important;
             }
         }
