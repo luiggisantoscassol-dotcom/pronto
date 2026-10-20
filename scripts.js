@@ -3192,13 +3192,13 @@ async function carregarGoogleReviews() {
             googleMapsUrl,
             writeReviewUrl: googleMapsUrl,
             reviews: [
-                { author:'Gabriel Guerra', rating:5, text:'Atendimento excepcional, além de produtos de extrema qualidade!' },
-                { author:'Leandro Moraes', rating:5, text:'Melhor Cachaça que já tomei na minha vida.' },
-                { author:'Guilherme Borges', rating:5, text:'Simplesmente sensacional!' },
-                { author:'Guilherme Couras', rating:5, text:'Cachaça de extrema qualidade e sabor indescritível, ansioso para provar todas' },
-                { author:'Gerson Costa', rating:5, text:'A qualidade é a marca registrada! Eu e minha esposa viramos fã e clientes.' },
-                { author:'Vitor Hugo Kuwer', rating:5, text:'Excelente' },
-                { author:'Lucca Bordin', rating:5, text:'Uma das melhores cachaça que eu já tomei, nota 10 pelo produto, ansioso para comprar mais.' }
+                { author:'Gabriel G.', rating:5, text:'Atendimento excepcional, além de produtos de extrema qualidade!' },
+                { author:'Leandro M.', rating:5, text:'Melhor Cachaça que já tomei na minha vida.' },
+                { author:'Guilherme B.', rating:5, text:'Simplesmente sensacional!' },
+                { author:'Guilherme C.', rating:5, text:'Cachaça de extrema qualidade e sabor indescritível, ansioso para provar todas' },
+                { author:'Gerson C.', rating:5, text:'A qualidade é a marca registrada! Eu e minha esposa viramos fã e clientes.' },
+                { author:'Vitor K.', rating:5, text:'Excelente' },
+                { author:'Lucca B.', rating:5, text:'Uma das melhores cachaça que eu já tomei, nota 10 pelo produto, ansioso para comprar mais.' }
             ]
         };
         const rating = Math.max(0, Math.min(5, Number(data.rating)));
