@@ -2128,9 +2128,9 @@
                 <button type="button" class="admin-home-card admin-home-card--embalagens" onclick="switchTab('tab-embalagens')">
                     <span class="admin-home-group">Expedição</span>
                     <span class="admin-home-icon" aria-hidden="true">📫</span>
-                    <h2>Caixas para envio</h2>
-                    <strong class="admin-home-metric" id="home-embalagens">—<small>carregando caixas disponíveis</small></strong>
-                    <span class="admin-home-link">Gerenciar caixas <span aria-hidden="true">→</span></span>
+                    <h2>Embalagens para expedição</h2>
+                    <strong class="admin-home-metric" id="home-embalagens">—<small>carregando caixas e sacolas</small></strong>
+                    <span class="admin-home-link">Gerenciar embalagens <span aria-hidden="true">→</span></span>
                 </button>
                 <section class="admin-home-card admin-home-card--envase" role="button" tabindex="0" onclick="switchTab('tab-envase')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('tab-envase')}">
                     <span class="admin-home-group">Produção</span>
@@ -4302,6 +4302,7 @@
             const caixasAtivas = ativas.filter(item => String(item.especie || '').toUpperCase() !== 'SACOLA');
             const sacolasAtivas = ativas.filter(item => String(item.especie || '').toUpperCase() === 'SACOLA');
             const caixas = caixasAtivas.reduce((total, item) => total + Number(item.estoque || 0), 0);
+            const sacolas = sacolasAtivas.reduce((total, item) => total + Number(item.estoque || 0), 0);
             const capacidade = caixasAtivas.reduce((total, item) => total + Number(item.estoque || 0) * Number(item.capacidade_garrafas || 0), 0);
             const baixo = ativas.filter(item => Number(item.estoque || 0) <= 2).length;
             document.getElementById('emb-resumo-caixas').textContent = caixas;
@@ -4309,7 +4310,7 @@
             document.getElementById('emb-resumo-modelos').textContent = `${caixasAtivas.length} caixa(s) · ${sacolasAtivas.length} sacola(s)`;
             document.getElementById('emb-resumo-baixo').textContent = baixo;
             const home = document.getElementById('home-embalagens');
-            if (home) home.innerHTML = `${caixas}<small>caixas disponíveis · capacidade para ${capacidade} garrafas</small>`;
+            if (home) home.innerHTML = `${caixas + sacolas}<small>embalagens disponíveis · ${caixas} ${caixas === 1 ? 'caixa' : 'caixas'} · ${sacolas} ${sacolas === 1 ? 'sacola' : 'sacolas'} · capacidade das caixas: ${capacidade} garrafas</small>`;
             corpo.innerHTML = embalagens.length ? embalagens.map(item => {
                 const tipoEmbalagem = String(item.especie || '').toUpperCase() === 'SACOLA' ? 'sacola' : 'caixa';
                 return `
@@ -6694,7 +6695,7 @@
                     db.from('insumos_envase').select('id,codigo,nome,quantidade').order('nome'),
                     db.from('consignacao_saldos').select('quantidade'),
                     db.from('consignacao_empresas').select('id', { count: 'exact', head: true }).eq('ativa', true),
-                    db.from('embalagens').select('estoque,capacidade_garrafas').eq('ativo', true),
+                    db.from('embalagens').select('estoque,capacidade_garrafas,especie').eq('ativo', true),
                     db.from('receitas_envase').select('produto_bling_id,insumo_id,tipo_consumo,quantidade_por_garrafa')
                 ]);
                 insumosEnvaseAtuais = insumosResumo || [];
@@ -7123,9 +7124,12 @@
                 const homeConsignacao = document.getElementById('home-consignacao');
                 const homeEmbalagens = document.getElementById('home-embalagens');
                 if (homeEmbalagens && embalagensResumo) {
-                    const totalCaixas = embalagensResumo.reduce((total, item) => total + Number(item.estoque || 0), 0);
-                    const capacidadeCaixas = embalagensResumo.reduce((total, item) => total + Number(item.estoque || 0) * Number(item.capacidade_garrafas || 0), 0);
-                    homeEmbalagens.innerHTML = `${totalCaixas}<small>caixas disponíveis · capacidade para ${capacidadeCaixas} garrafas</small>`;
+                    const caixasResumo = embalagensResumo.filter(item => String(item.especie || '').toUpperCase() !== 'SACOLA');
+                    const sacolasResumo = embalagensResumo.filter(item => String(item.especie || '').toUpperCase() === 'SACOLA');
+                    const totalCaixas = caixasResumo.reduce((total, item) => total + Number(item.estoque || 0), 0);
+                    const totalSacolas = sacolasResumo.reduce((total, item) => total + Number(item.estoque || 0), 0);
+                    const capacidadeCaixas = caixasResumo.reduce((total, item) => total + Number(item.estoque || 0) * Number(item.capacidade_garrafas || 0), 0);
+                    homeEmbalagens.innerHTML = `${totalCaixas + totalSacolas}<small>embalagens disponíveis · ${totalCaixas} ${totalCaixas === 1 ? 'caixa' : 'caixas'} · ${totalSacolas} ${totalSacolas === 1 ? 'sacola' : 'sacolas'} · capacidade das caixas: ${capacidadeCaixas} garrafas</small>`;
                 }
                 if (homeConsignacao) homeConsignacao.innerHTML = `${totalConsignado}<small>${totalConsignado === 1 ? 'garrafa consignada' : 'garrafas consignadas'} em ${empresasConsignacaoResumo || 0} ${(empresasConsignacaoResumo || 0) === 1 ? 'empresa' : 'empresas'}</small>`;
                 updatePDVCart();
