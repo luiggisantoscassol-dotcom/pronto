@@ -73,6 +73,9 @@
     .first-purchase-rules { margin:8px 0 0; padding-left:17px; color:#656d79; font-size:12px; line-height:1.5; }
     .offers-secondary { display:inline-flex; align-items:center; gap:7px; margin-top:11px; color:var(--navy); font-size:12px; font-weight:700; text-decoration:none; }
     .offers-secondary:hover { text-decoration:underline; text-underline-offset:3px; }
+    .conversion-assurances { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:14px 0 0; }
+    .conversion-assurance { display:flex; align-items:center; gap:8px; min-height:44px; padding:9px 11px; border:1px solid #e7e9ed; border-radius:11px; background:#fbfcfd; color:#4f5d70; font-size:12px; font-weight:700; line-height:1.25; }
+    .conversion-assurance span { color:#a8792b; font-size:16px; }
     .bag-benefit { display:grid; grid-template-columns:42px minmax(0,1fr); gap:12px; align-items:center; margin:16px 0 0; padding:13px 15px; border:1px solid #e4cfaa; border-radius:14px; background:linear-gradient(135deg,#fffaf0,#fff); color:var(--navy-dark); }
     .bag-benefit img { width:42px; height:42px; object-fit:contain; }
     .bag-benefit strong, .bag-benefit small { display:block; }
@@ -155,6 +158,8 @@
       .price { font-size:31px; }
       .payment-note { margin-top:4px; font-size:12px; }
       .first-purchase-benefit { margin-top:11px; padding:12px 14px; }
+      .conversion-assurances { margin-top:11px; }
+      .conversion-assurance { min-height:40px; padding:8px 9px; font-size:11px; }
       .product-copy { font-size:15px; margin-top:20px; }
       .buy-row { display:none; }
       .shipping { margin-top:18px; padding:15px; }
@@ -163,6 +168,7 @@
       .mobile-buy-bar { position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; gap:11px; align-items:center; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.96); border-top:1px solid var(--line); box-shadow:0 -8px 22px rgba(18,31,48,.08); }
       .mobile-buy-bar .quantity { height:51px; flex:0 0 auto; }
       .mobile-buy-bar .buy-button { min-height:51px; }
+      .mobile-buy-bar .buy-button { font-size:13px; letter-spacing:.02em; }
     }
     @media (min-width:761px) { .mobile-buy-bar { display:none; } }
   </style>
@@ -475,6 +481,9 @@
       const originalPrice = Number(p.preco_original || 0);
       const currentPrice = Number(p.preco || 0);
       const hasDiscount = originalPrice > currentPrice && currentPrice > 0;
+      const firstPurchaseEligible = !hasDiscount && p.tipo_produto !== 'kit' && currentPrice > 0;
+      const firstPurchasePrice = currentPrice * 0.8;
+      const buyLabel = unavailable ? (comingSoon ? 'Em breve' : 'Volta Logo!') : `Comprar agora — ${money(currentPrice)}`;
       const discountPercent = hasDiscount ? Math.round((1 - currentPrice / originalPrice) * 100) : 0;
       const saving = hasDiscount ? originalPrice - currentPrice : 0;
       const stockNotice = comingSoon
@@ -493,15 +502,16 @@
             <div class="rating" aria-label="Avaliação do produto"><span class="stars">${stars}</span>${review.count ? `<strong>${score} de 5</strong><button type="button" class="reviews-link" data-scroll-reviews>(${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'})</button>` : '<span class="rating-note">Ainda sem avaliações</span>'}</div>
             ${stockNotice}
             <div class="price-box${hasDiscount ? ' promotion' : ''}">${hasDiscount?`<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>`:`<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong>`}<p class="payment-note">Compra segura e finalização no checkout.</p></div>
-            ${hasDiscount ? '' : `<aside class="first-purchase-benefit"><strong>20% OFF na primeira compra pelo site</strong><p>O benefício é verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>`}
+            ${firstPurchaseEligible ? `<aside class="first-purchase-benefit"><strong>Na primeira compra: de ${money(currentPrice)} por ${money(firstPurchasePrice)}</strong><p>20% OFF verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>` : ''}
             <a class="offers-secondary" href="https://chat.whatsapp.com/IhBigxDFWAm7f8ZFo7n4Az?s=cl&p=i&mlu=0&ilr=4" target="_blank" rel="noopener" data-offers-group>💬 Prefere acompanhar ofertas? Entre no grupo</a>
+            <div class="conversion-assurances" aria-label="Segurança e entrega"><div class="conversion-assurance"><span>✓</span>Pagamento seguro</div><div class="conversion-assurance"><span>⌖</span>Entrega com rastreio</div><div class="conversion-assurance"><span>✦</span>Pix ou cartão</div><div class="conversion-assurance"><span>💬</span>Suporte no WhatsApp</div></div>
             ${hasBag && !unavailable ? '<aside class="bag-benefit"><img src="fotos/icon-sacola.webp" alt=""><span><strong>Sacola especial disponível</strong><small>Em retiradas e entregas próprias em Porto Alegre, você poderá incluí-la gratuitamente no checkout.</small></span></aside>' : ''}
+            <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
             <p class="product-copy">${description}</p>
             ${ingredientCallout}
             <details open><summary>Detalhes do produto</summary><div class="detail-content"><dl class="detail-list"><div><dt>Volume</dt><dd>${volume}</dd></div><div><dt>Teor alcoólico</dt><dd>${alcohol}</dd></div><div><dt>Categoria</dt><dd>${category}</dd></div><div><dt>Origem</dt><dd>Rio Grande do Sul</dd></div></dl></div></details>
             <details><summary>Entrega e pagamento</summary><div class="detail-content">Informe seu CEP no checkout para visualizar as opções de entrega disponíveis para a sua região.</div></details>
-            <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
-            <div class="buy-row">${unavailable ? `<button class="buy-button" type="button" disabled>${comingSoon ? 'Em breve' : 'Volta Logo!'}</button>` : '<div class="quantity" aria-label="Quantidade"><button type="button" data-quantity="-1" aria-label="Diminuir quantidade">−</button><output data-quantity-output>1</output><button type="button" data-quantity="1" aria-label="Aumentar quantidade">+</button></div><button class="buy-button" type="button" data-buy>Comprar</button>'}</div>
+            <div class="buy-row">${unavailable ? `<button class="buy-button" type="button" disabled>${buyLabel}</button>` : `<div class="quantity" aria-label="Quantidade"><button type="button" data-quantity="-1" aria-label="Diminuir quantidade">−</button><output data-quantity-output>1</output><button type="button" data-quantity="1" aria-label="Aumentar quantidade">+</button></div><button class="buy-button" type="button" data-buy>${buyLabel}</button>`}</div>
             <p class="notice" aria-live="polite"></p>
           </section>
         </div>
@@ -512,7 +522,7 @@
       mobileBuy.hidden = false;
       mobileQuantity.hidden = unavailable;
       mobileBuyButton.disabled = unavailable;
-      mobileBuyButton.textContent = comingSoon ? 'Em breve' : soldOut ? 'Volta Logo!' : 'Comprar';
+      mobileBuyButton.textContent = buyLabel;
       document.querySelectorAll('[data-quantity]').forEach(button => button.addEventListener('click', () => updateQuantity(Number(button.dataset.quantity))));
       document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', addToCart));
       document.querySelector('[data-offers-group]')?.addEventListener('click', () => {
