@@ -83,11 +83,6 @@
     .conversion-assurances { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:14px 0 0; }
     .conversion-assurance { display:flex; align-items:center; gap:8px; min-height:44px; padding:9px 11px; border:1px solid #e7e9ed; border-radius:11px; background:#fbfcfd; color:#4f5d70; font-size:12px; font-weight:700; line-height:1.25; }
     .conversion-assurance span { color:#a8792b; font-size:16px; }
-    .bag-benefit { display:grid; grid-template-columns:42px minmax(0,1fr); gap:12px; align-items:center; margin:16px 0 0; padding:13px 15px; border:1px solid #e4cfaa; border-radius:14px; background:linear-gradient(135deg,#fffaf0,#fff); color:var(--navy-dark); }
-    .bag-benefit img { width:42px; height:42px; object-fit:contain; }
-    .bag-benefit strong, .bag-benefit small { display:block; }
-    .bag-benefit strong { font-size:14px; }
-    .bag-benefit small { margin-top:3px; color:#6b7483; font-size:12px; line-height:1.4; }
     .product-copy { margin:23px 0 10px; color:#4c5667; font-size:16px; line-height:1.65; }
     .real-ingredients { position:relative; overflow:hidden; margin:24px 0 18px; padding:23px 24px; border:1px solid #e8dcc7; border-radius:18px; background:linear-gradient(135deg,#fffaf1 0%,#f5ead6 100%); box-shadow:0 12px 30px rgba(110,76,26,.08); }
     .real-ingredients::after { content:""; position:absolute; right:-32px; bottom:-48px; width:135px; height:135px; border:1px solid rgba(182,134,54,.18); border-radius:50%; box-shadow:0 0 0 18px rgba(182,134,54,.05); }
@@ -497,15 +492,6 @@
         return `<article class="review-card" data-has-description="${hasComment ? 'true' : 'false'}"><div class="review-meta"><span>${name}${review.origem === 'google' ? '<small class="review-source">Google</small>' : ''}</span><time class="review-date">${date}</time></div><div class="review-stars" aria-label="${rating} de 5 estrelas">${stars}</div><p class="review-comment">“${comment}”</p></article>`;
       }).join('');
     }
-    async function bagAvailableFor(p) {
-      const bottles = Math.max(1, Number(p?.unidades_por_kit || 1));
-      const { data, error } = await db.from('embalagens').select('estoque,capacidade_garrafas,especie').eq('ativo', true).gt('estoque', 0);
-      if (error) return false;
-      const bags = (data || []).filter(item => String(item.especie || '').toUpperCase() === 'SACOLA');
-      const simple = bags.find(item => Number(item.capacidade_garrafas) === 1);
-      const double = bags.find(item => Number(item.capacidade_garrafas) === 2);
-      return (!Math.floor(bottles / 2) || Number(double?.estoque || 0) >= Math.floor(bottles / 2)) && (!(bottles % 2) || Number(simple?.estoque || 0) >= bottles % 2);
-    }
     function setupProductGallery() {
       const track = document.querySelector('[data-product-gallery-track]');
       if (!track) return;
@@ -547,7 +533,7 @@
       track.addEventListener('pointerup', finishDrag);
       track.addEventListener('pointercancel', finishDrag);
     }
-    function render(p, review, hasBag = false) {
+    function render(p, review) {
       const score = review.count ? review.average.toFixed(1).replace('.', ',') : '';
       const stars = review.count ? '★★★★★' : '☆☆☆☆☆';
       const reviews = review.reviews || [];
@@ -600,7 +586,6 @@
             ${firstPurchaseEligible ? `<aside class="first-purchase-benefit"><strong>Na primeira compra: de ${money(currentPrice)} por ${money(firstPurchasePrice)}</strong><p>20% OFF verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>` : ''}
             <a class="offers-secondary" href="https://chat.whatsapp.com/IhBigxDFWAm7f8ZFo7n4Az?s=cl&p=i&mlu=0&ilr=4" target="_blank" rel="noopener" data-offers-group>💬 Prefere acompanhar ofertas? Entre no grupo</a>
             <div class="conversion-assurances" aria-label="Segurança e entrega"><div class="conversion-assurance"><span>✓</span>Pagamento seguro</div><div class="conversion-assurance"><span>⌖</span>Entrega com rastreio</div><div class="conversion-assurance"><span>✦</span>Pix ou cartão</div><div class="conversion-assurance"><span>💬</span>Suporte no WhatsApp</div></div>
-            ${hasBag && !unavailable ? '<aside class="bag-benefit"><img src="fotos/icon-sacola.webp" alt=""><span><strong>Sacola especial disponível</strong><small>Em retiradas e entregas próprias em Porto Alegre, você poderá incluí-la gratuitamente no checkout.</small></span></aside>' : ''}
             <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
             <p class="product-copy">${description}</p>
             ${ingredientCallout}
@@ -682,8 +667,8 @@
         value:Number(selectedProduct.preco || 0),
         items:[{ item_id:String(selectedProduct.id), item_name:displayNameFor(selectedProduct), price:Number(selectedProduct.preco || 0), quantity:1 }]
       });
-      const [review, hasBag] = await Promise.all([reviewsFor(selectedProduct.nome), bagAvailableFor(selectedProduct)]);
-      render(selectedProduct, review, hasBag);
+      const review = await reviewsFor(selectedProduct.nome);
+      render(selectedProduct, review);
       const trackedDepths = new Set();
       const trackScrollDepth = () => {
         const scrollable = document.documentElement.scrollHeight - window.innerHeight;
