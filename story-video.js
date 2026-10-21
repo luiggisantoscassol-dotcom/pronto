@@ -11,10 +11,9 @@
   };
 
   function initStory() {
-    if (sessionStorage.getItem(STORAGE_KEY) === '1') return;
     document.body.classList.toggle('story-has-buybar', Boolean(document.querySelector('.mobile-buy-bar')));
     const launcher = document.createElement('button');
-    launcher.className = 'brand-story-launcher';
+    launcher.className = `brand-story-launcher${sessionStorage.getItem(STORAGE_KEY) === '1' ? ' is-minimized' : ''}`;
     launcher.type = 'button';
     launcher.setAttribute('aria-label', 'Conheça a história da Tio Nan');
     launcher.innerHTML = `<span class="brand-story-launcher__cover"><img src="${COVER_URL}" alt="Conheça a Tio Nan" loading="lazy"><span class="brand-story-launcher__duration">1 min</span><span class="brand-story-launcher__play" aria-hidden="true"></span></span><span class="brand-story-launcher__content"><span class="brand-story-launcher__eyebrow">Nossa história</span><strong class="brand-story-launcher__title">Conheça a Tio Nan</strong><span class="brand-story-launcher__action">Assistir agora <b aria-hidden="true">→</b></span></span><span class="brand-story-launcher__close" role="button" aria-label="Ocultar vídeo">×</span>`;
@@ -36,6 +35,12 @@
     let revealAllowed = false;
     let lastReportedSeconds = -1;
 
+    const minimizeLauncher = () => {
+      sessionStorage.setItem(STORAGE_KEY, '1');
+      launcher.classList.add('is-minimized');
+      launcher.setAttribute('aria-label', 'Abrir novamente o vídeo da Tio Nan');
+    };
+
     const reportWatchTime = (force = false, completed = false) => {
       const seconds = Math.max(0, Math.floor(Number(video.currentTime) || 0));
       if (!force && seconds < lastReportedSeconds + 5) return;
@@ -55,6 +60,7 @@
       video.pause();
       modal.hidden = true;
       document.body.classList.remove('brand-story-open');
+      minimizeLauncher();
       launcher.classList.toggle('is-visible', revealAllowed && !pageBlocked());
       track('brand_story_close', 'Story institucional');
     };
@@ -74,15 +80,14 @@
     };
     const dismiss = event => {
       event.stopPropagation();
-      sessionStorage.setItem(STORAGE_KEY, '1');
-      launcher.remove();
+      minimizeLauncher();
       if (!modal.hidden) closeModal();
-      track('brand_story_dismiss', 'Story institucional');
+      track('brand_story_dismiss', 'Recolheu o story institucional');
     };
     const syncVisibility = () => {
       const blocked = pageBlocked();
       if (blocked && !modal.hidden) closeModal();
-      launcher.classList.toggle('is-visible', revealAllowed && !blocked && sessionStorage.getItem(STORAGE_KEY) !== '1' && modal.hidden);
+      launcher.classList.toggle('is-visible', revealAllowed && !blocked && modal.hidden);
     };
 
     launcher.addEventListener('click', openModal);
