@@ -576,7 +576,9 @@
       };
       track.addEventListener('pointerup', finishDrag);
       track.addEventListener('pointercancel', finishDrag);
-      track.querySelectorAll('[data-video-play]').forEach(button => button.addEventListener('click', async event => {
+      track.querySelectorAll('[data-video-play]').forEach(button => {
+        button.dataset.videoReady = 'true';
+        button.onclick = async event => {
         event.stopPropagation();
         const slide = button.closest('.product-gallery-video-slide');
         const video = slide?.querySelector('video');
@@ -617,7 +619,8 @@
         } catch {
           fullscreenVideo.controls = true;
         }
-      }));
+        };
+      });
     }
     function render(p, review) {
       const score = review.count ? review.average.toFixed(1).replace('.', ',') : '';
