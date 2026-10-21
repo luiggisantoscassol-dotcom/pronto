@@ -598,10 +598,10 @@
         const fullscreenVideo = modal.querySelector('video');
         const closeButton = modal.querySelector('button');
         const onVideoKeydown = keyEvent => { if (keyEvent.key === 'Escape') closeVideo(); };
-        let lastReportedSeconds = 0;
+        let lastReportedSeconds = -1;
         const reportProductWatchTime = (force = false, completed = false) => {
           const seconds = Math.max(0, Math.floor(Number(fullscreenVideo.currentTime) || 0));
-          if (!seconds || (!force && seconds < lastReportedSeconds + 5)) return;
+          if (!force && seconds < lastReportedSeconds + 5) return;
           if (seconds <= lastReportedSeconds && !completed) return;
           lastReportedSeconds = Math.max(lastReportedSeconds, seconds);
           const duration = Math.max(0, Math.round(Number(fullscreenVideo.duration) || 0));
@@ -822,6 +822,6 @@
     }
     init();
   </script>
-  <script src="story-video.js?v=3"></script>
+  <script src="story-video.js?v=4"></script>
 </body>
 </html>

@@ -6792,6 +6792,15 @@
 
                         // Formatação especial para as ações
                         let label = r.produto_nome;
+                        if (eventoAtual === 'brand_story_open' || eventoAtual === 'brand_story_resume') {
+                            if (trackerMap[chave].videoWatches['story-institucional']) return;
+                            label = '▶️ Abriu o story institucional · tempo ainda não registrado';
+                        }
+                        if (eventoAtual === 'product_video_play') {
+                            const temTempoProduto = Object.values(trackerMap[chave].videoWatches).some(video => video.tipo === 'product_video_watch' && (!r.produto_id || String(video.produto || '').includes(String(r.produto_nome || '').replace(/^Abriu o vídeo do produto:\s*/i, '').trim())));
+                            if (temTempoProduto) return;
+                            label = `▶️ ${String(r.produto_nome || 'Abriu o vídeo do produto')}`;
+                        }
                         if (label.includes("🔍 Buscou")) label = `<span style="color:#f1d3a1;">${label}</span>`;
                         if (label.includes("💳 Abriu Checkout")) label = `<span style="color:#ff6b6b; font-weight:bold;">${label}</span>`;
                         if (label.includes("❌ Faltou")) label = `<span style="color:#ff4444; font-weight:900;">${label}</span>`;

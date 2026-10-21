@@ -34,11 +34,11 @@
     const launcherClose = launcher.querySelector('.brand-story-launcher__close');
     let openedOnce = false;
     let revealAllowed = false;
-    let lastReportedSeconds = 0;
+    let lastReportedSeconds = -1;
 
     const reportWatchTime = (force = false, completed = false) => {
       const seconds = Math.max(0, Math.floor(Number(video.currentTime) || 0));
-      if (!seconds || (!force && seconds < lastReportedSeconds + 5)) return;
+      if (!force && seconds < lastReportedSeconds + 5) return;
       if (seconds <= lastReportedSeconds && !completed) return;
       lastReportedSeconds = Math.max(lastReportedSeconds, seconds);
       const duration = Math.max(0, Math.round(Number(video.duration) || 0));
@@ -68,7 +68,7 @@
         video.src = VIDEO_URL;
         video.load();
       }
-      track(openedOnce ? 'brand_story_resume' : 'brand_story_open', 'Story institucional');
+      track(openedOnce ? 'brand_story_resume' : 'brand_story_open', openedOnce ? 'Retomou o story institucional' : 'Abriu o story institucional');
       openedOnce = true;
       try { await video.play(); } catch {}
     };
