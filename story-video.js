@@ -17,7 +17,7 @@
     launcher.className = 'brand-story-launcher';
     launcher.type = 'button';
     launcher.setAttribute('aria-label', 'Conheça a história da Tio Nan');
-    launcher.innerHTML = `<span class="brand-story-launcher__cover"><img src="${COVER_URL}" alt="Conheça a Tio Nan" loading="lazy"><span class="brand-story-launcher__play" aria-hidden="true"></span></span><span class="brand-story-launcher__title">Conheça a Tio Nan</span><span class="brand-story-launcher__close" role="button" aria-label="Ocultar vídeo">×</span>`;
+    launcher.innerHTML = `<span class="brand-story-launcher__cover"><img src="${COVER_URL}" alt="Conheça a Tio Nan" loading="lazy"><span class="brand-story-launcher__duration">1 min</span><span class="brand-story-launcher__play" aria-hidden="true"></span></span><span class="brand-story-launcher__content"><span class="brand-story-launcher__eyebrow">Nossa história</span><strong class="brand-story-launcher__title">Conheça a Tio Nan</strong><span class="brand-story-launcher__action">Assistir agora <b aria-hidden="true">→</b></span></span><span class="brand-story-launcher__close" role="button" aria-label="Ocultar vídeo">×</span>`;
 
     const modal = document.createElement('div');
     modal.className = 'brand-story-modal';
