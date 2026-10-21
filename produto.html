@@ -555,6 +555,7 @@
       let startX = 0;
       let startScroll = 0;
       track.addEventListener('pointerdown', event => {
+        if (event.target.closest('button, video, a, input, select, textarea')) return;
         if (event.pointerType !== 'mouse' || event.button !== 0) return;
         dragging = true;
         startX = event.clientX;
