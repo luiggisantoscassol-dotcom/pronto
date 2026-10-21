@@ -60,6 +60,11 @@
     .product-gallery-video-slide.is-playing .product-video-play { display:none; }
     .product-video-label { position:absolute; z-index:2; left:18px; bottom:18px; padding:8px 12px; border-radius:999px; background:rgba(8,25,45,.8); color:#fff; font-size:11px; font-weight:800; pointer-events:none; }
     .product-gallery-video-slide.is-playing .product-video-label { display:none; }
+    .product-video-modal { position:fixed; z-index:10050; inset:0; display:grid; place-items:center; padding:max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); background:rgba(2,10,20,.96); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+    .product-video-modal[hidden] { display:none; }
+    .product-video-modal__video { display:block; width:min(100%, 720px); height:min(100%, 100dvh); object-fit:contain; background:#020a14; }
+    .product-video-modal__close { position:absolute; z-index:2; top:max(14px, env(safe-area-inset-top)); right:max(14px, env(safe-area-inset-right)); width:46px; height:46px; border:1px solid rgba(255,255,255,.45); border-radius:50%; background:rgba(4,18,34,.82); color:#fff; font-size:30px; line-height:1; box-shadow:0 8px 24px rgba(0,0,0,.28); }
+    body.product-video-open { overflow:hidden; }
     .product-gallery-dots { position:absolute; z-index:2; left:50%; bottom:14px; transform:translateX(-50%); display:flex; gap:7px; padding:7px 9px; border-radius:999px; background:rgba(255,255,255,.82); box-shadow:0 3px 12px rgba(0,0,0,.12); pointer-events:none; }
     .product-gallery-dot { width:7px; height:7px; border-radius:50%; background:#b9bec7; transition:background .2s ease, transform .2s ease; }
     .product-gallery-dot.is-active { background:var(--navy-dark); transform:scale(1.25); }
@@ -576,22 +581,41 @@
         const slide = button.closest('.product-gallery-video-slide');
         const video = slide?.querySelector('video');
         if (!video) return;
-        if (!video.src) video.src = video.dataset.src || '';
-        video.controls = true;
-        video.load();
-        slide.classList.add('is-playing');
+        const source = video.dataset.src || video.src || '';
+        if (!source) return;
+        const modal = document.createElement('div');
+        modal.className = 'product-video-modal';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-label', `Vídeo de ${product?.nome || 'produto'}`);
+        modal.innerHTML = `<video class="product-video-modal__video" src="${source}" poster="${video.poster || ''}" controls playsinline preload="auto"></video><button class="product-video-modal__close" type="button" aria-label="Fechar vídeo">×</button>`;
+        document.body.appendChild(modal);
+        document.body.classList.add('product-video-open');
+        const fullscreenVideo = modal.querySelector('video');
+        const closeButton = modal.querySelector('button');
+        const onVideoKeydown = keyEvent => { if (keyEvent.key === 'Escape') closeVideo(); };
+        const closeVideo = () => {
+          fullscreenVideo.pause();
+          modal.remove();
+          document.body.classList.remove('product-video-open');
+          document.removeEventListener('keydown', onVideoKeydown);
+          button.focus({ preventScroll:true });
+        };
+        closeButton.addEventListener('click', closeVideo);
+        modal.addEventListener('click', closeEvent => { if (closeEvent.target === modal) closeVideo(); });
+        document.addEventListener('keydown', onVideoKeydown);
         try {
-          const playback = video.play();
-          if (typeof video.requestFullscreen === 'function') {
-            video.requestFullscreen().catch(() => {});
-          } else if (typeof video.webkitEnterFullscreen === 'function') {
-            try { video.webkitEnterFullscreen(); } catch {}
+          const playback = fullscreenVideo.play();
+          if (typeof fullscreenVideo.requestFullscreen === 'function') {
+            fullscreenVideo.requestFullscreen().catch(() => {});
+          } else if (typeof fullscreenVideo.webkitEnterFullscreen === 'function') {
+            try { fullscreenVideo.webkitEnterFullscreen(); } catch {}
           }
           await playback;
           window.TioNanAnalytics?.track('product_video_play', { label:product?.nome || 'Vídeo do produto', produto_id:product?.id });
           window.gtag?.('event', 'video_start', { video_title:product?.nome || 'Vídeo do produto' });
         } catch {
-          slide.classList.remove('is-playing');
+          fullscreenVideo.controls = true;
         }
       }));
     }
