@@ -633,6 +633,11 @@
         fullscreenVideo.addEventListener('timeupdate', () => reportProductWatchTime());
         fullscreenVideo.addEventListener('pause', () => reportProductWatchTime(true));
         fullscreenVideo.addEventListener('ended', () => reportProductWatchTime(true, true));
+        fullscreenVideo.addEventListener('error', () => window.TioNanAnalytics?.track('product_video_error', {
+          label:`Erro ao carregar o vídeo do produto: ${product?.nome || 'Produto'}`,
+          produto_id:product?.id,
+          metadata:{ codigo:fullscreenVideo.error?.code || null, estado_rede:fullscreenVideo.networkState }
+        }));
         try {
           const playback = fullscreenVideo.play();
           if (typeof fullscreenVideo.requestFullscreen === 'function') {
@@ -822,6 +827,6 @@
     }
     init();
   </script>
-  <script src="story-video.js?v=4"></script>
+  <script src="story-video.js?v=5"></script>
 </body>
 </html>

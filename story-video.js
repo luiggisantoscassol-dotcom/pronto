@@ -91,6 +91,11 @@
     modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.hidden) closeModal(); });
     video.addEventListener('pause', () => reportWatchTime(true));
+    video.addEventListener('playing', () => track('brand_story_playing', 'Começou a reproduzir o story institucional'));
+    video.addEventListener('error', () => track('brand_story_error', 'Erro ao carregar o story institucional', {
+      codigo: video.error?.code || null,
+      estado_rede: video.networkState
+    }));
     video.addEventListener('ended', () => { reportWatchTime(true, true); end.classList.add('is-visible'); track('brand_story_complete', 'Story institucional'); });
     video.addEventListener('timeupdate', () => {
       reportWatchTime();
