@@ -697,7 +697,7 @@ function iniciarCarrosselBanners() {
         const swiper = new Swiper(heroSlider, {
             loop: false,
             rewind: true,
-            speed: 720,
+            speed: 920,
             effect: 'slide',
             grabCursor: true,
             pagination: { el: heroSlider.querySelector('.hero-pagination'), clickable: true },
