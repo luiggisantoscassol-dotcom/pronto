@@ -50,6 +50,14 @@
     .product-gallery-track.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; user-select:none; }
     .product-gallery-slide { flex:0 0 100%; width:100%; height:100%; display:grid; place-items:center; scroll-snap-align:start; scroll-snap-stop:always; background:transparent; }
     .product-gallery-slide img { display:block; width:100%; height:100%; object-fit:contain; object-position:center; padding:0; }
+    .product-gallery-video-slide { position:relative; background:#08192d; }
+    .product-gallery-video { display:block; width:100%; height:100%; object-fit:contain; background:#08192d; }
+    .product-video-play { position:absolute; z-index:3; left:50%; top:50%; display:grid; width:82px; height:82px; padding:0; place-items:center; transform:translate(-50%,-50%); border:2px solid rgba(255,255,255,.84); border-radius:50%; background:linear-gradient(145deg,#d3a64c,#9c7022); color:#fff; box-shadow:0 13px 32px rgba(0,0,0,.34); transition:transform .18s ease,box-shadow .18s ease; }
+    .product-video-play::before { content:""; width:0; height:0; margin-left:6px; border-top:13px solid transparent; border-bottom:13px solid transparent; border-left:21px solid currentColor; }
+    .product-video-play:hover { transform:translate(-50%,-50%) scale(1.04); box-shadow:0 16px 38px rgba(0,0,0,.4); }
+    .product-gallery-video-slide.is-playing .product-video-play { display:none; }
+    .product-video-label { position:absolute; z-index:2; left:18px; bottom:18px; padding:8px 12px; border-radius:999px; background:rgba(8,25,45,.8); color:#fff; font-size:11px; font-weight:800; pointer-events:none; }
+    .product-gallery-video-slide.is-playing .product-video-label { display:none; }
     .product-gallery-dots { position:absolute; z-index:2; left:50%; bottom:14px; transform:translateX(-50%); display:flex; gap:7px; padding:7px 9px; border-radius:999px; background:rgba(255,255,255,.82); box-shadow:0 3px 12px rgba(0,0,0,.12); pointer-events:none; }
     .product-gallery-dot { width:7px; height:7px; border-radius:50%; background:#b9bec7; transition:background .2s ease, transform .2s ease; }
     .product-gallery-dot.is-active { background:var(--navy-dark); transform:scale(1.25); }
@@ -161,6 +169,8 @@
       .gallery { order:0; width:100%; height:auto; min-height:0; aspect-ratio:1/1; border:0; border-radius:0; position:relative; top:auto; overflow:hidden; background:#fff; }
       .product-gallery-track { touch-action:auto; }
       .product-gallery-slide img { width:100%; height:100%; max-height:none; object-fit:contain; object-position:center; }
+      .product-video-play { width:68px; height:68px; }
+      .product-video-play::before { border-top-width:11px; border-bottom-width:11px; border-left-width:18px; }
       .product-info { width:100%; padding:20px 20px 0; }
       .crumbs { display:none; }
       .tag { margin-bottom:9px; }
@@ -311,6 +321,9 @@
       const main = normalizePhotoUrl(photoFor(p));
       const registered = [main, normalizePhotoUrl(p.foto_2)].filter(url => url.length > 5);
       return [...new Set(registered)];
+    }
+    function productVideoFor(p) {
+      return String(p.bling_id || '') === '16687078597' ? 'fotos/tio-nan-prata-video.mp4?v=1' : '';
     }
     function absoluteUrl(value) {
       try { return new URL(String(value || ''), 'https://www.tionan.com.br/').href; }
@@ -556,6 +569,22 @@
       };
       track.addEventListener('pointerup', finishDrag);
       track.addEventListener('pointercancel', finishDrag);
+      track.querySelectorAll('[data-video-play]').forEach(button => button.addEventListener('click', async event => {
+        event.stopPropagation();
+        const slide = button.closest('.product-gallery-video-slide');
+        const video = slide?.querySelector('video');
+        if (!video) return;
+        if (!video.src) video.src = video.dataset.src || '';
+        video.controls = true;
+        slide.classList.add('is-playing');
+        try {
+          await video.play();
+          window.TioNanAnalytics?.track('product_video_play', { label:product?.nome || 'Vídeo do produto', produto_id:product?.id });
+          window.gtag?.('event', 'video_start', { video_title:product?.nome || 'Vídeo do produto' });
+        } catch {
+          slide.classList.remove('is-playing');
+        }
+      }));
     }
     function render(p, review) {
       const score = review.count ? review.average.toFixed(1).replace('.', ',') : '';
@@ -581,8 +610,12 @@
         ? 'Leve, autêntica e versátil: excelente pura, com gelo ou no seu drink preferido.'
         : 'Envelhecida para revelar aroma, suavidade e personalidade em cada gole.';
       const productPhotos = productPhotosFor(p);
-      const gallerySlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`).join('');
-      const galleryDots = productPhotos.length > 1 ? `<div class="product-gallery-dots" aria-hidden="true">${productPhotos.map((_, index) => `<span class="product-gallery-dot${index === 0 ? ' is-active' : ''}"></span>`).join('')}</div>` : '';
+      const productVideo = productVideoFor(p);
+      const photoSlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`);
+      if (productVideo) photoSlides.splice(1, 0, `<div class="product-gallery-slide product-gallery-video-slide"><video class="product-gallery-video" data-src="${productVideo}" poster="${productPhotos[0]}" preload="none" playsinline aria-label="Vídeo de ${displayName}"></video><button class="product-video-play" type="button" data-video-play aria-label="Assistir ao vídeo de ${displayName}"></button><span class="product-video-label">▶ Vídeo do produto</span></div>`);
+      const gallerySlides = photoSlides.join('');
+      const mediaCount = photoSlides.length;
+      const galleryDots = mediaCount > 1 ? `<div class="product-gallery-dots" aria-hidden="true">${photoSlides.map((_, index) => `<span class="product-gallery-dot${index === 0 ? ' is-active' : ''}"></span>`).join('')}</div>` : '';
       const stock = Math.max(0, Number(p.estoque || 0));
       const comingSoon = p.lancado === false;
       const soldOut = !comingSoon && stock <= 0;
@@ -606,7 +639,7 @@
       const ingredientCallout = gengibreGuacoMel ? `<aside class="real-ingredients" aria-label="Ingredientes de verdade"><span class="real-ingredients-kicker">Ingredientes de verdade</span><h2>Da raiz ao brinde.</h2><p>Feita com gengibre, guaco e mel de verdade — ingredientes que você reconhece em um sabor marcante e cheio de personalidade.</p><ul class="ingredient-list"><li>Gengibre</li><li>Guaco</li><li>Mel</li></ul></aside>` : '';
       app.innerHTML = `
         <div class="layout">
-          <section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${productPhotos.length > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section>
+          <section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos e vídeo de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${mediaCount > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${displayName}</nav>
             <span class="tag">${productType}</span>
