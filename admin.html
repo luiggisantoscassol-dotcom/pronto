@@ -6792,6 +6792,9 @@
 
                         // Formatação especial para as ações
                         let label = r.produto_nome;
+                        if (eventoAtual === 'brand_story_impression') {
+                            label = '👁️ Miniatura do story apareceu';
+                        }
                         if (eventoAtual === 'brand_story_open' || eventoAtual === 'brand_story_resume') {
                             if (trackerMap[chave].videoWatches['story-institucional']) return;
                             label = '▶️ Abriu o story institucional · tempo ainda não registrado';

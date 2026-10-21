@@ -113,7 +113,7 @@
     window.setTimeout(() => {
       revealAllowed = true;
       syncVisibility();
-      if (!pageBlocked()) track('brand_story_impression', 'Story institucional');
+      if (!pageBlocked()) track('brand_story_impression', 'Miniatura do story apareceu');
     }, 4000);
   }
 
