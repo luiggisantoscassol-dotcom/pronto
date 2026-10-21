@@ -536,7 +536,7 @@
         return `<article class="review-card" data-has-description="${hasComment ? 'true' : 'false'}"><div class="review-meta"><span>${name}${review.origem === 'google' ? '<small class="review-source">Google</small>' : ''}</span><time class="review-date">${date}</time></div><div class="review-stars" aria-label="${rating} de 5 estrelas">${stars}</div><p class="review-comment">“${comment}”</p></article>`;
       }).join('');
     }
-    function setupProductGallery() {
+    function setupProductGallery(product) {
       const track = document.querySelector('[data-product-gallery-track]');
       if (!track) return;
       const slides = [...track.querySelectorAll('.product-gallery-slide')];
@@ -705,7 +705,7 @@
       mobileQuantity.hidden = unavailable;
       mobileBuyButton.disabled = unavailable;
       mobileBuyButton.textContent = buyLabel;
-      setupProductGallery();
+      setupProductGallery(p);
       document.querySelectorAll('[data-quantity]').forEach(button => button.addEventListener('click', () => updateQuantity(Number(button.dataset.quantity))));
       document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', addToCart));
       document.querySelector('[data-offers-group]')?.addEventListener('click', () => {
