@@ -697,8 +697,13 @@ function iniciarCarrosselBanners() {
         const swiper = new Swiper(heroSlider, {
             loop: false,
             rewind: true,
-            speed: 1250,
-            effect: 'slide',
+            speed: 900,
+            effect: 'creative',
+            creativeEffect: {
+                limitProgress: 2,
+                prev: { translate: ['-100%', 0, 0], opacity: .55 },
+                next: { translate: ['100%', 0, 0], opacity: .55 }
+            },
             grabCursor: true,
             pagination: { el: heroSlider.querySelector('.hero-pagination'), clickable: true },
             navigation: { prevEl: heroAnterior, nextEl: heroProximo },

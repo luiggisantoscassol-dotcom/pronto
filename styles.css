@@ -962,22 +962,12 @@
 
             .swiper-hero .swiper-wrapper {
                 will-change: transform;
-                transition-timing-function: cubic-bezier(.19,1,.22,1) !important;
+                transition-timing-function: cubic-bezier(.22,.61,.36,1) !important;
             }
 
             .swiper-hero .swiper-slide {
-                opacity: .82;
-                transition: opacity 1.05s cubic-bezier(.19,1,.22,1);
+                transition-timing-function: cubic-bezier(.22,.61,.36,1) !important;
             }
-
-            .swiper-hero .swiper-slide-active { opacity: 1; }
-
-            .swiper-hero .hero-link {
-                transform: scale(.992);
-                transition: transform 1.05s cubic-bezier(.19,1,.22,1);
-            }
-
-            .swiper-hero .swiper-slide-active .hero-link { transform: scale(1); }
 
             .swiper-hero .hero-link-mobile img {
                 border-radius: 0;
