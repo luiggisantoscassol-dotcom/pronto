@@ -45,7 +45,15 @@
     .crumbs { margin:16px 0 18px; color:#647086; font-size:14px; }
     .crumbs a { color:inherit; text-decoration:none; }
     .layout { display:grid; grid-template-columns:minmax(360px, .98fr) minmax(380px, 1.02fr); gap:clamp(32px, 5.5vw, 76px); align-items:start; }
-    .gallery { position:sticky; top:94px; width:100%; aspect-ratio:1/1; border:1px solid #e8dfd1; border-radius:26px; overflow:hidden; background:radial-gradient(circle at 50% 42%,#fff 0%,#fbf7ef 74%,#f3ecdf 100%); box-shadow:0 24px 54px rgba(38,52,70,.09); }
+    .gallery-shell { position:sticky; top:94px; display:grid; grid-template-columns:76px minmax(0,1fr); gap:13px; width:100%; align-items:start; }
+    .gallery { position:relative; width:100%; aspect-ratio:1/1; border:1px solid #e8dfd1; border-radius:26px; overflow:hidden; background:radial-gradient(circle at 50% 42%,#fff 0%,#fbf7ef 74%,#f3ecdf 100%); box-shadow:0 24px 54px rgba(38,52,70,.09); }
+    .product-gallery-thumbs { display:flex; flex-direction:column; gap:10px; }
+    .product-gallery-thumb { position:relative; width:76px; aspect-ratio:1/1; padding:0; overflow:hidden; border:1px solid #ddd7ce; border-radius:14px; background:#fff; box-shadow:0 7px 18px rgba(26,43,63,.07); transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease; }
+    .product-gallery-thumb:hover { transform:translateY(-2px); border-color:#c9a258; box-shadow:0 10px 22px rgba(26,43,63,.12); }
+    .product-gallery-thumb.is-active { border:2px solid var(--gold); box-shadow:0 0 0 3px rgba(185,140,58,.14),0 9px 22px rgba(26,43,63,.12); }
+    .product-gallery-thumb img { display:block; width:100%; height:100%; object-fit:cover; }
+    .product-gallery-thumb.is-video::after { content:""; position:absolute; left:50%; top:50%; width:30px; height:30px; transform:translate(-50%,-50%); border:1.5px solid #fff; border-radius:50%; background:rgba(12,35,64,.84); box-shadow:0 4px 12px rgba(0,0,0,.25); }
+    .product-gallery-thumb.is-video::before { content:""; position:absolute; z-index:2; left:calc(50% + 2px); top:50%; width:0; height:0; transform:translate(-50%,-50%); border-top:5px solid transparent; border-bottom:5px solid transparent; border-left:8px solid #fff; }
     .product-gallery-track { display:flex; width:100%; height:100%; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; scroll-behavior:smooth; scrollbar-width:none; overscroll-behavior-inline:contain; cursor:grab; }
     .product-gallery-track::-webkit-scrollbar { display:none; }
     .product-gallery-track.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; user-select:none; }
@@ -71,6 +79,9 @@
     .gallery-swipe-hint { position:absolute; z-index:2; right:16px; top:16px; display:inline-flex; align-items:center; gap:6px; padding:8px 11px; border:1px solid rgba(21,54,95,.1); border-radius:999px; background:rgba(255,255,255,.86); color:#54647a; font-size:11px; font-weight:700; box-shadow:0 4px 15px rgba(20,38,60,.08); pointer-events:none; }
     .gallery.placeholder { background:#faf9f5; }
     .gallery.placeholder img { width:78%; height:78%; object-fit:contain; mix-blend-mode:multiply; }
+    @media (min-width:761px) {
+      .product-gallery-dots, .gallery-swipe-hint { display:none; }
+    }
     .tag { display:inline-block; margin:2px 0 11px; color:var(--gold); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     h1 { margin:0; max-width:640px; color:var(--navy-dark); font-size:clamp(32px, 4vw, 49px); line-height:1.04; letter-spacing:-.04em; text-wrap:balance; }
     .purchase-promise { margin:12px 0 0; max-width:580px; color:#536176; font-size:17px; line-height:1.5; text-wrap:pretty; }
@@ -173,6 +184,8 @@
       .brand { font-size:24px; }
       .product-page { padding:0 0 24px; }
       .layout { display:flex; flex-direction:column; gap:0; }
+      .gallery-shell { position:relative; top:auto; display:block; width:100%; }
+      .product-gallery-thumbs { display:none; }
       .gallery { order:0; width:100%; height:auto; min-height:0; aspect-ratio:1/1; border:0; border-radius:0; position:relative; top:auto; overflow:hidden; background:#fff; }
       .product-gallery-track { touch-action:auto; }
       .product-gallery-slide img { width:100%; height:100%; max-height:none; object-fit:contain; object-position:center; }
@@ -541,12 +554,21 @@
       if (!track) return;
       const slides = [...track.querySelectorAll('.product-gallery-slide')];
       const dots = [...document.querySelectorAll('.product-gallery-dot')];
+      const thumbs = [...document.querySelectorAll('[data-gallery-thumb]')];
       if (slides.length < 2) return;
       let scrollFrame = 0;
       const updateDots = () => {
         const index = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
         dots.forEach((dot, dotIndex) => dot.classList.toggle('is-active', dotIndex === index));
+        thumbs.forEach((thumb, thumbIndex) => {
+          const active = thumbIndex === index;
+          thumb.classList.toggle('is-active', active);
+          thumb.setAttribute('aria-current', active ? 'true' : 'false');
+        });
       };
+      thumbs.forEach((thumb, index) => thumb.addEventListener('click', () => {
+        track.scrollTo({ left:index * track.clientWidth, behavior:'smooth' });
+      }));
       track.addEventListener('scroll', () => {
         cancelAnimationFrame(scrollFrame);
         scrollFrame = requestAnimationFrame(updateDots);
@@ -680,9 +702,12 @@
       const productPhotos = productPhotosFor(p);
       const productVideo = productVideoFor(p);
       const photoSlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`);
+      const galleryThumbItems = productPhotos.map((photo, index) => ({ photo, label:`Ver foto ${index + 1} de ${displayName}`, video:false }));
       if (productVideo) photoSlides.splice(1, 0, `<div class="product-gallery-slide product-gallery-video-slide"><video class="product-gallery-video" data-src="${productVideo}" poster="${productPhotos[0]}" preload="none" aria-label="Vídeo de ${displayName}"></video><button class="product-video-play" type="button" data-video-play aria-label="Assistir ao vídeo de ${displayName}"></button><span class="product-video-label">▶ Vídeo do produto</span></div>`);
+      if (productVideo) galleryThumbItems.splice(1, 0, { photo:productPhotos[0], label:`Ver vídeo de ${displayName}`, video:true });
       const gallerySlides = photoSlides.join('');
       const mediaCount = photoSlides.length;
+      const galleryThumbs = mediaCount > 1 ? `<div class="product-gallery-thumbs" aria-label="Escolha uma foto ou vídeo">${galleryThumbItems.map((item, index) => `<button class="product-gallery-thumb${item.video ? ' is-video' : ''}${index === 0 ? ' is-active' : ''}" type="button" data-gallery-thumb aria-label="${item.label}" aria-current="${index === 0 ? 'true' : 'false'}"><img src="${item.photo}" alt="" loading="lazy" /></button>`).join('')}</div>` : '';
       const galleryDots = mediaCount > 1 ? `<div class="product-gallery-dots" aria-hidden="true">${photoSlides.map((_, index) => `<span class="product-gallery-dot${index === 0 ? ' is-active' : ''}"></span>`).join('')}</div>` : '';
       const stock = Math.max(0, Number(p.estoque || 0));
       const comingSoon = p.lancado === false;
@@ -707,7 +732,7 @@
       const ingredientCallout = gengibreGuacoMel ? `<aside class="real-ingredients" aria-label="Ingredientes de verdade"><span class="real-ingredients-kicker">Ingredientes de verdade</span><h2>Da raiz ao brinde.</h2><p>Feita com gengibre, guaco e mel de verdade — ingredientes que você reconhece em um sabor marcante e cheio de personalidade.</p><ul class="ingredient-list"><li>Gengibre</li><li>Guaco</li><li>Mel</li></ul></aside>` : '';
       app.innerHTML = `
         <div class="layout">
-          <section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos e vídeo de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${mediaCount > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section>
+          <div class="gallery-shell">${galleryThumbs}<section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos e vídeo de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${mediaCount > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section></div>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${displayName}</nav>
             <span class="tag">${productType}</span>
