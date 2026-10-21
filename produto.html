@@ -579,6 +579,7 @@
       track.addEventListener('pointercancel', finishDrag);
       track.querySelectorAll('[data-video-play]').forEach(button => {
         button.dataset.videoReady = 'true';
+        button.addEventListener('pointerdown', pointerEvent => pointerEvent.stopPropagation());
         button.onclick = async event => {
         event.stopPropagation();
         const slide = button.closest('.product-gallery-video-slide');
