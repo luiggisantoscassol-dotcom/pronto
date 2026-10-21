@@ -32,7 +32,7 @@
     @font-face { font-family: "Gin Tio Nan"; src: url("GinTest-Round.otf") format("opentype"); font-display: block; }
     :root { --navy:#15365f; --navy-dark:#0c2340; --gold:#b98c3a; --ink:#172238; --muted:#677085; --line:#e6e9ee; --cream:#fbfaf7; }
     * { box-sizing:border-box; }
-    body { margin:0; padding:0 0 96px; font-family: Arial, Helvetica, sans-serif; color:var(--ink); background:#fff; }
+    body { margin:0; padding:0 0 96px; font-family: Arial, Helvetica, sans-serif; color:var(--ink); background:linear-gradient(180deg,#fff 0%,#fff 68%,#fbf8f2 100%); }
     button { font:inherit; cursor:pointer; }
     .site-header { position:sticky; top:0; z-index:20; height:74px; display:grid; grid-template-columns:64px 1fr 64px; align-items:center; background:#fff; border-bottom:1px solid var(--line); }
     .head-action { width:44px; height:44px; margin:auto; border:0; background:transparent; color:var(--navy-dark); display:grid; place-items:center; }
@@ -43,45 +43,51 @@
     .product-page { width:min(1180px, 100%); margin:0 auto; padding:22px 18px 30px; }
     .crumbs { margin:16px 0 18px; color:#647086; font-size:14px; }
     .crumbs a { color:inherit; text-decoration:none; }
-    .layout { display:grid; grid-template-columns:minmax(360px, .95fr) minmax(380px, 1.05fr); gap:clamp(32px, 6vw, 88px); align-items:start; }
-    .gallery { position:sticky; top:94px; width:100%; aspect-ratio:1/1; border:1px solid #ece8df; border-radius:26px; overflow:hidden; background:#fff; }
+    .layout { display:grid; grid-template-columns:minmax(360px, .98fr) minmax(380px, 1.02fr); gap:clamp(32px, 5.5vw, 76px); align-items:start; }
+    .gallery { position:sticky; top:94px; width:100%; aspect-ratio:1/1; border:1px solid #e8dfd1; border-radius:26px; overflow:hidden; background:radial-gradient(circle at 50% 42%,#fff 0%,#fbf7ef 74%,#f3ecdf 100%); box-shadow:0 24px 54px rgba(38,52,70,.09); }
     .product-gallery-track { display:flex; width:100%; height:100%; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; scroll-behavior:smooth; scrollbar-width:none; overscroll-behavior-inline:contain; cursor:grab; }
     .product-gallery-track::-webkit-scrollbar { display:none; }
     .product-gallery-track.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; user-select:none; }
-    .product-gallery-slide { flex:0 0 100%; width:100%; height:100%; display:grid; place-items:center; scroll-snap-align:start; scroll-snap-stop:always; background:#fff; }
+    .product-gallery-slide { flex:0 0 100%; width:100%; height:100%; display:grid; place-items:center; scroll-snap-align:start; scroll-snap-stop:always; background:transparent; }
     .product-gallery-slide img { display:block; width:100%; height:100%; object-fit:contain; object-position:center; padding:0; }
     .product-gallery-dots { position:absolute; z-index:2; left:50%; bottom:14px; transform:translateX(-50%); display:flex; gap:7px; padding:7px 9px; border-radius:999px; background:rgba(255,255,255,.82); box-shadow:0 3px 12px rgba(0,0,0,.12); pointer-events:none; }
     .product-gallery-dot { width:7px; height:7px; border-radius:50%; background:#b9bec7; transition:background .2s ease, transform .2s ease; }
     .product-gallery-dot.is-active { background:var(--navy-dark); transform:scale(1.25); }
+    .gallery-swipe-hint { position:absolute; z-index:2; right:16px; top:16px; display:inline-flex; align-items:center; gap:6px; padding:8px 11px; border:1px solid rgba(21,54,95,.1); border-radius:999px; background:rgba(255,255,255,.86); color:#54647a; font-size:11px; font-weight:700; box-shadow:0 4px 15px rgba(20,38,60,.08); pointer-events:none; }
     .gallery.placeholder { background:#faf9f5; }
     .gallery.placeholder img { width:78%; height:78%; object-fit:contain; mix-blend-mode:multiply; }
     .tag { display:inline-block; margin:2px 0 11px; color:var(--gold); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
-    h1 { margin:0; color:var(--navy-dark); font-size:clamp(30px, 4vw, 47px); line-height:1.08; letter-spacing:-.035em; }
-    .rating { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:19px 0 22px; font-size:15px; }
+    h1 { margin:0; max-width:640px; color:var(--navy-dark); font-size:clamp(32px, 4vw, 49px); line-height:1.04; letter-spacing:-.04em; text-wrap:balance; }
+    .purchase-promise { margin:12px 0 0; max-width:580px; color:#536176; font-size:17px; line-height:1.5; text-wrap:pretty; }
+    .rating { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:15px 0 13px; font-size:14px; }
     .stars { color:#d19b23; font-size:23px; letter-spacing:1px; line-height:1; }
     .rating-note { color:var(--muted); }
     .stock-note { display:inline-flex; align-items:center; gap:6px; margin:-7px 0 18px; padding:7px 11px; border:1px solid #f1d8d8; border-radius:999px; background:#fff7f7; color:#b64242; font-size:12px; font-weight:800; letter-spacing:.02em; }
     .reviews-link { padding:0; border:0; background:transparent; color:var(--navy); font:inherit; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
-    .price-box { padding:22px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
-    .price-box.promotion { margin-top:16px; padding:20px; border:1px solid #dfc48e; border-radius:16px; background:linear-gradient(135deg,#fffaf0,#fff); box-shadow:0 10px 26px rgba(126,84,20,.08); }
+    .product-facts { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 17px; padding:0; list-style:none; }
+    .product-facts li { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border:1px solid #e3e7ed; border-radius:999px; background:#f8fafc; color:#4f6076; font-size:11px; font-weight:800; }
+    .product-facts li::before { content:"✓"; color:#a9792b; }
+    .purchase-panel { padding:19px; border:1px solid #e4d7c0; border-radius:19px; background:linear-gradient(145deg,#fffdf8 0%,#fff 68%); box-shadow:0 16px 34px rgba(42,55,72,.09); }
+    .price-box { padding:0 0 15px; border:0; }
+    .price-box.promotion { margin:0; padding:16px; border:1px solid #dfc48e; border-radius:14px; background:linear-gradient(135deg,#fff7e7,#fff); box-shadow:none; }
     .price-label { display:block; margin-bottom:4px; color:var(--muted); font-size:13px; }
     .price { color:#101b2e; font-size:36px; font-weight:800; letter-spacing:-.04em; }
     .price-box.promotion .price { display:block; margin-top:5px; color:#9a5f0b; font-size:40px; }
     .original-price { font-size:15px; text-decoration:line-through; }
     .promotion-badge { display:inline-flex; align-items:center; margin-bottom:7px; padding:7px 10px; border-radius:999px; background:#b7791f; color:#fff; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     .promotion-saving { margin:7px 0 0; color:#196b3a; font-size:14px; font-weight:800; }
-    .payment-note { margin:7px 0 0; color:#5d6677; font-size:14px; }
-    .first-purchase-benefit { margin:14px 0 0; padding:14px 16px; border:1px solid #d9bd82; border-radius:14px; background:linear-gradient(135deg,#fff8e8,#fff); color:var(--navy-dark); }
+    .payment-note { margin:7px 0 0; color:#5d6677; font-size:13px; }
+    .first-purchase-benefit { margin:0 0 14px; padding:13px 14px; border:1px solid #d9bd82; border-radius:14px; background:linear-gradient(135deg,#fff5dd,#fff); color:var(--navy-dark); }
     .first-purchase-benefit strong { display:block; color:#8a5b12; font-size:15px; }
     .first-purchase-benefit p { margin:5px 0 0; color:#5f6877; font-size:12px; line-height:1.45; }
     .first-purchase-benefit details { margin-top:8px; border:0; }
     .first-purchase-benefit summary { justify-content:flex-start; gap:6px; padding:0; color:#765018; font-size:12px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
     .first-purchase-benefit summary::after { content:""; }
     .first-purchase-rules { margin:8px 0 0; padding-left:17px; color:#656d79; font-size:12px; line-height:1.5; }
-    .offers-secondary { display:inline-flex; align-items:center; gap:7px; margin-top:11px; color:var(--navy); font-size:12px; font-weight:700; text-decoration:none; }
+    .offers-secondary { display:inline-flex; align-items:center; gap:7px; margin-top:13px; color:var(--navy); font-size:12px; font-weight:700; text-decoration:none; }
     .offers-secondary:hover { text-decoration:underline; text-underline-offset:3px; }
-    .conversion-assurances { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:14px 0 0; }
-    .conversion-assurance { display:flex; align-items:center; gap:8px; min-height:44px; padding:9px 11px; border:1px solid #e7e9ed; border-radius:11px; background:#fbfcfd; color:#4f5d70; font-size:12px; font-weight:700; line-height:1.25; }
+    .conversion-assurances { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:13px 0 0; }
+    .conversion-assurance { display:flex; align-items:center; gap:8px; min-height:44px; padding:9px 11px; border:1px solid #e7e9ed; border-radius:11px; background:#fff; color:#4f5d70; font-size:12px; font-weight:700; line-height:1.25; }
     .conversion-assurance span { color:#a8792b; font-size:16px; }
     .product-copy { margin:23px 0 10px; color:#4c5667; font-size:16px; line-height:1.65; }
     .real-ingredients { position:relative; overflow:hidden; margin:24px 0 18px; padding:23px 24px; border:1px solid #e8dcc7; border-radius:18px; background:linear-gradient(135deg,#fffaf1 0%,#f5ead6 100%); box-shadow:0 12px 30px rgba(110,76,26,.08); }
@@ -102,17 +108,19 @@
     .detail-list div { padding-top:8px; border-top:1px solid #f0f1f3; }
     .detail-list dt { color:#7b8491; font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
     .detail-list dd { margin:4px 0 0; color:var(--ink); font-weight:600; }
-    .buy-row { display:flex; gap:14px; align-items:center; margin-top:26px; }
+    .buy-row { display:flex; gap:12px; align-items:center; margin-top:0; }
     .quantity { height:52px; display:flex; align-items:center; border:1px solid #cdd3db; border-radius:12px; overflow:hidden; background:white; }
     .quantity button { width:44px; height:100%; border:0; background:white; color:var(--navy-dark); font-size:24px; }
     .quantity output { min-width:31px; text-align:center; font-weight:700; }
-    .buy-button { flex:1; min-height:54px; border:0; border-radius:12px; background:var(--navy); color:#fff; font-size:16px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; box-shadow:0 9px 20px rgba(21,54,95,.19); }
-    .buy-button:hover { background:var(--navy-dark); }
+    .buy-button { flex:1; min-height:56px; border:0; border-radius:12px; background:linear-gradient(135deg,#244e7d,#102d50); color:#fff; font-size:16px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; box-shadow:0 11px 22px rgba(21,54,95,.23); transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
+    .buy-button:hover { transform:translateY(-1px); box-shadow:0 14px 27px rgba(21,54,95,.28); }
     .buy-button:disabled { background:#ddd5c7; color:#746c60; box-shadow:none; cursor:not-allowed; }
     .buy-button:disabled:hover { background:#ddd5c7; }
     .stock-note.sold-out { color:#a52a2a; }
     .stock-note.coming-soon { border-color:#dac38c; background:#fffaf0; color:#15365f; }
-    .notice { min-height:20px; margin:13px 0 0; color:#277044; font-size:14px; font-weight:600; }
+    .purchase-helper { display:flex; align-items:center; justify-content:center; gap:6px; margin:10px 0 0; color:#6b7482; font-size:11px; line-height:1.35; text-align:center; }
+    .purchase-helper::before { content:"🔒"; font-size:12px; }
+    .notice { min-height:18px; margin:9px 0 0; color:#277044; font-size:13px; font-weight:700; text-align:center; }
     .shipping { margin-top:22px; padding:18px; border-radius:14px; background:var(--cream); border:1px solid #eee9df; }
     .shipping-label { display:block; margin-bottom:10px; color:var(--navy-dark); font-size:14px; font-weight:800; }
     .shipping-row { display:flex; gap:9px; }
@@ -128,13 +136,13 @@
     .shipping-option b { color:var(--navy-dark); font-size:14px; }
     .shipping-option small { margin-top:3px; color:var(--muted); font-size:12px; }
     .shipping-option strong { color:var(--navy-dark); font-size:14px; white-space:nowrap; }
-    .reviews-section { width:min(760px, 100%); margin:62px auto 0; padding-top:31px; border-top:1px solid var(--line); }
+    .reviews-section { width:min(820px, 100%); margin:68px auto 0; padding:34px; border:1px solid #e8dfd1; border-radius:24px; background:#fff; box-shadow:0 18px 45px rgba(25,45,68,.07); }
     .reviews-heading { margin:0 0 7px; color:var(--navy-dark); font-size:28px; letter-spacing:-.025em; }
     .reviews-summary { margin:0 0 23px; color:var(--muted); }
     .review-filters { display:flex; flex-wrap:wrap; gap:8px; margin:-8px 0 22px; }
     .review-filter { padding:8px 12px; border:1px solid #d7dde5; border-radius:999px; background:#fff; color:#566174; font-size:13px; font-weight:700; }
     .review-filter.is-active { border-color:var(--navy); background:var(--navy); color:#fff; }
-    .review-card { padding:20px 0; border-top:1px solid var(--line); }
+    .review-card { margin-top:10px; padding:18px; border:1px solid #e8ebef; border-radius:14px; background:#fbfcfd; }
     .review-meta { display:flex; align-items:baseline; justify-content:space-between; gap:14px; color:var(--navy-dark); font-size:14px; font-weight:800; }
     .review-date { color:#7c8593; font-size:12px; font-weight:500; white-space:nowrap; }
     .review-source { display:inline-flex; align-items:center; margin-left:7px; padding:3px 7px; border:1px solid #dfe5ec; border-radius:999px; color:#49637f; font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
@@ -153,27 +161,43 @@
       .gallery { order:0; width:100%; height:auto; min-height:0; aspect-ratio:1/1; border:0; border-radius:0; position:relative; top:auto; overflow:hidden; background:#fff; }
       .product-gallery-track { touch-action:auto; }
       .product-gallery-slide img { width:100%; height:100%; max-height:none; object-fit:contain; object-position:center; }
-      .product-info { width:100%; padding:17px 24px 0; }
+      .product-info { width:100%; padding:20px 20px 0; }
       .crumbs { display:none; }
       .tag { margin-bottom:9px; }
-      h1 { font-size:29px; }
+      h1 { font-size:clamp(29px,8.5vw,36px); }
+      .purchase-promise { margin-top:9px; font-size:15px; line-height:1.45; }
       .rating { margin:10px 0 13px; }
       .stars { font-size:21px; }
-      .price-box { padding:14px 0; }
+      .product-facts { margin-bottom:14px; }
+      .product-facts li { padding:6px 9px; font-size:10px; }
+      .purchase-panel { padding:15px; border-radius:17px; }
+      .price-box { padding:0 0 13px; }
       .price { font-size:31px; }
       .payment-note { margin-top:4px; font-size:12px; }
       .first-purchase-benefit { margin-top:11px; padding:12px 14px; }
       .conversion-assurances { margin-top:11px; }
       .conversion-assurance { min-height:40px; padding:8px 9px; font-size:11px; }
       .product-copy { font-size:15px; margin-top:20px; }
-      .buy-row { display:none; }
+      .buy-row { display:flex; gap:9px; }
+      .buy-row .quantity { height:54px; }
+      .buy-row .quantity button { width:40px; }
+      .buy-row .buy-button { min-height:54px; }
+      .purchase-helper { font-size:10px; }
       .shipping { margin-top:18px; padding:15px; }
-      .reviews-section { width:auto; margin:44px 24px 0; padding-top:25px; }
+      .reviews-section { width:auto; margin:44px 12px 0; padding:22px 16px; border-radius:20px; }
       .reviews-heading { font-size:25px; }
       .mobile-buy-bar { position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; gap:11px; align-items:center; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.96); border-top:1px solid var(--line); box-shadow:0 -8px 22px rgba(18,31,48,.08); }
       .mobile-buy-bar .quantity { height:51px; flex:0 0 auto; }
       .mobile-buy-bar .buy-button { min-height:51px; }
       .mobile-buy-bar .buy-button { font-size:13px; letter-spacing:.02em; }
+    }
+    @media (max-width:380px) {
+      .product-info { padding-inline:16px; }
+      .purchase-panel { padding:13px; }
+      .buy-row { align-items:stretch; }
+      .buy-row .quantity { height:52px; }
+      .buy-row .buy-button { min-width:0; font-size:13px; }
+      .conversion-assurances { grid-template-columns:1fr; }
     }
     @media (min-width:761px) { .mobile-buy-bar { display:none; } }
   </style>
@@ -549,6 +573,13 @@
       const category = gengibreGuacoMel ? 'Bebida mista' : (cachacaPrata ? 'Cachaça tradicional' : 'Cachaça premium');
       const productType = gengibreGuacoMel ? 'Bebida mista à base de Cachaça Prata Tio Nan' : 'Cachaça Tio Nan';
       const displayName = displayNameFor(p);
+      const purchasePromise = gengibreGuacoMel
+        ? 'Gengibre marcante, guaco e mel em uma bebida autêntica para servir gelada e compartilhar.'
+        : p.tipo_produto === 'kit'
+        ? 'Mais garrafas para compartilhar bons brindes — com a qualidade Tio Nan em cada unidade.'
+        : cachacaPrata
+        ? 'Leve, autêntica e versátil: excelente pura, com gelo ou no seu drink preferido.'
+        : 'Envelhecida para revelar aroma, suavidade e personalidade em cada gole.';
       const productPhotos = productPhotosFor(p);
       const gallerySlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`).join('');
       const galleryDots = productPhotos.length > 1 ? `<div class="product-gallery-dots" aria-hidden="true">${productPhotos.map((_, index) => `<span class="product-gallery-dot${index === 0 ? ' is-active' : ''}"></span>`).join('')}</div>` : '';
@@ -575,24 +606,29 @@
       const ingredientCallout = gengibreGuacoMel ? `<aside class="real-ingredients" aria-label="Ingredientes de verdade"><span class="real-ingredients-kicker">Ingredientes de verdade</span><h2>Da raiz ao brinde.</h2><p>Feita com gengibre, guaco e mel de verdade — ingredientes que você reconhece em um sabor marcante e cheio de personalidade.</p><ul class="ingredient-list"><li>Gengibre</li><li>Guaco</li><li>Mel</li></ul></aside>` : '';
       app.innerHTML = `
         <div class="layout">
-          <section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${galleryDots}</section>
+          <section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${productPhotos.length > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${displayName}</nav>
             <span class="tag">${productType}</span>
             <h1>${displayName}</h1>
+            <p class="purchase-promise">${purchasePromise}</p>
             <div class="rating" aria-label="Avaliação do produto"><span class="stars">${stars}</span>${review.count ? `<strong>${score} de 5</strong><button type="button" class="reviews-link" data-scroll-reviews>(${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'})</button>` : '<span class="rating-note">Ainda sem avaliações</span>'}</div>
+            <ul class="product-facts" aria-label="Principais informações"><li>${volume}</li><li>${alcohol}</li><li>Produzida no RS</li></ul>
             ${stockNotice}
-            <div class="price-box${hasDiscount ? ' promotion' : ''}">${hasDiscount?`<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>`:`<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong>`}<p class="payment-note">Compra segura e finalização no checkout.</p></div>
-            ${firstPurchaseEligible ? `<aside class="first-purchase-benefit"><strong>Na primeira compra: de ${money(currentPrice)} por ${money(firstPurchasePrice)}</strong><p>20% OFF verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>` : ''}
-            <a class="offers-secondary" href="https://chat.whatsapp.com/IhBigxDFWAm7f8ZFo7n4Az?s=cl&p=i&mlu=0&ilr=4" target="_blank" rel="noopener" data-offers-group>💬 Prefere acompanhar ofertas? Entre no grupo</a>
+            <div class="purchase-panel">
+              <div class="price-box${hasDiscount ? ' promotion' : ''}">${hasDiscount?`<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>`:`<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong>`}<p class="payment-note">Pix ou cartão no checkout seguro.</p></div>
+              ${firstPurchaseEligible ? `<aside class="first-purchase-benefit"><strong>Primeira compra: ${money(firstPurchasePrice)}</strong><p>Você economiza 20%. O desconto é verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>` : ''}
+              <div class="buy-row">${unavailable ? `<button class="buy-button" type="button" disabled>${buyLabel}</button>` : `<div class="quantity" aria-label="Quantidade"><button type="button" data-quantity="-1" aria-label="Diminuir quantidade">−</button><output data-quantity-output>1</output><button type="button" data-quantity="1" aria-label="Aumentar quantidade">+</button></div><button class="buy-button" type="button" data-buy>${buyLabel}</button>`}</div>
+              <p class="purchase-helper">Você revisa endereço, entrega e pagamento antes de concluir.</p>
+              <p class="notice" aria-live="polite"></p>
+            </div>
             <div class="conversion-assurances" aria-label="Segurança e entrega"><div class="conversion-assurance"><span>✓</span>Pagamento seguro</div><div class="conversion-assurance"><span>⌖</span>Entrega com rastreio</div><div class="conversion-assurance"><span>✦</span>Pix ou cartão</div><div class="conversion-assurance"><span>💬</span>Suporte no WhatsApp</div></div>
             <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
+            <a class="offers-secondary" href="https://chat.whatsapp.com/IhBigxDFWAm7f8ZFo7n4Az?s=cl&p=i&mlu=0&ilr=4" target="_blank" rel="noopener" data-offers-group>💬 Ainda não decidiu? Acompanhe as ofertas no WhatsApp</a>
             <p class="product-copy">${description}</p>
             ${ingredientCallout}
             <details open><summary>Detalhes do produto</summary><div class="detail-content"><dl class="detail-list"><div><dt>Volume</dt><dd>${volume}</dd></div><div><dt>Teor alcoólico</dt><dd>${alcohol}</dd></div><div><dt>Categoria</dt><dd>${category}</dd></div><div><dt>Origem</dt><dd>Rio Grande do Sul</dd></div></dl></div></details>
             <details><summary>Entrega e pagamento</summary><div class="detail-content">Informe seu CEP no checkout para visualizar as opções de entrega disponíveis para a sua região.</div></details>
-            <div class="buy-row">${unavailable ? `<button class="buy-button" type="button" disabled>${buyLabel}</button>` : `<div class="quantity" aria-label="Quantidade"><button type="button" data-quantity="-1" aria-label="Diminuir quantidade">−</button><output data-quantity-output>1</output><button type="button" data-quantity="1" aria-label="Aumentar quantidade">+</button></div><button class="buy-button" type="button" data-buy>${buyLabel}</button>`}</div>
-            <p class="notice" aria-live="polite"></p>
           </section>
         </div>
         <section class="reviews-section" id="avaliacoes" aria-labelledby="reviews-heading"><h2 class="reviews-heading" id="reviews-heading">Avaliações de quem já provou</h2><p class="reviews-summary">${reviewsSummary}</p>${review.count ? '<div class="review-filters" aria-label="Filtrar avaliações"><button class="review-filter is-active" type="button" data-review-filter="all">Todas</button><button class="review-filter" type="button" data-review-filter="with-description">Com descrição</button><button class="review-filter" type="button" data-review-filter="without-description">Sem descrição</button></div>' : ''}${reviewList(reviews)}</section>`;
