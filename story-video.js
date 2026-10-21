@@ -81,7 +81,10 @@
         track('brand_story_half', 'Story institucional');
       }
     });
-    end.querySelector('a').addEventListener('click', () => track('brand_story_cta', 'Ver nossos produtos'));
+    end.querySelector('a').addEventListener('click', () => {
+      track('brand_story_cta', 'Ver nossos produtos');
+      closeModal();
+    });
     new MutationObserver(syncVisibility).observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
     window.setTimeout(() => {
       revealAllowed = true;
