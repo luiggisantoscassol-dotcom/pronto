@@ -1,11 +1,11 @@
-.brand-story-launcher{position:fixed;z-index:38;left:18px;bottom:20px;display:none;width:126px;padding:0;border:2px solid #c89b45;border-radius:18px;background:#0c2340;box-shadow:0 14px 36px rgba(8,25,45,.3);overflow:visible;color:#fff;cursor:pointer;animation:brandStoryIn .45s cubic-bezier(.2,.75,.25,1)}
+.brand-story-launcher{position:fixed;z-index:38;left:18px;bottom:20px;display:none;width:142px;padding:0;border:3px solid #d5aa55;border-radius:20px;background:#0c2340;box-shadow:0 14px 36px rgba(8,25,45,.36);overflow:visible;color:#fff;cursor:pointer;animation:brandStoryIn .45s cubic-bezier(.2,.75,.25,1)}
 .brand-story-launcher.is-visible{display:block}
 .brand-story-launcher__cover{position:relative;display:block;width:100%;aspect-ratio:9/13;border-radius:15px;overflow:hidden;background:#0c2340}
 .brand-story-launcher__cover img{display:block;width:100%;height:100%;object-fit:cover}
-.brand-story-launcher__cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 42%,rgba(5,18,34,.9) 100%)}
+.brand-story-launcher__cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,rgba(5,18,34,.98) 100%)}
 .brand-story-launcher__play{position:absolute;z-index:2;left:50%;top:43%;display:grid;width:46px;height:46px;place-items:center;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.82);border-radius:50%;background:rgba(185,140,58,.92);box-shadow:0 7px 18px rgba(0,0,0,.28)}
 .brand-story-launcher__play::before{content:"";width:0;height:0;margin-left:4px;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:13px solid #fff}
-.brand-story-launcher__title{position:absolute;z-index:2;left:8px;right:8px;bottom:9px;color:#fff;font:800 11px/1.18 Arial,sans-serif;text-align:left;text-shadow:0 1px 4px rgba(0,0,0,.45)}
+.brand-story-launcher__title{position:absolute;z-index:2;left:7px;right:7px;bottom:7px;display:block;padding:8px 6px;border:1px solid rgba(213,170,85,.55);border-radius:10px;background:rgba(7,24,43,.94);color:#fff;font:900 14px/1.2 Arial,sans-serif;letter-spacing:.01em;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.55)}
 .brand-story-launcher__close{position:absolute;z-index:4;right:-9px;top:-9px;display:grid;width:28px;height:28px;padding:0;place-items:center;border:2px solid #fff;border-radius:50%;background:#0c2340;color:#fff;font:700 18px/1 Arial,sans-serif;box-shadow:0 5px 14px rgba(0,0,0,.24);cursor:pointer}
 .brand-story-modal[hidden]{display:none!important}
 .brand-story-modal{position:fixed;z-index:10000;inset:0;display:grid;padding:18px;place-items:center;background:rgba(3,12,24,.82);backdrop-filter:blur(8px)}
@@ -19,5 +19,5 @@
 .brand-story-end a{display:inline-flex;min-height:52px;padding:0 25px;align-items:center;justify-content:center;border-radius:999px;background:linear-gradient(135deg,#d5aa55,#ad7c27);color:#081a30;font:900 13px/1 Arial,sans-serif;letter-spacing:.06em;text-decoration:none;text-transform:uppercase;box-shadow:0 10px 24px rgba(0,0,0,.25)}
 body.brand-story-open{overflow:hidden!important}
 @keyframes brandStoryIn{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
-@media(max-width:760px){.brand-story-launcher{left:12px;bottom:14px;width:105px;border-radius:16px}.brand-story-launcher__cover{border-radius:13px}.brand-story-launcher__title{font-size:10px}.brand-story-modal{padding:0;background:#020a14}.brand-story-card{width:100vw;height:100dvh;max-width:none;max-height:none;aspect-ratio:auto;border:0;border-radius:0}.brand-story-video{object-fit:contain}body.story-has-buybar .brand-story-launcher{bottom:91px}}
+@media(max-width:760px){.brand-story-launcher{left:12px;bottom:14px;width:134px;border-radius:18px}.brand-story-launcher__cover{border-radius:14px}.brand-story-launcher__play{width:52px;height:52px}.brand-story-launcher__title{font-size:15px;line-height:1.18}.brand-story-launcher__close{width:32px;height:32px;font-size:20px}.brand-story-modal{padding:0;background:#020a14}.brand-story-card{width:100vw;height:100dvh;max-width:none;max-height:none;aspect-ratio:auto;border:0;border-radius:0}.brand-story-video{object-fit:contain}body.story-has-buybar .brand-story-launcher{bottom:91px}}
 @media(prefers-reduced-motion:reduce){.brand-story-launcher{animation:none}}
