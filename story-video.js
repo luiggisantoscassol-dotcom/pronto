@@ -5,8 +5,8 @@
   const cartOpen = () => document.getElementById('cart-overlay')?.classList.contains('active');
   const productModalOpen = () => document.getElementById('modal-produto-overlay')?.classList.contains('active');
   const pageBlocked = () => cartOpen() || productModalOpen() || ['age-modal-open','newsletter-open','first-order-open'].some(name => document.body.classList.contains(name));
-  const track = (event, label) => {
-    window.TioNanAnalytics?.track(event, { label });
+  const track = (event, label, metadata = {}) => {
+    window.TioNanAnalytics?.track(event, { label, metadata });
     window.gtag?.('event', event, { story_title:label });
   };
 
@@ -34,8 +34,24 @@
     const launcherClose = launcher.querySelector('.brand-story-launcher__close');
     let openedOnce = false;
     let revealAllowed = false;
+    let lastReportedSeconds = 0;
+
+    const reportWatchTime = (force = false, completed = false) => {
+      const seconds = Math.max(0, Math.floor(Number(video.currentTime) || 0));
+      if (!seconds || (!force && seconds < lastReportedSeconds + 5)) return;
+      if (seconds <= lastReportedSeconds && !completed) return;
+      lastReportedSeconds = Math.max(lastReportedSeconds, seconds);
+      const duration = Math.max(0, Math.round(Number(video.duration) || 0));
+      track('brand_story_watch', 'Assistiu ao story institucional', {
+        segundos: seconds,
+        duracao_total: duration,
+        percentual: duration ? Math.min(100, Math.round((seconds / duration) * 100)) : null,
+        completo: completed
+      });
+    };
 
     const closeModal = () => {
+      reportWatchTime(true);
       video.pause();
       modal.hidden = true;
       document.body.classList.remove('brand-story-open');
@@ -74,13 +90,16 @@
     modalClose.addEventListener('click', closeModal);
     modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.hidden) closeModal(); });
-    video.addEventListener('ended', () => { end.classList.add('is-visible'); track('brand_story_complete', 'Story institucional'); });
+    video.addEventListener('pause', () => reportWatchTime(true));
+    video.addEventListener('ended', () => { reportWatchTime(true, true); end.classList.add('is-visible'); track('brand_story_complete', 'Story institucional'); });
     video.addEventListener('timeupdate', () => {
+      reportWatchTime();
       if (video.duration && video.currentTime / video.duration >= .5 && !video.dataset.halfTracked) {
         video.dataset.halfTracked = '1';
         track('brand_story_half', 'Story institucional');
       }
     });
+    window.addEventListener('pagehide', () => { if (!modal.hidden) reportWatchTime(true); });
     end.querySelector('a').addEventListener('click', () => {
       track('brand_story_cta', 'Ver nossos produtos');
       closeModal();

@@ -6720,7 +6720,8 @@
                                 telefone: null,
                                 ip: r.ip,
                                 local: r.local || null,
-                                origem: r.origem || null
+                                origem: r.origem || null,
+                                videoWatches: {}
                             };
                         }
 
@@ -6759,6 +6760,30 @@
 
                         trackerMap[chave].cont++;
 
+                        const eventoAtual = eventoRastreio(r);
+                        if (eventoAtual === 'brand_story_watch' || eventoAtual === 'product_video_watch') {
+                            let metadataVideo = r.metadata && typeof r.metadata === 'object' ? r.metadata : {};
+                            if (typeof r.metadata === 'string') {
+                                try { metadataVideo = JSON.parse(r.metadata); } catch (_) { metadataVideo = {}; }
+                            }
+                            const segundos = Math.max(0, Number(metadataVideo.segundos) || 0);
+                            const percentual = Math.max(0, Math.min(100, Number(metadataVideo.percentual) || 0));
+                            const nomeProdutoVideo = String(r.produto_nome || 'Produto').replace(/^Assistiu ao vídeo do produto:\s*/i, '').trim();
+                            const videoKey = eventoAtual === 'brand_story_watch' ? 'story-institucional' : `produto-${r.produto_id || nomeProdutoVideo}`;
+                            const anterior = trackerMap[chave].videoWatches[videoKey];
+                            if (!anterior || segundos >= anterior.segundos) {
+                                trackerMap[chave].videoWatches[videoKey] = {
+                                    tipo:eventoAtual,
+                                    segundos,
+                                    percentual,
+                                    completo:Boolean(metadataVideo.completo),
+                                    produto:nomeProdutoVideo,
+                                    data:r.created_at
+                                };
+                            }
+                            return;
+                        }
+
                         const clienteSalvo = String(r.produto_nome || '').match(/\(cliente salvo: ([^•)]+) • ([^)]+)\)/);
                         if (clienteSalvo) {
                             trackerMap[chave].nome = clienteSalvo[1].trim();
@@ -6792,7 +6817,15 @@
                 Object.keys(trackerMap).forEach((id, index) => {
                     const d = trackerMap[id];
                     const safeId = id.replace(/'/g, "\\'");
-                    const listaItens = d.items.map(i => `<li>• ${i}</li>`).join('');
+                    const itensVideo = Object.values(d.videoWatches || {}).map(video => {
+                        const tempo = `${Math.round(video.segundos)} segundo${Math.round(video.segundos) === 1 ? '' : 's'}`;
+                        const progresso = video.completo ? ' · completo' : video.percentual ? ` · ${Math.round(video.percentual)}%` : '';
+                        const texto = video.tipo === 'brand_story_watch'
+                            ? `▶️ Viu o story institucional por <strong>${tempo}</strong>${progresso}`
+                            : `▶️ Viu <strong>${tempo}</strong> do vídeo do produto: ${escapeAdmin(video.produto)}${progresso}`;
+                        return `${texto} <small style="opacity:0.5; font-size:0.65rem;">(${formatarDataHora(video.data)})</small>`;
+                    });
+                    const listaItens = [...itensVideo, ...d.items].map(i => `<li>• ${i}</li>`).join('');
 
                     // Extrair dados da Presença Online (Real-time) ou usar o do Banco (Histórico)
                     let isOnline = false;

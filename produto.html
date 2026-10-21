@@ -598,16 +598,41 @@
         const fullscreenVideo = modal.querySelector('video');
         const closeButton = modal.querySelector('button');
         const onVideoKeydown = keyEvent => { if (keyEvent.key === 'Escape') closeVideo(); };
+        let lastReportedSeconds = 0;
+        const reportProductWatchTime = (force = false, completed = false) => {
+          const seconds = Math.max(0, Math.floor(Number(fullscreenVideo.currentTime) || 0));
+          if (!seconds || (!force && seconds < lastReportedSeconds + 5)) return;
+          if (seconds <= lastReportedSeconds && !completed) return;
+          lastReportedSeconds = Math.max(lastReportedSeconds, seconds);
+          const duration = Math.max(0, Math.round(Number(fullscreenVideo.duration) || 0));
+          window.TioNanAnalytics?.track('product_video_watch', {
+            label:`Assistiu ao vídeo do produto: ${product?.nome || 'Produto'}`,
+            produto_id:product?.id,
+            metadata:{
+              segundos:seconds,
+              duracao_total:duration,
+              percentual:duration ? Math.min(100, Math.round((seconds / duration) * 100)) : null,
+              completo:completed
+            }
+          });
+        };
+        const onVideoPageHide = () => reportProductWatchTime(true);
         const closeVideo = () => {
+          reportProductWatchTime(true);
           fullscreenVideo.pause();
           modal.remove();
           document.body.classList.remove('product-video-open');
           document.removeEventListener('keydown', onVideoKeydown);
+          window.removeEventListener('pagehide', onVideoPageHide);
           button.focus({ preventScroll:true });
         };
         closeButton.addEventListener('click', closeVideo);
         modal.addEventListener('click', closeEvent => { if (closeEvent.target === modal) closeVideo(); });
         document.addEventListener('keydown', onVideoKeydown);
+        window.addEventListener('pagehide', onVideoPageHide);
+        fullscreenVideo.addEventListener('timeupdate', () => reportProductWatchTime());
+        fullscreenVideo.addEventListener('pause', () => reportProductWatchTime(true));
+        fullscreenVideo.addEventListener('ended', () => reportProductWatchTime(true, true));
         try {
           const playback = fullscreenVideo.play();
           if (typeof fullscreenVideo.requestFullscreen === 'function') {
@@ -616,7 +641,7 @@
             try { fullscreenVideo.webkitEnterFullscreen(); } catch {}
           }
           await playback;
-          window.TioNanAnalytics?.track('product_video_play', { label:product?.nome || 'Vídeo do produto', produto_id:product?.id });
+          window.TioNanAnalytics?.track('product_video_play', { label:`Abriu o vídeo do produto: ${product?.nome || 'Produto'}`, produto_id:product?.id });
           window.gtag?.('event', 'video_start', { video_title:product?.nome || 'Vídeo do produto' });
         } catch {
           fullscreenVideo.controls = true;
@@ -797,6 +822,6 @@
     }
     init();
   </script>
-  <script src="story-video.js?v=2"></script>
+  <script src="story-video.js?v=3"></script>
 </body>
 </html>
