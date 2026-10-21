@@ -52,6 +52,7 @@
     .product-gallery-slide img { display:block; width:100%; height:100%; object-fit:contain; object-position:center; padding:0; }
     .product-gallery-video-slide { position:relative; background:#08192d; }
     .product-gallery-video { display:block; width:100%; height:100%; object-fit:contain; background:#08192d; }
+    .product-gallery-video-slide:not(.is-playing) .product-gallery-video { object-fit:cover; aspect-ratio:1/1; }
     .product-video-play { position:absolute; z-index:3; left:50%; top:50%; display:grid; width:82px; height:82px; padding:0; place-items:center; transform:translate(-50%,-50%); border:2px solid rgba(255,255,255,.84); border-radius:50%; background:linear-gradient(145deg,#d3a64c,#9c7022); color:#fff; box-shadow:0 13px 32px rgba(0,0,0,.34); transition:transform .18s ease,box-shadow .18s ease; }
     .product-video-play::before { content:""; width:0; height:0; margin-left:6px; border-top:13px solid transparent; border-bottom:13px solid transparent; border-left:21px solid currentColor; }
     .product-video-play:hover { transform:translate(-50%,-50%) scale(1.04); box-shadow:0 16px 38px rgba(0,0,0,.4); }
@@ -323,7 +324,7 @@
       return [...new Set(registered)];
     }
     function productVideoFor(p) {
-      return String(p.bling_id || '') === '16687078597' ? 'fotos/tio-nan-prata-video.mp4?v=1' : '';
+      return String(p.bling_id || '') === '16687078597' ? 'fotos/tio-nan-prata-video.mp4?v=2' : '';
     }
     function absoluteUrl(value) {
       try { return new URL(String(value || ''), 'https://www.tionan.com.br/').href; }
@@ -576,9 +577,16 @@
         if (!video) return;
         if (!video.src) video.src = video.dataset.src || '';
         video.controls = true;
+        video.load();
         slide.classList.add('is-playing');
         try {
-          await video.play();
+          const playback = video.play();
+          if (typeof video.requestFullscreen === 'function') {
+            video.requestFullscreen().catch(() => {});
+          } else if (typeof video.webkitEnterFullscreen === 'function') {
+            try { video.webkitEnterFullscreen(); } catch {}
+          }
+          await playback;
           window.TioNanAnalytics?.track('product_video_play', { label:product?.nome || 'Vídeo do produto', produto_id:product?.id });
           window.gtag?.('event', 'video_start', { video_title:product?.nome || 'Vídeo do produto' });
         } catch {
@@ -612,7 +620,7 @@
       const productPhotos = productPhotosFor(p);
       const productVideo = productVideoFor(p);
       const photoSlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`);
-      if (productVideo) photoSlides.splice(1, 0, `<div class="product-gallery-slide product-gallery-video-slide"><video class="product-gallery-video" data-src="${productVideo}" poster="${productPhotos[0]}" preload="none" playsinline aria-label="Vídeo de ${displayName}"></video><button class="product-video-play" type="button" data-video-play aria-label="Assistir ao vídeo de ${displayName}"></button><span class="product-video-label">▶ Vídeo do produto</span></div>`);
+      if (productVideo) photoSlides.splice(1, 0, `<div class="product-gallery-slide product-gallery-video-slide"><video class="product-gallery-video" data-src="${productVideo}" poster="${productPhotos[0]}" preload="none" aria-label="Vídeo de ${displayName}"></video><button class="product-video-play" type="button" data-video-play aria-label="Assistir ao vídeo de ${displayName}"></button><span class="product-video-label">▶ Vídeo do produto</span></div>`);
       const gallerySlides = photoSlides.join('');
       const mediaCount = photoSlides.length;
       const galleryDots = mediaCount > 1 ? `<div class="product-gallery-dots" aria-hidden="true">${photoSlides.map((_, index) => `<span class="product-gallery-dot${index === 0 ? ' is-active' : ''}"></span>`).join('')}</div>` : '';
