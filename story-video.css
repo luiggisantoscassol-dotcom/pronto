@@ -15,7 +15,7 @@
 .brand-story-launcher__action b{display:grid;width:22px;height:22px;place-items:center;border-radius:50%;background:#d5aa55;color:#0c2340;font:900 14px/1 Arial,sans-serif;transition:transform .2s ease}
 .brand-story-launcher:hover .brand-story-launcher__action b{transform:translateX(3px)}
 .brand-story-launcher__close{position:absolute;z-index:4;right:-9px;top:-9px;display:grid;width:28px;height:28px;padding:0;place-items:center;border:2px solid #fff;border-radius:50%;background:#0c2340;color:#fff;font:700 18px/1 Arial,sans-serif;box-shadow:0 5px 14px rgba(0,0,0,.24);cursor:pointer}
-.brand-story-launcher.is-minimized{left:-2px;width:146px;height:52px;align-items:stretch;border-radius:0 17px 17px 0;overflow:hidden;box-shadow:0 12px 30px rgba(8,25,45,.38);animation:brandStoryMinimize .32s ease}
+.brand-story-launcher.is-minimized{left:-2px;width:174px;height:52px;align-items:stretch;border-radius:0 17px 17px 0;overflow:hidden;box-shadow:0 12px 30px rgba(8,25,45,.38);animation:brandStoryMinimize .32s ease}
 .brand-story-launcher.is-minimized.is-visible{display:flex}
 .brand-story-launcher.is-minimized:hover{transform:translateX(3px);box-shadow:0 14px 34px rgba(8,25,45,.44)}
 .brand-story-launcher.is-minimized .brand-story-launcher__cover{flex:0 0 50px;width:50px;height:100%;aspect-ratio:auto;border-radius:0;background:#102f52}
