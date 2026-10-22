@@ -4,6 +4,7 @@ const API_BASE="https://api.bling.com.br/Api/v3";
 const NATURES:Record<string,{env:string,nome:string}>={
   remessa:{env:"BLING_NATURE_CONSIGNACAO_REMESSA_ID",nome:"Remessa em consignação"},
   venda:{env:"BLING_NATURE_CONSIGNACAO_VENDA_ID",nome:"Venda de mercadoria consignada"},
+  venda_consumidor:{env:"BLING_NATURE_CONSUMIDOR_FINAL_ID",nome:"Venda a consumidor final"},
   devolucao:{env:"BLING_NATURE_CONSIGNACAO_DEVOLUCAO_ID",nome:"Retorno/devolução de consignação"}
 };
 const allowed=(origin:string|null)=>{if(!origin)return true;try{const u=new URL(origin);return u.protocol==="https:"&&(u.hostname==="tionan.com.br"||u.hostname==="www.tionan.com.br"||u.hostname.endsWith(".vercel.app"))||u.protocol==="http:"&&(u.hostname==="localhost"||u.hostname==="127.0.0.1"||u.hostname==="192.168.1.36")}catch{return false}};
@@ -26,7 +27,7 @@ Deno.serve(async req=>{
   const nature=NATURES[mov.tipo];if(!nature)return json(origin,{error:"Natureza de consignação inválida."},400);
   const natureId=Deno.env.get(nature.env)||"",environment=String(Deno.env.get("BLING_NFE_ENVIRONMENT")||"").toLowerCase();
   const company=mov.consignacao_empresas,items=mov.consignacao_itens||[];
-  const summary=()=>({tipo:mov.tipo,empresa:company?.nome_fantasia||company?.nome,data:mov.data_movimento,itens:items.map((i:any)=>({nome:i.produto_nome,quantidade:i.quantidade,valor:i.valor_unitario})),nota:mov.bling_nfe_id?{id:mov.bling_nfe_id,numero:mov.bling_nfe_numero,situacao:mov.bling_nfe_status,chave_acesso:mov.bling_nfe_chave_acesso,tem_danfe:authorized(mov.bling_nfe_status)&&Boolean(mov.bling_nfe_chave_acesso),tem_xml:authorized(mov.bling_nfe_status)&&Boolean(mov.bling_nfe_chave_acesso)}:null});
+  const summary=()=>({tipo:mov.tipo,empresa:mov.tipo==="venda_consumidor"?mov.consumidor_nome:company?.nome_fantasia||company?.nome,mercado:company?.nome_fantasia||company?.nome,data:mov.data_movimento,itens:items.map((i:any)=>({nome:i.produto_nome,quantidade:i.quantidade,valor:i.valor_unitario})),nota:mov.bling_nfe_id?{id:mov.bling_nfe_id,numero:mov.bling_nfe_numero,situacao:mov.bling_nfe_status,chave_acesso:mov.bling_nfe_chave_acesso,tem_danfe:authorized(mov.bling_nfe_status)&&Boolean(mov.bling_nfe_chave_acesso),tem_xml:authorized(mov.bling_nfe_status)&&Boolean(mov.bling_nfe_chave_acesso)}:null});
   if(action==="revisar")return json(origin,{ok:true,movimento:summary(),natureza_nome:nature.nome,natureza_configurada:/^\d+$/.test(natureId),ambiente_fiscal:environment||"nao_configurado"});
   if(!/^\d+$/.test(natureId))return json(origin,{error:`A natureza “${nature.nome}” não está configurada no servidor.`},409);
   const {data:conn}=await db.from("bling_integracao").select("access_token,refresh_token,expires_at").eq("id","principal").single();if(!conn?.access_token)return json(origin,{error:"Bling ainda não está conectado."},409);
@@ -38,10 +39,29 @@ Deno.serve(async req=>{
     let noteId=String(mov.bling_nfe_id||"");
     if(action==="emitir"){
       if(!["homologacao","producao"].includes(environment)||String(input.confirmar_ambiente)!==environment)return json(origin,{error:"Confirme o ambiente fiscal configurado antes de emitir."},409);
-      const contatoId=String(input.contato_id||company?.bling_contato_id||"");
-      if(!/^\d+$/.test(contatoId))return json(origin,{error:"Não foi possível vincular esta empresa ao contato do Bling."},409);
-      if(contatoId!==String(company?.bling_contato_id||""))await db.from("consignacao_empresas").update({bling_contato_id:contatoId,atualizado_em:new Date().toISOString()}).eq("id",company.id);
-      if(!noteId){let saleId=String(mov.bling_pedido_id||"");if(!saleId){const total=items.reduce((s:number,i:any)=>s+Number(i.quantidade)*Number(i.valor_unitario),0);const payload={data:mov.data_movimento,numeroLoja:`CONS-${id.slice(0,8).toUpperCase()}`,contato:{id:Number(contatoId)},observacoes:`${nature.nome} — controle Tio Nan ${id}`,itens:items.map((i:any)=>({produto:{id:Number(i.produto_bling_id)},naturezaOperacao:{id:Number(natureId)},descricao:i.produto_nome,unidade:"UN",quantidade:Number(i.quantidade),valor:Number(i.valor_unitario)})),parcelas:mov.tipo==="venda"?[{dataVencimento:mov.data_movimento,valor:total}]:[]};const created=await bling("/pedidos/vendas",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});saleId=String(created?.data?.id||created?.id||"");if(!saleId)throw new Error("O Bling não retornou o pedido fiscal.");await db.from("consignacao_movimentos").update({bling_pedido_id:saleId}).eq("id",id)}
+      let contatoId=String(input.contato_id||company?.bling_contato_id||"");
+      if(mov.tipo==="venda_consumidor"){
+        contatoId=String(mov.consumidor_bling_contato_id||"");
+        const documento=String(mov.consumidor_documento||"").replace(/\D/g,"");
+        if(documento.length!==11)return json(origin,{error:"O CPF do consumidor final está inválido."},409);
+        if(!/^\d+$/.test(contatoId)){
+          const pesquisa=await bling(`/contatos?pagina=1&limite=100&pesquisa=${encodeURIComponent(documento)}`);
+          const achado=(pesquisa?.data||[]).find((c:any)=>String(c.numeroDocumento||"").replace(/\D/g,"")===documento);
+          if(achado?.id)contatoId=String(achado.id);
+        }
+        if(!/^\d+$/.test(contatoId)){
+          const e=mov.consumidor_endereco||{};
+          const payload={nome:mov.consumidor_nome,tipo:"F",situacao:"A",numeroDocumento:documento,indicadorIe:9,email:mov.consumidor_email||undefined,celular:mov.consumidor_telefone||undefined,endereco:{geral:{endereco:e.endereco||e.rua||"",numero:e.numero||"S/N",complemento:e.complemento||"",bairro:e.bairro||"",cep:String(e.cep||"").replace(/\D/g,""),municipio:e.cidade||"",uf:String(e.uf||"").toUpperCase()}}};
+          const criado=await bling("/contatos",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+          contatoId=String(criado?.data?.id||criado?.id||"");
+        }
+        if(!/^\d+$/.test(contatoId))return json(origin,{error:"O Bling não retornou o contato do consumidor final."},409);
+        await db.from("consignacao_movimentos").update({consumidor_bling_contato_id:contatoId}).eq("id",id);
+      }else{
+        if(!/^\d+$/.test(contatoId))return json(origin,{error:"Não foi possível vincular esta empresa ao contato do Bling."},409);
+        if(contatoId!==String(company?.bling_contato_id||""))await db.from("consignacao_empresas").update({bling_contato_id:contatoId,atualizado_em:new Date().toISOString()}).eq("id",company.id);
+      }
+      if(!noteId){let saleId=String(mov.bling_pedido_id||"");if(!saleId){const total=items.reduce((s:number,i:any)=>s+Number(i.quantidade)*Number(i.valor_unitario),0);const payload={data:mov.data_movimento,numeroLoja:`CONS-${id.slice(0,8).toUpperCase()}`,contato:{id:Number(contatoId)},observacoes:`${nature.nome} — controle Tio Nan ${id}${mov.tipo==="venda_consumidor"?` — venda vinculada ao mercado ${company?.nome_fantasia||company?.nome}`:""}`,itens:items.map((i:any)=>({produto:{id:Number(i.produto_bling_id)},naturezaOperacao:{id:Number(natureId)},descricao:i.produto_nome,unidade:"UN",quantidade:Number(i.quantidade),valor:Number(i.valor_unitario)})),parcelas:["venda","venda_consumidor"].includes(mov.tipo)?[{dataVencimento:mov.data_movimento,valor:total}]:[]};const created=await bling("/pedidos/vendas",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});saleId=String(created?.data?.id||created?.id||"");if(!saleId)throw new Error("O Bling não retornou o pedido fiscal.");await db.from("consignacao_movimentos").update({bling_pedido_id:saleId}).eq("id",id)}
         const generated=await bling(`/pedidos/vendas/${encodeURIComponent(saleId)}/gerar-nfe`,{method:"POST"});noteId=String(generated?.data?.idNotaFiscal||generated?.idNotaFiscal||generated?.data?.id||generated?.id||"");if(!noteId)throw new Error("O Bling gerou a nota, mas não retornou o identificador.");await db.from("consignacao_movimentos").update({bling_nfe_id:noteId,bling_nfe_status:"gerada"}).eq("id",id)}
       await bling(`/nfe/${encodeURIComponent(noteId)}/enviar`,{method:"POST"});const nr=await bling(`/nfe/${encodeURIComponent(noteId)}`);return json(origin,{ok:true,nota:await persist(nr)});
     }
