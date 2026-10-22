@@ -1221,9 +1221,45 @@ function salvarClienteRecenteCheckout(cpf, email, nome, telefone, endereco = {})
 
 let ultimoCepConsultado = '';
 let recotacaoFreteTimer = null;
+const rastreioCepCarrinho = {
+    iniciou: false,
+    consultandoDesde: 0,
+    consultado: false,
+    selecionou: false,
+    abandonoRegistrado: false,
+    ultimaTentativa: '',
+    ultimaCotacao: null,
+    opcaoSelecionada: null
+};
+
+function rastrearEtapaCep(evento, label, metadata = {}) {
+    window.TioNanAnalytics?.track(evento, {
+        label,
+        metadata: { etapa: 'carrinho', ...metadata }
+    });
+    window.gtag?.('event', evento, { etapa: 'carrinho', ...metadata });
+}
+
+function rastrearAbandonoCepCarrinho(motivo = 'fechou_carrinho') {
+    if (!rastreioCepCarrinho.iniciou || rastreioCepCarrinho.abandonoRegistrado) return;
+    rastreioCepCarrinho.abandonoRegistrado = true;
+    rastrearEtapaCep('shipping_price_abandon', rastreioCepCarrinho.consultado
+        ? `🚪 Saiu após ver o frete${rastreioCepCarrinho.ultimaCotacao?.menor_valor_frete != null ? ` a partir de R$ ${Number(rastreioCepCarrinho.ultimaCotacao.menor_valor_frete).toFixed(2).replace('.', ',')}` : ''}`
+        : '🚪 Saiu após começar a digitar o CEP', {
+        motivo,
+        consulta_concluida: rastreioCepCarrinho.consultado,
+        selecionou_opcao: rastreioCepCarrinho.selecionou,
+        opcao_selecionada: rastreioCepCarrinho.opcaoSelecionada,
+        ...(rastreioCepCarrinho.ultimaCotacao || {})
+    });
+}
 
 function consultarCEPQuandoCompleto(input) {
     const cep = input.value.replace(/\D/g, '');
+    if (cep.length > 0 && !rastreioCepCarrinho.iniciou) {
+        rastreioCepCarrinho.iniciou = true;
+        rastrearEtapaCep('shipping_postal_started', '📍 Começou a digitar o CEP');
+    }
     if (cep.length === 8) buscaCEP();
 }
 
@@ -1232,6 +1268,7 @@ async function buscaCEP(forcarCotacao = false) {
     const resultado = document.getElementById('cep-resultado');
     const cep = cepInput.value.replace(/\D/g, '');
     if (cep.length !== 8) {
+        if (cep.length > 0) rastrearEtapaCep('shipping_postal_invalid', '❌ CEP incompleto', { digitos_informados: cep.length });
         ultimoCepConsultado = '';
         const metodoEntrega = document.getElementById('metodo-entrega');
         if (metodoEntrega) {
@@ -1241,7 +1278,16 @@ async function buscaCEP(forcarCotacao = false) {
         if (resultado) resultado.style.display = 'none';
         return false;
     }
+    if (!rastreioCepCarrinho.iniciou) {
+        rastreioCepCarrinho.iniciou = true;
+        rastrearEtapaCep('shipping_postal_started', '📍 Informou o CEP no carrinho');
+    }
     if (!forcarCotacao && cep === ultimoCepConsultado && resultado?.dataset.consultado === 'true') return true;
+    if (!forcarCotacao && rastreioCepCarrinho.ultimaTentativa !== cep) {
+        rastreioCepCarrinho.ultimaTentativa = cep;
+        rastreioCepCarrinho.consultandoDesde = performance.now();
+        rastrearEtapaCep('shipping_quote_started', '🔎 Consultou o CEP e iniciou o cálculo do frete');
+    }
 
     const metodoEntrega = document.getElementById('metodo-entrega');
     // A consulta pode ocorrer no oninput e novamente no onblur. Não apague uma
@@ -1267,6 +1313,7 @@ async function buscaCEP(forcarCotacao = false) {
                 resultado.className = 'cep-resultado is-error';
                 resultado.textContent = 'CEP não encontrado. Confira os números digitados.';
             }
+            rastrearEtapaCep('shipping_postal_invalid', '❌ CEP não encontrado', { motivo: 'nao_encontrado' });
             return false;
         }
 
@@ -1303,6 +1350,8 @@ async function buscaCEP(forcarCotacao = false) {
             }
 
             const cidadePortoAlegre = normalizarNomeSabor(d.localidade) === 'porto alegre';
+            let cotacoesDisponiveis = [];
+            let erroCotacaoFrete = false;
             if (cidadePortoAlegre && entregaPorTransportadora(metodoEntrega?.value)) {
                 metodoEntrega.value = 'none';
                 delete metodoEntrega.dataset.cepSelecionado;
@@ -1319,6 +1368,7 @@ async function buscaCEP(forcarCotacao = false) {
                 if (erroCotacao) throw erroCotacao;
                 const cotacoes = (Array.isArray(cotacao?.cotacoes) ? cotacao.cotacoes : [])
                     .filter(frete => normalizarNomeSabor(frete?.transportadora).includes('jadlog'));
+                cotacoesDisponiveis = cotacoes;
                 carregando.remove();
                 cotacoes.forEach(frete => opcoes.appendChild(criarOpcaoEntregaCEP(
                     `frenet:${frete.id}`,
@@ -1354,8 +1404,10 @@ async function buscaCEP(forcarCotacao = false) {
                 }
             } catch (erroCotacao) {
                 console.warn('Erro na cotação da Frenet:', erroCotacao);
+                erroCotacaoFrete = true;
                 carregando.classList.remove('is-loading');
                 carregando.textContent = 'Não foi possível calcular o frete agora. Tente consultar novamente.';
+                rastrearEtapaCep('shipping_quote_error', '⚠️ Erro ao calcular o frete', { cidade: d.localidade, uf: d.uf, origem: 'frenet' });
             }
 
             opcoes.appendChild(criarOpcaoEntregaCEP(
@@ -1364,6 +1416,31 @@ async function buscaCEP(forcarCotacao = false) {
                 'Av. Bento Gonçalves, 4321 — Porto Alegre'
             ));
             resultado.replaceChildren(cidade, opcoes);
+            if (!forcarCotacao) {
+                const valoresFrete = [
+                    ...(cidadeAtendida ? [15] : []),
+                    ...cotacoesDisponiveis.map(frete => Number(frete.preco)).filter(Number.isFinite)
+                ];
+                const dadosCotacao = {
+                    cidade: d.localidade,
+                    uf: d.uf,
+                    opcoes_frete: valoresFrete.length,
+                    retirada_gratis_disponivel: true,
+                    menor_valor_frete: valoresFrete.length ? Math.min(...valoresFrete) : null,
+                    maior_valor_frete: valoresFrete.length ? Math.max(...valoresFrete) : null,
+                    valores_frete: valoresFrete,
+                    tempo_calculo_ms: Math.max(0, Math.round(performance.now() - rastreioCepCarrinho.consultandoDesde)),
+                    erro_cotacao: erroCotacaoFrete
+                };
+                rastreioCepCarrinho.consultado = true;
+                rastreioCepCarrinho.ultimaCotacao = dadosCotacao;
+                rastrearEtapaCep(cotacoesDisponiveis.length || cidadeAtendida || cidadePortoAlegre ? 'shipping_quote_success' : 'shipping_quote_empty',
+                    cotacoesDisponiveis.length || cidadeAtendida || cidadePortoAlegre
+                        ? `✅ Fretes exibidos para ${d.localidade}/${d.uf}${dadosCotacao.menor_valor_frete != null ? ` · a partir de R$ ${Number(dadosCotacao.menor_valor_frete).toFixed(2).replace('.', ',')}` : ''}`
+                        : `⛔ Nenhuma transportadora para ${d.localidade}/${d.uf}`, {
+                    ...dadosCotacao
+                });
+            }
         }
         return true;
     } catch (error) {
@@ -1373,6 +1450,7 @@ async function buscaCEP(forcarCotacao = false) {
             resultado.textContent = 'Não foi possível consultar o CEP. Tente novamente.';
         }
         console.warn('Erro ao consultar CEP:', error);
+        rastrearEtapaCep('shipping_quote_error', '⚠️ Não foi possível consultar o CEP', { origem: 'viacep' });
         return false;
     }
 }
@@ -1403,6 +1481,18 @@ function criarOpcaoEntregaCEP(valor, titulo, descricao, dadosFrete = null) {
         metodoEntrega.value = valor;
         metodoEntrega.dataset.cepSelecionado = document.getElementById('cep').value.replace(/\D/g, '');
         freteMelhorEnvioSelecionado = dadosFrete;
+        rastreioCepCarrinho.selecionou = true;
+        rastreioCepCarrinho.opcaoSelecionada = {
+            modalidade: valor === 'tele' ? 'entrega_local' : valor === 'retirada' ? 'retirada' : 'transportadora',
+            valor_frete: dadosFrete ? Number(dadosFrete.preco || 0) : valor === 'tele' ? 15 : 0
+        };
+        rastrearEtapaCep('shipping_option_selected', `🚚 Escolheu: ${titulo}`, {
+            modalidade: valor === 'tele' ? 'entrega_local' : valor === 'retirada' ? 'retirada' : 'transportadora',
+            transportadora: dadosFrete?.transportadora || null,
+            servico: dadosFrete?.nome || titulo,
+            valor_frete: dadosFrete ? Number(dadosFrete.preco || 0) : valor === 'tele' ? 15 : 0,
+            prazo_dias_uteis: dadosFrete ? Number(dadosFrete.prazo || 0) : valor === 'tele' ? 5 : 0
+        });
         atualizarPagamentoPorEntrega();
         document.getElementById('cep-resultado')?.classList.remove('needs-selection');
         limparErroEtapaCheckout();
@@ -3281,6 +3371,7 @@ function openCart() {
     history.pushState({ sacolaAberta: true }, "", "#sacola");
 }
 function closeCart(veioDoBotaoVoltar = false) {
+    rastrearAbandonoCepCarrinho('fechou_carrinho');
     try {
         const nome = document.getElementById('cliente-nome').value;
         const telefone = document.getElementById('cliente-telefone').value;
@@ -3314,6 +3405,7 @@ function closeCart(veioDoBotaoVoltar = false) {
     if (!veioDoBotaoVoltar) { history.back(); }
 }
 window.addEventListener("popstate", (event) => { if (isCartOpen) { closeCart(true); } });
+window.addEventListener('pagehide', () => { if (isCartOpen) rastrearAbandonoCepCarrinho('saiu_da_pagina'); });
 
 if (urlParams.get('carrinho') === '1') setTimeout(async () => {
     openCart();
