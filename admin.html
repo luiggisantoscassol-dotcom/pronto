@@ -2481,7 +2481,7 @@
                 <div><h2 style="margin:0">Controle de consignação</h2><small>Produtos enviados, vendidos e devolvidos por empresa</small></div>
                 <div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0;background:#6b4f82" onclick="baixarBackupConsignacao(this)">↓ BACKUP COMPLETO</button><button class="btn-status" style="width:auto;margin:0" onclick="abrirEmpresaConsignacao()">+ NOVA EMPRESA</button></div>
             </div>
-            <div class="documentos-privacidade" style="margin-top:18px"><b>🔒 Histórico protegido</b><span>Alterações são auditadas. Baixe periodicamente uma cópia completa e guarde fora do sistema.</span></div>
+            <div id="cons-backup-status" class="selos-backup-status is-running"><div><strong>BACKUP AUTOMÁTICO NO GOOGLE DRIVE</strong><small>Carregando o histórico de proteção…</small></div></div>
             <div class="admin-order-summary" style="margin-top:24px">
                 <div class="admin-summary-card"><span>Empresas ativas</span><b id="cons-resumo-empresas">0</b></div>
                 <div class="admin-summary-card"><span>Garrafas consignadas</span><b id="cons-resumo-garrafas">0</b></div>
@@ -5521,6 +5521,7 @@
         }
 
         async function carregarConsignacao() {
+            carregarStatusBackupConsignacao();
             const [{data:empresas,error:ee},{data:movimentos,error:em},{data:saldos,error:es},{data:produtos,error:ep},{data:acertos,error:ea},{data:alocacoes,error:eal},{data:pagamentos,error:epg}] = await Promise.all([
                 db.from('consignacao_empresas').select('*').eq('ativa',true).order('nome'),
                 db.from('consignacao_movimentos').select('*,consignacao_itens(*)').order('data_movimento',{ascending:false}).order('criado_em',{ascending:false}),
@@ -5544,6 +5545,16 @@
                 const saldos=consignacaoSaldos.filter(s=>s.empresa_id===e.id), total=saldos.reduce((s,i)=>s+Number(i.quantidade||0),0), aloc=consignacaoAlocacoes.filter(a=>a.empresa_id===e.id), mercado=aloc.reduce((s,a)=>s+Number(a.quantidade_mercado||0),0), consumidor=aloc.reduce((s,a)=>s+Number(a.quantidade_consumidor||0),0);
                 return `<button type="button" class="estoque-row" onclick="abrirDetalheConsignacao('${e.id}')" style="width:100%;cursor:pointer;text-align:left;margin-bottom:12px"><div><b>${escapeAdmin(e.nome_fantasia||e.nome)}</b><div class="order-meta-line">${escapeAdmin(e.cidade||'Cidade não informada')}${e.uf?' / '+escapeAdmin(e.uf):''} · ${consignacaoMovimentos.filter(m=>m.empresa_id===e.id).length} movimentações</div></div><div style="text-align:right"><b>${total} no local</b><br><span class="admin-chip warn">${mercado} mercado · ${consumidor} consumidor</span></div></button>`;
             }).join('')||'<p style="text-align:center;color:#78879a;padding:35px">Nenhuma empresa consignatária cadastrada.</p>';
+        }
+
+        async function carregarStatusBackupConsignacao(){
+            const destino=document.getElementById('cons-backup-status');if(!destino)return;
+            const {data,error}=await db.from('consignacao_backups').select('*').eq('origem','automatico').order('iniciado_em',{ascending:false}).limit(1).maybeSingle();
+            const pastaUrl='https://drive.google.com/drive/folders/1TYgeD-IK-gOdZnhKf1S03Q3e3i3FLSnY';
+            if(error||!data){destino.className=`selos-backup-status ${error?'is-error':'is-running'}`;destino.innerHTML=`<div><strong>${error?'BACKUP AGUARDANDO CONFIGURAÇÃO':'BACKUP AUTOMÁTICO PROGRAMADO'}</strong><small>${error?escapeAdmin(error.message):'A primeira cópia será registrada após a execução da rotina diária.'}</small></div><div class="selos-backup-actions"><a href="${pastaUrl}" target="_blank" rel="noopener">ABRIR PASTA ↗</a></div>`;return}
+            const concluido=data.status==='concluido',referencia=new Date(data.concluido_em||data.iniciado_em).getTime(),atrasado=concluido&&Date.now()-referencia>36*60*60*1000,quando=new Date(data.concluido_em||data.iniciado_em).toLocaleString('pt-BR');
+            destino.className=`selos-backup-status ${concluido&&!atrasado?'is-ok':data.status==='processando'?'is-running':'is-error'}`;
+            destino.innerHTML=`<div><strong>${atrasado?'ATENÇÃO: BACKUP ATRASADO':concluido?'BACKUP AUTOMÁTICO CONCLUÍDO':data.status==='processando'?'BACKUP EM ANDAMENTO':'BACKUP AUTOMÁTICO FALHOU'}</strong><small>${concluido?`${Number(data.total_empresas||0)} empresa(s) · ${Number(data.total_movimentos||0)} movimentação(ões) · ${quando}`:escapeAdmin(data.mensagem_erro||`Iniciado em ${quando}`)}</small></div><div class="selos-backup-actions">${data.arquivo_url?`<a href="${escapeAdmin(data.arquivo_url)}" target="_blank" rel="noopener">ABRIR BACKUP ↗</a>`:''}<a href="${pastaUrl}" target="_blank" rel="noopener">ABRIR PASTA ↗</a></div>`;
         }
 
         async function buscarTabelaCompletaConsignacao(tabela,ordem='criado_em') {
