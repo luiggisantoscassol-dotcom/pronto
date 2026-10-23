@@ -2479,8 +2479,9 @@
         <div class="card">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
                 <div><h2 style="margin:0">Controle de consignação</h2><small>Produtos enviados, vendidos e devolvidos por empresa</small></div>
-                <button class="btn-status" style="width:auto;margin:0" onclick="abrirEmpresaConsignacao()">+ NOVA EMPRESA</button>
+                <div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn-status" style="width:auto;margin:0;background:#6b4f82" onclick="baixarBackupConsignacao(this)">↓ BACKUP COMPLETO</button><button class="btn-status" style="width:auto;margin:0" onclick="abrirEmpresaConsignacao()">+ NOVA EMPRESA</button></div>
             </div>
+            <div class="documentos-privacidade" style="margin-top:18px"><b>🔒 Histórico protegido</b><span>Alterações são auditadas. Baixe periodicamente uma cópia completa e guarde fora do sistema.</span></div>
             <div class="admin-order-summary" style="margin-top:24px">
                 <div class="admin-summary-card"><span>Empresas ativas</span><b id="cons-resumo-empresas">0</b></div>
                 <div class="admin-summary-card"><span>Garrafas consignadas</span><b id="cons-resumo-garrafas">0</b></div>
@@ -5543,6 +5544,39 @@
                 const saldos=consignacaoSaldos.filter(s=>s.empresa_id===e.id), total=saldos.reduce((s,i)=>s+Number(i.quantidade||0),0), aloc=consignacaoAlocacoes.filter(a=>a.empresa_id===e.id), mercado=aloc.reduce((s,a)=>s+Number(a.quantidade_mercado||0),0), consumidor=aloc.reduce((s,a)=>s+Number(a.quantidade_consumidor||0),0);
                 return `<button type="button" class="estoque-row" onclick="abrirDetalheConsignacao('${e.id}')" style="width:100%;cursor:pointer;text-align:left;margin-bottom:12px"><div><b>${escapeAdmin(e.nome_fantasia||e.nome)}</b><div class="order-meta-line">${escapeAdmin(e.cidade||'Cidade não informada')}${e.uf?' / '+escapeAdmin(e.uf):''} · ${consignacaoMovimentos.filter(m=>m.empresa_id===e.id).length} movimentações</div></div><div style="text-align:right"><b>${total} no local</b><br><span class="admin-chip warn">${mercado} mercado · ${consumidor} consumidor</span></div></button>`;
             }).join('')||'<p style="text-align:center;color:#78879a;padding:35px">Nenhuma empresa consignatária cadastrada.</p>';
+        }
+
+        async function buscarTabelaCompletaConsignacao(tabela,ordem='criado_em') {
+            const pagina=1000,registros=[];
+            for(let inicio=0;;inicio+=pagina){
+                let consulta=db.from(tabela).select('*').range(inicio,inicio+pagina-1);
+                if(ordem)consulta=consulta.order(ordem,{ascending:true});
+                const {data,error}=await consulta;if(error)throw error;
+                registros.push(...(data||[]));if(!data||data.length<pagina)break;
+            }
+            return registros;
+        }
+
+        async function baixarBackupConsignacao(botao) {
+            const original=botao?.textContent||'↓ BACKUP COMPLETO';
+            try{
+                if(botao){botao.disabled=true;botao.textContent='PREPARANDO BACKUP…'}
+                const [empresas,movimentos,itens,acertos,alocacoes,pagamentos,auditoria]=await Promise.all([
+                    buscarTabelaCompletaConsignacao('consignacao_empresas'),
+                    buscarTabelaCompletaConsignacao('consignacao_movimentos'),
+                    buscarTabelaCompletaConsignacao('consignacao_itens','id'),
+                    buscarTabelaCompletaConsignacao('consignacao_acertos'),
+                    buscarTabelaCompletaConsignacao('consignacao_alocacoes','atualizado_em'),
+                    buscarTabelaCompletaConsignacao('consignacao_pagamentos'),
+                    buscarTabelaCompletaConsignacao('consignacao_auditoria','ocorrido_em')
+                ]);
+                const conteudo={formato:'tio-nan-consignacao',versao:1,gerado_em:new Date().toISOString(),observacao:'Backup integral administrativo. Contém dados pessoais e fiscais; mantenha o arquivo em local privado.',resumo:{empresas:empresas.length,movimentos:movimentos.length,itens:itens.length,acertos:acertos.length,pagamentos:pagamentos.length,eventos_auditoria:auditoria.length},empresas,movimentos,itens,acertos,alocacoes,pagamentos,auditoria};
+                const base=JSON.stringify(conteudo),hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(base));
+                conteudo.integridade_sha256=[...new Uint8Array(hash)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
+                const blob=new Blob([JSON.stringify(conteudo,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),agora=new Date(),carimbo=`${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(agora.getDate()).padStart(2,'0')}_${String(agora.getHours()).padStart(2,'0')}-${String(agora.getMinutes()).padStart(2,'0')}`,link=document.createElement('a');
+                link.href=url;link.download=`backup-consignacao-tio-nan_${carimbo}.json`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+                showToast(`Backup concluído: ${movimentos.length} movimentação(ões) e ${auditoria.length} evento(s) de auditoria.`);
+            }catch(error){alert(`Não foi possível gerar o backup da consignação.\n\n${error.message||error}`)}finally{if(botao){botao.disabled=false;botao.textContent=original}}
         }
 
         function abrirEmpresaConsignacao(empresa=null) {
