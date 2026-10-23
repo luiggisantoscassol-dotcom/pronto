@@ -120,7 +120,7 @@ Deno.serve(async (request) => {
     status: 200,
     headers: {
       "content-type": "text/html; charset=utf-8",
-      "cache-control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600",
+      "cache-control": "no-store, max-age=0",
       "x-robots-tag": "index, follow",
     },
   });
