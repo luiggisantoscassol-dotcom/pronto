@@ -7,7 +7,7 @@
     },
     {
       "source": "/produtos/:slug",
-      "destination": "/produto.html?slug=:slug"
+      "destination": "https://eegqobqhrfdkmjyjnqvp.supabase.co/functions/v1/produto-seo?slug=:slug"
     },
     {
       "source": "/cachaca-porto-alegre",
