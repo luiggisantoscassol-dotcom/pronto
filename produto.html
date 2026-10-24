@@ -46,6 +46,7 @@
     .crumbs a { color:inherit; text-decoration:none; }
     .layout { display:grid; grid-template-columns:minmax(360px, .98fr) minmax(380px, 1.02fr); gap:clamp(32px, 5.5vw, 76px); align-items:start; }
     .gallery-shell { position:sticky; top:94px; display:grid; grid-template-columns:76px minmax(0,1fr); gap:13px; width:100%; align-items:start; }
+    .gallery-shell.gallery-shell--single { grid-template-columns:minmax(0,1fr); }
     .gallery { position:relative; width:100%; aspect-ratio:1/1; border:1px solid #e8dfd1; border-radius:26px; overflow:hidden; background:radial-gradient(circle at 50% 42%,#fff 0%,#fbf7ef 74%,#f3ecdf 100%); box-shadow:0 24px 54px rgba(38,52,70,.09); }
     .product-gallery-thumbs { display:flex; flex-direction:column; gap:10px; }
     .product-gallery-thumb { position:relative; width:76px; aspect-ratio:1/1; padding:0; overflow:hidden; border:1px solid #ddd7ce; border-radius:14px; background:#fff; box-shadow:0 7px 18px rgba(26,43,63,.07); transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease; }
@@ -842,7 +843,7 @@
       const ingredientCallout = gengibreGuacoMel ? `<aside class="real-ingredients" aria-label="Ingredientes de verdade"><span class="real-ingredients-kicker">Ingredientes de verdade</span><h2>Da raiz ao brinde.</h2><p>Feita com gengibre, guaco e mel de verdade — ingredientes que você reconhece em um sabor marcante e cheio de personalidade.</p><ul class="ingredient-list"><li>Gengibre</li><li>Guaco</li><li>Mel</li></ul></aside>` : '';
       app.innerHTML = `
         <div class="layout">
-          <div class="gallery-shell">${galleryThumbs}<section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos e vídeo de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${mediaCount > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section></div>
+          <div class="gallery-shell${mediaCount > 1 ? '' : ' gallery-shell--single'}">${galleryThumbs}<section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos e vídeo de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${mediaCount > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section></div>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${displayName}</nav>
             <span class="tag">${productType}</span>
