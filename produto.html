@@ -86,7 +86,7 @@
     .tag { display:inline-block; margin:2px 0 11px; color:var(--gold); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     h1 { margin:0; max-width:640px; color:var(--navy-dark); font-size:clamp(32px, 4vw, 49px); line-height:1.04; letter-spacing:-.04em; text-wrap:balance; }
     .title-first-purchase { display:inline-flex; align-items:center; gap:7px; margin:12px 0 0; padding:9px 12px; border:1px solid #d9b665; border-radius:11px; background:linear-gradient(135deg,#fff4d8,#fffaf0); color:#704809; font-size:14px; font-weight:900; line-height:1.25; box-shadow:0 7px 18px rgba(151,105,28,.08); }
-    .title-first-purchase::before { content:"20% OFF"; padding:4px 6px; border-radius:6px; background:#b98227; color:#fff; font-size:9px; letter-spacing:.05em; white-space:nowrap; }
+    .title-first-purchase::before { content:"1ª COMPRA"; padding:4px 6px; border-radius:6px; background:#b98227; color:#fff; font-size:9px; letter-spacing:.05em; white-space:nowrap; }
     .purchase-promise { margin:12px 0 0; max-width:580px; color:#536176; font-size:17px; line-height:1.5; text-wrap:pretty; }
     .rating { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:15px 0 13px; font-size:14px; }
     .stars { color:#d19b23; font-size:23px; letter-spacing:1px; line-height:1; }
@@ -102,6 +102,15 @@
     .price-label { display:block; margin-bottom:4px; color:var(--muted); font-size:13px; }
     .price { color:#101b2e; font-size:36px; font-weight:800; letter-spacing:-.04em; }
     .price-box.promotion .price { display:block; margin-top:5px; color:#9a5f0b; font-size:40px; }
+    .price-box.first-purchase-price { padding:16px; border:1px solid #dfc48e; border-radius:14px; background:linear-gradient(135deg,#fff7e7,#fff); }
+    .price-box.first-purchase-price .original-price { margin-bottom:2px; color:#7b8491; font-size:14px; }
+    .first-purchase-price-line { display:flex; align-items:baseline; flex-wrap:wrap; gap:8px; }
+    .first-purchase-price-line .price { color:#8a5b12; font-size:40px; }
+    .first-purchase-price-line span { color:#7a561d; font-size:13px; font-weight:800; }
+    .price-rules { margin-top:9px; border:0; }
+    .price-rules summary { justify-content:flex-start; padding:0; color:#765018; font-size:12px; text-decoration:underline; text-underline-offset:3px; }
+    .price-rules summary::after { content:""!important; }
+    .price-rules .first-purchase-rules { margin-top:7px; }
     .original-price { font-size:15px; text-decoration:line-through; }
     .promotion-badge { display:inline-flex; align-items:center; margin-bottom:7px; padding:7px 10px; border-radius:999px; background:#b7791f; color:#fff; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     .promotion-saving { margin:7px 0 0; color:#196b3a; font-size:14px; font-weight:800; }
@@ -853,14 +862,13 @@
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${displayName}</nav>
             <span class="tag">${productType}</span>
             <h1>${displayName}</h1>
-            ${cachacaPrata && firstPurchaseEligible ? `<p class="title-first-purchase">Sua primeira Cachaça Prata por ${money(firstPurchasePrice)}</p>` : ''}
+            ${cachacaPrata && firstPurchaseEligible ? '<p class="title-first-purchase">20% de desconto na primeira compra</p>' : ''}
             <p class="purchase-promise">${purchasePromise}</p>
             <div class="rating" aria-label="Avaliação do produto"><span class="stars">${stars}</span>${review.count ? `<strong>${score} de 5</strong><button type="button" class="reviews-link" data-scroll-reviews>(${review.count} ${review.count === 1 ? 'avaliação' : 'avaliações'})</button>` : '<span class="rating-note">Ainda sem avaliações</span>'}</div>
             <ul class="product-facts" aria-label="Principais informações"><li>${volume}</li><li>${alcohol}</li><li>Produzida no RS</li></ul>
             ${stockNotice}
             <div class="purchase-panel">
-              <div class="price-box${hasDiscount ? ' promotion' : ''}">${hasDiscount?`<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>`:`<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong>`}<p class="payment-note">Pix ou cartão no checkout seguro.</p></div>
-              ${firstPurchaseEligible ? `<aside class="first-purchase-benefit"><strong>Primeira compra: ${money(firstPurchasePrice)}</strong><p>Você economiza 20%. O desconto é verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>` : ''}
+              <div class="price-box${hasDiscount ? ' promotion' : firstPurchaseEligible ? ' first-purchase-price' : ''}">${hasDiscount ? `<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>` : firstPurchaseEligible ? `<span class="promotion-badge">20% OFF</span><span class="price-label original-price">De ${money(currentPrice)}</span><div class="first-purchase-price-line"><strong class="price">${money(firstPurchasePrice)}</strong><span>(primeira compra)</span></div><p class="payment-note">Desconto verificado pelo CPF e aplicado automaticamente no checkout.</p><details class="price-rules"><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details>` : `<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong><p class="payment-note">Pix ou cartão no checkout seguro.</p>`}${hasDiscount ? '<p class="payment-note">Pix ou cartão no checkout seguro.</p>' : ''}</div>
               <div class="shipping"><label class="shipping-label" for="shipping-cep">Veja quanto custa receber na sua casa</label><p class="shipping-intro">Digite seu CEP para consultar o valor e o prazo de entrega.</p><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result shipping-privacy"><button type="button" id="shipping-button">Calcular</button></div><p class="shipping-privacy" id="shipping-privacy">🔒 Usamos o CEP apenas para calcular a entrega.</p><div class="shipping-result" id="shipping-result" aria-live="polite"></div></div>
               <div class="buy-row">${unavailable ? `<button class="buy-button" type="button" disabled>${buyLabel}</button>` : `<div class="quantity" aria-label="Quantidade"><button type="button" data-quantity="-1" aria-label="Diminuir quantidade">−</button><output data-quantity-output>1</output><button type="button" data-quantity="1" aria-label="Aumentar quantidade">+</button></div><button class="buy-button" type="button" data-buy>${buyLabel}</button>`}</div>
               <p class="purchase-helper">Você revisa endereço, entrega e pagamento antes de concluir.</p>
