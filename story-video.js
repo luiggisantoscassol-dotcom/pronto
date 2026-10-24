@@ -13,7 +13,7 @@
   function initStory() {
     document.body.classList.toggle('story-has-buybar', Boolean(document.querySelector('.mobile-buy-bar')));
     const launcher = document.createElement('button');
-    launcher.className = `brand-story-launcher${sessionStorage.getItem(STORAGE_KEY) === '1' ? ' is-minimized' : ''}`;
+    launcher.className = 'brand-story-launcher is-minimized';
     launcher.type = 'button';
     launcher.setAttribute('aria-label', 'Conheça a história da Tio Nan');
     launcher.innerHTML = `<span class="brand-story-launcher__cover"><img src="${COVER_URL}" alt="Conheça a Tio Nan" loading="lazy"><span class="brand-story-launcher__duration">1 min</span><span class="brand-story-launcher__play" aria-hidden="true"></span></span><span class="brand-story-launcher__content"><span class="brand-story-launcher__eyebrow">Nossa história</span><strong class="brand-story-launcher__title">Conheça a Tio Nan</strong><span class="brand-story-launcher__action">Assistir agora <b aria-hidden="true">→</b></span></span><span class="brand-story-launcher__close" role="button" aria-label="Ocultar vídeo">×</span>`;
