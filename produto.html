@@ -147,8 +147,10 @@
     .purchase-helper { display:flex; align-items:center; justify-content:center; gap:6px; margin:10px 0 0; color:#6b7482; font-size:11px; line-height:1.35; text-align:center; }
     .purchase-helper::before { content:"🔒"; font-size:12px; }
     .notice { min-height:18px; margin:9px 0 0; color:#277044; font-size:13px; font-weight:700; text-align:center; }
-    .shipping { margin-top:22px; padding:18px; border-radius:14px; background:var(--cream); border:1px solid #eee9df; }
-    .shipping-label { display:block; margin-bottom:10px; color:var(--navy-dark); font-size:14px; font-weight:800; }
+    .shipping { margin:0 0 14px; padding:16px; border-radius:14px; background:linear-gradient(145deg,#f7faff,#fff); border:1px solid #d9e2ee; transition:border-color .2s ease,box-shadow .2s ease; }
+    .shipping.is-attention { border-color:var(--gold); box-shadow:0 0 0 3px rgba(185,140,58,.14); }
+    .shipping-label { display:block; margin-bottom:5px; color:var(--navy-dark); font-size:15px; font-weight:900; }
+    .shipping-intro { margin:0 0 11px; color:#637086; font-size:12px; line-height:1.4; }
     .shipping-row { display:flex; gap:9px; }
     .shipping input { width:100%; min-width:0; height:46px; padding:0 13px; border:1px solid #cdd3db; border-radius:9px; background:#fff; color:var(--ink); font-size:15px; }
     .shipping button { flex:0 0 auto; height:46px; padding:0 15px; border:0; border-radius:9px; background:var(--navy); color:#fff; font-weight:800; }
@@ -162,6 +164,9 @@
     .shipping-option b { color:var(--navy-dark); font-size:14px; }
     .shipping-option small { margin-top:3px; color:var(--muted); font-size:12px; }
     .shipping-option strong { color:var(--navy-dark); font-size:14px; white-space:nowrap; }
+    .shipping-option.is-best { border-color:#d7b365; background:#fffaf0; }
+    .shipping-best { display:inline-flex!important; width:max-content; margin-top:5px!important; padding:3px 6px; border-radius:999px; background:#e9c46a; color:#563a09!important; font-size:9px!important; font-weight:900; letter-spacing:.05em; text-transform:uppercase; }
+    .shipping-privacy { display:flex; align-items:center; gap:5px; margin:9px 0 0; color:#798395; font-size:10px; line-height:1.35; }
     .reviews-section { width:min(820px, 100%); margin:68px auto 0; padding:34px; border:1px solid #e8dfd1; border-radius:24px; background:#fff; box-shadow:0 18px 45px rgba(25,45,68,.07); }
     .reviews-heading { margin:0 0 7px; color:var(--navy-dark); font-size:28px; letter-spacing:-.025em; }
     .reviews-summary { margin:0 0 23px; color:var(--muted); }
@@ -213,7 +218,7 @@
       .buy-row .quantity button { width:40px; }
       .buy-row .buy-button { min-height:54px; }
       .purchase-helper { font-size:10px; }
-      .shipping { margin-top:18px; padding:15px; }
+      .shipping { padding:14px; }
       .reviews-section { width:auto; margin:44px 12px 0; padding:22px 16px; border-radius:20px; }
       .reviews-heading { font-size:25px; }
       .mobile-buy-bar { position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; gap:11px; align-items:center; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.96); border-top:1px solid var(--line); box-shadow:0 -8px 22px rgba(18,31,48,.08); }
@@ -270,6 +275,8 @@
     let shippingPostalCode = '';
     let selectedShipping = null;
     let shippingRefreshTimer = null;
+    let shippingRequestCep = '';
+    let shippingRequestRunning = false;
     const productShippingTracking = { started:false, quoted:false, selected:false, addedToCart:false, abandoned:false, startedAt:0, quote:null, selectedOption:null };
 
     function trackProductShipping(event, label, metadata = {}) {
@@ -468,6 +475,21 @@
       document.querySelectorAll('.buy-button').forEach(button => { button.textContent = 'Adicionado ✓'; setTimeout(() => button.textContent = 'Comprar', 1600); });
       setTimeout(() => window.location.href = 'index.html?carrinho=1', 350);
     }
+    function handleBuyIntent() {
+      if (productShippingTracking.quoted) {
+        addToCart();
+        return;
+      }
+      const shipping = document.querySelector('.shipping');
+      const input = document.getElementById('shipping-cep');
+      const result = document.getElementById('shipping-result');
+      shipping?.classList.add('is-attention');
+      shipping?.scrollIntoView({ behavior:'smooth', block:'center' });
+      setTimeout(() => input?.focus({ preventScroll:true }), 380);
+      if (result && !input?.value) result.textContent = 'Informe somente o CEP para ver o valor final antes de continuar.';
+      trackProductShipping('shipping_prompted_by_buy', '🛒 Tocou em Comprar e abriu o cálculo do frete');
+      setTimeout(() => shipping?.classList.remove('is-attention'), 2400);
+    }
     function maskCep(input) {
       const digits = input.value.replace(/\D/g, '').slice(0, 8);
       input.value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
@@ -481,6 +503,9 @@
         if (cep.length > 0) trackProductShipping('shipping_postal_invalid', '❌ CEP incompleto no produto', { digitos_informados:cep.length });
         return;
       }
+      if (shippingRequestRunning && shippingRequestCep === cep) return;
+      shippingRequestCep = cep;
+      shippingRequestRunning = true;
       productShippingTracking.startedAt = performance.now();
       trackProductShipping('shipping_quote_started', '🔎 Consultou o CEP no produto');
       result.textContent = 'Consultando CEP e calculando o frete…';
@@ -505,6 +530,8 @@
         const addOption = (value, title, description, price, freight = null) => {
           const label = document.createElement('label');
           label.className = 'shipping-option';
+          const numericPrice = freight ? Number(freight.preco || 0) : value === 'tele' ? 15 : null;
+          if (Number.isFinite(numericPrice)) label.dataset.price = String(numericPrice);
           const radio = document.createElement('input');
           radio.type = 'radio'; radio.name = 'product-shipping'; radio.value = value;
           radio.addEventListener('change', () => {
@@ -551,6 +578,16 @@
           ...(['porto alegre', 'viamao', 'canoas'].includes(normalize(address.localidade)) ? [15] : []),
           ...quotes.map(freight => Number(freight.preco)).filter(Number.isFinite)
         ];
+        const paidOptions = [...options.querySelectorAll('.shipping-option[data-price]')];
+        const bestPrice = paidOptions.length ? Math.min(...paidOptions.map(option => Number(option.dataset.price))) : null;
+        paidOptions.forEach(option => {
+          if (Number(option.dataset.price) !== bestPrice) return;
+          option.classList.add('is-best');
+          const badge = document.createElement('small');
+          badge.className = 'shipping-best';
+          badge.textContent = 'Melhor valor';
+          option.querySelector('span')?.appendChild(badge);
+        });
         productShippingTracking.quoted = true;
         productShippingTracking.quote = {
           cidade:address.localidade,
@@ -568,6 +605,8 @@
       } catch {
         result.textContent = 'Não foi possível consultar o CEP agora. Tente novamente.';
         trackProductShipping('shipping_quote_error', '⚠️ Erro ao calcular o frete no produto');
+      } finally {
+        shippingRequestRunning = false;
       }
     }
     async function reviewsFor(name) {
@@ -815,12 +854,12 @@
             <div class="purchase-panel">
               <div class="price-box${hasDiscount ? ' promotion' : ''}">${hasDiscount?`<span class="promotion-badge">Oferta · ${discountPercent}% OFF</span><span class="price-label original-price">Preço normal: ${money(originalPrice)}</span><strong class="price">${money(currentPrice)}</strong><p class="promotion-saving">Você economiza ${money(saving)}</p>`:`<span class="price-label">Por apenas</span><strong class="price">${money(currentPrice)}</strong>`}<p class="payment-note">Pix ou cartão no checkout seguro.</p></div>
               ${firstPurchaseEligible ? `<aside class="first-purchase-benefit"><strong>Primeira compra: ${money(firstPurchasePrice)}</strong><p>Você economiza 20%. O desconto é verificado pelo CPF e aplicado automaticamente no checkout.</p><details><summary>Ver regras</summary><ul class="first-purchase-rules"><li>Válido na primeira compra aprovada.</li><li>Somente em produtos de preço regular participantes.</li><li>Não vale para kits, ofertas ou frete e não acumula com cupons.</li></ul></details></aside>` : ''}
+              <div class="shipping"><label class="shipping-label" for="shipping-cep">Veja quanto custa receber na sua casa</label><p class="shipping-intro">Digite seu CEP para consultar o valor e o prazo de entrega.</p><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result shipping-privacy"><button type="button" id="shipping-button">Calcular</button></div><p class="shipping-privacy" id="shipping-privacy">🔒 Usamos o CEP apenas para calcular a entrega.</p><div class="shipping-result" id="shipping-result" aria-live="polite"></div></div>
               <div class="buy-row">${unavailable ? `<button class="buy-button" type="button" disabled>${buyLabel}</button>` : `<div class="quantity" aria-label="Quantidade"><button type="button" data-quantity="-1" aria-label="Diminuir quantidade">−</button><output data-quantity-output>1</output><button type="button" data-quantity="1" aria-label="Aumentar quantidade">+</button></div><button class="buy-button" type="button" data-buy>${buyLabel}</button>`}</div>
               <p class="purchase-helper">Você revisa endereço, entrega e pagamento antes de concluir.</p>
               <p class="notice" aria-live="polite"></p>
             </div>
             <div class="conversion-assurances" aria-label="Segurança e entrega"><div class="conversion-assurance"><span>✓</span>Pagamento seguro</div><div class="conversion-assurance"><span>⌖</span>Entrega com rastreio</div><div class="conversion-assurance"><span>✦</span>Pix ou cartão</div><div class="conversion-assurance"><span>💬</span>Suporte no WhatsApp</div></div>
-            <div class="shipping"><label class="shipping-label" for="shipping-cep">Calcule a entrega pelo seu CEP</label><div class="shipping-row"><input id="shipping-cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="shipping-result"><button type="button" id="shipping-button">Consultar</button></div><p class="shipping-result" id="shipping-result" aria-live="polite"></p></div>
             <a class="offers-secondary" href="https://chat.whatsapp.com/IhBigxDFWAm7f8ZFo7n4Az?s=cl&p=i&mlu=0&ilr=4" target="_blank" rel="noopener" data-offers-group>💬 Ainda não decidiu? Acompanhe as ofertas no WhatsApp</a>
             <p class="product-copy">${description}</p>
             ${ingredientCallout}
@@ -838,12 +877,12 @@
       mobileBuyButton.textContent = buyLabel;
       setupProductGallery(p);
       document.querySelectorAll('[data-quantity]').forEach(button => button.addEventListener('click', () => updateQuantity(Number(button.dataset.quantity))));
-      document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', addToCart));
+      document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', handleBuyIntent));
       document.querySelector('[data-offers-group]')?.addEventListener('click', () => {
         window.TioNanAnalytics?.track('offer_group_click', { label:'Grupo de ofertas', produto_id:p.id });
         window.gtag?.('event', 'select_promotion', { promotion_name:'Grupo de ofertas', items:[{ item_id:String(p.id), item_name:displayName }] });
       });
-      if (!unavailable) mobileBuyButton.addEventListener('click', addToCart);
+      if (!unavailable) mobileBuyButton.addEventListener('click', handleBuyIntent);
       document.querySelectorAll('[data-scroll-reviews]').forEach(button => button.addEventListener('click', () => document.getElementById('avaliacoes').scrollIntoView({ behavior:'smooth', block:'start' })));
       document.querySelectorAll('[data-review-filter]').forEach(button => button.addEventListener('click', () => {
         const filter = button.dataset.reviewFilter;
@@ -856,9 +895,18 @@
       const cepInput = document.getElementById('shipping-cep');
       cepInput.addEventListener('input', () => {
         maskCep(cepInput);
-        if (cepInput.value.replace(/\D/g, '').length > 0 && !productShippingTracking.started) {
+        const cepLength = cepInput.value.replace(/\D/g, '').length;
+        if (cepInput.value.replace(/\D/g, '') !== shippingPostalCode) {
+          productShippingTracking.quoted = false;
+          selectedShipping = null;
+        }
+        if (cepLength > 0 && !productShippingTracking.started) {
           productShippingTracking.started = true;
           trackProductShipping('shipping_postal_started', '📍 Começou a digitar o CEP no produto');
+        }
+        if (cepLength === 8) {
+          clearTimeout(shippingRefreshTimer);
+          shippingRefreshTimer = setTimeout(checkCep, 280);
         }
       });
       cepInput.addEventListener('keydown', event => { if (event.key === 'Enter') checkCep(); });
