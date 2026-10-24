@@ -1,5 +1,5 @@
 (() => {
-  const STORAGE_KEY = 'tioNanStoryDismissed';
+  const STORAGE_KEY = 'tioNanStoryDismissedV2';
   const VIDEO_URL = '/fotos/tio-nan-story.mp4?v=1';
   const COVER_URL = '/fotos/tio-nan-story-cover.webp?v=1';
   const cartOpen = () => document.getElementById('cart-overlay')?.classList.contains('active');
@@ -13,7 +13,7 @@
   function initStory() {
     document.body.classList.toggle('story-has-buybar', Boolean(document.querySelector('.mobile-buy-bar')));
     const launcher = document.createElement('button');
-    launcher.className = 'brand-story-launcher is-minimized';
+    launcher.className = 'brand-story-launcher';
     launcher.type = 'button';
     launcher.setAttribute('aria-label', 'Conheça a história da Tio Nan');
     launcher.innerHTML = `<span class="brand-story-launcher__cover"><img src="${COVER_URL}" alt="Conheça a Tio Nan" loading="lazy"><span class="brand-story-launcher__duration">1 min</span><span class="brand-story-launcher__play" aria-hidden="true"></span></span><span class="brand-story-launcher__content"><span class="brand-story-launcher__eyebrow">Nossa história</span><strong class="brand-story-launcher__title">Conheça a Tio Nan</strong><span class="brand-story-launcher__action">Assistir agora <b aria-hidden="true">→</b></span></span><span class="brand-story-launcher__close" role="button" aria-label="Ocultar vídeo">×</span>`;
@@ -33,12 +33,13 @@
     const launcherClose = launcher.querySelector('.brand-story-launcher__close');
     let openedOnce = false;
     let revealAllowed = false;
+    let dismissed = sessionStorage.getItem(STORAGE_KEY) === '1';
     let lastReportedSeconds = -1;
 
-    const minimizeLauncher = () => {
+    const hideLauncher = () => {
+      dismissed = true;
       sessionStorage.setItem(STORAGE_KEY, '1');
-      launcher.classList.add('is-minimized');
-      launcher.setAttribute('aria-label', 'Abrir novamente o vídeo da Tio Nan');
+      launcher.classList.remove('is-visible');
     };
 
     const reportWatchTime = (force = false, completed = false) => {
@@ -60,8 +61,7 @@
       video.pause();
       modal.hidden = true;
       document.body.classList.remove('brand-story-open');
-      minimizeLauncher();
-      launcher.classList.toggle('is-visible', revealAllowed && !pageBlocked());
+      hideLauncher();
       track('brand_story_close', 'Story institucional');
     };
     const openModal = async () => {
@@ -80,14 +80,14 @@
     };
     const dismiss = event => {
       event.stopPropagation();
-      minimizeLauncher();
+      hideLauncher();
       if (!modal.hidden) closeModal();
       track('brand_story_dismiss', 'Recolheu o story institucional');
     };
     const syncVisibility = () => {
       const blocked = pageBlocked();
       if (blocked && !modal.hidden) closeModal();
-      launcher.classList.toggle('is-visible', revealAllowed && !blocked && modal.hidden);
+      launcher.classList.toggle('is-visible', revealAllowed && !dismissed && !blocked && modal.hidden);
     };
 
     launcher.addEventListener('click', openModal);
