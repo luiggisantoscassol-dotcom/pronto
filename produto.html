@@ -580,15 +580,17 @@
           ...quotes.map(freight => Number(freight.preco)).filter(Number.isFinite)
         ];
         const paidOptions = [...options.querySelectorAll('.shipping-option[data-price]')];
-        const bestPrice = paidOptions.length ? Math.min(...paidOptions.map(option => Number(option.dataset.price))) : null;
-        paidOptions.forEach(option => {
-          if (Number(option.dataset.price) !== bestPrice) return;
-          option.classList.add('is-best');
-          const badge = document.createElement('small');
-          badge.className = 'shipping-best';
-          badge.textContent = 'Melhor valor';
-          option.querySelector('span')?.appendChild(badge);
-        });
+        if (paidOptions.length > 1) {
+          const bestPrice = Math.min(...paidOptions.map(option => Number(option.dataset.price)));
+          paidOptions.forEach(option => {
+            if (Number(option.dataset.price) !== bestPrice) return;
+            option.classList.add('is-best');
+            const badge = document.createElement('small');
+            badge.className = 'shipping-best';
+            badge.textContent = 'Melhor valor';
+            option.querySelector('span')?.appendChild(badge);
+          });
+        }
         productShippingTracking.quoted = true;
         productShippingTracking.quote = {
           cidade:address.localidade,
