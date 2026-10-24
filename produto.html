@@ -159,7 +159,8 @@
     .purchase-helper { display:flex; align-items:center; justify-content:center; gap:6px; margin:10px 0 0; color:#6b7482; font-size:11px; line-height:1.35; text-align:center; }
     .purchase-helper::before { content:"🔒"; font-size:12px; }
     .notice { min-height:18px; margin:9px 0 0; color:#277044; font-size:13px; font-weight:700; text-align:center; }
-    .shipping { margin:0 0 14px; padding:16px; border-radius:14px; background:linear-gradient(145deg,#f7faff,#fff); border:1px solid #d9e2ee; transition:border-color .2s ease,box-shadow .2s ease; }
+    .notice:empty { display:none; }
+    .shipping { margin:14px 0; padding:16px; border-radius:14px; background:linear-gradient(145deg,#f7faff,#fff); border:1px solid #d9e2ee; transition:border-color .2s ease,box-shadow .2s ease; }
     .shipping.is-attention { border-color:var(--gold); box-shadow:0 0 0 3px rgba(185,140,58,.14); }
     .shipping-label { display:block; margin-bottom:5px; color:var(--navy-dark); font-size:15px; font-weight:900; }
     .shipping-intro { margin:0 0 11px; color:#637086; font-size:12px; line-height:1.4; }
@@ -226,7 +227,7 @@
       .conversion-assurances { margin-top:11px; }
       .conversion-assurance { min-height:40px; padding:8px 9px; font-size:11px; }
       .product-copy { font-size:15px; margin-top:20px; }
-      .buy-row { display:flex; gap:9px; }
+      .purchase-panel > .buy-row, .purchase-panel > .purchase-helper { display:none; }
       .buy-row .quantity { height:54px; }
       .buy-row .quantity button { width:40px; }
       .buy-row .buy-button { min-height:54px; }
