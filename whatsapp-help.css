@@ -46,10 +46,6 @@
   object-fit: cover;
 }
 
-body.whatsapp-has-buybar .whatsapp-help {
-  bottom: calc(87px + env(safe-area-inset-bottom));
-}
-
 body:has(#cart-overlay.active) .whatsapp-help,
 body.age-modal-open .whatsapp-help {
   opacity: 0;
