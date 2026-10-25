@@ -20,17 +20,14 @@
   width: 58px;
   height: 58px;
   place-items: center;
-  overflow: hidden;
-  border-radius: 50%;
-  background: #20cf65;
-  box-shadow: 0 8px 20px rgba(19, 173, 80, .3);
+  background: transparent;
 }
 
 .whatsapp-help__icon img {
   display: block;
   width: 58px;
   height: 58px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 body:has(#cart-overlay.active) .whatsapp-help,
