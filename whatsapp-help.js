@@ -12,7 +12,7 @@
     link.target = '_blank';
     link.rel = 'noopener';
     link.setAttribute('aria-label', 'Fale com a Tio Nan pelo WhatsApp');
-    link.innerHTML = '<span class="whatsapp-help__label">Dúvidas? Fale conosco!</span><span class="whatsapp-help__icon"><img src="/fotos/whatsapp-contato.webp" alt="" width="58" height="58"></span>';
+    link.innerHTML = '<span class="whatsapp-help__icon"><img src="/fotos/whatsapp-contato.webp" alt="" width="58" height="58"></span>';
 
     link.addEventListener('click', () => {
       const productName = document.querySelector('.product-info h1')?.textContent?.trim();

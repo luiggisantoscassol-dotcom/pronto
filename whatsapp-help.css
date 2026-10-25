@@ -5,7 +5,6 @@
   z-index: 26;
   display: flex;
   align-items: center;
-  gap: 10px;
   color: #fff;
   text-decoration: none;
   filter: drop-shadow(0 10px 20px rgba(12, 35, 64, .2));
@@ -14,18 +13,6 @@
 
 .whatsapp-help:hover {
   transform: translateY(-2px);
-}
-
-.whatsapp-help__label {
-  padding: 13px 18px;
-  border: 1px solid rgba(255, 255, 255, .22);
-  border-radius: 999px;
-  background: #282828;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 .whatsapp-help__icon {
@@ -57,12 +44,6 @@ body.age-modal-open .whatsapp-help {
   .whatsapp-help {
     right: 12px;
     bottom: calc(14px + env(safe-area-inset-bottom));
-    gap: 7px;
-  }
-
-  .whatsapp-help__label {
-    padding: 11px 14px;
-    font-size: 13px;
   }
 
   .whatsapp-help__icon,
