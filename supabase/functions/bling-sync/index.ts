@@ -3,6 +3,13 @@
   const API_BASE = "https://api.bling.com.br/Api/v3";
   const CONSUMER_FINAL_NATURE_ID = Number(Deno.env.get("BLING_NATURE_CONSUMIDOR_FINAL_ID") || "0");
   const GIFT_NATURE_ID = Number(Deno.env.get("BLING_NATURE_BRINDE_ID") || "15111595974");
+  const MANAGED_PRODUCT_IDS = [
+    "16687078597", // Cachaça Prata 700 ml
+    "16699660347", // Cachaça Ouro 700 ml
+    "16699719562", // Gengibre, Guaco e Mel 700 ml
+    "16712114193", // Cachaça Prata 750 ml
+    "16712113631", // Cachaça Ouro 750 ml
+  ];
   const BLING_PAYMENT_METHOD_IDS: Record<string, number> = {
     pix: 11024643,
     visa: 11024694,
@@ -288,7 +295,8 @@
         } catch {
           // Algumas instalações não concedem o escopo de depósitos. Nesse caso,
           // o próprio saldo de estoque informa os depósitos acessíveis.
-          const saldos = await bling("/estoques/saldos?idsProdutos[]=16687078597&idsProdutos[]=16699660347&idsProdutos[]=16699719562");
+          const parametros = MANAGED_PRODUCT_IDS.map((id) => `idsProdutos[]=${encodeURIComponent(id)}`).join("&");
+          const saldos = await bling(`/estoques/saldos?${parametros}`);
           const encontrados = new Map<string, string>();
           for (const produto of (saldos.data || [])) {
             for (const deposito of (produto.depositos || [])) {
@@ -302,7 +310,7 @@
 
       if (action === "zerar_estoque_deposito") {
         const depositoId = String(input.deposito_bling_id || "");
-        const produtosGerenciados = ["16687078597", "16699660347", "16699719562"];
+        const produtosGerenciados = MANAGED_PRODUCT_IDS;
         if (!/^\d+$/.test(depositoId)) return json({ error: "Depósito inválido." }, 400);
 
         const resultado: Array<{ produto_bling_id: string; saldo_anterior: number; saldo_atual: number }> = [];
@@ -337,7 +345,7 @@
         const quantidade = Number(input.quantidade || 0);
         const envaseId = String(input.envase_id || "");
         const consignacaoId = String(input.consignacao_id || "");
-        if (!["16687078597", "16699660347", "16699719562"].includes(produtoId) || !/^\d+$/.test(depositoId) || !Number.isInteger(quantidade) || quantidade <= 0) {
+        if (!MANAGED_PRODUCT_IDS.includes(produtoId) || !/^\d+$/.test(depositoId) || !Number.isInteger(quantidade) || quantidade <= 0) {
           return json({ error: "Produto, depósito ou quantidade inválidos." }, 400);
         }
         try {
