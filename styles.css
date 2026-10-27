@@ -1349,6 +1349,21 @@
             margin-top: 14px;
         }
 
+        .upcoming-products .swiper-products .card-produto,
+        .upcoming-products .swiper-products .card-produto:hover,
+        .upcoming-products .swiper-products .card-produto.active-scroll {
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+        }
+
+        .upcoming-products .swiper-products .img-wrapper,
+        .upcoming-products .swiper-products .swiper-produto,
+        .upcoming-products .swiper-products .swiper-produto .swiper-wrapper,
+        .upcoming-products .swiper-products .swiper-produto .swiper-slide {
+            background: transparent;
+        }
+
         .banner-amizade {
             width: min(700px, calc(100% - 40px));
             margin: 22px auto 50px;
@@ -1783,7 +1798,7 @@
         }
 
         .card-produto.em-breve-card .img-wrapper {
-            background: #faf9f5;
+            background: transparent;
         }
 
         .card-produto.produto-placeholder .foto-1,
