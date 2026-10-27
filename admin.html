@@ -7770,6 +7770,11 @@
             const nomeLimpo = p.cliente_nome || String(p.cliente || '').split('(')[0].trim() || 'Cliente';
             const [pagamentoLabel, pagamentoClass] = rotuloPagamento(p);
             const [blingLabel, blingClass] = rotuloBling(p);
+            const naturezaFiscalChave = p.bling_nfe_natureza_chave || (p.tipo_operacao === 'brinde' ? 'brinde' : 'consumidor_final');
+            const naturezaFiscalLabel = `${nomesNaturezaNfe[naturezaFiscalChave] || naturezaFiscalChave}${p.bling_nfe_natureza_chave ? '' : ' (prevista)'}`;
+            const pagamentoMercadoPagoPendente = Boolean(p.mercado_pago_payment_id)
+                && !['pago', 'pago_teste'].includes(String(p.status_pagamento || '').toLowerCase())
+                && !String(p.pagamento || '').toLowerCase().startsWith('dinheiro');
             const cancelamentoConcluido = Boolean(p.cancelado_em && p.estoque_estornado_em);
             const podeEditarPedido = p.status !== 'Concluído' && p.status !== 'Cancelado';
             const podeExecutarCancelamento = p.status !== 'Cancelado' && (!['Concluído'].includes(p.status) || isPdv) && !cancelamentoConcluido;
@@ -7793,6 +7798,7 @@
                         <div class="pedido-resumo-linha"><b>Itens</b>${escapeAdmin(p.itens || '')}</div>
                         <div class="pedido-resumo-linha"><b>Pagamento</b>${escapeAdmin(p.pagamento || 'Não informado')}</div>
                         <div class="pedido-resumo-linha"><b>Entrega</b>${htmlEndereco}</div>
+                        <div class="pedido-resumo-linha"><b>Natureza fiscal</b>${escapeAdmin(naturezaFiscalLabel)}</div>
                         <div class="pedido-resumo-linha"><b>Bling</b>${p.bling_id ? `Pedido ${escapeAdmin(p.bling_id)}` : escapeAdmin(p.bling_erro || 'Aguardando sincronização')}</div>
                         <div class="pedido-resumo-linha"><b>Realizado em</b>${dtF}</div>
                         ${(htmlFrete || htmlDesconto) ? `<div class="pedido-resumo-linha"><b>Valores adicionais</b>${htmlFrete}${htmlDesconto}</div>` : ''}
@@ -7801,6 +7807,7 @@
                 </div>
                 <div class="pedido-acoes">
                 <button class="pedido-acao" onclick="abrirNotaFiscalDoPedido()" style="background:#19385f;color:#fff">NOTA FISCAL</button>
+                ${pagamentoMercadoPagoPendente ? '<button class="pedido-acao" onclick="reconciliarPagamentoMercadoPago()" style="background:#177847;color:#fff">CONSULTAR PAGAMENTO NO MERCADO PAGO</button>' : ''}
                 ${btnWhatsModal}
                 ${p.bling_id
                     ? `<button class="pedido-acao" onclick="sincronizarContatoBling('${escapeAdmin(p.referencia)}')" style="background:#2b69a8;color:#fff">ATUALIZAR CONTATO NO BLING</button>`
@@ -7817,6 +7824,34 @@
             document.getElementById('m-status').value = p.status || "Novo Pedido";
             document.getElementById('modal-pedido').style.display = 'flex';
             document.getElementById('overlay').style.display = 'block';
+        }
+
+        async function reconciliarPagamentoMercadoPago() {
+            if (!sel?.id) return showToast('Pedido não selecionado.');
+            showToast('Consultando o pagamento diretamente no Mercado Pago...');
+            try {
+                const { data: sessao } = await db.auth.getSession();
+                const token = sessao?.session?.access_token;
+                if (!token) throw new Error('Sua sessão administrativa expirou.');
+                const { data, error } = await db.functions.invoke('mercado-pago-reconciliar', {
+                    body: { pedido_id: sel.id },
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (error || !data?.ok) {
+                    let mensagem = data?.error || error?.message || 'Não foi possível atualizar o pagamento.';
+                    try { if (error?.context?.json) mensagem = (await error.context.json())?.error || mensagem; } catch (_) {}
+                    throw new Error(mensagem);
+                }
+                showToast(data.status_pagamento === 'pago'
+                    ? `Pagamento confirmado${data.bling_id ? ' e pedido enviado ao Bling' : ''}.`
+                    : `Pagamento ainda está ${data.status_pagamento || data.status || 'pendente'}.`);
+                const pedidoId = sel.id;
+                await carregar(true);
+                const { data: atualizado } = await db.from('pedidos').select('*').eq('id', pedidoId).maybeSingle();
+                if (atualizado) abrirPedido(encodeURIComponent(JSON.stringify(atualizado)));
+            } catch (error) {
+                showToast(`Pagamento não atualizado: ${error.message}`);
+            }
         }
 
         async function gerenciarEtiquetaMelhorEnvio(action) {

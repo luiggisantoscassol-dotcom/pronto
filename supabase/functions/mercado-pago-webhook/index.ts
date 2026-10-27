@@ -26,7 +26,20 @@ Deno.serve(async (request) => {
   const paymentId = String(body?.data?.id || url.searchParams.get("data.id") || "");
   const type = String(body?.type || url.searchParams.get("type") || "");
   if (!paymentId || (type && type !== "payment")) return json({ ok: true, ignored: true });
-  if (!(await validSignature(request, paymentId))) return json({ error: "Assinatura inválida." }, 401);
+
+  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  // O Mercado Pago continua sendo a fonte de verdade: sempre consultamos a API
+  // autenticada antes de alterar o pedido. Caso a assinatura não seja aceita
+  // (por exemplo, segredo rotacionado ou atraso de configuração), só permitimos
+  // a recuperação de um pagamento que já esteja vinculado a um pedido local.
+  if (!(await validSignature(request, paymentId))) {
+    const { data: knownPayment } = await db.from("pedidos")
+      .select("id")
+      .eq("mercado_pago_payment_id", paymentId)
+      .maybeSingle();
+    if (!knownPayment) return json({ error: "Assinatura inválida." }, 401);
+    console.warn("Webhook com assinatura não reconhecida; pagamento local será confirmado pela API do Mercado Pago.", paymentId);
+  }
 
   const sandbox = url.searchParams.get("sandbox") === "1";
   const accessToken = Deno.env.get(sandbox ? "MERCADO_PAGO_TEST_ACCESS_TOKEN" : "MERCADO_PAGO_ACCESS_TOKEN");
@@ -45,7 +58,6 @@ Deno.serve(async (request) => {
   const localStatus = sandbox
     ? status === "approved" ? "pago_teste" : ["rejected", "cancelled", "refunded", "charged_back"].includes(status) ? "cancelado_teste" : "pendente_teste"
     : status === "approved" ? "pago" : ["rejected", "cancelled", "refunded", "charged_back"].includes(status) ? "cancelado" : "pendente";
-  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data: existingOrder } = await db.from("pedidos")
     .select("referencia,total,bling_id,cliente_email,cliente_nome,tracking_token,email_confirmacao_enviado_em,estoque_reservado_em,carrinho_recuperacao_token")
     .eq("referencia", reference)
