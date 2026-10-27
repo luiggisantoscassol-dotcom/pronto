@@ -5389,7 +5389,7 @@
             }
             const {data,error} = await db.from('selos_lotes').select('*')
                 .eq('insumo_id',receitaSelo.insumo_id).eq('status','ativo').gt('quantidade_disponivel',0)
-                .order('data_entrada',{ascending:true}).order('criado_em',{ascending:true});
+                .order('data_entrada',{ascending:true}).order('proximo_numero',{ascending:true}).order('criado_em',{ascending:true});
             if (error) {
                 lotesSelosEnvase = [];
                 seletor.innerHTML = '<option value="">Erro ao carregar faixas</option>';
@@ -5398,7 +5398,7 @@
             }
             lotesSelosEnvase = data || [];
             seletor.innerHTML = lotesSelosEnvase.length
-                ? lotesSelosEnvase.map(lote => `<option value="${escapeAdmin(lote.id)}">Série ${escapeAdmin(lote.serie)} · próximo ${formatarNumeroSelo(lote.proximo_numero,lote.numeracao_largura)} · ${Number(lote.quantidade_disponivel).toLocaleString('pt-BR')} disponível(is)</option>`).join('')
+                ? lotesSelosEnvase.map(lote => `<option value="${escapeAdmin(lote.id)}">Série ${escapeAdmin(lote.serie)} · faixa ${formatarNumeroSelo(lote.numeracao_inicial,lote.numeracao_largura)} a ${formatarNumeroSelo(lote.numeracao_final,lote.numeracao_largura)} · próximo ${formatarNumeroSelo(lote.proximo_numero,lote.numeracao_largura)} · ${Number(lote.quantidade_disponivel).toLocaleString('pt-BR')} disponível(is)</option>`).join('')
                 : '<option value="">Nenhuma faixa disponível</option>';
             atualizarIntervaloSelosEnvase();
         }
