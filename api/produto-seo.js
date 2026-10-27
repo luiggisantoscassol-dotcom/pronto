@@ -12,11 +12,15 @@ module.exports = async function produtoSeo(req, res) {
   try {
     const upstream = await fetch(
       `${PRODUTO_SEO_URL}?slug=${encodeURIComponent(slug)}`,
-      { headers: { accept: "text/html" } },
+      { headers: { accept: "text/html" }, redirect: "manual" },
     );
     const html = await upstream.text();
 
     res.status(upstream.status);
+    const location = upstream.headers.get("location");
+    const robots = upstream.headers.get("x-robots-tag");
+    if (location) res.setHeader("Location", location);
+    if (robots) res.setHeader("X-Robots-Tag", robots);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-store, max-age=0");
     res.setHeader("X-Content-Type-Options", "nosniff");

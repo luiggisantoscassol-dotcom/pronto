@@ -284,6 +284,7 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
     const db = window.supabase.createClient(supabaseUrl, supabaseKey);
     const app = document.getElementById('app');
+    const PUBLIC_PRODUCT_BLING_IDS = new Set(['16699719562', '16699660347', '16687078597', '16712113631', '16712114193']);
     let product = null;
     let quantity = 1;
     let shippingPostalCode = '';
@@ -323,6 +324,17 @@
     function money(value) { return Number(value || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }); }
     function normalize(value) { return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
     function productSlug(value) { return normalize(value).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+    function isPublicProduct(item) {
+      if (!item || item.excluido === true || item.visivel === false) return false;
+      return PUBLIC_PRODUCT_BLING_IDS.has(String(item.bling_id || ''))
+        || (item.tipo_produto === 'kit' && item.visivel === true);
+    }
+    function redirectHiddenProduct() {
+      const robots = document.querySelector('meta[name="robots"]');
+      if (robots) robots.setAttribute('content', 'noindex,nofollow,noarchive');
+      app.innerHTML = '<div class="not-found"><div><p>Este produto não está disponível na loja.</p><a href="index.html#vitrine">Ver produtos disponíveis</a></div></div>';
+      window.location.replace('/#vitrine');
+    }
     function alcoholContentFor(p) {
       if (isGengibreGuacoMel(p)) return '28% vol.';
       const registered = String(p?.teor_alcoolico ?? '').trim().replace('%', '').replace(',', '.');
@@ -963,6 +975,8 @@
       } : null;
       const selectedProduct = data || localOuro || localPrata;
       if (!selectedProduct) { app.innerHTML = '<div class="not-found"><div><p>Não foi possível encontrar este produto.</p><a href="index.html#vitrine">Voltar para os produtos</a></div></div>'; return; }
+      const isLocalPublicProduct = selectedProduct === localOuro || selectedProduct === localPrata;
+      if (!isLocalPublicProduct && !isPublicProduct(selectedProduct)) { redirectHiddenProduct(); return; }
       product = selectedProduct;
       window.TioNanAnalytics?.track('product_view', { label:selectedProduct.nome, produto_id:selectedProduct.id, valor:Number(selectedProduct.preco || 0) });
       window.TioNanPixel?.viewContent({ id:selectedProduct.id, name:selectedProduct.nome, value:Number(selectedProduct.preco || 0), category:selectedProduct.categoria });

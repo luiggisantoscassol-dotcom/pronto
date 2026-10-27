@@ -2,6 +2,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SITE_URL = "https://www.tionan.com.br";
 const PRODUCT_TEMPLATE_URL = `${SITE_URL}/produto.html`;
+const ACTIVE_BLING_IDS = new Set([
+  "16699719562",
+  "16699660347",
+  "16687078597",
+  "16712113631",
+  "16712114193",
+]);
 
 function slugify(value: unknown) {
   return String(value || "")
@@ -61,7 +68,7 @@ Deno.serve(async (request) => {
   );
   const { data, error } = await db
     .from("produtos")
-    .select("id,nome,descricao,preco,foto_1,foto_2,estoque,lancado,bling_id")
+    .select("id,nome,descricao,preco,foto_1,foto_2,estoque,lancado,bling_id,tipo_produto,visivel,excluido")
     .eq("excluido", false);
 
   if (error) return new Response("Falha ao carregar produto", { status: 500 });
@@ -69,7 +76,26 @@ Deno.serve(async (request) => {
     const itemSlug = slugify(item.nome);
     return itemSlug === slug || itemSlug.replace(/^cachaca-/, "") === slug;
   });
-  if (!product) return new Response("Produto não encontrado", { status: 404 });
+  if (!product) {
+    return new Response("Produto não encontrado", {
+      status: 404,
+      headers: { "x-robots-tag": "noindex, nofollow" },
+    });
+  }
+  const isPublicProduct = product.visivel !== false && (
+    ACTIVE_BLING_IDS.has(String(product.bling_id || "")) ||
+    (product.tipo_produto === "kit" && product.visivel === true)
+  );
+  if (!isPublicProduct) {
+    return new Response(null, {
+      status: 302,
+      headers: {
+        location: `${SITE_URL}/#vitrine`,
+        "cache-control": "no-store, max-age=0",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+      },
+    });
+  }
 
   const name = String(product.nome || "Produto Tio Nan").trim();
   const title = `${name} | Tio Nan`;
