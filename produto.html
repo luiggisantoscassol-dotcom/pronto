@@ -95,6 +95,7 @@
     .gallery.placeholder { background:#faf9f5; }
     .gallery.placeholder img { width:78%; height:78%; object-fit:contain; mix-blend-mode:multiply; }
     @media (min-width:761px) {
+      .gallery:not(.placeholder) { border-color:transparent; background:transparent; box-shadow:none; }
       .product-gallery-dots, .gallery-swipe-hint { display:none; }
     }
     @media (hover:hover) and (pointer:fine) and (min-width:761px) {
