@@ -60,6 +60,8 @@
     .product-gallery-track.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; user-select:none; }
     .product-gallery-slide { flex:0 0 100%; width:100%; height:100%; display:grid; place-items:center; scroll-snap-align:start; scroll-snap-stop:always; background:transparent; }
     .product-gallery-slide img { display:block; width:100%; height:100%; object-fit:contain; object-position:center; padding:0; }
+    .product-gallery-slide:not(.product-gallery-video-slide) { position:relative; overflow:hidden; }
+    .product-gallery-slide:not(.product-gallery-video-slide) img { cursor:zoom-in; will-change:transform; transition:transform .22s ease; }
     .product-gallery-video-slide { position:relative; background:#08192d; }
     .product-gallery-video { display:block; width:100%; height:100%; object-fit:contain; background:#08192d; }
     .product-gallery-video-slide:not(.is-playing) .product-gallery-video { object-fit:cover; aspect-ratio:1/1; }
@@ -78,10 +80,25 @@
     .product-gallery-dot { width:7px; height:7px; border-radius:50%; background:#b9bec7; transition:background .2s ease, transform .2s ease; }
     .product-gallery-dot.is-active { background:var(--navy-dark); transform:scale(1.25); }
     .gallery-swipe-hint { position:absolute; z-index:2; right:16px; top:16px; display:inline-flex; align-items:center; gap:6px; padding:8px 11px; border:1px solid rgba(21,54,95,.1); border-radius:999px; background:rgba(255,255,255,.86); color:#54647a; font-size:11px; font-weight:700; box-shadow:0 4px 15px rgba(20,38,60,.08); pointer-events:none; }
+    .gallery-swipe-hint[hidden] { display:none!important; }
+    .product-image-modal { position:fixed; z-index:10060; inset:0; display:grid; place-items:center; padding:0; background:rgba(248,247,244,.98); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+    .product-image-modal[hidden] { display:none; }
+    .product-image-modal__viewport { width:100%; height:100%; display:grid; place-items:center; overflow:hidden; touch-action:none; cursor:grab; }
+    .product-image-modal__viewport.is-panning { cursor:grabbing; }
+    .product-image-modal__image { display:block; max-width:94vw; max-height:88dvh; width:auto; height:auto; object-fit:contain; user-select:none; -webkit-user-drag:none; transform:translate3d(0,0,0) scale(1); transform-origin:center; will-change:transform; }
+    .product-image-modal__close { position:absolute; z-index:3; top:max(14px,env(safe-area-inset-top)); right:max(14px,env(safe-area-inset-right)); width:46px; height:46px; display:grid; place-items:center; padding:0; border:1px solid rgba(21,54,95,.18); border-radius:50%; background:#fff; color:var(--navy-dark); font-size:29px; line-height:1; box-shadow:0 8px 24px rgba(20,38,60,.14); }
+    .product-image-modal__controls { position:absolute; z-index:3; left:50%; bottom:max(18px,calc(10px + env(safe-area-inset-bottom))); transform:translateX(-50%); display:flex; align-items:center; gap:8px; padding:7px; border:1px solid rgba(21,54,95,.12); border-radius:999px; background:rgba(255,255,255,.94); box-shadow:0 8px 24px rgba(20,38,60,.14); }
+    .product-image-modal__controls button { width:42px; height:42px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; background:#eef2f6; color:var(--navy-dark); font-size:24px; font-weight:700; }
+    .product-image-modal__controls output { min-width:52px; color:var(--navy-dark); font-size:13px; font-weight:900; text-align:center; }
+    .product-image-modal__hint { position:absolute; z-index:2; left:50%; top:max(20px,calc(16px + env(safe-area-inset-top))); transform:translateX(-50%); margin:0; color:#5f6d80; font-size:11px; font-weight:700; white-space:nowrap; pointer-events:none; }
+    body.product-image-open { overflow:hidden; }
     .gallery.placeholder { background:#faf9f5; }
     .gallery.placeholder img { width:78%; height:78%; object-fit:contain; mix-blend-mode:multiply; }
     @media (min-width:761px) {
       .product-gallery-dots, .gallery-swipe-hint { display:none; }
+    }
+    @media (hover:hover) and (pointer:fine) and (min-width:761px) {
+      .product-gallery-slide.is-image-zooming img { transform:scale(2.15); transform-origin:var(--image-zoom-x,50%) var(--image-zoom-y,50%); transition:transform .08s ease-out; }
     }
     .tag { display:inline-block; margin:2px 0 11px; color:var(--gold); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     h1 { margin:0; max-width:640px; color:var(--navy-dark); font-size:clamp(32px, 4vw, 49px); line-height:1.04; letter-spacing:-.04em; text-wrap:balance; }
@@ -207,6 +224,7 @@
       .gallery { order:0; width:100%; height:auto; min-height:0; aspect-ratio:1/1; border:0; border-radius:0; position:relative; top:auto; overflow:hidden; background:#fff; }
       .product-gallery-track { touch-action:auto; }
       .product-gallery-slide img { width:100%; height:100%; max-height:none; object-fit:contain; object-position:center; }
+      .gallery-swipe-hint { max-width:calc(100% - 32px); white-space:nowrap; }
       .product-video-play { width:68px; height:68px; }
       .product-video-play::before { border-top-width:11px; border-bottom-width:11px; border-left-width:18px; }
       .product-info { width:100%; padding:20px 20px 0; }
@@ -689,9 +707,155 @@
         return `<article class="review-card" data-has-description="${hasComment ? 'true' : 'false'}"><div class="review-meta"><span>${name}${review.origem === 'google' ? '<small class="review-source">Google</small>' : ''}</span><time class="review-date">${date}</time></div><div class="review-stars" aria-label="${rating} de 5 estrelas">${stars}</div><p class="review-comment">“${comment}”</p></article>`;
       }).join('');
     }
+    function setupProductImageZoom(product, track) {
+      const imageSlides = [...track.querySelectorAll('.product-gallery-slide:not(.product-gallery-video-slide)')];
+      if (!imageSlides.length) return;
+      const desktopZoom = window.matchMedia('(hover:hover) and (pointer:fine) and (min-width:761px)');
+      let suppressMobileClickUntil = 0;
+      let touchGesture = null;
+      let desktopZoomTracked = false;
+
+      const clearDesktopZoom = () => imageSlides.forEach(slide => slide.classList.remove('is-image-zooming'));
+      imageSlides.forEach(slide => {
+        const image = slide.querySelector('[data-product-image]');
+        if (!image) return;
+        image.addEventListener('dragstart', event => event.preventDefault());
+        slide.addEventListener('pointermove', event => {
+          if (!desktopZoom.matches || event.pointerType !== 'mouse' || track.classList.contains('is-dragging')) return;
+          const bounds = slide.getBoundingClientRect();
+          const zoomX = Math.max(0, Math.min(100, ((event.clientX - bounds.left) / Math.max(1, bounds.width)) * 100));
+          const zoomY = Math.max(0, Math.min(100, ((event.clientY - bounds.top) / Math.max(1, bounds.height)) * 100));
+          slide.style.setProperty('--image-zoom-x', `${zoomX}%`);
+          slide.style.setProperty('--image-zoom-y', `${zoomY}%`);
+          slide.classList.add('is-image-zooming');
+          if (!desktopZoomTracked) {
+            desktopZoomTracked = true;
+            window.TioNanAnalytics?.track('product_image_zoom', { label:`Ampliou a foto do produto: ${product?.nome || 'Produto'}`, produto_id:product?.id, metadata:{ dispositivo:'desktop' } });
+          }
+        });
+        slide.addEventListener('pointerleave', () => slide.classList.remove('is-image-zooming'));
+        image.addEventListener('click', event => {
+          if (desktopZoom.matches || performance.now() < suppressMobileClickUntil) return;
+          const source = image.currentSrc || image.src;
+          if (!source || source.includes('produto-em-breve.svg')) return;
+          event.preventDefault();
+          openProductImageModal(source, image.alt || product?.nome || 'Foto do produto');
+        });
+      });
+
+      track.addEventListener('pointerdown', event => {
+        clearDesktopZoom();
+        if (desktopZoom.matches || event.pointerType === 'mouse') return;
+        touchGesture = { id:event.pointerId, x:event.clientX, y:event.clientY, moved:false };
+      }, { passive:true });
+      track.addEventListener('pointermove', event => {
+        if (!touchGesture || touchGesture.id !== event.pointerId) return;
+        if (Math.hypot(event.clientX - touchGesture.x, event.clientY - touchGesture.y) > 9) touchGesture.moved = true;
+      }, { passive:true });
+      const finishTouchGesture = event => {
+        if (!touchGesture || touchGesture.id !== event.pointerId) return;
+        if (touchGesture.moved) suppressMobileClickUntil = performance.now() + 420;
+        touchGesture = null;
+      };
+      track.addEventListener('pointerup', finishTouchGesture, { passive:true });
+      track.addEventListener('pointercancel', finishTouchGesture, { passive:true });
+
+      function openProductImageModal(source, alt) {
+        document.querySelector('.product-image-modal')?.remove();
+        const modal = document.createElement('div');
+        modal.className = 'product-image-modal';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-label', `Foto ampliada de ${product?.nome || 'produto'}`);
+        modal.innerHTML = `<p class="product-image-modal__hint">Use dois dedos ou os botões para ampliar</p><div class="product-image-modal__viewport"><img class="product-image-modal__image" alt="" draggable="false"></div><button class="product-image-modal__close" type="button" aria-label="Fechar foto ampliada">×</button><div class="product-image-modal__controls" aria-label="Controles de ampliação"><button type="button" data-image-zoom-out aria-label="Diminuir zoom">−</button><output aria-live="polite">100%</output><button type="button" data-image-zoom-in aria-label="Aumentar zoom">+</button></div>`;
+        const viewport = modal.querySelector('.product-image-modal__viewport');
+        const modalImage = modal.querySelector('.product-image-modal__image');
+        modalImage.src = source;
+        modalImage.alt = alt;
+        document.body.appendChild(modal);
+        document.body.classList.add('product-image-open');
+        const output = modal.querySelector('output');
+        const closeButton = modal.querySelector('.product-image-modal__close');
+        const pointers = new Map();
+        let scale = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let pinchDistance = 0;
+
+        const clampOffsets = () => {
+          if (scale <= 1) { offsetX = 0; offsetY = 0; return; }
+          const maxX = Math.max(0, (modalImage.clientWidth * scale - viewport.clientWidth) / 2) + 20;
+          const maxY = Math.max(0, (modalImage.clientHeight * scale - viewport.clientHeight) / 2) + 20;
+          offsetX = Math.max(-maxX, Math.min(maxX, offsetX));
+          offsetY = Math.max(-maxY, Math.min(maxY, offsetY));
+        };
+        const applyTransform = () => {
+          clampOffsets();
+          modalImage.style.transform = `translate3d(${offsetX}px,${offsetY}px,0) scale(${scale})`;
+          output.value = `${Math.round(scale * 100)}%`;
+          output.textContent = output.value;
+        };
+        const setScale = value => {
+          scale = Math.max(1, Math.min(4, value));
+          applyTransform();
+        };
+        const distanceBetweenPointers = () => {
+          const points = [...pointers.values()];
+          return points.length < 2 ? 0 : Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+        };
+        const closeModal = () => {
+          modal.remove();
+          document.body.classList.remove('product-image-open');
+          document.removeEventListener('keydown', onKeydown);
+        };
+        const onKeydown = event => {
+          if (event.key === 'Escape') closeModal();
+          if (event.key === '+') setScale(scale + .5);
+          if (event.key === '-') setScale(scale - .5);
+        };
+
+        viewport.addEventListener('pointerdown', event => {
+          event.preventDefault();
+          viewport.setPointerCapture?.(event.pointerId);
+          pointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+          viewport.classList.add('is-panning');
+          if (pointers.size === 2) pinchDistance = distanceBetweenPointers();
+        });
+        viewport.addEventListener('pointermove', event => {
+          const previous = pointers.get(event.pointerId);
+          if (!previous) return;
+          event.preventDefault();
+          pointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+          if (pointers.size === 2) {
+            const nextDistance = distanceBetweenPointers();
+            if (pinchDistance > 0) setScale(scale * (nextDistance / pinchDistance));
+            pinchDistance = nextDistance;
+          } else if (pointers.size === 1 && scale > 1) {
+            offsetX += event.clientX - previous.x;
+            offsetY += event.clientY - previous.y;
+            applyTransform();
+          }
+        });
+        const releasePointer = event => {
+          pointers.delete(event.pointerId);
+          pinchDistance = pointers.size === 2 ? distanceBetweenPointers() : 0;
+          if (!pointers.size) viewport.classList.remove('is-panning');
+        };
+        viewport.addEventListener('pointerup', releasePointer);
+        viewport.addEventListener('pointercancel', releasePointer);
+        viewport.addEventListener('dblclick', event => { event.preventDefault(); setScale(scale > 1 ? 1 : 2.4); });
+        modal.querySelector('[data-image-zoom-in]').addEventListener('click', () => setScale(scale + .5));
+        modal.querySelector('[data-image-zoom-out]').addEventListener('click', () => setScale(scale - .5));
+        closeButton.addEventListener('click', closeModal);
+        document.addEventListener('keydown', onKeydown);
+        window.TioNanAnalytics?.track('product_image_zoom', { label:`Abriu a foto ampliada: ${product?.nome || 'Produto'}`, produto_id:product?.id, metadata:{ dispositivo:'mobile' } });
+        closeButton.focus({ preventScroll:true });
+      }
+    }
     function setupProductGallery(product) {
       const track = document.querySelector('[data-product-gallery-track]');
       if (!track) return;
+      setupProductImageZoom(product, track);
       const slides = [...track.querySelectorAll('.product-gallery-slide')];
       const dots = [...document.querySelectorAll('.product-gallery-dot')];
       const thumbs = [...document.querySelectorAll('[data-gallery-thumb]')];
@@ -699,6 +863,8 @@
       let scrollFrame = 0;
       const updateDots = () => {
         const index = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
+        const zoomHint = document.querySelector('[data-gallery-zoom-hint]');
+        if (zoomHint) zoomHint.hidden = slides[index]?.classList.contains('product-gallery-video-slide');
         dots.forEach((dot, dotIndex) => dot.classList.toggle('is-active', dotIndex === index));
         thumbs.forEach((thumb, thumbIndex) => {
           const active = thumbIndex === index;
@@ -841,7 +1007,7 @@
         : 'Envelhecida para revelar aroma, suavidade e personalidade em cada gole.';
       const productPhotos = productPhotosFor(p);
       const productVideo = productVideoFor(p);
-      const photoSlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`);
+      const photoSlides = productPhotos.map((photo, index) => `<div class="product-gallery-slide"><img data-product-image src="${photo}" alt="${displayName}${productPhotos.length > 1 ? ` — foto ${index + 1}` : ''}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" draggable="false" onerror="this.onerror=null;this.src='fotos/produto-em-breve.svg';this.closest('.gallery')?.classList.add('placeholder')" /></div>`);
       const galleryThumbItems = productPhotos.map((photo, index) => ({ photo, label:`Ver foto ${index + 1} de ${displayName}`, video:false }));
       if (productVideo) photoSlides.splice(1, 0, `<div class="product-gallery-slide product-gallery-video-slide"><video class="product-gallery-video" data-src="${productVideo}" poster="${productPhotos[0]}" preload="none" aria-label="Vídeo de ${displayName}"></video><button class="product-video-play" type="button" data-video-play aria-label="Assistir ao vídeo de ${displayName}"></button><span class="product-video-label">▶ Vídeo do produto</span></div>`);
       if (productVideo) galleryThumbItems.splice(1, 0, { photo:productPhotos[0], label:`Ver vídeo de ${displayName}`, video:true });
@@ -872,7 +1038,7 @@
       const ingredientCallout = gengibreGuacoMel ? `<aside class="real-ingredients" aria-label="Ingredientes de verdade"><span class="real-ingredients-kicker">Ingredientes de verdade</span><h2>Da raiz ao brinde.</h2><p>Feita com gengibre, guaco e mel de verdade — ingredientes que você reconhece em um sabor marcante e cheio de personalidade.</p><ul class="ingredient-list"><li>Gengibre</li><li>Guaco</li><li>Mel</li></ul></aside>` : '';
       app.innerHTML = `
         <div class="layout">
-          <div class="gallery-shell${mediaCount > 1 ? '' : ' gallery-shell--single'}">${galleryThumbs}<section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos e vídeo de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div>${mediaCount > 1 ? '<span class="gallery-swipe-hint">↔ Arraste para ver</span>' : ''}${galleryDots}</section></div>
+          <div class="gallery-shell${mediaCount > 1 ? '' : ' gallery-shell--single'}">${galleryThumbs}<section class="gallery ${productPhotos[0]?.includes('produto-em-breve.svg') ? 'placeholder' : ''}" aria-label="Fotos e vídeo de ${displayName}"><div class="product-gallery-track" data-product-gallery-track>${gallerySlides}</div><span class="gallery-swipe-hint" data-gallery-zoom-hint>⌕ Toque para ampliar${mediaCount > 1 ? ' · arraste para ver' : ''}</span>${galleryDots}</section></div>
           <section class="product-info">
             <nav class="crumbs" aria-label="Navegação"><a href="index.html">Início</a> &nbsp;›&nbsp; <a href="index.html#vitrine">Produtos</a> &nbsp;›&nbsp; ${displayName}</nav>
             <span class="tag">${productType}</span>
