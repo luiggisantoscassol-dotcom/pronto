@@ -49,7 +49,7 @@
     <meta name="apple-mobile-web-app-title" content="Tio Nan">
     <meta name="application-name" content="Tio Nan">
 
-    <link rel="stylesheet" href="styles.css?v=6.47">
+    <link rel="stylesheet" href="styles.css?v=6.48">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -459,11 +459,24 @@
 
         <h2 class="products-heading">Mais vendidos</h2>
         <section class="products-carousel-section" aria-label="Mais vendidos">
-            <div class="swiper swiper-products">
+            <div class="swiper swiper-products swiper-products-main">
                 <div id="vitrine" class="swiper-wrapper vitrine"></div>
                 <div class="swiper-pagination products-pagination"></div>
                 <div class="swiper-button-prev products-prev"></div>
                 <div class="swiper-button-next products-next"></div>
+            </div>
+        </section>
+
+        <section class="upcoming-products" data-upcoming-products aria-labelledby="upcoming-products-title" hidden>
+            <h2 class="products-heading" id="upcoming-products-title">Em breve</h2>
+            <p class="products-subheading">Novidades da Tio Nan que estão chegando.</p>
+            <div class="products-carousel-section" aria-label="Produtos em breve">
+                <div class="swiper swiper-products swiper-products-upcoming">
+                    <div id="vitrine-em-breve" class="swiper-wrapper vitrine"></div>
+                    <div class="swiper-pagination products-pagination"></div>
+                    <div class="swiper-button-prev products-prev"></div>
+                    <div class="swiper-button-next products-next"></div>
+                </div>
             </div>
         </section>
 
@@ -548,7 +561,7 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="meta-pixel.js?v=2"></script>
     <script src="site-analytics.js?v=5"></script>
-    <script src="scripts.js?v=6.80"></script>
+    <script src="scripts.js?v=6.81"></script>
     <script src="whatsapp-help.js?v=2"></script>
 </body>
 

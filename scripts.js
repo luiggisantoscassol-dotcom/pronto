@@ -1708,7 +1708,9 @@ async function loadProducts() {
                 return prioridadeA - prioridadeB || String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR');
             });
 
-        let htmlDisp = ''; let htmlEsg = '';
+        let htmlDisp = '';
+        let htmlEsg = '';
+        let htmlEmBreve = '';
 
         produtosExibidos.forEach((p, productIndex) => {
             const id = p.id;
@@ -1810,25 +1812,45 @@ async function loadProducts() {
                 </div>`;
 
             const slide = `<div class="swiper-slide">${card}</div>`;
-            if (temEstoque) htmlDisp += slide; else htmlEsg += slide;
+            if (emBreve) {
+                htmlEmBreve += slide;
+            } else if (temEstoque) {
+                htmlDisp += slide;
+            } else {
+                htmlEsg += slide;
+            }
         });
         document.getElementById('vitrine').innerHTML = htmlDisp + htmlEsg;
+        const vitrineEmBreve = document.getElementById('vitrine-em-breve');
+        const secaoEmBreve = document.querySelector('[data-upcoming-products]');
+        if (vitrineEmBreve) vitrineEmBreve.innerHTML = htmlEmBreve;
+        if (secaoEmBreve) secaoEmBreve.hidden = !htmlEmBreve;
 
         if (window.productsSwiper) window.productsSwiper.destroy(true, true);
-        const productsElement = document.querySelector('.swiper-products');
-        const productsAnterior = productsElement.querySelector('.products-prev');
-        const productsProximo = productsElement.querySelector('.products-next');
-        window.productsSwiper = new Swiper(productsElement, {
+        if (window.upcomingProductsSwiper) window.upcomingProductsSwiper.destroy(true, true);
+
+        const criarCarrosselProdutos = (productsElement) => {
+            if (!productsElement) return null;
+            const productsAnterior = productsElement.querySelector('.products-prev');
+            const productsProximo = productsElement.querySelector('.products-next');
+            return new Swiper(productsElement, {
             slidesPerView: 1.42,
             spaceBetween: 8,
             centeredSlides: false,
             pagination: { el: productsElement.querySelector('.products-pagination'), clickable: true },
             navigation: { prevEl: productsAnterior, nextEl: productsProximo },
+            watchOverflow: true,
             breakpoints: {
                 640: { slidesPerView: 2, spaceBetween: 24, centeredSlides: false },
                 1024: { slidesPerView: 3, spaceBetween: 30, centeredSlides: false }
             }
-        });
+            });
+        };
+
+        window.productsSwiper = criarCarrosselProdutos(document.querySelector('.swiper-products-main'));
+        window.upcomingProductsSwiper = htmlEmBreve
+            ? criarCarrosselProdutos(document.querySelector('.swiper-products-upcoming'))
+            : null;
 
         const swiperObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
