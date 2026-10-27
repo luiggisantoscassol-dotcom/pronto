@@ -326,8 +326,10 @@
     function productSlug(value) { return normalize(value).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
     function isPublicProduct(item) {
       if (!item || item.excluido === true || item.visivel === false) return false;
-      return PUBLIC_PRODUCT_BLING_IDS.has(String(item.bling_id || ''))
+      const publicCatalogItem = PUBLIC_PRODUCT_BLING_IDS.has(String(item.bling_id || ''))
         || (item.tipo_produto === 'kit' && item.visivel === true);
+      const photo = String(photoFor(item) || '').trim();
+      return publicCatalogItem && photo.length > 5 && !photo.includes('produto-em-breve.svg');
     }
     function redirectHiddenProduct() {
       const robots = document.querySelector('meta[name="robots"]');
@@ -376,7 +378,7 @@
     }
     function photoFor(p) {
       const blingId = String(p.bling_id || '');
-      const savedPhoto = String(p.foto_1 || '').trim();
+      const savedPhoto = String(p.foto_1 || p.foto_2 || '').trim();
       if (savedPhoto) return savedPhoto;
       if (p.tipo_produto === 'kit') return 'fotos/produto-em-breve.svg';
       if (blingId === '16712113631' || blingId === '16712114193') return 'fotos/produto-em-breve.svg';

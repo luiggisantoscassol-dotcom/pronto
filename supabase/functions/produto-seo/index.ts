@@ -9,6 +9,12 @@ const ACTIVE_BLING_IDS = new Set([
   "16712113631",
   "16712114193",
 ]);
+const LOCAL_IMAGE_BLING_IDS = new Set(["16699719562", "16699660347"]);
+
+function hasPublicImage(product: Record<string, unknown>) {
+  return Boolean(String(product.foto_1 || product.foto_2 || "").trim()) ||
+    LOCAL_IMAGE_BLING_IDS.has(String(product.bling_id || ""));
+}
 
 function slugify(value: unknown) {
   return String(value || "")
@@ -82,7 +88,7 @@ Deno.serve(async (request) => {
       headers: { "x-robots-tag": "noindex, nofollow" },
     });
   }
-  const isPublicProduct = product.visivel !== false && (
+  const isPublicProduct = product.visivel !== false && hasPublicImage(product) && (
     ACTIVE_BLING_IDS.has(String(product.bling_id || "")) ||
     (product.tipo_produto === "kit" && product.visivel === true)
   );

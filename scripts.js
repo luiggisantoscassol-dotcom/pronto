@@ -1585,7 +1585,7 @@ function getLocalPhoto(nome, currentUrl, isFoto2 = false) {
 
 function fotoProdutoOficial(produto, isFoto2 = false) {
     const blingId = String(produto?.bling_id || '');
-    const fotoCadastrada = fixDrive(isFoto2 ? produto?.foto_2 : produto?.foto_1);
+    const fotoCadastrada = fixDrive(isFoto2 ? produto?.foto_2 : (produto?.foto_1 || produto?.foto_2));
     if (fotoCadastrada) return fotoCadastrada;
     if (produto?.tipo_produto === 'kit') return 'fotos/produto-em-breve.svg';
     if (blingId === '16712113631' || blingId === '16712114193') return 'fotos/produto-em-breve.svg';
@@ -1593,6 +1593,11 @@ function fotoProdutoOficial(produto, isFoto2 = false) {
     if (blingId === '16699660347') return 'fotos/cachaca-ouro.webp?v=2';
     if (blingId === '16687078597') return 'fotos/produto-em-breve.svg';
     return getLocalPhoto(produto?.nome || '', fixDrive(isFoto2 ? produto?.foto_2 : produto?.foto_1), isFoto2);
+}
+
+function produtoTemImagemPublica(produto) {
+    const foto = String(fotoProdutoOficial(produto, false) || '').trim();
+    return foto.length > 5 && !foto.includes('produto-em-breve.svg');
 }
 
 // O cadastro administrativo/Bling é a fonte oficial para a apresentação dos
@@ -1696,6 +1701,7 @@ async function loadProducts() {
         const prioridadeProduto = new Map(ordemProdutosBling.map((id, indice) => [id, indice]));
         const produtosExibidos = (produtos || [])
             .filter(produto => ordemProdutosBling.includes(String(produto.bling_id || '')) || (produto.tipo_produto === 'kit' && produto.visivel === true))
+            .filter(produtoTemImagemPublica)
             .sort((a, b) => {
                 const prioridadeA = prioridadeProduto.get(String(a.bling_id || '')) ?? ordemProdutosBling.length;
                 const prioridadeB = prioridadeProduto.get(String(b.bling_id || '')) ?? ordemProdutosBling.length;
@@ -3491,12 +3497,10 @@ async function carregarTestimonialsHome() {
         const produtosMap = {};
         if (prodsRes.data) {
             prodsRes.data.forEach(p => {
+                if (!produtoTemImagemPublica(p)) return;
                 const id = p.id;
                 const nome = p.nome;
-
-                const foto1Raw = (p.foto_1 && p.foto_1.trim().length > 5) ? p.foto_1.trim() : "fotos/produto-em-breve.svg";
-                let foto1 = fixDrive(foto1Raw);
-                foto1 = getLocalPhoto(nome, foto1, false);
+                const foto1 = fotoProdutoOficial(p, false);
 
                 const nomeNormalizado = nome.trim().toLowerCase();
 

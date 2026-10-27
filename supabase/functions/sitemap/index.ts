@@ -8,6 +8,12 @@ const ACTIVE_BLING_IDS = new Set([
   "16712113631",
   "16712114193"
 ]);
+const LOCAL_IMAGE_BLING_IDS = new Set(["16699719562", "16699660347"]);
+
+function hasPublicImage(product: Record<string, unknown>) {
+  return Boolean(String(product.foto_1 || product.foto_2 || "").trim()) ||
+    LOCAL_IMAGE_BLING_IDS.has(String(product.bling_id || ""));
+}
 
 function slugify(value: unknown) {
   return String(value || "")
@@ -43,7 +49,7 @@ Deno.serve(async (request) => {
   const db = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
   const { data, error } = await db
     .from("produtos")
-    .select("nome,bling_id,tipo_produto,visivel,excluido")
+    .select("nome,bling_id,tipo_produto,visivel,excluido,foto_1,foto_2")
     .eq("excluido", false)
     .or("visivel.eq.true,visivel.is.null");
 
@@ -63,8 +69,10 @@ Deno.serve(async (request) => {
   ];
   const seen = new Set<string>();
   const publicProducts = (data || []).filter((product) =>
-    ACTIVE_BLING_IDS.has(String(product.bling_id || "")) ||
-    (product.tipo_produto === "kit" && product.visivel === true)
+    hasPublicImage(product) && (
+      ACTIVE_BLING_IDS.has(String(product.bling_id || "")) ||
+      (product.tipo_produto === "kit" && product.visivel === true)
+    )
   );
   const productEntries = publicProducts.flatMap((product) => {
     const slug = slugify(product.nome);
