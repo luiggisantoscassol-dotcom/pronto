@@ -1384,9 +1384,7 @@
         }
 
         .products-pagination {
-            position: relative;
-            bottom: auto !important;
-            margin-top: 16px;
+            display: none;
         }
 
         .products-prev,
