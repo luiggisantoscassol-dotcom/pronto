@@ -6858,6 +6858,7 @@
                         trackerMap[chave].cont++;
 
                         const eventoAtual = eventoRastreio(r);
+                        if (eventoAtual === 'location_update') return;
                         if (eventoAtual === 'brand_story_watch' || eventoAtual === 'product_video_watch') {
                             let metadataVideo = r.metadata && typeof r.metadata === 'object' ? r.metadata : {};
                             if (typeof r.metadata === 'string') {

@@ -3,6 +3,8 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlZ3FvYnFocmZka21qeWpucXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjU5NzcsImV4cCI6MjA5MzEwMTk3N30.rHSlJ1Fv0oSEsJc4r44czBs3Lb6dkfWl-WwtIHawpys';
   const internalAccessKey = 'tioNanInternalAccess';
   const sessionKey = 'tioNanAnalyticsSessionV2';
+  const geoCacheKey = 'visitorGeo';
+  const geoCacheTtl = 60 * 60 * 1000;
   const sessionTimeout = 30 * 60 * 1000;
   const initialParams = new URLSearchParams(location.search);
   const internalAccessParam = initialParams.get('interno');
@@ -109,6 +111,106 @@
     return 'Outro';
   }
 
+  function cleanGeoText(value, maxLength = 80) {
+    return String(value || '')
+      .replace(/[^\p{L}\p{N}\s.'’\-]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, maxLength);
+  }
+
+  function stateAbbreviation(value) {
+    const state = cleanGeoText(value, 40);
+    if (!state) return '';
+    if (/^[a-z]{2}$/i.test(state)) return state.toUpperCase();
+    const normalized = state.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const states = {
+      acre:'AC', alagoas:'AL', amapa:'AP', amazonas:'AM', bahia:'BA', ceara:'CE',
+      'distrito federal':'DF', 'espirito santo':'ES', goias:'GO', maranhao:'MA',
+      'mato grosso':'MT', 'mato grosso do sul':'MS', 'minas gerais':'MG', para:'PA',
+      paraiba:'PB', parana:'PR', pernambuco:'PE', piaui:'PI', 'rio de janeiro':'RJ',
+      'rio grande do norte':'RN', 'rio grande do sul':'RS', rondonia:'RO', roraima:'RR',
+      'santa catarina':'SC', 'sao paulo':'SP', sergipe:'SE', tocantins:'TO'
+    };
+    return states[normalized] || state.slice(0, 2).toUpperCase();
+  }
+
+  function normalizeGeo(city, state) {
+    const cidade = cleanGeoText(city);
+    const estado = stateAbbreviation(state);
+    if (!cidade || /oculta|localiza/i.test(cidade)) return null;
+    return { cidade, estado, timestamp:Date.now() };
+  }
+
+  function readCachedGeo() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(geoCacheKey) || 'null');
+      if (!cached || Date.now() - Number(cached.timestamp || 0) > geoCacheTtl) return null;
+      return normalizeGeo(cached.cidade, cached.estado);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function fetchGeoJson(url, timeout = 2500) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(url, {
+        mode:'cors',
+        cache:'no-store',
+        credentials:'omit',
+        referrerPolicy:'no-referrer',
+        signal:controller.signal
+      });
+      if (!response.ok) throw new Error(`Geo HTTP ${response.status}`);
+      return await response.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  let approximateGeo = readCachedGeo();
+  let geoPromise = null;
+
+  async function getApproximateGeo() {
+    if (approximateGeo) return approximateGeo;
+    if (geoPromise) return geoPromise;
+    geoPromise = (async () => {
+      const providers = [
+        async () => {
+          const data = await fetchGeoJson('https://ipwho.is/');
+          if (data.success === false) throw new Error('Geo indisponível');
+          return normalizeGeo(data.city, data.region_code || data.region);
+        },
+        async () => {
+          const data = await fetchGeoJson('https://ipinfo.io/json');
+          return normalizeGeo(data.city, data.region);
+        },
+        async () => {
+          const data = await fetchGeoJson('https://free.freeipapi.com/api/v1/json');
+          return normalizeGeo(data.cityName, data.regionName);
+        }
+      ];
+      for (const provider of providers) {
+        try {
+          const geo = await provider();
+          if (!geo) continue;
+          approximateGeo = geo;
+          localStorage.setItem(geoCacheKey, JSON.stringify(geo));
+          return geo;
+        } catch (_) {}
+      }
+      return null;
+    })();
+    return geoPromise;
+  }
+
+  function formattedLocation(geo = approximateGeo) {
+    if (!geo?.cidade) return '';
+    return `DISP_${deviceType()} ${geo.cidade}${geo.estado ? `, ${geo.estado}` : ''}`;
+  }
+
   async function track(evento, details = {}) {
     const activeSessionId = currentSessionId();
     if (activeSessionId !== sessionId) {
@@ -122,7 +224,7 @@
       produto_nome: `${action}${label}`,
       cliente_nome: details.cliente_nome || localStorage.getItem('visitorName') || 'Anônimo',
       ip: details.ip || `DISP_${deviceType()} Oculto`,
-      local: details.local || `DISP_${deviceType()} Localização não informada`
+      local: details.local || formattedLocation() || `DISP_${deviceType()} Localização não informada`
     };
     const payload = {
       ...legacy,
@@ -153,4 +255,14 @@
 
   window.TioNanAnalytics = { track, attribution: () => ({ ...attribution }), sessionId: () => sessionId, deviceId, isInternal: false };
   track('page_view', { label: location.pathname === '/' || location.pathname.endsWith('/index.html') ? 'Página inicial' : document.title });
+  if (!approximateGeo) {
+    getApproximateGeo().then(geo => {
+      if (!geo) return;
+      track('location_update', {
+        label:'Localização aproximada identificada',
+        local:formattedLocation(geo),
+        metadata:{ automatico:true, origem:'ip' }
+      });
+    });
+  }
 })();
