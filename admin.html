@@ -1580,6 +1580,39 @@
             font-weight: 800;
         }
         .produto-foto-status.tem-foto { color: #18794e; }
+        .produto-foto-editor {
+            display: none;
+            grid-column: 1 / -1;
+            margin-top: 2px;
+            padding: 14px;
+            border: 1px solid rgba(197,154,74,.42);
+            border-radius: 14px;
+            background: #fff;
+        }
+        .produto-foto-editor.is-active { display: grid; gap: 13px; }
+        .produto-foto-editor__topo { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+        .produto-foto-editor__topo b { display:block; color:#19385f; font-size:.84rem; }
+        .produto-foto-editor__topo small { display:block; margin-top:3px; color:#718096; font-size:.68rem; line-height:1.35; }
+        .produto-foto-editor__proporcao { flex:0 0 auto; padding:5px 8px; border-radius:999px; background:#eef3f8; color:#19385f; font-size:.61rem; font-weight:900; letter-spacing:.6px; }
+        .produto-foto-editor__canvas-wrap {
+            width: min(100%, 470px);
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid #e4ddcf;
+            border-radius: 15px;
+            background: #fbfaf7;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.75);
+        }
+        .produto-foto-editor__canvas { display:block; width:100%; height:auto; aspect-ratio:1; touch-action:none; cursor:grab; }
+        .produto-foto-editor__canvas.is-dragging { cursor:grabbing; }
+        .produto-foto-editor__controles { display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; }
+        .produto-foto-editor__controle { display:grid; grid-template-columns:auto minmax(100px,1fr) auto; align-items:center; gap:8px; color:#53657c; font-size:.68rem; font-weight:800; }
+        .produto-foto-editor__controle output { min-width:42px; color:#19385f; text-align:right; font-variant-numeric:tabular-nums; }
+        .produto-foto-editor__controle input[type="range"] { width:100%; min-height:0; margin:0; padding:0; border:0; background:transparent; accent-color:#b98c3a; }
+        .produto-foto-editor__acoes { display:flex; flex-wrap:wrap; gap:8px; }
+        .produto-foto-editor__acoes button { min-height:38px; width:auto; margin:0; padding:8px 11px; border:1px solid #ded7cc; border-radius:10px; background:#f7f4ee; color:#19385f; font:inherit; font-size:.64rem; font-weight:900; cursor:pointer; }
+        .produto-foto-editor__acoes button:hover { border-color:#b98c3a; background:#fff8e9; }
+        .produto-foto-editor__dica { margin:0; color:#718096; font-size:.68rem; line-height:1.45; text-align:center; }
         .produto-foto-upload input[type="file"]{display:block;width:100%;max-width:100%;min-width:0;min-height:48px;margin:0;padding:7px;box-sizing:border-box;overflow:hidden;border:1px solid #ded7cc;border-radius:12px;background:#fff;color:#53657c;font-size:.72rem}
         .produto-foto-upload input[type="file"]::file-selector-button{min-height:34px;margin-right:9px;padding:7px 11px;border:0;border-radius:9px;background:#19385f;color:#fff;font:inherit;font-weight:800;cursor:pointer}
         .produto-foto-upload input[type="file"]::-webkit-file-upload-button{min-height:34px;margin-right:9px;padding:7px 11px;border:0;border-radius:9px;background:#19385f;color:#fff;font:inherit;font-weight:800}
@@ -1590,6 +1623,9 @@
             .produto-foto-preview { width: 82px; }
             .produto-foto-status{margin-bottom:8px;font-size:.68rem;line-height:1.25}
             .produto-foto-upload input[type="file"]{font-size:.64rem!important}
+            .produto-foto-editor { margin-top:4px; padding:11px; }
+            .produto-foto-editor__controles { grid-template-columns:1fr; }
+            .produto-foto-editor__topo { align-items:center; }
         }
 
         /* Navegação dividida: rotina à esquerda e gestão à direita. */
@@ -7402,38 +7438,212 @@
             }
         }
 
-        function selecionarFotoProduto(prefixo, numero, input) {
+        const editoresFotosProduto = {};
+
+        function chaveEditorFotoProduto(prefixo, numero) {
+            return `${prefixo}-foto${numero}`;
+        }
+
+        function carregarImagemFotoProduto(url) {
+            return new Promise((resolve, reject) => {
+                const imagem = new Image();
+                imagem.onload = () => resolve(imagem);
+                imagem.onerror = () => reject(new Error('Não foi possível abrir esta imagem. Use JPG, PNG ou WebP.'));
+                imagem.src = url;
+            });
+        }
+
+        function obterEditorFotoProduto(prefixo, numero) {
+            const chave = chaveEditorFotoProduto(prefixo, numero);
+            const upload = document.getElementById(`${prefixo}-foto${numero}-arquivo`)?.closest('.produto-foto-upload');
+            if (!upload) return null;
+            let editor = upload.querySelector(`[data-foto-editor="${chave}"]`);
+            if (editor) return editor;
+            editor = document.createElement('section');
+            editor.className = 'produto-foto-editor';
+            editor.dataset.fotoEditor = chave;
+            editor.innerHTML = `
+                <div class="produto-foto-editor__topo">
+                    <div><b>Ajuste como a foto aparecerá no site</b><small>O enquadramento quadrado é o mesmo usado nos cards e na página do produto.</small></div>
+                    <span class="produto-foto-editor__proporcao">1 : 1</span>
+                </div>
+                <div class="produto-foto-editor__canvas-wrap"><canvas class="produto-foto-editor__canvas" width="600" height="600" aria-label="Prévia e área de enquadramento da foto"></canvas></div>
+                <div class="produto-foto-editor__controles">
+                    <label class="produto-foto-editor__controle"><span>Zoom</span><input data-foto-zoom type="range" min="0.5" max="3" step="0.01" value="1"><output data-foto-zoom-valor>100%</output></label>
+                    <label class="produto-foto-editor__controle"><span>Rotação</span><input data-foto-rotacao type="range" min="-180" max="180" step="1" value="0"><output data-foto-rotacao-valor>0°</output></label>
+                </div>
+                <div class="produto-foto-editor__acoes">
+                    <button type="button" data-girar-esquerda>↶ GIRAR 90°</button>
+                    <button type="button" data-girar-direita>↷ GIRAR 90°</button>
+                    <button type="button" data-centralizar>CENTRALIZAR</button>
+                    <button type="button" data-restaurar>RESTAURAR</button>
+                </div>
+                <p class="produto-foto-editor__dica">Arraste a imagem para reposicionar. O espaço ao redor representa o fundo do próprio site.</p>`;
+            upload.appendChild(editor);
+            editor.querySelector('[data-foto-zoom]').addEventListener('input', evento => alterarZoomEditorFotoProduto(prefixo, numero, evento.target.value));
+            editor.querySelector('[data-foto-rotacao]').addEventListener('input', evento => alterarRotacaoEditorFotoProduto(prefixo, numero, evento.target.value));
+            editor.querySelector('[data-girar-esquerda]').addEventListener('click', () => girarEditorFotoProduto(prefixo, numero, -90));
+            editor.querySelector('[data-girar-direita]').addEventListener('click', () => girarEditorFotoProduto(prefixo, numero, 90));
+            editor.querySelector('[data-centralizar]').addEventListener('click', () => centralizarEditorFotoProduto(prefixo, numero));
+            editor.querySelector('[data-restaurar]').addEventListener('click', () => restaurarEditorFotoProduto(prefixo, numero));
+            prepararArrasteEditorFotoProduto(prefixo, numero, editor.querySelector('canvas'));
+            return editor;
+        }
+
+        function desenharEstadoFotoProduto(estado, canvas) {
+            if (!estado?.imagem || !canvas) return;
+            const contexto = canvas.getContext('2d');
+            const larguraImagem = estado.imagem.naturalWidth;
+            const alturaImagem = estado.imagem.naturalHeight;
+            const radianos = Number(estado.rotacao || 0) * Math.PI / 180;
+            const cos = Math.abs(Math.cos(radianos));
+            const sin = Math.abs(Math.sin(radianos));
+            const limiteLargura = larguraImagem * cos + alturaImagem * sin;
+            const limiteAltura = larguraImagem * sin + alturaImagem * cos;
+            const escalaBase = Math.min(canvas.width / limiteLargura, canvas.height / limiteAltura) * .88;
+            const escala = escalaBase * Number(estado.zoom || 1);
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            contexto.save();
+            contexto.imageSmoothingEnabled = true;
+            contexto.imageSmoothingQuality = 'high';
+            contexto.translate(
+                canvas.width * (.5 + Number(estado.deslocamentoX || 0)),
+                canvas.height * (.5 + Number(estado.deslocamentoY || 0))
+            );
+            contexto.rotate(radianos);
+            contexto.drawImage(
+                estado.imagem,
+                -larguraImagem * escala / 2,
+                -alturaImagem * escala / 2,
+                larguraImagem * escala,
+                alturaImagem * escala
+            );
+            contexto.restore();
+        }
+
+        function desenharEditorFotoProduto(prefixo, numero) {
+            const chave = chaveEditorFotoProduto(prefixo, numero);
+            const estado = editoresFotosProduto[chave];
+            const editor = document.querySelector(`[data-foto-editor="${chave}"]`);
+            if (!estado || !editor) return;
+            desenharEstadoFotoProduto(estado, editor.querySelector('canvas'));
+            const zoom = editor.querySelector('[data-foto-zoom]');
+            const rotacao = editor.querySelector('[data-foto-rotacao]');
+            zoom.value = String(estado.zoom);
+            rotacao.value = String(estado.rotacao);
+            editor.querySelector('[data-foto-zoom-valor]').value = `${Math.round(estado.zoom * 100)}%`;
+            editor.querySelector('[data-foto-rotacao-valor]').value = `${Math.round(estado.rotacao)}°`;
+        }
+
+        function alterarZoomEditorFotoProduto(prefixo, numero, valor) {
+            const estado = editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)];
+            if (!estado) return;
+            estado.zoom = Math.max(.5, Math.min(3, Number(valor) || 1));
+            desenharEditorFotoProduto(prefixo, numero);
+        }
+
+        function alterarRotacaoEditorFotoProduto(prefixo, numero, valor) {
+            const estado = editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)];
+            if (!estado) return;
+            estado.rotacao = Math.max(-180, Math.min(180, Number(valor) || 0));
+            desenharEditorFotoProduto(prefixo, numero);
+        }
+
+        function girarEditorFotoProduto(prefixo, numero, graus) {
+            const estado = editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)];
+            if (!estado) return;
+            estado.rotacao = ((estado.rotacao + graus + 180) % 360 + 360) % 360 - 180;
+            desenharEditorFotoProduto(prefixo, numero);
+        }
+
+        function centralizarEditorFotoProduto(prefixo, numero) {
+            const estado = editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)];
+            if (!estado) return;
+            estado.deslocamentoX = 0;
+            estado.deslocamentoY = 0;
+            desenharEditorFotoProduto(prefixo, numero);
+        }
+
+        function restaurarEditorFotoProduto(prefixo, numero) {
+            const estado = editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)];
+            if (!estado) return;
+            Object.assign(estado, { zoom: 1, rotacao: 0, deslocamentoX: 0, deslocamentoY: 0 });
+            desenharEditorFotoProduto(prefixo, numero);
+        }
+
+        function prepararArrasteEditorFotoProduto(prefixo, numero, canvas) {
+            if (!canvas || canvas.dataset.dragConfigurado) return;
+            canvas.dataset.dragConfigurado = '1';
+            let anterior = null;
+            canvas.addEventListener('pointerdown', evento => {
+                if (!editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)]) return;
+                anterior = { x: evento.clientX, y: evento.clientY };
+                canvas.classList.add('is-dragging');
+                canvas.setPointerCapture(evento.pointerId);
+            });
+            canvas.addEventListener('pointermove', evento => {
+                const estado = editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)];
+                if (!anterior || !estado) return;
+                const rect = canvas.getBoundingClientRect();
+                estado.deslocamentoX = Math.max(-1.25, Math.min(1.25, estado.deslocamentoX + (evento.clientX - anterior.x) / rect.width));
+                estado.deslocamentoY = Math.max(-1.25, Math.min(1.25, estado.deslocamentoY + (evento.clientY - anterior.y) / rect.height));
+                anterior = { x: evento.clientX, y: evento.clientY };
+                desenharEditorFotoProduto(prefixo, numero);
+            });
+            const encerrar = () => { anterior = null; canvas.classList.remove('is-dragging'); };
+            canvas.addEventListener('pointerup', encerrar);
+            canvas.addEventListener('pointercancel', encerrar);
+        }
+
+        function limparEditorFotoProduto(prefixo, numero) {
+            const chave = chaveEditorFotoProduto(prefixo, numero);
+            const estado = editoresFotosProduto[chave];
+            if (estado?.url) URL.revokeObjectURL(estado.url);
+            delete editoresFotosProduto[chave];
+            document.querySelector(`[data-foto-editor="${chave}"]`)?.remove();
+        }
+
+        async function selecionarFotoProduto(prefixo, numero, input) {
             const arquivo = input?.files?.[0];
             if (!arquivo) return;
             if (!['image/jpeg', 'image/png', 'image/webp'].includes(arquivo.type)) {
                 input.value = '';
+                limparEditorFotoProduto(prefixo, numero);
                 return showToast('Escolha uma imagem JPG, PNG ou WebP.');
             }
             if (arquivo.size > 12 * 1024 * 1024) {
                 input.value = '';
+                limparEditorFotoProduto(prefixo, numero);
                 return showToast('A imagem original deve ter no máximo 12 MB.');
             }
-            const preview = document.getElementById(`${prefixo}-foto${numero}-preview`);
-            const status = document.getElementById(`${prefixo}-foto${numero}-status`);
-            if (preview) {
-                preview.src = URL.createObjectURL(arquivo);
-                preview.style.display = 'block';
-            }
-            if (status) {
-                status.textContent = 'Nova foto selecionada · será convertida para WebP';
-                status.classList.add('tem-foto');
+            const chave = chaveEditorFotoProduto(prefixo, numero);
+            try {
+                limparEditorFotoProduto(prefixo, numero);
+                const url = URL.createObjectURL(arquivo);
+                editoresFotosProduto[chave] = { arquivo, url, imagem: null, zoom: 1, rotacao: 0, deslocamentoX: 0, deslocamentoY: 0 };
+                const imagem = await carregarImagemFotoProduto(url);
+                editoresFotosProduto[chave].imagem = imagem;
+                const editor = obterEditorFotoProduto(prefixo, numero);
+                editor?.classList.add('is-active');
+                const preview = document.getElementById(`${prefixo}-foto${numero}-preview`);
+                const status = document.getElementById(`${prefixo}-foto${numero}-status`);
+                if (preview) { preview.src = url; preview.style.display = 'block'; }
+                if (status) {
+                    status.textContent = 'Nova foto selecionada · ajuste o enquadramento abaixo';
+                    status.classList.add('tem-foto');
+                }
+                desenharEditorFotoProduto(prefixo, numero);
+            } catch (error) {
+                input.value = '';
+                limparEditorFotoProduto(prefixo, numero);
+                showToast(error.message || error);
             }
         }
 
         async function converterFotoParaWebP(arquivo) {
             const url = URL.createObjectURL(arquivo);
             try {
-                const imagem = await new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = () => reject(new Error('Não foi possível abrir esta imagem. Use JPG, PNG ou WebP.'));
-                    img.src = url;
-                });
+                const imagem = await carregarImagemFotoProduto(url);
                 const limite = 1600;
                 const escala = Math.min(1, limite / Math.max(imagem.naturalWidth, imagem.naturalHeight));
                 const largura = Math.max(1, Math.round(imagem.naturalWidth * escala));
@@ -7451,12 +7661,34 @@
             }
         }
 
+        async function converterFotoProdutoParaWebP(arquivo, prefixo, numero) {
+            const estadoEditor = editoresFotosProduto[chaveEditorFotoProduto(prefixo, numero)];
+            let estado = estadoEditor?.arquivo === arquivo ? estadoEditor : null;
+            let urlTemporaria = '';
+            try {
+                if (!estado) {
+                    urlTemporaria = URL.createObjectURL(arquivo);
+                    estado = { arquivo, imagem: await carregarImagemFotoProduto(urlTemporaria), zoom: 1, rotacao: 0, deslocamentoX: 0, deslocamentoY: 0 };
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = 1600;
+                canvas.height = 1600;
+                desenharEstadoFotoProduto(estado, canvas);
+                return await new Promise((resolve, reject) => canvas.toBlob(
+                    blob => blob ? resolve(blob) : reject(new Error('Seu navegador não conseguiu converter a imagem para WebP.')),
+                    'image/webp', 0.9
+                ));
+            } finally {
+                if (urlTemporaria) URL.revokeObjectURL(urlTemporaria);
+            }
+        }
+
         async function enviarFotoProduto(prefixo, numero) {
             const arquivoInput = document.getElementById(`${prefixo}-foto${numero}-arquivo`);
             const urlInput = document.getElementById(`${prefixo}-foto${numero}`);
             const arquivo = arquivoInput?.files?.[0];
             if (!arquivo) return urlInput?.value?.trim() || '';
-            const webp = await converterFotoParaWebP(arquivo);
+            const webp = await converterFotoProdutoParaWebP(arquivo, prefixo, numero);
             const identificador = (crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`).replace(/[^a-z0-9-]/gi, '');
             const caminho = `${new Date().toISOString().slice(0, 10)}/${identificador}.webp`;
             const { error } = await db.storage.from(PRODUTO_IMAGENS_BUCKET).upload(caminho, webp, {
@@ -7470,6 +7702,7 @@
             if (!publica) throw new Error(`A foto ${numero} foi enviada, mas sua URL não foi gerada.`);
             if (urlInput) urlInput.value = publica;
             arquivoInput.value = '';
+            limparEditorFotoProduto(prefixo, numero);
             atualizarIndicadorFoto(prefixo, numero, publica);
             return publica;
         }
@@ -7508,6 +7741,8 @@
 
         function abrirEdicao(id, n, p, c, desc, teor, harm) {
             const produto = allProducts.find(item => String(item.id) === String(id)) || {};
+            limparEditorFotoProduto('edit', 1);
+            limparEditorFotoProduto('edit', 2);
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-nome').value = n;
             document.getElementById('edit-preco').value = p;
